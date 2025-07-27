@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		58CD8A9D2E368C20006A68FD /* Liquid in Frameworks */ = {isa = PBXBuildFile; productRef = 58CD8A9C2E368C20006A68FD /* Liquid */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		58E7B4CA2E347AF200713E9B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58CD8A9D2E368C20006A68FD /* Liquid in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,12 +77,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		58CD8A9B2E368C20006A68FD /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		58E7B4B32E347AF100713E9B = {
 			isa = PBXGroup;
 			children = (
 				58E7B4BE2E347AF100713E9B /* Control LLM */,
 				58E7B4CC2E347AF200713E9B /* Control LLMTests */,
 				58E7B4D62E347AF200713E9B /* Control LLMUITests */,
+				58CD8A9B2E368C20006A68FD /* Frameworks */,
 				58E7B4BD2E347AF100713E9B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,6 +125,7 @@
 			);
 			name = "Control LLM";
 			packageProductDependencies = (
+				58CD8A9C2E368C20006A68FD /* Liquid */,
 			);
 			productName = "Control LLM";
 			productReference = 58E7B4BC2E347AF100713E9B /* Control LLM.app */;
@@ -195,6 +209,9 @@
 			);
 			mainGroup = 58E7B4B32E347AF100713E9B;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				58CD8A9A2E368AB7006A68FD /* XCRemoteSwiftPackageReference "liquid" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 58E7B4BD2E347AF100713E9B /* Products */;
 			projectDirPath = "";
@@ -550,6 +567,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		58CD8A9A2E368AB7006A68FD /* XCRemoteSwiftPackageReference "liquid" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/maustinstar/liquid";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		58CD8A9C2E368C20006A68FD /* Liquid */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 58CD8A9A2E368AB7006A68FD /* XCRemoteSwiftPackageReference "liquid" */;
+			productName = Liquid;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 58E7B4B42E347AF100713E9B /* Project object */;
 }

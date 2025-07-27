@@ -10,22 +10,59 @@ struct CentralVisualizerView: View {
     var body: some View {
         ZStack {
             // Deep background wave layer - creates depth with Liquid
-            Liquid()
+            Liquid(samples:50, period: 3.0)
                 .frame(width: 400, height: 400)
                 .foregroundColor(Color(hex: "#5D0C14"))
-                .opacity(0.4)
+                .opacity(0.6)
                 .blur(radius: 30)
                 .offset(x: isAnimating ? sin(animationPhase * 0.5) * 8 : 0, 
                         y: isAnimating ? cos(animationPhase * 0.5) * 6 : 0)
             
             // Mid-depth wave layer - adds dimension with Liquid
-            Liquid(samples: 5)
+            Liquid(samples: 20)
                 .frame(width: 360, height: 360)
                 .foregroundColor(Color(hex: "#D20001"))
                 .opacity(0.3)
                 .blur(radius: 20)
                 .offset(x: isAnimating ? cos(animationPhase * 0.6) * 6 : 0, 
                         y: isAnimating ? sin(animationPhase * 0.6) * 4 : 0)
+            
+            // Irregular blob 1 - organic shape
+            Liquid(createIrregularPath1(), interpolate: 100, samples: 15, period: 5.0)
+                .frame(width: 280, height: 280)
+                .foregroundColor(Color(hex: "#FF00D0"))
+                .opacity(0.4)
+                .blur(radius: 15)
+                .offset(x: isAnimating ? sin(animationPhase * 0.7) * 10 : 0, 
+                        y: isAnimating ? cos(animationPhase * 0.7) * 8 : 0)
+            
+            // Irregular blob 2 - different organic shape
+            Liquid(createIrregularPath2(), interpolate: 120, samples: 18, period: 6.5)
+                .frame(width: 320, height: 320)
+                .foregroundColor(Color(hex: "#8B0000"))
+                .opacity(0.35)
+                .blur(radius: 18)
+                .offset(x: isAnimating ? cos(animationPhase * 0.8) * 12 : 0, 
+                        y: isAnimating ? sin(animationPhase * 0.8) * 6 : 0)
+            
+                            // Center irregular circular element with gradient and fluid motion
+                Liquid(createCenterIrregularPath(), interpolate: 150, samples: 25, period: 2.0)
+                .frame(width: 110, height: 110)
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [
+                            Color(hex: "#FF00D0"),
+                            Color(hex: "#D20001"),
+                            Color(hex: "#8B0000")
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .opacity(0.7)
+                .blur(radius: 8)
+                .offset(x: isAnimating ? sin(animationPhase * 0.9) * 6 : 0, 
+                        y: isAnimating ? cos(animationPhase * 0.9) * 4 : 0)
             
             // Asymmetrical outer energy field - multiple non-centered elements
                     ZStack {
@@ -341,6 +378,158 @@ struct CentralVisualizerView: View {
                     isAnimating = false
                 }
             }
+    
+    // MARK: - Helper Functions for Irregular Paths
+    
+    private func createIrregularPath1() -> CGPath {
+        let path = CGMutablePath()
+        
+        // Create an irregular blob-like shape
+        let center = CGPoint(x: 140, y: 140)
+        let radius = 120.0
+        
+        // Start at a random point
+        let startAngle = Double.random(in: 0...2 * .pi)
+        let startPoint = CGPoint(
+            x: center.x + radius * cos(startAngle),
+            y: center.y + radius * sin(startAngle)
+        )
+        
+        path.move(to: startPoint)
+        
+        // Create irregular curve with varying radius
+        let segments = 8
+        for i in 0..<segments {
+            let angle = startAngle + (2 * .pi * Double(i)) / Double(segments)
+            let nextAngle = startAngle + (2 * .pi * Double(i + 1)) / Double(segments)
+            
+            // Vary the radius for irregularity
+            let radiusVariation = Double.random(in: 0.7...1.3)
+            let currentRadius = radius * radiusVariation
+            
+            let controlPoint1 = CGPoint(
+                x: center.x + currentRadius * 1.2 * cos(angle + .pi/4),
+                y: center.y + currentRadius * 1.2 * sin(angle + .pi/4)
+            )
+            
+            let controlPoint2 = CGPoint(
+                x: center.x + currentRadius * 1.2 * cos(nextAngle - .pi/4),
+                y: center.y + currentRadius * 1.2 * sin(nextAngle - .pi/4)
+            )
+            
+            let endPoint = CGPoint(
+                x: center.x + currentRadius * cos(nextAngle),
+                y: center.y + currentRadius * sin(nextAngle)
+            )
+            
+            path.addCurve(to: endPoint, control1: controlPoint1, control2: controlPoint2)
+        }
+        
+        path.closeSubpath()
+        return path
+    }
+    
+    private func createIrregularPath2() -> CGPath {
+        let path = CGMutablePath()
+        
+        // Create a different irregular blob-like shape
+        let center = CGPoint(x: 160, y: 160)
+        let baseRadius = 140.0
+        
+        // Start at a different random point
+        let startAngle = Double.random(in: 0...2 * .pi)
+        let startPoint = CGPoint(
+            x: center.x + baseRadius * cos(startAngle),
+            y: center.y + baseRadius * sin(startAngle)
+        )
+        
+        path.move(to: startPoint)
+        
+        // Create more complex irregular curve
+        let segments = 10
+        for i in 0..<segments {
+            let angle = startAngle + (2 * .pi * Double(i)) / Double(segments)
+            let nextAngle = startAngle + (2 * .pi * Double(i + 1)) / Double(segments)
+            
+            // More dramatic radius variation
+            let radiusVariation = Double.random(in: 0.6...1.4)
+            let currentRadius = baseRadius * radiusVariation
+            
+            // Add some asymmetry
+            let asymmetry = Double.random(in: -0.3...0.3)
+            let controlPoint1 = CGPoint(
+                x: center.x + currentRadius * (1.1 + asymmetry) * cos(angle + .pi/3),
+                y: center.y + currentRadius * (1.1 - asymmetry) * sin(angle + .pi/3)
+            )
+            
+            let controlPoint2 = CGPoint(
+                x: center.x + currentRadius * (1.1 - asymmetry) * cos(nextAngle - .pi/3),
+                y: center.y + currentRadius * (1.1 + asymmetry) * sin(nextAngle - .pi/3)
+            )
+            
+            let endPoint = CGPoint(
+                x: center.x + currentRadius * cos(nextAngle),
+                y: center.y + currentRadius * sin(nextAngle)
+            )
+            
+            path.addCurve(to: endPoint, control1: controlPoint1, control2: controlPoint2)
+        }
+        
+        path.closeSubpath()
+        return path
+    }
+    
+    private func createCenterIrregularPath() -> CGPath {
+        let path = CGMutablePath()
+        
+        // Create a center irregular circular shape similar to ring size
+        let center = CGPoint(x: 55, y: 55)
+        let baseRadius = 45.0
+        
+        // Start at a random point
+        let startAngle = Double.random(in: 0...2 * .pi)
+        let startPoint = CGPoint(
+            x: center.x + baseRadius * cos(startAngle),
+            y: center.y + baseRadius * sin(startAngle)
+        )
+        
+        path.move(to: startPoint)
+        
+        // Create more subtle irregular curve with less dramatic variations
+        let segments = 8
+        for i in 0..<segments {
+            let angle = startAngle + (2 * .pi * Double(i)) / Double(segments)
+            let nextAngle = startAngle + (2 * .pi * Double(i + 1)) / Double(segments)
+            
+            // More subtle radius variation for center element
+            let radiusVariation = Double.random(in: 0.8...1.2)
+            let currentRadius = baseRadius * radiusVariation
+            
+            // Add subtle asymmetry and irregularity
+            let asymmetry1 = Double.random(in: -0.15...0.15)
+            let asymmetry2 = Double.random(in: -0.15...0.15)
+            
+            let controlPoint1 = CGPoint(
+                x: center.x + currentRadius * (1.1 + asymmetry1) * cos(angle + .pi/4),
+                y: center.y + currentRadius * (1.1 - asymmetry1) * sin(angle + .pi/4)
+            )
+            
+            let controlPoint2 = CGPoint(
+                x: center.x + currentRadius * (1.1 - asymmetry2) * cos(nextAngle - .pi/4),
+                y: center.y + currentRadius * (1.1 + asymmetry2) * sin(nextAngle - .pi/4)
+            )
+            
+            let endPoint = CGPoint(
+                x: center.x + currentRadius * cos(nextAngle),
+                y: center.y + currentRadius * sin(nextAngle)
+            )
+            
+            path.addCurve(to: endPoint, control1: controlPoint1, control2: controlPoint2)
+        }
+        
+        path.closeSubpath()
+        return path
+    }
 }
 
 #Preview {
