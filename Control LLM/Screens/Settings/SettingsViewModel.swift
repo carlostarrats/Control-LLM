@@ -1,0 +1,101 @@
+import Foundation
+import SwiftUI
+
+@MainActor
+class SettingsViewModel: ObservableObject {
+    @Published var selectedTab = 0
+    @Published var appSettings = AppSettings()
+    @Published var uiCustomization = UICustomization()
+    @Published var developerInfo = DeveloperInfo()
+    
+    init() {
+        loadSettings()
+    }
+    
+    private func loadSettings() {
+        // Load app settings
+        appSettings = AppSettings(
+            enableVoiceCommands: true,
+            autoTranscribe: true,
+            saveChatHistory: true,
+            maxHistoryItems: 100,
+            enableNotifications: true,
+            language: "English"
+        )
+        
+        // Load UI customization
+        uiCustomization = UICustomization(
+            primaryColor: .blue,
+            secondaryColor: .gray,
+            useDarkMode: false,
+            fontSize: .medium,
+            enableHapticFeedback: true,
+            enableAnimations: true
+        )
+        
+        // Load developer info
+        developerInfo = DeveloperInfo(
+            appVersion: "1.0.0",
+            buildNumber: "1",
+            lastUpdated: Date(),
+            apiEndpoint: "https://api.example.com",
+            debugMode: false,
+            logLevel: "Info"
+        )
+    }
+    
+    func saveSettings() {
+        // TODO: Implement settings persistence
+        print("Settings saved")
+    }
+    
+    func resetToDefaults() {
+        loadSettings()
+    }
+    
+    func exportSettings() {
+        // TODO: Implement settings export
+        print("Settings exported")
+    }
+}
+
+struct AppSettings {
+    var enableVoiceCommands: Bool = true
+    var autoTranscribe: Bool = true
+    var saveChatHistory: Bool = true
+    var maxHistoryItems: Int = 100
+    var enableNotifications: Bool = true
+    var language: String = "English"
+}
+
+struct UICustomization {
+    var primaryColor: Color = .blue
+    var secondaryColor: Color = .gray
+    var useDarkMode: Bool = false
+    var fontSize: FontSize = .medium
+    var enableHapticFeedback: Bool = true
+    var enableAnimations: Bool = true
+}
+
+struct DeveloperInfo {
+    var appVersion: String = "1.0.0"
+    var buildNumber: String = "1"
+    var lastUpdated: Date = Date()
+    var apiEndpoint: String = "https://api.example.com"
+    var debugMode: Bool = false
+    var logLevel: String = "Info"
+}
+
+enum FontSize: String, CaseIterable {
+    case small = "Small"
+    case medium = "Medium"
+    case large = "Large"
+    
+    var size: CGFloat {
+        switch self {
+        case .small: return 14
+        case .medium: return 16
+        case .large: return 18
+        }
+    }
+} 

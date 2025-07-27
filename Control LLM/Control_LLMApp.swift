@@ -11,7 +11,7 @@ import SwiftUI
 struct Control_LLMApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainView()
         }
     }
 }
