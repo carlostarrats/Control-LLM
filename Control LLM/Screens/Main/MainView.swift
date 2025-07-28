@@ -58,9 +58,27 @@ struct MainView: View {
                     DashedLineAboveText(text: "Manual Input")
                         .padding(.bottom, 8) // 8px spacing above text
                     
-                    NavigationButton(title: "Manual Input") {
+                    Button(action: {
                         showingTextModal = true
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "keyboard")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(Color(hex: "#B3B3B3"))
+                            
+                            Text("Manual Input")
+                                .font(.system(size: 16, weight: .medium, design: .monospaced))
+                                .foregroundColor(Color(hex: "#B3B3B3"))
+                                .lineSpacing(8) // 24px - 16px = 8px line spacing
+                                .tracking(0)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
                     }
+                    .buttonStyle(PlainButtonStyle())
+                    .accessibilityLabel("Manual Input")
+                    .scaleEffect(1.0)
+                    .animation(.easeInOut(duration: 0.1), value: true)
                 }
                 .padding(.bottom, 50)
                 .frame(maxWidth: .infinity) // Ensure full width for centering
@@ -98,14 +116,20 @@ struct DashedLineAboveText: View {
     let text: String
     
     var body: some View {
+        // Calculate total width including icon and spacing
+        let iconWidth: CGFloat = 14 // keyboard icon width
+        let spacing: CGFloat = 8 // spacing between icon and text
+        let extraPadding: CGFloat = 6 // small extra padding for visual balance
         let textWidth = textWidth(for: text)
+        let totalWidth = iconWidth + spacing + textWidth + extraPadding
+        
         let dashLength: CGFloat = 4
         let gapLength: CGFloat = 2
         let totalPatternLength = dashLength + gapLength
         
-        // Calculate how many complete patterns fit within the text width
-        let completePatterns = Int(textWidth / totalPatternLength)
-        let remainingWidth = textWidth - CGFloat(completePatterns) * totalPatternLength
+        // Calculate how many complete patterns fit within the total width
+        let completePatterns = Int(totalWidth / totalPatternLength)
+        let remainingWidth = totalWidth - CGFloat(completePatterns) * totalPatternLength
         
         Path { path in
             var currentX: CGFloat = 0
@@ -124,7 +148,7 @@ struct DashedLineAboveText: View {
             }
         }
         .stroke(Color(hex: "#B3B3B3"), lineWidth: 1)
-        .frame(width: textWidth, height: 1)
+        .frame(width: totalWidth, height: 1)
         .frame(maxWidth: .infinity, alignment: .center) // Center the dashed line
     }
     

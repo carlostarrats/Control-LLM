@@ -5,6 +5,10 @@ struct TextModalView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var messageText = ""
     
+    init(viewModel: MainViewModel) {
+        self.viewModel = viewModel
+    }
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -21,6 +25,7 @@ struct TextModalView: View {
                 // Input area
                 HStack {
                     TextField("Type your message...", text: $messageText, axis: .vertical)
+                        .font(.custom("IBMPlexMono", size: 16))
                         .textFieldStyle(.roundedBorder)
                         .lineLimit(1...4)
                     
@@ -33,13 +38,21 @@ struct TextModalView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Text Chat")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(Color.black, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Done") {
                         dismiss()
                     }
+                    .font(.custom("IBMPlexMono-Bold", size: 16))
+                }
+                
+                ToolbarItem(placement: .principal) {
+                    Text("Manual Input")
+                        .font(.custom("IBMPlexMono-Bold", size: 18))
+                        .foregroundColor(.primary)
                 }
             }
         }
@@ -65,6 +78,7 @@ struct MessageBubble: View {
             
             VStack(alignment: message.isUser ? .trailing : .leading, spacing: 4) {
                 Text(message.content)
+                    .font(.custom("IBMPlexMono", size: 16))
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
                     .background(message.isUser ? Color.blue : Color.gray.opacity(0.2))
@@ -72,7 +86,7 @@ struct MessageBubble: View {
                     .cornerRadius(18)
                 
                 Text(message.timestamp, style: .time)
-                    .font(.caption2)
+                    .font(.custom("IBMPlexMono", size: 12))
                     .foregroundColor(.secondary)
             }
             

@@ -5,6 +5,7 @@ struct CentralVisualizerView: View {
     @Binding var isSpeaking: Bool
     @State private var isAnimating = false
     @State private var animationPhase: Double = 0
+    @State private var continuousAnimationTimer: Timer?
 
     
     var body: some View {
@@ -27,42 +28,62 @@ struct CentralVisualizerView: View {
                 .offset(x: isAnimating ? cos(animationPhase * 0.6) * 6 : 0, 
                         y: isAnimating ? sin(animationPhase * 0.6) * 4 : 0)
             
-            // Irregular blob 1 - organic shape
-            Liquid(createIrregularPath1(), interpolate: 100, samples: 15, period: 5.0)
-                .frame(width: 280, height: 280)
-                .foregroundColor(Color(hex: "#FF00D0"))
-                .opacity(0.4)
-                .blur(radius: 15)
-                .offset(x: isAnimating ? sin(animationPhase * 0.7) * 10 : 0, 
-                        y: isAnimating ? cos(animationPhase * 0.7) * 8 : 0)
+            // Organic irregular ring 1 - Pink outer ring with distortion
+            Ellipse()
+                .fill(Color(hex: "#FF00D0").opacity(0.3))
+                .frame(width: 280 + sin(animationPhase * 1.2) * 32, 
+                       height: 280 + cos(animationPhase * 1.8) * 24)
+                .scaleEffect(1.0 + sin(animationPhase * 0.8) * 0.08)
+                .offset(x: sin(animationPhase * 1.0) * 6, y: cos(animationPhase * 1.0) * 5)
+                .blur(radius: 12)
+                .opacity(0.8)
             
-            // Irregular blob 2 - different organic shape
-            Liquid(createIrregularPath2(), interpolate: 120, samples: 18, period: 6.5)
-                .frame(width: 320, height: 320)
-                .foregroundColor(Color(hex: "#8B0000"))
-                .opacity(0.35)
-                .blur(radius: 18)
-                .offset(x: isAnimating ? cos(animationPhase * 0.8) * 12 : 0, 
-                        y: isAnimating ? sin(animationPhase * 0.8) * 6 : 0)
-            
-                            // Center irregular circular element with gradient and fluid motion
-                Liquid(createCenterIrregularPath(), interpolate: 150, samples: 25, period: 2.0)
-                .frame(width: 110, height: 110)
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [
-                            Color(hex: "#FF00D0"),
-                            Color(hex: "#D20001"),
-                            Color(hex: "#8B0000")
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+            // Organic irregular ring 2 - Red inner ring with distortion
+            Ellipse()
+                .fill(Color(hex: "#D20001").opacity(0.4))
+                .frame(width: 240 + cos(animationPhase * 1.5) * 28, 
+                       height: 240 + sin(animationPhase * 2.1) * 20)
+                .scaleEffect(1.0 + cos(animationPhase * 1.2) * 0.064)
+                .offset(x: cos(animationPhase * 1.3) * 5, y: sin(animationPhase * 1.3) * 3)
+                .blur(radius: 10)
                 .opacity(0.7)
-                .blur(radius: 8)
-                .offset(x: isAnimating ? sin(animationPhase * 0.9) * 6 : 0, 
-                        y: isAnimating ? cos(animationPhase * 0.9) * 4 : 0)
+            
+                                                        // Center organic motion - Dark ring with organic distortion
+                            Ellipse()
+                                .fill(Color(hex: "#2D0000").opacity(0.9))
+                                .frame(width: 80 + sin(animationPhase * 1.8) * 15, 
+                                       height: 80 + cos(animationPhase * 2.2) * 12)
+                                .scaleEffect(1.0 + sin(animationPhase * 2.5) * 0.3)
+                                .offset(x: sin(animationPhase * 2.0) * 8, y: cos(animationPhase * 2.0) * 6)
+                                .opacity(0.9)
+                                .blur(radius: 3)
+                            
+                            // Center organic motion - Gradient core with organic distortion
+                            Ellipse()
+                                .fill(
+                                    RadialGradient(
+                                        colors: [Color(hex: "#FF00D0"), Color(hex: "#8B0000"), Color.clear],
+                                        center: .center,
+                                        startRadius: 0,
+                                        endRadius: 50
+                                    )
+                                )
+                                .frame(width: 60 + cos(animationPhase * 2.1) * 10, 
+                                       height: 60 + sin(animationPhase * 1.9) * 8)
+                                .scaleEffect(1.0 + sin(animationPhase * 2.5) * 0.4)
+                                .offset(x: cos(animationPhase * 2.3) * 5, y: sin(animationPhase * 2.3) * 4)
+                                .opacity(0.7)
+                                .blur(radius: 6)
+                            
+                            // Additional organic motion - Middle ring with distortion
+                            Ellipse()
+                                .fill(Color(hex: "#FF00D0").opacity(0.5))
+                                .frame(width: 160 + sin(animationPhase * 2.0) * 20, 
+                                       height: 160 + cos(animationPhase * 1.6) * 16)
+                                .scaleEffect(1.0 + sin(animationPhase * 1.8) * 0.12)
+                                .offset(x: sin(animationPhase * 1.3) * 8, y: cos(animationPhase * 1.3) * 6)
+                                .blur(radius: 8)
+                                .opacity(0.6)
             
             // Asymmetrical outer energy field - multiple non-centered elements
                     ZStack {
@@ -83,8 +104,8 @@ struct CentralVisualizerView: View {
                             )
                             .frame(width: 320, height: 280)
                             .blur(radius: 12)
-                            .offset(x: isAnimating ? 15 + sin(animationPhase * 0.4) * 12 : 15, 
-                                    y: isAnimating ? -8 + cos(animationPhase * 0.4) * 8 : -8)
+                            .offset(x: isAnimating ? 8 + sin(animationPhase * 0.4) * 8 : 0, 
+                                    y: isAnimating ? -4 + cos(animationPhase * 0.4) * 4 : 0)
                             .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 0.8) * 0.08 : 1.0, anchor: .center)
                 
                                         // Secondary energy field - different shape and position
@@ -104,8 +125,8 @@ struct CentralVisualizerView: View {
                             )
                             .frame(width: 280, height: 320)
                             .blur(radius: 18)
-                            .offset(x: isAnimating ? -12 + cos(animationPhase * 0.5) * 10 : -12, 
-                                    y: isAnimating ? 10 + sin(animationPhase * 0.5) * 6 : 10)
+                            .offset(x: isAnimating ? -4 + cos(animationPhase * 0.5) * 4 : 0, 
+                                    y: isAnimating ? 4 + sin(animationPhase * 0.5) * 3 : 0)
                             .scaleEffect(isAnimating ? 1.0 + cos(animationPhase * 0.9) * 0.1 : 1.0, anchor: .center)
                 
                                         // Tertiary energy field - smaller, more intense
@@ -124,8 +145,8 @@ struct CentralVisualizerView: View {
                             )
                             .frame(width: 240, height: 260)
                             .blur(radius: 22)
-                            .offset(x: isAnimating ? 8 + sin(animationPhase * 0.6) * 8 : 8, 
-                                    y: isAnimating ? 15 + cos(animationPhase * 0.6) * 5 : 15)
+                            .offset(x: isAnimating ? 4 + sin(animationPhase * 0.6) * 4 : 0, 
+                                    y: isAnimating ? 8 + cos(animationPhase * 0.6) * 3 : 0)
                             .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 1.0) * 0.12 : 1.0, anchor: .center)
             }
             .blendMode(.screen)
@@ -167,8 +188,8 @@ struct CentralVisualizerView: View {
                             )
                             .frame(width: 200, height: 80)
                             .blur(radius: 8)
-                            .offset(x: isAnimating ? -20 + sin(animationPhase * 0.8) * 8 : -20, 
-                                    y: isAnimating ? -30 + cos(animationPhase * 0.8) * 5 : -30)
+                            .offset(x: isAnimating ? -2 + sin(animationPhase * 0.8) * 2 : 0, 
+                                    y: isAnimating ? -4 + cos(animationPhase * 0.8) * 2 : 0)
                             .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 1.2) * 0.15 : 1.0, anchor: .center)
                 
                                         // Energy tendril 2 - different orientation
@@ -186,8 +207,8 @@ struct CentralVisualizerView: View {
                             )
                             .frame(width: 160, height: 100)
                             .blur(radius: 10)
-                            .offset(x: isAnimating ? 25 + cos(animationPhase * 0.9) * 6 : 25, 
-                                    y: isAnimating ? 20 + sin(animationPhase * 0.9) * 4 : 20)
+                            .offset(x: isAnimating ? 12 + cos(animationPhase * 0.9) * 4 : 0, 
+                                    y: isAnimating ? 10 + sin(animationPhase * 0.9) * 3 : 0)
                             .scaleEffect(isAnimating ? 1.0 + cos(animationPhase * 1.3) * 0.18 : 1.0, anchor: .center)
                 
                                         // Energy tendril 3 - vertical orientation
@@ -205,8 +226,8 @@ struct CentralVisualizerView: View {
                             )
                             .frame(width: 60, height: 180)
                             .blur(radius: 12)
-                            .offset(x: isAnimating ? -15 + sin(animationPhase * 1.0) * 4 : -15, 
-                                    y: isAnimating ? 40 + cos(animationPhase * 1.0) * 3 : 40)
+                            .offset(x: isAnimating ? -6 + sin(animationPhase * 1.0) * 3 : 0, 
+                                    y: isAnimating ? 15 + cos(animationPhase * 1.0) * 2 : 0)
                             .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 1.4) * 0.2 : 1.0, anchor: .center)
             }
             .blendMode(.overlay)
@@ -247,29 +268,29 @@ struct CentralVisualizerView: View {
                                 ),
                                 lineWidth: 8
                             )
-                            .frame(width: 220, height: 200)
+                            .frame(width: 220 + sin(animationPhase * 1.1) * 12, height: 200 + cos(animationPhase * 1.6) * 10)
                             .blur(radius: 4)
-                            .offset(x: isAnimating ? 5 + sin(animationPhase * 0.9) * 5 : 5, 
-                                    y: isAnimating ? -3 + cos(animationPhase * 0.9) * 3 : -3)
-                            .rotationEffect(.degrees(isAnimating ? sin(animationPhase * 0.4) * 5 : 0))
+                            .offset(x: 5 + sin(animationPhase * 0.9) * 4, 
+                                    y: -3 + cos(animationPhase * 0.9) * 2)
+                            .rotationEffect(.degrees(sin(animationPhase * 0.4) * 4))
                 
                                         // Secondary ring - different distortion
                         Ellipse()
                             .stroke(Color(hex: "#FF00D0").opacity(0.6), lineWidth: 6)
-                            .frame(width: 200, height: 220)
+                            .frame(width: 200 + cos(animationPhase * 1.3) * 11, height: 220 + sin(animationPhase * 1.9) * 8)
                             .blur(radius: 6)
-                            .offset(x: isAnimating ? -3 + cos(animationPhase * 1.1) * 4 : -3, 
-                                    y: isAnimating ? 4 + sin(animationPhase * 1.1) * 3 : 4)
-                            .rotationEffect(.degrees(isAnimating ? cos(animationPhase * 0.6) * -10 : 0))
+                            .offset(x: -3 + cos(animationPhase * 1.1) * 3, 
+                                    y: 4 + sin(animationPhase * 1.1) * 2)
+                            .rotationEffect(.degrees(cos(animationPhase * 0.6) * -8))
                 
                                         // Tertiary ring - more distortion
                         Ellipse()
                             .stroke(Color(hex: "#D20001").opacity(0.5), lineWidth: 4)
-                            .frame(width: 240, height: 180)
+                            .frame(width: 240 + sin(animationPhase * 1.5) * 14, height: 180 + cos(animationPhase * 2.1) * 6)
                             .blur(radius: 8)
-                            .offset(x: isAnimating ? 2 + sin(animationPhase * 1.2) * 3 : 2, 
-                                    y: isAnimating ? 6 + cos(animationPhase * 1.2) * 2 : 6)
-                            .rotationEffect(.degrees(isAnimating ? sin(animationPhase * 0.8) * 8 : 0))
+                            .offset(x: 2 + sin(animationPhase * 1.2) * 2, 
+                                    y: 6 + cos(animationPhase * 1.2) * 2)
+                            .rotationEffect(.degrees(sin(animationPhase * 0.8) * 6))
             }
             
                                 // Core energy dot - irregular and pulsing
@@ -289,29 +310,29 @@ struct CentralVisualizerView: View {
                                     endRadius: 80
                                 )
                             )
-                            .frame(width: 140, height: 120)
+                            .frame(width: 140 + sin(animationPhase * 1.2) * 16, height: 120 + cos(animationPhase * 1.8) * 12)
                             .blur(radius: 25)
-                            .offset(x: isAnimating ? 3 + sin(animationPhase * 0.4) * 10 : 3, 
-                                    y: isAnimating ? -2 + cos(animationPhase * 0.6) * 8 : -2)
-                            .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 0.5) * 0.008 : 1.0, anchor: .center)
+                            .offset(x: 3 + sin(animationPhase * 0.4) * 8, 
+                                    y: -2 + cos(animationPhase * 0.6) * 6)
+                            .scaleEffect(1.0 + sin(animationPhase * 0.5) * 0.12, anchor: .center)
                 
                                         // Secondary core layer - different shape
                         Ellipse()
                             .fill(Color(hex: "#5D0C14").opacity(0.8))
-                            .frame(width: 120, height: 140)
+                            .frame(width: 120 + cos(animationPhase * 1.5) * 14, height: 140 + sin(animationPhase * 2.0) * 10)
                             .blur(radius: 35)
-                            .offset(x: isAnimating ? -2 + cos(animationPhase * 0.7) * 12 : -2, 
-                                    y: isAnimating ? 3 + sin(animationPhase * 0.6) * 10 : 3)
-                            .scaleEffect(isAnimating ? 1.0 + cos(animationPhase * 0.6) * 0.01 : 1.0, anchor: .center)
+                            .offset(x: -2 + cos(animationPhase * 0.7) * 10, 
+                                    y: 3 + sin(animationPhase * 0.6) * 8)
+                            .scaleEffect(1.0 + cos(animationPhase * 0.6) * 0.096, anchor: .center)
                 
                                         // Tertiary core layer - more irregular
                         Ellipse()
                             .fill(Color(hex: "#5D0C14").opacity(0.6))
-                            .frame(width: 130, height: 110)
+                            .frame(width: 130 + sin(animationPhase * 1.8) * 13, height: 110 + cos(animationPhase * 2.2) * 8)
                             .blur(radius: 45)
-                            .offset(x: isAnimating ? 1 + sin(animationPhase * 0.8) * 14 : 1, 
-                                    y: isAnimating ? 1 + cos(animationPhase * 0.7) * 12 : 1)
-                            .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 0.7) * 0.012 : 1.0, anchor: .center)
+                            .offset(x: 1 + sin(animationPhase * 0.8) * 11, 
+                                    y: 1 + cos(animationPhase * 0.7) * 10)
+                            .scaleEffect(1.0 + sin(animationPhase * 0.7) * 0.08, anchor: .center)
             }
             .overlay(
                 // Energy core texture - irregular pattern
@@ -336,7 +357,7 @@ struct CentralVisualizerView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .offset(x: isAnimating ? sin(animationPhase * 0.6) * 2 : 0, 
                         y: isAnimating ? cos(animationPhase * 0.6) * 1 : 0)
-        .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 0.4) * 0.008 : 1.0, anchor: .center)
+        .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 0.4) * 0.004 : 1.0, anchor: .center)
 
         .shadow(color: isAnimating ? Color(hex: "#FF00D0").opacity(0.6) : Color.clear, 
                 radius: isAnimating ? 20 + sin(animationPhase * 0.3) * 10 : 0)
@@ -355,8 +376,14 @@ struct CentralVisualizerView: View {
                     animationPhase = 1.0
                 }
             }
+            
+            // Start continuous animation timer
+            startContinuousAnimation()
         }
-        .onChange(of: isSpeaking) { newValue in
+        .onDisappear {
+            stopContinuousAnimation()
+        }
+        .onChange(of: isSpeaking) { _, newValue in
             if newValue {
                 startSpeechAnimation()
             } else {
@@ -378,6 +405,19 @@ struct CentralVisualizerView: View {
                     isAnimating = false
                 }
             }
+            
+                    // Function to start continuous animation timer
+        func startContinuousAnimation() {
+            continuousAnimationTimer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in
+                animationPhase += 0.04  // Reduced from 0.05 to 0.04 (20% slower)
+            }
+        }
+            
+            // Function to stop continuous animation timer
+            func stopContinuousAnimation() {
+                continuousAnimationTimer?.invalidate()
+                continuousAnimationTimer = nil
+            }
     
     // MARK: - Helper Functions for Irregular Paths
     
@@ -386,7 +426,7 @@ struct CentralVisualizerView: View {
         
         // Create an irregular blob-like shape
         let center = CGPoint(x: 140, y: 140)
-        let radius = 120.0
+        let radius = 85.0
         
         // Start at a random point
         let startAngle = Double.random(in: 0...2 * .pi)

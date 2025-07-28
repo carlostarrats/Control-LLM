@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		58CD8A9D2E368C20006A68FD /* Liquid in Frameworks */ = {isa = PBXBuildFile; productRef = 58CD8A9C2E368C20006A68FD /* Liquid */; };
+		58CD8B112E369FEE006A68FD /* IBMPlexMono-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 58CD8B102E369FEE006A68FD /* IBMPlexMono-Regular.otf */; };
+		58CD8B122E369FEE006A68FD /* IBMPlexMono-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 58CD8B0E2E369FEE006A68FD /* IBMPlexMono-Bold.otf */; };
+		58CD8B132E369FEE006A68FD /* IBMPlexMono-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 58CD8B0F2E369FEE006A68FD /* IBMPlexMono-Medium.otf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,6 +31,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		58CD8B0E2E369FEE006A68FD /* IBMPlexMono-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexMono-Bold.otf"; sourceTree = "<group>"; };
+		58CD8B0F2E369FEE006A68FD /* IBMPlexMono-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexMono-Medium.otf"; sourceTree = "<group>"; };
+		58CD8B102E369FEE006A68FD /* IBMPlexMono-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexMono-Regular.otf"; sourceTree = "<group>"; };
 		58E7B4BC2E347AF100713E9B /* Control LLM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Control LLM.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		58E7B4C92E347AF200713E9B /* Control LLMTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Control LLMTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		58E7B4D32E347AF200713E9B /* Control LLMUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Control LLMUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -87,6 +93,9 @@
 		58E7B4B32E347AF100713E9B = {
 			isa = PBXGroup;
 			children = (
+				58CD8B0E2E369FEE006A68FD /* IBMPlexMono-Bold.otf */,
+				58CD8B0F2E369FEE006A68FD /* IBMPlexMono-Medium.otf */,
+				58CD8B102E369FEE006A68FD /* IBMPlexMono-Regular.otf */,
 				58E7B4BE2E347AF100713E9B /* Control LLM */,
 				58E7B4CC2E347AF200713E9B /* Control LLMTests */,
 				58E7B4D62E347AF200713E9B /* Control LLMUITests */,
@@ -229,6 +238,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58CD8B112E369FEE006A68FD /* IBMPlexMono-Regular.otf in Resources */,
+				58CD8B122E369FEE006A68FD /* IBMPlexMono-Bold.otf in Resources */,
+				58CD8B132E369FEE006A68FD /* IBMPlexMono-Medium.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -419,6 +431,11 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIAppFonts = (
+					"IBMPlexMono-Regular.otf",
+					"IBMPlexMono-Medium.otf",
+					"IBMPlexMono-Bold.otf",
+				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -446,6 +463,11 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIAppFonts = (
+					"IBMPlexMono-Regular.otf",
+					"IBMPlexMono-Medium.otf",
+					"IBMPlexMono-Bold.otf",
+				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
