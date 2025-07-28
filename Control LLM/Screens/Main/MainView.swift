@@ -85,7 +85,7 @@ struct MainView: View {
             }
         }
         .sheet(isPresented: $showingTextModal) {
-            TextModalView(viewModel: viewModel)
+            TextModalView(viewModel: viewModel, isPresented: $showingTextModal)
         }
         
     }
