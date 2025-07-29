@@ -18,11 +18,11 @@ struct MainView: View {
             // Background gradient - changes to light grey when activated
             LinearGradient(
                 colors: isActivated ? [
-                    Color(hex: "#777777"),  // Darker grey at top
-                    Color(hex: "#888888")   // Lighter grey at bottom
+                    Color(hex: "#888888"),  // Darker grey at top
+                    Color(hex: "#777777")   // Lighter grey at bottom
                 ] : [
-                    Color(hex: "#2A2A2A"),  // Darker color at top
-                    Color(hex: "#141414")   // Lighter color at bottom
+                    Color(hex: "#141414"),  // Darker color at top
+                    Color(hex: "#1D1D1D")   // Lighter color at bottom
                 ],
                 startPoint: .top,
                 endPoint: .bottom
