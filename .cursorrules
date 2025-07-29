@@ -8,6 +8,11 @@
 - Test builds before confirming to the user that the action is completed to the user's request
 - Test builds before suggesting commits
 - Ask for confirmation before making large changes
+- Do not propose committing a branch after making changes - let the user decide when to commit git changes
+- Before confirming a fix to the user, always double-check your changes against the original request. Ensure the issue is fully resolved and your solution directly addresses the problem.
+- When implementing visual effects, test each step incrementally and verify the effect works before adding complexity. Do not add multiple effects simultaneously.
+- If a user says something is "good" or "working," do not change or remove that functionality. Only add to it or modify the specific part they want changed.
+- Before making any change, explicitly state what you are about to do and why, then wait for confirmation.
 
 ## Code Style & Patterns
 - Follow existing SwiftUI patterns in the codebase

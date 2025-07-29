@@ -3,85 +3,117 @@ import SwiftUI
 struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
     @State private var showingTextModal = false
+    @State private var isChatMode = false
+    @State private var blobScale: CGFloat = 1.0
+    @State private var textOpacity: Double = 1.0
+    @State private var manualInputButtonScale: CGFloat = 1.0
+    @State private var manualInputButtonRotation: Double = 0
+    @State private var chatModeTimer: Timer?
+    @State private var isActivated: Bool = false
+    @State private var backgroundOpacity: Double = 1.0
+    @State private var blobColorOpacity: Double = 1.0
     
     var body: some View {
         ZStack {
-            // Background gradient
+            // Background gradient - changes to light grey when activated
             LinearGradient(
-                colors: [
-                    Color(hex: "#141414"),
-                    Color(hex: "#2A2A2A")
+                colors: isActivated ? [
+                    Color(hex: "#777777"),  // Darker grey at top
+                    Color(hex: "#888888")   // Lighter grey at bottom
+                ] : [
+                    Color(hex: "#2A2A2A"),  // Darker color at top
+                    Color(hex: "#141414")   // Lighter color at bottom
                 ],
                 startPoint: .top,
                 endPoint: .bottom
             )
             .ignoresSafeArea()
+            .animation(.easeInOut(duration: 0.8), value: isActivated)
             
-            VStack(spacing: 0) {
+            // Main content
+            ZStack {
                 // Top navigation buttons
-                HStack {
-                    NavigationButton(title: "History") {
-                        print("History tapped")
-                    }
-                    
-                    Spacer()
-                    
-                    NavigationButton(title: "Model") {
-                        print("Model tapped")
-                    }
-                    
-                    Spacer()
-                    
-                    NavigationButton(title: "Setting") {
-                        print("Setting tapped")
-                    }
-                }
-                .padding(.top, 20)
-                .padding(.horizontal, 20)
-                
-                Spacer()
-                
-                                        // Central visual design element
-                        CentralVisualizerView(isSpeaking: $viewModel.isSpeaking)
-                            .frame(width: 253, height: 253)
-                            .onTapGesture {
-                                viewModel.toggleRecording()
-                            }
-                            .accessibilityLabel("Voice recording button")
-                            .accessibilityHint("Double tap to start or stop voice recording")
-                
-                Spacer()
-                
-                // Bottom manual input button
-                VStack(spacing: 0) {
-                    // Dashed line above the text
-                    DashedLineAboveText(text: "Manual Input")
-                        .padding(.bottom, 8) // 8px spacing above text
-                    
-                    Button(action: {
-                        showingTextModal = true
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "keyboard")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(Color(hex: "#B3B3B3"))
-                            
-                            Text("Manual Input")
-                                .font(.system(size: 16, weight: .medium, design: .monospaced))
-                                .foregroundColor(Color(hex: "#B3B3B3"))
-                                .lineSpacing(8) // 24px - 16px = 8px line spacing
-                                .tracking(0)
+                VStack {
+                    HStack {
+                        NavigationButton(title: "History") {
+                            print("History tapped")
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
+                        
+                        Spacer()
+                        
+                        NavigationButton(title: "Model") {
+                            print("Model tapped")
+                        }
+                        
+                        Spacer()
+                        
+                        NavigationButton(title: "Setting") {
+                            print("Setting tapped")
+                        }
                     }
-                    .buttonStyle(PlainButtonStyle())
-                    .accessibilityLabel("Manual Input")
-                    .scaleEffect(1.0)
-                    .animation(.easeInOut(duration: 0.1), value: true)
+                    .padding(.top, 20)
+                    .padding(.horizontal, 20)
+                    .opacity(textOpacity)
+                    .animation(.easeInOut(duration: 0.6), value: textOpacity)
+                    
+                    Spacer()
                 }
-                .padding(.bottom, 50)
-                .frame(maxWidth: .infinity) // Ensure full width for centering
+                
+                // Central visual design element - fixed center position
+                CentralVisualizerView(isSpeaking: $viewModel.isSpeaking, isActivated: isActivated)
+                    .frame(width: 253, height: 253)
+                    .scaleEffect(blobScale)
+                    .allowsHitTesting(false) // Completely disable hit testing
+                    .overlay(
+                        Rectangle()
+                            .fill(Color.clear)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                handleBlobTap()
+                            }
+                    )
+                    .accessibilityLabel("Voice recording button")
+                    .accessibilityHint("Double tap to start or stop voice recording")
+                    .opacity(blobColorOpacity)
+                    .animation(.easeInOut(duration: 0.8), value: blobColorOpacity)
+                
+                // Bottom manual input button - only show when not in chat mode and not activated
+                VStack {
+                    Spacer()
+                    
+                    if !isChatMode && !isActivated {
+                        VStack(spacing: 0) {
+                            // Dashed line above the text
+                            DashedLineAboveText(text: "Manual Input")
+                                .padding(.bottom, 8) // 8px spacing above text
+                                .opacity(textOpacity)
+                            
+                            Button(action: {
+                                showingTextModal = true
+                            }) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "keyboard")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(Color(hex: "#B3B3B3"))
+                                    
+                                    Text("Manual Input")
+                                        .font(.system(size: 16, weight: .medium, design: .monospaced))
+                                        .foregroundColor(Color(hex: "#B3B3B3"))
+                                        .lineSpacing(8) // 24px - 16px = 8px line spacing
+                                        .tracking(0)
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .accessibilityLabel("Manual Input")
+                            .scaleEffect(manualInputButtonScale)
+                            .animation(.easeInOut(duration: 0.1), value: true)
+                        }
+                        .padding(.bottom, 50)
+                        .frame(maxWidth: .infinity) // Ensure full width for centering
+                    }
+                }
             }
         }
         .sheet(isPresented: $showingTextModal) {
@@ -89,7 +121,67 @@ struct MainView: View {
         }
         
     }
+    
+    private func activateChatMode() {
+        withAnimation(.easeInOut(duration: 0.6)) {
+            isChatMode = true
+            textOpacity = 0.3 // Fade text but don't disappear
+        }
+        
+        // Transform manual input button to X
+        withAnimation(.easeInOut(duration: 0.4).delay(0.2)) {
+            manualInputButtonScale = 0.8
+            manualInputButtonRotation = 90
+        }
+        
+        // Start the timer to deactivate chat mode after 3 seconds
+        chatModeTimer?.invalidate() // Invalidate any existing timer
+        chatModeTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
+            self.deactivateChatMode()
+        }
+    }
+    
+    private func deactivateChatMode() {
+        withAnimation(.easeInOut(duration: 0.6)) {
+            isChatMode = false
+            textOpacity = 1.0
+            manualInputButtonScale = 1.0
+            manualInputButtonRotation = 0
+        }
+        chatModeTimer?.invalidate() // Invalidate the timer
+    }
+    
+    private func handleBlobTap() {
+        if !isActivated && !isChatMode {
+            // Trigger "control" activation sequence
+            activateControlSequence()
+        }
+    }
+    
+    private func activateControlSequence() {
+        print("🔥 CONTROL ACTIVATED - Starting activation sequence")
+        
+        // Start activation sequence
+        withAnimation(.easeInOut(duration: 0.8)) {
+            isActivated = true
+            textOpacity = 0.0 // Fade all text away
+            blobColorOpacity = 1.0 // Keep blob fully visible
+        }
+        
+        // Return to normal state after 3 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            print("🔥 CONTROL SEQUENCE COMPLETE - Returning to normal state")
+            
+            withAnimation(.easeInOut(duration: 0.8)) {
+                isActivated = false
+                textOpacity = 1.0 // Restore text
+                blobColorOpacity = 1.0 // Restore blob colors
+            }
+        }
+    }
 }
+
+
 
 struct NavigationButton: View {
     let title: String
