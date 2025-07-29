@@ -12,15 +12,15 @@ struct MainView: View {
     @State private var isActivated: Bool = false
     @State private var backgroundOpacity: Double = 1.0
     @State private var blobColorOpacity: Double = 1.0
+    @State private var hueShift: Double = 0.90 // 0.90 = current configuration
+    @State private var saturationLevel: Double = 0.12 // 0.12 = current configuration
+    @State private var brightnessLevel: Double = 0.3 // 0.3 = 30% brightness for non-active state
     
     var body: some View {
         ZStack {
-            // Background gradient - changes to light grey when activated
+            // Background gradient - stays dark
             LinearGradient(
-                colors: isActivated ? [
-                    Color(hex: "#888888"),  // Darker grey at top
-                    Color(hex: "#777777")   // Lighter grey at bottom
-                ] : [
+                colors: [
                     Color(hex: "#141414"),  // Darker color at top
                     Color(hex: "#1D1D1D")   // Lighter color at bottom
                 ],
@@ -28,91 +28,92 @@ struct MainView: View {
                 endPoint: .bottom
             )
             .ignoresSafeArea()
-            .animation(.easeInOut(duration: 0.8), value: isActivated)
             
             // Main content
             ZStack {
                 // Top navigation buttons
                 VStack {
-                    HStack {
-                        NavigationButton(title: "History") {
-                            print("History tapped")
-                        }
-                        
-                        Spacer()
-                        
-                        NavigationButton(title: "Model") {
-                            print("Model tapped")
-                        }
-                        
-                        Spacer()
-                        
-                        NavigationButton(title: "Setting") {
-                            print("Setting tapped")
-                        }
+                HStack {
+                    NavigationButton(title: "History") {
+                        print("History tapped")
                     }
-                    .padding(.top, 20)
-                    .padding(.horizontal, 20)
-                    .opacity(textOpacity)
-                    .animation(.easeInOut(duration: 0.6), value: textOpacity)
                     
                     Spacer()
+                    
+                    NavigationButton(title: "Model") {
+                        print("Model tapped")
+                    }
+                    
+                    Spacer()
+                    
+                    NavigationButton(title: "Setting") {
+                        print("Setting tapped")
+                    }
+                }
+                .padding(.top, 20)
+                .padding(.horizontal, 20)
+                .opacity(textOpacity)
+                    .animation(.easeInOut(duration: 0.6), value: textOpacity)
+                
+                Spacer()
                 }
                 
                 // Central visual design element - fixed center position
-                CentralVisualizerView(isSpeaking: $viewModel.isSpeaking, isActivated: isActivated)
-                    .frame(width: 253, height: 253)
-                    .scaleEffect(blobScale)
+                CentralVisualizerView(isSpeaking: $viewModel.isSpeaking, hueShift: hueShift, saturationLevel: saturationLevel, brightnessLevel: brightnessLevel)
+                        .frame(width: 253, height: 253)
+                        .scaleEffect(blobScale)
                     .allowsHitTesting(false) // Completely disable hit testing
                     .overlay(
                         Rectangle()
                             .fill(Color.clear)
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                handleBlobTap()
-                            }
+                    handleBlobTap()
+                }
                     )
-                    .accessibilityLabel("Voice recording button")
-                    .accessibilityHint("Double tap to start or stop voice recording")
+                        .accessibilityLabel("Voice recording button")
+                        .accessibilityHint("Double tap to start or stop voice recording")
                     .opacity(blobColorOpacity)
                     .animation(.easeInOut(duration: 0.8), value: blobColorOpacity)
                 
+
+                
                 // Bottom manual input button - only show when not in chat mode and not activated
                 VStack {
-                    Spacer()
-                    
+                Spacer()
+                
                     if !isChatMode && !isActivated {
-                        VStack(spacing: 0) {
-                            // Dashed line above the text
-                            DashedLineAboveText(text: "Manual Input")
-                                .padding(.bottom, 8) // 8px spacing above text
-                                .opacity(textOpacity)
+                VStack(spacing: 0) {
+                    // Dashed line above the text
+                    DashedLineAboveText(text: "Manual Input")
+                        .padding(.bottom, 8) // 8px spacing above text
+                        .opacity(textOpacity)
+                    
+                    Button(action: {
+                            showingTextModal = true
+                    }) {
+                        HStack(spacing: 8) {
+                                Image(systemName: "keyboard")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(Color(hex: "#B3B3B3"))
                             
-                            Button(action: {
-                                showingTextModal = true
-                            }) {
-                                HStack(spacing: 8) {
-                                    Image(systemName: "keyboard")
-                                        .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(Color(hex: "#B3B3B3"))
-                                    
                                     Text("Manual Input")
-                                        .font(.system(size: 16, weight: .medium, design: .monospaced))
-                                        .foregroundColor(Color(hex: "#B3B3B3"))
-                                        .lineSpacing(8) // 24px - 16px = 8px line spacing
-                                        .tracking(0)
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .accessibilityLabel("Manual Input")
-                            .scaleEffect(manualInputButtonScale)
-                            .animation(.easeInOut(duration: 0.1), value: true)
+                                .font(.system(size: 16, weight: .medium, design: .monospaced))
+                                .foregroundColor(Color(hex: "#B3B3B3"))
+                                .lineSpacing(8) // 24px - 16px = 8px line spacing
+                                .tracking(0)
                         }
-                        .padding(.bottom, 50)
-                        .frame(maxWidth: .infinity) // Ensure full width for centering
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
                     }
+                    .buttonStyle(PlainButtonStyle())
+                            .accessibilityLabel("Manual Input")
+                    .scaleEffect(manualInputButtonScale)
+                    .animation(.easeInOut(duration: 0.1), value: true)
+                }
+                .padding(.bottom, 50)
+                .frame(maxWidth: .infinity) // Ensure full width for centering
+            }
                 }
             }
         }
@@ -166,6 +167,11 @@ struct MainView: View {
             isActivated = true
             textOpacity = 0.0 // Fade all text away
             blobColorOpacity = 1.0 // Keep blob fully visible
+            
+            // Set activated state values (copy of main state but full brightness)
+            hueShift = 0.90
+            saturationLevel = 0.12
+            brightnessLevel = 1.0
         }
         
         // Return to normal state after 3 seconds
@@ -176,6 +182,9 @@ struct MainView: View {
                 isActivated = false
                 textOpacity = 1.0 // Restore text
                 blobColorOpacity = 1.0 // Restore blob colors
+                
+                // Reset to non-active state values (same colors but dimmed)
+                brightnessLevel = 0.3
             }
         }
     }

@@ -6,9 +6,43 @@ struct CentralVisualizerView: View {
     @State private var isAnimating = false
     @State private var animationPhase: Double = 0
     @State private var continuousAnimationTimer: Timer?
-    var isActivated: Bool = false
+    var hueShift: Double = 0.0 // 0.0 = original, 1.0 = full spectrum rotation
+    var saturationLevel: Double = 1.0 // 1.0 = full saturation, 0.0 = black and white
+    var brightnessLevel: Double = 1.0 // 1.0 = full brightness, 0.0 = black
 
     var onTap: (() -> Void)?
+    
+    // Helper function to apply hue shift, saturation, and brightness to a color
+    private func applyHueShift(to color: Color) -> Color {
+        if hueShift == 0.0 && saturationLevel == 1.0 && brightnessLevel == 1.0 {
+            return color // No shift
+        } else {
+            // Apply hue rotation, saturation, and brightness using HSB color space
+            let uiColor = UIColor(color)
+            var hue: CGFloat = 0
+            var saturation: CGFloat = 0
+            var brightness: CGFloat = 0
+            var alpha: CGFloat = 0
+            
+            uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+            
+            // Rotate hue by the shift amount (0.0 to 1.0 maps to 0° to 360°)
+            let newHue = (hue + hueShift).truncatingRemainder(dividingBy: 1.0)
+            
+            // Apply saturation level (1.0 = full saturation, 0.0 = black and white)
+            let newSaturation = saturation * saturationLevel
+            
+            // Apply brightness level (1.0 = full brightness, 0.0 = black)
+            let newBrightness = brightness * brightnessLevel
+            
+            return Color(hue: newHue, saturation: newSaturation, brightness: newBrightness, opacity: alpha)
+        }
+    }
+    
+    // Helper function to apply hue shift to an array of colors
+    private func applyHueShift(to colors: [Color]) -> [Color] {
+        return colors.map { applyHueShift(to: $0) }
+    }
 
     var body: some View {
         ZStack {
@@ -16,7 +50,7 @@ struct CentralVisualizerView: View {
             // Deep background wave layer - creates depth with Liquid
             Liquid(samples:50, period: 3.0)
                 .frame(width: 400, height: 400)
-                .foregroundColor(isActivated ? Color(hex: "#3c3c3c") : Color(hex: "#5D0C14"))
+                .foregroundColor(applyHueShift(to: Color(hex: "#5D0C14")))
                 .opacity(0.6)
                 .blur(radius: 30)
                 .offset(x: isAnimating ? sin(animationPhase * 0.5) * 8 : 0, 
@@ -25,7 +59,7 @@ struct CentralVisualizerView: View {
             // Mid-depth wave layer - adds dimension with Liquid
             Liquid(samples: 20)
                 .frame(width: 360, height: 360)
-                .foregroundColor(isActivated ? Color(hex: "#3c3c3c") : Color(hex: "#D20001"))
+                .foregroundColor(applyHueShift(to: Color(hex: "#D20001")))
                 .opacity(0.3)
                 .blur(radius: 20)
                 .offset(x: isAnimating ? cos(animationPhase * 0.6) * 6 : 0, 
@@ -33,7 +67,7 @@ struct CentralVisualizerView: View {
             
             // Organic irregular ring 1 - Pink outer ring
             Ellipse()
-                .fill(isActivated ? Color(hex: "#1a1a1a") : Color(hex: "#FF00D0"))
+                .fill(applyHueShift(to: Color(hex: "#FF00D0")))
                 .frame(width: 280 + sin(animationPhase * 1.2) * 32,
                        height: 280 + cos(animationPhase * 1.8) * 24)
                 .scaleEffect(1.0 + sin(animationPhase * 0.8) * 0.08)
@@ -44,7 +78,7 @@ struct CentralVisualizerView: View {
             
             // Organic irregular ring 2 - Red inner ring with ripple distortion
             Ellipse()
-                .fill(isActivated ? Color(hex: "#525252") : Color(hex: "#D20001"))
+                .fill(applyHueShift(to: Color(hex: "#D20001")))
                 .frame(width: 240 + cos(animationPhase * 1.5) * 28, 
                        height: 240 + sin(animationPhase * 2.1) * 20)
                 .scaleEffect(1.0 + cos(animationPhase * 1.2) * 0.064)
@@ -55,7 +89,7 @@ struct CentralVisualizerView: View {
             
             // Center organic motion - Dark ring with organic distortion
             Ellipse()
-                .fill(isActivated ? Color(hex: "#1a1a1a") : Color(hex: "#2D0000"))
+                .fill(applyHueShift(to: Color(hex: "#2D0000")))
                 .frame(width: 80 + sin(animationPhase * 1.8) * 15, 
                        height: 80 + cos(animationPhase * 2.2) * 12)
                 .scaleEffect(1.0 + sin(animationPhase * 2.5) * 0.3)
@@ -67,15 +101,11 @@ struct CentralVisualizerView: View {
             Ellipse()
                 .fill(
                     RadialGradient(
-                        colors: isActivated ? [
-                            Color(hex: "#000000"), 
-                            Color(hex: "#3c3c3c"), 
-                            Color.clear
-                        ] : [
+                        colors: applyHueShift(to: [
                             Color(hex: "#FF00D0"), 
                             Color(hex: "#8B0000"), 
                             Color.clear
-                        ],
+                        ]),
                         center: .center,
                         startRadius: 0,
                         endRadius: 50
@@ -90,7 +120,7 @@ struct CentralVisualizerView: View {
             
             // Additional organic motion - Middle ring with distortion
             Ellipse()
-                .fill(isActivated ? Color(hex: "#000000") : Color(hex: "#FF00D0"))
+                .fill(applyHueShift(to: Color(hex: "#FF00D0")))
                 .frame(width: 160 + sin(animationPhase * 2.0) * 20, 
                        height: 160 + cos(animationPhase * 1.6) * 16)
                 .scaleEffect(1.0 + sin(animationPhase * 1.8) * 0.12)
@@ -104,17 +134,12 @@ struct CentralVisualizerView: View {
                 Ellipse()
                     .fill(
                         RadialGradient(
-                            colors: isActivated ? [
-                                Color(hex: "#3c3c3c").opacity(0.9),
-                                Color(hex: "#b8b8b8").opacity(0.7),
-                                Color(hex: "#000000").opacity(0.5),
-                                Color.clear
-                            ] : [
+                            colors: applyHueShift(to: [
                                 Color(hex: "#FF00D0").opacity(0.9),
                                 Color(hex: "#D20001").opacity(0.7),
                                 Color(hex: "#8B0000").opacity(0.5),
                                 Color.clear
-                            ],
+                            ]),
                             center: UnitPoint(x: 0.4, y: 0.3), // Off-center
                             startRadius: 60,
                             endRadius: 180
@@ -130,17 +155,12 @@ struct CentralVisualizerView: View {
                 Ellipse()
                     .fill(
                         RadialGradient(
-                            colors: isActivated ? [
-                                Color(hex: "#3c3c3c").opacity(0.8),
-                                Color(hex: "#b8b8b8").opacity(0.6),
-                                Color(hex: "#000000").opacity(0.4),
-                                Color.clear
-                            ] : [
+                            colors: applyHueShift(to: [
                                 Color(hex: "#FF00D0").opacity(0.8),
                                 Color(hex: "#D20001").opacity(0.6),
                                 Color(hex: "#8B0000").opacity(0.4),
                                 Color.clear
-                            ],
+                            ]),
                             center: UnitPoint(x: 0.6, y: 0.7), // Opposite corner
                             startRadius: 50,
                             endRadius: 160
@@ -156,15 +176,11 @@ struct CentralVisualizerView: View {
                 Ellipse()
                     .fill(
                         RadialGradient(
-                            colors: isActivated ? [
-                                Color(hex: "#3c3c3c").opacity(0.7),
-                                Color(hex: "#1a1a1a").opacity(0.5),
-                                Color.clear
-                            ] : [
+                            colors: applyHueShift(to: [
                                 Color(hex: "#FF00D0").opacity(0.7),
                                 Color(hex: "#D20001").opacity(0.5),
                                 Color.clear
-                            ],
+                            ]),
                             center: UnitPoint(x: 0.2, y: 0.8), // Bottom left
                             startRadius: 30,
                             endRadius: 120
@@ -182,15 +198,11 @@ struct CentralVisualizerView: View {
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: isActivated ? [
-                            Color(hex: "#3c3c3c").opacity(0.2),
-                            Color(hex: "#1a1a1a").opacity(0.1),
-                            Color.clear
-                        ] : [
+                        colors: applyHueShift(to: [
                             Color(hex: "#FF00D0").opacity(0.2),
                             Color(hex: "#D20001").opacity(0.1),
                             Color.clear
-                        ],
+                        ]),
                         center: UnitPoint(x: 0.3, y: 0.6),
                         startRadius: 0,
                         endRadius: 160
@@ -208,15 +220,11 @@ struct CentralVisualizerView: View {
                 Ellipse()
                     .fill(
                         LinearGradient(
-                            colors: isActivated ? [
-                                Color(hex: "#3c3c3c").opacity(0.6),
-                                Color(hex: "#1a1a1a").opacity(0.4),
-                                Color.clear
-                            ] : [
+                            colors: applyHueShift(to: [
                                 Color(hex: "#FF00D0").opacity(0.6),
                                 Color(hex: "#D20001").opacity(0.4),
                                 Color.clear
-                            ],
+                            ]),
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -231,15 +239,11 @@ struct CentralVisualizerView: View {
                 Ellipse()
                     .fill(
                         LinearGradient(
-                            colors: isActivated ? [
-                                Color(hex: "#3c3c3c").opacity(0.5),
-                                Color(hex: "#1a1a1a").opacity(0.3),
-                                Color.clear
-                            ] : [
+                            colors: applyHueShift(to: [
                                 Color(hex: "#FF00D0").opacity(0.5),
                                 Color(hex: "#D20001").opacity(0.3),
                                 Color.clear
-                            ],
+                            ]),
                             startPoint: .topTrailing,
                             endPoint: .bottomLeading
                         )
@@ -254,15 +258,11 @@ struct CentralVisualizerView: View {
                 Ellipse()
                     .fill(
                         LinearGradient(
-                            colors: isActivated ? [
-                                Color(hex: "#3c3c3c").opacity(0.4),
-                                Color(hex: "#1a1a1a").opacity(0.2),
-                                Color.clear
-                            ] : [
+                            colors: applyHueShift(to: [
                                 Color(hex: "#FF00D0").opacity(0.4),
                                 Color(hex: "#D20001").opacity(0.2),
                                 Color.clear
-                            ],
+                            ]),
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -279,15 +279,11 @@ struct CentralVisualizerView: View {
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: isActivated ? [
-                            Color(hex: "#3c3c3c").opacity(0.15),
-                            Color(hex: "#1a1a1a").opacity(0.1),
-                            Color.clear
-                        ] : [
+                        colors: applyHueShift(to: [
                             Color(hex: "#FF00D0").opacity(0.15),
                             Color(hex: "#D20001").opacity(0.1),
                             Color.clear
-                        ],
+                        ]),
                         center: UnitPoint(x: 0.7, y: 0.3),
                         startRadius: 0,
                         endRadius: 140
@@ -305,15 +301,11 @@ struct CentralVisualizerView: View {
                 Ellipse()
                     .stroke(
                         LinearGradient(
-                            colors: isActivated ? [
-                                Color(hex: "#dddddd"),
-                                Color(hex: "#eeeeee"),
-                                Color(hex: "#ffffff")
-                            ] : [
+                            colors: applyHueShift(to: [
                                 Color(hex: "#FF00D0"),
                                 Color(hex: "#D20001"),
                                 Color(hex: "#8B0000")
-                            ],
+                            ]),
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
@@ -327,7 +319,7 @@ struct CentralVisualizerView: View {
                 
                 // Secondary ring - different distortion
                 Ellipse()
-                    .stroke(isActivated ? Color(hex: "#fafafa").opacity(0.6) : Color(hex: "#FF00D0").opacity(0.6), lineWidth: 6)
+                    .stroke(applyHueShift(to: Color(hex: "#FF00D0").opacity(0.6)), lineWidth: 6)
                     .frame(width: 200 + cos(animationPhase * 1.3) * 11, height: 220 + sin(animationPhase * 1.9) * 8)
                     .blur(radius: 6)
                     .offset(x: -3 + cos(animationPhase * 1.1) * 3, 
@@ -336,7 +328,7 @@ struct CentralVisualizerView: View {
                 
                 // Tertiary ring - more distortion
                 Ellipse()
-                    .stroke(isActivated ? Color(hex: "#fafafa").opacity(0.5) : Color(hex: "#D20001").opacity(0.5), lineWidth: 4)
+                    .stroke(applyHueShift(to: Color(hex: "#D20001").opacity(0.5)), lineWidth: 4)
                     .frame(width: 240 + sin(animationPhase * 1.5) * 14, height: 180 + cos(animationPhase * 2.1) * 6)
                     .blur(radius: 8)
                     .offset(x: 2 + sin(animationPhase * 1.2) * 2, 
@@ -350,17 +342,12 @@ struct CentralVisualizerView: View {
                 Ellipse()
                     .fill(
                         RadialGradient(
-                            colors: isActivated ? [
-                                Color(hex: "#000000").opacity(0.9),
-                                Color(hex: "#000000").opacity(0.7),
-                                Color(hex: "#000000").opacity(0.3),
-                                Color.clear
-                            ] : [
+                            colors: applyHueShift(to: [
                                 Color(hex: "#5D0C14").opacity(0.9),
                                 Color(hex: "#5D0C14").opacity(0.7),
                                 Color(hex: "#5D0C14").opacity(0.3),
                                 Color.clear
-                            ],
+                            ]),
                             center: UnitPoint(x: 0.4, y: 0.3), // Off-center
                             startRadius: 0,
                             endRadius: 80
@@ -375,7 +362,7 @@ struct CentralVisualizerView: View {
                 
                 // Secondary core layer - different shape
                 Ellipse()
-                    .fill(isActivated ? Color(hex: "#000000").opacity(0.8) : Color(hex: "#5D0C14").opacity(0.8))
+                    .fill(applyHueShift(to: Color(hex: "#5D0C14").opacity(0.8)))
                     .frame(width: 120 + cos(animationPhase * 1.5) * 14, height: 140 + sin(animationPhase * 2.0) * 10)
                     .blur(radius: 35)
                     .offset(x: -2 + cos(animationPhase * 0.7) * 10, 
@@ -384,7 +371,7 @@ struct CentralVisualizerView: View {
                 
                 // Tertiary core layer - more irregular
                 Ellipse()
-                    .fill(isActivated ? Color(hex: "#000000").opacity(0.6) : Color(hex: "#5D0C14").opacity(0.6))
+                    .fill(applyHueShift(to: Color(hex: "#5D0C14").opacity(0.6)))
                     .frame(width: 130 + sin(animationPhase * 1.8) * 13, height: 110 + cos(animationPhase * 2.2) * 8)
                     .blur(radius: 45)
                     .offset(x: 1 + sin(animationPhase * 0.8) * 11, 
@@ -396,15 +383,11 @@ struct CentralVisualizerView: View {
                 Ellipse()
                     .fill(
                         RadialGradient(
-                            colors: isActivated ? [
+                            colors: applyHueShift(to: [
                                 Color.white.opacity(0.08),
                                 Color.white.opacity(0.04),
                                 Color.clear
-                            ] : [
-                                Color.white.opacity(0.08),
-                                Color.white.opacity(0.04),
-                                Color.clear
-                            ],
+                            ]),
                             center: UnitPoint(x: 0.3, y: 0.4), // Off-center
                             startRadius: 0,
                             endRadius: 80
@@ -423,7 +406,7 @@ struct CentralVisualizerView: View {
         .onTapGesture {
             onTap?()
         }
-        .shadow(color: isAnimating ? (isActivated ? Color(hex: "#000000").opacity(0.6) : Color(hex: "#FF00D0").opacity(0.6)) : Color.clear, 
+        .shadow(color: isAnimating ? applyHueShift(to: Color(hex: "#FF00D0").opacity(0.6)) : Color.clear, 
                 radius: isAnimating ? 20 + sin(animationPhase * 0.3) * 10 : 0)
         .animation(
             isAnimating ? 

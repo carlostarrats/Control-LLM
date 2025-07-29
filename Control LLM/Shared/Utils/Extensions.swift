@@ -31,6 +31,34 @@ extension Color {
             opacity: Double(a) / 255
         )
     }
+    
+    // Interpolate between two colors
+    func interpolated(to other: Color, amount: Double) -> Color {
+        let amount = max(0, min(1, amount)) // Clamp between 0 and 1
+        
+        // Convert to UIColor for easier manipulation
+        let uiColor1 = UIColor(self)
+        let uiColor2 = UIColor(other)
+        
+        var red1: CGFloat = 0, green1: CGFloat = 0, blue1: CGFloat = 0, alpha1: CGFloat = 0
+        var red2: CGFloat = 0, green2: CGFloat = 0, blue2: CGFloat = 0, alpha2: CGFloat = 0
+        
+        uiColor1.getRed(&red1, green: &green1, blue: &blue1, alpha: &alpha1)
+        uiColor2.getRed(&red2, green: &green2, blue: &blue2, alpha: &alpha2)
+        
+        let interpolatedRed = red1 + (red2 - red1) * amount
+        let interpolatedGreen = green1 + (green2 - green1) * amount
+        let interpolatedBlue = blue1 + (blue2 - blue1) * amount
+        let interpolatedAlpha = alpha1 + (alpha2 - alpha1) * amount
+        
+        return Color(
+            .sRGB,
+            red: interpolatedRed,
+            green: interpolatedGreen,
+            blue: interpolatedBlue,
+            opacity: interpolatedAlpha
+        )
+    }
 }
 
 // MARK: - View Extensions

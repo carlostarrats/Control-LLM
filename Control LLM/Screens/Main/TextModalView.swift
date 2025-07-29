@@ -18,34 +18,34 @@ struct TextModalView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(spacing: 12) {
+                        // Date header - iOS style
+                        if !viewModel.messages.isEmpty {
+                            HStack {
+                                Spacer()
+                                Text(formatSmartDate(Date()))
+                                    .font(.custom("IBMPlexMono", size: 12))
+                                    .foregroundColor(Color(hex: "#B3B3B3"))
+                                Spacer()
+                            }
+                            .padding(.top, 20)
+                            .padding(.bottom, 10)
+                        }
+                        
                         ForEach(viewModel.messages) { message in
                             MessageBubble(message: message)
                                 .id(message.id)
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, 100)
-                    .padding(.bottom, 20)
+                    .padding(.top, 80)
+                    .padding(.bottom, 24)
                 }
-                .mask(
-                    LinearGradient(
-                        gradient: Gradient(stops: [
-                            .init(color: Color.black.opacity(0.0), location: 0.0),
-                            .init(color: Color.black.opacity(0.0), location: 0.01),
-                            .init(color: Color.black.opacity(0.1), location: 0.04),
-                            .init(color: Color.black.opacity(0.3), location: 0.08),
-                            .init(color: Color.black.opacity(0.7), location: 0.12),
-                            .init(color: Color.black.opacity(1.0), location: 0.16),
-                            .init(color: Color.black.opacity(1.0), location: 1.0)
-                        ]),
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
+
+                
                 .onChange(of: viewModel.messages.count) { _, _ in
                     if let lastMessage = viewModel.messages.last {
                         withAnimation(.easeOut(duration: 0.3)) {
-                            proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                            proxy.scrollTo(lastMessage.id, anchor: .center)
                         }
                     }
                 }
@@ -54,6 +54,7 @@ struct TextModalView: View {
             // Input area - fixed at bottom
             VStack(spacing: 0) {
                 Divider()
+                    .background(Color(hex: "#E6E6E6").opacity(0.6))
                     .padding(.horizontal, 20)
                 
                 HStack {
@@ -68,7 +69,7 @@ struct TextModalView: View {
                             Button(action: sendMessage) {
                                 Image(systemName: "arrow.up.circle")
                                     .font(.title)
-                                    .foregroundColor(Color(hex: "#E90068"))
+                                    .foregroundColor(Color(hex: "#E6E6E6"))
                             }
                             .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                             .padding(.trailing, 8)
@@ -92,6 +93,36 @@ struct TextModalView: View {
         viewModel.sendTextMessage(trimmedText)
         messageText = ""
     }
+    
+    private func formatSmartDate(_ date: Date) -> String {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        // Check if it's today
+        if calendar.isDate(date, inSameDayAs: now) {
+            return "Today"
+        }
+        
+        // Check if it's yesterday
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: now)!
+        if calendar.isDate(date, inSameDayAs: yesterday) {
+            return "Yesterday"
+        }
+        
+        // Check if it's within the last 7 days (this week)
+        let weekAgo = calendar.date(byAdding: .day, value: -7, to: now)!
+        if date > weekAgo {
+            // Format as "Wednesday, Jan 29"
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE, MMM d"
+            return formatter.string(from: date)
+        } else {
+            // Format as "Jan 20, 2025"
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMM d, yyyy"
+            return formatter.string(from: date)
+        }
+    }
 }
 
 struct MessageBubble: View {
@@ -108,9 +139,9 @@ struct MessageBubble: View {
                     .font(.custom("IBMPlexMono", size: 16))
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
-                    .background(message.isUser ? Color(hex: "#E90068") : Color.gray.opacity(0.2))
+                    .background(message.isUser ? Color(hex: "#E6E6E6") : Color.gray.opacity(0.2))
                     .cornerRadius(18)
-                    .foregroundColor(message.isUser ? .white : .primary)
+                    .foregroundColor(message.isUser ? .black : .primary)
                 
                 Text(message.timestamp, style: .time)
                     .font(.custom("IBMPlexMono", size: 12))
