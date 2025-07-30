@@ -48,6 +48,7 @@ struct AdvancedEqualizerView: View {
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
+                Spacer()
             }
             
             // Main Equalizer
@@ -114,13 +115,13 @@ struct AdvancedEqualizerView: View {
     
     private func getBarHeight(for level: Double) -> CGFloat {
         // Convert dB level to bar height
-        // -60 dB = 2px, 0 dB = 96px (reduced by 40% for ultra-compact bars)
+        // -60 dB = 2px, 0 dB = 250px (increased from 180px to use even more vertical space)
         let normalizedLevel = max(0, (level + 60) / 60)
-        return CGFloat(normalizedLevel * 94 + 2)
+        return CGFloat(normalizedLevel * 248 + 2)
     }
     
     private func startAnimation() {
-        animationTimer = Timer.scheduledTimer(withTimeInterval: 0.033, repeats: true) { _ in
+        animationTimer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in // Reduced from 0.033 to 0.016 for faster updates
             updateAudioLevels()
         }
     }
@@ -161,7 +162,7 @@ struct AdvancedEqualizerView: View {
             let newLevel = max(-60.0, min(0.0, speechResponse + noise))
             
             // Smooth transition to new level
-            let smoothingFactor = 0.3
+            let smoothingFactor = 0.5 // Increased from 0.3 to 0.5 for more responsive animation
             audioLevels[i] = audioLevels[i] * (1.0 - smoothingFactor) + newLevel * smoothingFactor
         }
     }

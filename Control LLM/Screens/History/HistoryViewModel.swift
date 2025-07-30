@@ -1,88 +1,153 @@
-import Foundation
+import SwiftUI
 
-@MainActor
 class HistoryViewModel: ObservableObject {
-    @Published var selectedTab = 0
-    @Published var chatHistory: [ChatSession] = []
-    @Published var audioHistory: [AudioNote] = []
+    @Published var historyGroups: [HistoryGroup] = []
     
     init() {
-        loadSampleData()
+        loadHistoryData()
     }
     
-    private func loadSampleData() {
-        // Sample chat history
-        chatHistory = [
-            ChatSession(
-                id: UUID(),
-                title: "Project Discussion",
-                lastMessage: "Let's review the requirements...",
-                timestamp: Date().addingTimeInterval(-3600),
-                messageCount: 15
-            ),
-            ChatSession(
-                id: UUID(),
-                title: "Code Review",
-                lastMessage: "The implementation looks good",
-                timestamp: Date().addingTimeInterval(-7200),
-                messageCount: 8
-            ),
-            ChatSession(
-                id: UUID(),
-                title: "Meeting Notes",
-                lastMessage: "Action items for next week",
-                timestamp: Date().addingTimeInterval(-86400),
-                messageCount: 23
-            )
+    private func loadHistoryData() {
+        // Create sample data with proper dates
+        let calendar = Calendar.current
+        let today = Date()
+        
+        // Sample chat entries with various dates
+        let sampleEntries: [(Date, String, String)] = [
+            // Today
+            (today, "Top 10 kinds of movieslfksf sflksk ks slss skfsfsfdfksldfklsfkl ks slkd slkd sk", "This conversation covered various movie genres including action, drama, comedy, thriller, horror, sci-fi, romance, documentary, animation, and musical. We discussed the characteristics of each genre and provided examples of notable films in each category."),
+            
+            // Yesterday
+            (calendar.date(byAdding: .day, value: -1, to: today)!, "Best programming practices for Swift development", "We discussed essential Swift programming practices including proper naming conventions, memory management, error handling, and design patterns. Key topics covered were ARC, optionals, protocols, and SwiftUI best practices."),
+            
+            // 3 days ago (within last 7 days)
+            (calendar.date(byAdding: .day, value: -3, to: today)!, "How to implement dark mode in iOS apps", "Comprehensive guide on implementing dark mode in iOS applications. We covered color schemes, asset management, dynamic colors, and user preference handling for seamless dark mode transitions."),
+            
+            // 5 days ago (within last 7 days)
+            (calendar.date(byAdding: .day, value: -5, to: today)!, "Machine learning algorithms comparison", "We compared various machine learning algorithms including supervised learning (linear regression, logistic regression, decision trees), unsupervised learning (clustering, dimensionality reduction), and deep learning approaches."),
+            
+            // 10 days ago (past last 7 days)
+            (calendar.date(byAdding: .day, value: -10, to: today)!, "Advanced SwiftUI animations", "We explored advanced SwiftUI animation techniques including custom transitions, spring animations, and complex gesture-based interactions. Covered topics included matched geometry effects, timeline animations, and performance optimization."),
+            
+            // 15 days ago (past last 7 days)
+            (calendar.date(byAdding: .day, value: -15, to: today)!, "iOS app architecture patterns", "We discussed various iOS app architecture patterns including MVC, MVVM, VIPER, and Clean Architecture. Each pattern was analyzed for its benefits, trade-offs, and implementation strategies."),
+            
+            // Last year
+            (calendar.date(byAdding: .year, value: -1, to: today)!, "Legacy project migration strategies", "We covered strategies for migrating legacy iOS projects to modern frameworks and practices. Topics included gradual migration approaches, dependency management, and testing strategies for large codebases.")
         ]
         
-        // Sample audio history
-        audioHistory = [
-            AudioNote(
-                id: UUID(),
-                title: "Voice Memo 1",
-                duration: 120,
-                timestamp: Date().addingTimeInterval(-1800),
-                transcription: "This is a sample voice memo transcription..."
-            ),
-            AudioNote(
-                id: UUID(),
-                title: "Meeting Recording",
-                duration: 1800,
-                timestamp: Date().addingTimeInterval(-7200),
-                transcription: "Team meeting discussion about..."
-            ),
-            AudioNote(
-                id: UUID(),
-                title: "Quick Note",
-                duration: 45,
-                timestamp: Date().addingTimeInterval(-3600),
-                transcription: "Remember to follow up on..."
-            )
-        ]
+        // Group entries by year and sort within each year
+        var groupedByYear: [String: [(Date, String, String)]] = [:]
+        
+        for entry in sampleEntries {
+            let year = calendar.component(.year, from: entry.0)
+            let yearString = String(year)
+            if groupedByYear[yearString] == nil {
+                groupedByYear[yearString] = []
+            }
+            groupedByYear[yearString]?.append(entry)
+        }
+        
+        // Sort entries within each year according to the specified logic
+        for year in groupedByYear.keys {
+            groupedByYear[year]?.sort { entry1, entry2 in
+                let daysDiff1 = calendar.dateComponents([.day], from: entry1.0, to: today).day ?? 0
+                let daysDiff2 = calendar.dateComponents([.day], from: entry2.0, to: today).day ?? 0
+                
+                // Today comes first
+                if daysDiff1 == 0 && daysDiff2 != 0 { return true }
+                if daysDiff2 == 0 && daysDiff1 != 0 { return false }
+                
+                // Yesterday comes second
+                if daysDiff1 == 1 && daysDiff2 != 1 { return true }
+                if daysDiff2 == 1 && daysDiff1 != 1 { return false }
+                
+                // Within last 7 days, sort by date (most recent first)
+                if daysDiff1 <= 7 && daysDiff2 <= 7 {
+                    return entry1.0 > entry2.0
+                }
+                
+                // Past 7 days, sort by date (most recent first)
+                return entry1.0 > entry2.0
+            }
+        }
+        
+        // Convert to HistoryGroup format
+        historyGroups = groupedByYear.keys.sorted(by: >).map { year in
+            let entries = groupedByYear[year]!.map { entry in
+                let formattedDate = formatDate(entry.0, today: today)
+                return ChatHistoryEntry(
+                    date: formattedDate,
+                    chats: [
+                        ChatSummary(
+                            id: UUID().uuidString,
+                            summary: entry.1,
+                            expandedSummaries: [
+                                ExpandedSummary(
+                                    id: UUID().uuidString,
+                                    content: entry.2,
+                                    buttonText: "Continue Chat"
+                                )
+                            ]
+                        )
+                    ]
+                )
+            }
+            
+            return HistoryGroup(year: year, entries: entries)
+        }
     }
     
-    func deleteChatSession(_ session: ChatSession) {
-        chatHistory.removeAll { $0.id == session.id }
-    }
-    
-    func deleteAudioNote(_ note: AudioNote) {
-        audioHistory.removeAll { $0.id == note.id }
+    private func formatDate(_ date: Date, today: Date) -> String {
+        let calendar = Calendar.current
+        let daysDiff = calendar.dateComponents([.day], from: date, to: today).day ?? 0
+        
+        let dateFormatter = DateFormatter()
+        
+        if daysDiff == 0 {
+            return "Today"
+        } else if daysDiff == 1 {
+            return "Yesterday"
+        } else if daysDiff <= 7 {
+            // Last 7 days: "Thursday, Dec 23"
+            dateFormatter.dateFormat = "EEEE, MMM d"
+            return dateFormatter.string(from: date)
+        } else {
+            // Past 7 days: "Dec 15"
+            dateFormatter.dateFormat = "MMM d"
+            return dateFormatter.string(from: date)
+        }
     }
 }
 
-struct ChatSession: Identifiable {
-    let id: UUID
-    let title: String
-    let lastMessage: String
-    let timestamp: Date
-    let messageCount: Int
+struct HistoryGroup: Identifiable {
+    let id = UUID()
+    let year: String
+    var entries: [ChatHistoryEntry] // Changed to var
 }
 
-struct AudioNote: Identifiable {
-    let id: UUID
-    let title: String
-    let duration: TimeInterval
-    let timestamp: Date
-    let transcription: String
+struct ChatHistoryEntry: Identifiable {
+    let id = UUID()
+    let date: String
+    var chats: [ChatSummary] // Changed to var
+}
+
+struct ChatSummary: Identifiable {
+    let id: String
+    let summary: String
+    let expandedSummaries: [ExpandedSummary]
+    
+    // Ensure summary fits within 2 lines (approximately 60-80 characters)
+    var truncatedSummary: String {
+        if summary.count > 80 {
+            return String(summary.prefix(77)) + "..."
+        }
+        return summary
+    }
+}
+
+struct ExpandedSummary: Identifiable {
+    let id: String
+    let content: String
+    let buttonText: String
 } 

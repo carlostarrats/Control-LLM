@@ -13,77 +13,94 @@ struct TextModalView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Messages list - takes remaining space
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(spacing: 12) {
-                        // Date header - iOS style
-                        if !viewModel.messages.isEmpty {
-                            HStack {
-                                Spacer()
-                                Text(formatSmartDate(Date()))
-                                    .font(.custom("IBMPlexMono", size: 12))
-                                    .foregroundColor(Color(hex: "#B3B3B3"))
-                                Spacer()
-                            }
-                            .padding(.top, 20)
-                            .padding(.bottom, 10)
-                        }
-                        
-                        ForEach(viewModel.messages) { message in
-                            MessageBubble(message: message)
-                                .id(message.id)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 80)
-                    .padding(.bottom, 24)
-                }
-
-                
-                .onChange(of: viewModel.messages.count) { _, _ in
-                    if let lastMessage = viewModel.messages.last {
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            proxy.scrollTo(lastMessage.id, anchor: .center)
-                        }
-                    }
-                }
-            }
+        ZStack {
+            // Background gradient
+            LinearGradient(
+                colors: [
+                    Color(hex: "#1D1D1D"),  // Lighter color at top
+                    Color(hex: "#141414")   // Darker color at bottom
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
             
-            // Input area - fixed at bottom
             VStack(spacing: 0) {
-                Divider()
-                    .background(Color(hex: "#E6E6E6").opacity(0.6))
-                    .padding(.horizontal, 20)
+                // Grab bar
+                RoundedRectangle(cornerRadius: 2.5)
+                    .fill(Color(hex: "#666666"))
+                    .frame(width: 36, height: 5)
+                    .padding(.top, 8)
+                    .padding(.bottom, 20)
                 
-                HStack {
-                    TextField("Ask Anything...", text: $messageText, axis: .vertical)
-                        .font(.custom("IBMPlexMono", size: 16))
-                        .padding(.horizontal, 16)
-                        .padding(.trailing, 50)
-                        .padding(.vertical, 12)
-                        .cornerRadius(12)
-                        .accentColor(.white)
-                        .overlay(
-                            Button(action: sendMessage) {
-                                Image(systemName: "arrow.up.circle")
-                                    .font(.title)
-                                    .foregroundColor(Color(hex: "#E6E6E6"))
+                // Messages list - takes remaining space
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(spacing: 12) {
+                            // Date header - iOS style
+                            if !viewModel.messages.isEmpty {
+                                HStack {
+                                    Spacer()
+                                    Text(formatSmartDate(Date()))
+                                        .font(.custom("IBMPlexMono", size: 12))
+                                        .foregroundColor(Color(hex: "#BBBBBB"))
+                                    Spacer()
+                                }
+                                .padding(.top, 20)
+                                .padding(.bottom, 10)
                             }
-                            .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                            .padding(.trailing, 8)
-                            .padding(.bottom, 8),
-                            alignment: .bottomTrailing
-                        )
+                            
+                            ForEach(viewModel.messages) { message in
+                                MessageBubble(message: message)
+                                    .id(message.id)
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 20)
+                        .padding(.bottom, 24)
+                    }
+                    .onChange(of: viewModel.messages.count) { _, _ in
+                        if let lastMessage = viewModel.messages.last {
+                            withAnimation(.easeOut(duration: 0.3)) {
+                                proxy.scrollTo(lastMessage.id, anchor: .center)
+                            }
+                        }
+                    }
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
+                
+                // Input area - fixed at bottom
+                VStack(spacing: 0) {
+                    Divider()
+                        .background(Color(hex: "#EEEEEE").opacity(0.6))
+                        .padding(.horizontal, 20)
+                    
+                    HStack {
+                        TextField("Ask Anything...", text: $messageText, axis: .vertical)
+                            .font(.custom("IBMPlexMono", size: 16))
+                            .padding(.horizontal, 16)
+                            .padding(.trailing, 50)
+                            .padding(.vertical, 12)
+                            .cornerRadius(12)
+                            .accentColor(.white)
+                            .overlay(
+                                Button(action: sendMessage) {
+                                    Image(systemName: "arrow.up.circle")
+                                        .font(.title)
+                                        .foregroundColor(Color(hex: "#EEEEEE"))
+                                }
+                                .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                                .padding(.trailing, 8)
+                                .padding(.bottom, 8),
+                                alignment: .bottomTrailing
+                            )
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                }
             }
         }
-        .background(Color(hex: "#141414"))
         .presentationDetents([.height(100), .medium, .large], selection: $selectedDetent)
-        .presentationDragIndicator(.visible)
+        .presentationDragIndicator(.hidden) // Hide the system drag indicator
     }
     
     private func sendMessage() {
@@ -139,7 +156,7 @@ struct MessageBubble: View {
                     .font(.custom("IBMPlexMono", size: 16))
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
-                    .background(message.isUser ? Color(hex: "#E6E6E6") : Color.gray.opacity(0.2))
+                    .background(message.isUser ? Color(hex: "#EEEEEE") : Color.gray.opacity(0.2))
                     .cornerRadius(18)
                     .foregroundColor(message.isUser ? .black : .primary)
                 

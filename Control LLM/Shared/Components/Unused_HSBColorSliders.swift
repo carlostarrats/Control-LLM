@@ -21,14 +21,14 @@ struct HSBColorSliders: View {
                 HStack {
                     Text("Hue")
                         .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundColor(Color(hex: "#B3B3B3"))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
                         .opacity(textOpacity)
                     
                     Spacer()
                     
                     Text(String(format: "%.2f", hueShift))
                         .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundColor(Color(hex: "#B3B3B3"))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
                         .opacity(textOpacity)
                 }
                 
@@ -44,14 +44,14 @@ struct HSBColorSliders: View {
                 HStack {
                     Text("Sat")
                         .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundColor(Color(hex: "#B3B3B3"))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
                         .opacity(textOpacity)
                     
                     Spacer()
                     
                     Text(String(format: "%.2f", saturationLevel))
                         .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundColor(Color(hex: "#B3B3B3"))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
                         .opacity(textOpacity)
                 }
                 
@@ -67,14 +67,14 @@ struct HSBColorSliders: View {
                 HStack {
                     Text("Bright")
                         .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundColor(Color(hex: "#B3B3B3"))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
                         .opacity(textOpacity)
                     
                     Spacer()
                     
                     Text(String(format: "%.2f", brightnessLevel))
                         .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundColor(Color(hex: "#B3B3B3"))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
                         .opacity(textOpacity)
                 }
                 
