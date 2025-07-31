@@ -17,7 +17,7 @@ class HistoryViewModel: ObservableObject {
             // Today
             (today, "Top 10 kinds of movieslfksf sflksk ks slss skfsfsfdfksldfklsfkl ks slkd slkd sk", "This conversation covered various movie genres including action, drama, comedy, thriller, horror, sci-fi, romance, documentary, animation, and musical. We discussed the characteristics of each genre and provided examples of notable films in each category."),
             
-            // Yesterday
+            // Yesterday - this will be formatted as "Yesterday"
             (calendar.date(byAdding: .day, value: -1, to: today)!, "Best programming practices for Swift development", "We discussed essential Swift programming practices including proper naming conventions, memory management, error handling, and design patterns. Key topics covered were ARC, optionals, protocols, and SwiftUI best practices."),
             
             // 3 days ago (within last 7 days)
@@ -72,13 +72,58 @@ class HistoryViewModel: ObservableObject {
             }
         }
         
-        // Convert to HistoryGroup format
+        // Convert to HistoryGroup format with multiple summaries per date
         historyGroups = groupedByYear.keys.sorted(by: >).map { year in
             let entries = groupedByYear[year]!.map { entry in
                 let formattedDate = formatDate(entry.0, today: today)
-                return ChatHistoryEntry(
-                    date: formattedDate,
-                    chats: [
+                print("Processing date: \(entry.0), formatted as: '\(formattedDate)'")
+                
+                // Create multiple summaries for yesterday to demonstrate the layout
+                var summaries: [ChatSummary] = []
+                
+                if formattedDate == "Yesterday" {
+                    // Add multiple summaries for yesterday
+                    summaries = [
+                        ChatSummary(
+                            id: UUID().uuidString,
+                            summary: "Best programming practices for Swift development",
+                            expandedSummaries: [
+                                ExpandedSummary(
+                                    id: UUID().uuidString,
+                                    content: "We discussed essential Swift programming practices including proper naming conventions, memory management, error handling, and design patterns. Key topics covered were ARC, optionals, protocols, and SwiftUI best practices.",
+                                    buttonText: "Continue Chat"
+                                )
+                            ],
+                            timestamp: formatTime(entry.0)
+                        ),
+                        ChatSummary(
+                            id: UUID().uuidString,
+                            summary: "UI/UX design principles for mobile apps",
+                            expandedSummaries: [
+                                ExpandedSummary(
+                                    id: UUID().uuidString,
+                                    content: "We explored fundamental UI/UX design principles including visual hierarchy, consistency, accessibility, and user-centered design. Covered topics included color theory, typography, spacing, and interaction patterns.",
+                                    buttonText: "Continue Chat"
+                                )
+                            ],
+                            timestamp: formatTime(entry.0)
+                        ),
+                        ChatSummary(
+                            id: UUID().uuidString,
+                            summary: "Performance optimization techniques",
+                            expandedSummaries: [
+                                ExpandedSummary(
+                                    id: UUID().uuidString,
+                                    content: "We discussed various performance optimization techniques for iOS apps including memory management, image caching, network optimization, and UI rendering improvements. Key focus areas were reducing app launch time and improving user experience.",
+                                    buttonText: "Continue Chat"
+                                )
+                            ],
+                            timestamp: formatTime(entry.0)
+                        )
+                    ]
+                } else {
+                    // Single summary for other dates
+                    summaries = [
                         ChatSummary(
                             id: UUID().uuidString,
                             summary: entry.1,
@@ -88,9 +133,15 @@ class HistoryViewModel: ObservableObject {
                                     content: entry.2,
                                     buttonText: "Continue Chat"
                                 )
-                            ]
+                            ],
+                            timestamp: formatTime(entry.0)
                         )
                     ]
+                }
+                
+                return ChatHistoryEntry(
+                    date: formattedDate,
+                    chats: summaries
                 )
             }
             
@@ -118,6 +169,12 @@ class HistoryViewModel: ObservableObject {
             return dateFormatter.string(from: date)
         }
     }
+    
+    private func formatTime(_ date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "hh:mm:ss a"
+        return dateFormatter.string(from: date)
+    }
 }
 
 struct HistoryGroup: Identifiable {
@@ -136,6 +193,7 @@ struct ChatSummary: Identifiable {
     let id: String
     let summary: String
     let expandedSummaries: [ExpandedSummary]
+    let timestamp: String
     
     // Ensure summary fits within 2 lines (approximately 60-80 characters)
     var truncatedSummary: String {

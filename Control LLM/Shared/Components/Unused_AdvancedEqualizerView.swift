@@ -13,13 +13,13 @@ import AVFoundation
 
 struct AdvancedEqualizerView: View {
     @Binding var isSpeaking: Bool
-    @State private var audioLevels: [Double] = Array(repeating: -60.0, count: 8)
+    @State private var audioLevels: [Double] = Array(repeating: -60.0, count: 7)
     @State private var animationTimer: Timer?
     @State private var isTestMode: Bool = false
     
-    // Frequency bands (Mel scale approximation) - expanded to 8 bands
+    // Frequency bands (Mel scale approximation) - reduced to 7 bands
     private let frequencies = [
-        0, 351, 878, 1678, 2883, 5353, 9103, 16078
+        0, 351, 878, 1678, 2883, 5353, 9103
     ]
     
     // Mel scale frequency labels for bottom axis
@@ -27,39 +27,15 @@ struct AdvancedEqualizerView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Test Mode Button
-            HStack {
-                Spacer()
-                Button(action: {
-                    isTestMode.toggle()
-                    if isTestMode {
-                        startTestAnimation()
-                    } else {
-                        stopTestAnimation()
-                    }
-                }) {
-                    Text(isTestMode ? "Stop Test" : "Test Equalizer")
-                        .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundColor(Color(hex: "#00FFFF"))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(isTestMode ? Color(hex: "#00FFFF").opacity(0.2) : Color.clear)
-                        .border(Color(hex: "#00FFFF"), width: 1)
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                Spacer()
-            }
-            
             // Main Equalizer
             VStack(spacing: 2) {
                 // dB Scale Labels (top) - removed negative values and ellipsis
-                HStack(spacing: 0) {
-                    ForEach(0..<8, id: \.self) { index in
+                HStack(spacing: 6) {
+                    ForEach(0..<7, id: \.self) { index in
                         Text(String(format: "%.0f", max(0, audioLevels[index] + 60)))
                             .font(.system(size: 12, weight: .medium, design: .monospaced))
                             .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
+                            .frame(width: 30, alignment: .center)
                             .opacity(1.0)
                     }
                 }
@@ -67,8 +43,8 @@ struct AdvancedEqualizerView: View {
                 .padding(.bottom, 10) // 10px spacing below dB labels (40% reduction)
                 
                 // Equalizer Bars
-                HStack(spacing: 8) {
-                    ForEach(0..<8, id: \.self) { index in
+                HStack(spacing: 6) {
+                    ForEach(0..<7, id: \.self) { index in
                         VStack(spacing: 4) { // Added spacing between text and line
                             // Text in bracket at the top - responsive to audio levels
                             Text("[\(String(format: "%.0f", audioLevels[index]))]")
@@ -86,23 +62,45 @@ struct AdvancedEqualizerView: View {
                     }
                 }
                 .frame(height: 120)
-                
-                // Mel Scale Frequency Axis
-                HStack(spacing: 0) {
-                    ForEach(0..<4, id: \.self) { index in
-                        Text(melLabels[index])
-                            .font(.system(size: 12, weight: .medium, design: .monospaced))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                .padding(.horizontal, 4)
-                .padding(.top, 10) // 10px spacing above frequency labels (40% reduction)
             }
-            .padding(.horizontal, 8)
             .padding(.vertical, 4)
+            
+            // Frequency labels - positioned directly under equalizer bars
+            HStack(spacing: 6) {
+                ForEach(0..<7, id: \.self) { index in
+                    Group {
+                        if index == 0 {
+                            Text("0Hz")
+                                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                                .foregroundColor(.white)
+                        } else if index == 2 {
+                            Text("1kHz")
+                                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                                .foregroundColor(.white)
+                        } else if index == 4 {
+                            Text("5kHz")
+                                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                                .foregroundColor(.white)
+                        } else if index == 6 {
+                            Text("20kHz")
+                                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                                .foregroundColor(.white)
+                        } else {
+                            Text("")
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            
+
+            
+
+            
+
         }
-        .frame(width: 320)
+        .frame(maxWidth: .infinity)
         .onAppear {
             startAnimation()
         }
@@ -144,10 +142,10 @@ struct AdvancedEqualizerView: View {
     
     private func updateAudioLevels() {
         guard isSpeaking || isTestMode else {
-            // Reset to idle state
-            for i in 0..<8 {
-                audioLevels[i] = max(-60.0, audioLevels[i] - 2.0)
-            }
+                    // Reset to idle state
+        for i in 0..<7 {
+            audioLevels[i] = max(-60.0, audioLevels[i] - 2.0)
+        }
             return
         }
         
@@ -155,7 +153,7 @@ struct AdvancedEqualizerView: View {
         let time = Date().timeIntervalSince1970
         let baseIntensity = isTestMode ? 0.7 : 0.5
         
-        for i in 0..<8 {
+        for i in 0..<7 {
             let frequency = Double(frequencies[i])
             let speechResponse = calculateSpeechResponse(frequency: frequency, time: time, intensity: baseIntensity)
             let noise = Double.random(in: -0.5...0.5) // Reduced noise for smoother animation

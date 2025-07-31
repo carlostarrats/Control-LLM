@@ -4,7 +4,7 @@ struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
     @State private var showingTextModal = false
     @State private var showingHistoryView = false // Added state for History sheet
-    @State private var showingFragmentsView = false // Added state for Fragments sheet
+    @State private var showingWhisperView = false // Added state for Whisper sheet
     @State private var showingSettingsView = false // Added state for Settings sheet
     @State private var isChatMode = false
     @State private var blobScale: CGFloat = 1.0
@@ -36,17 +36,22 @@ struct MainView: View {
             ZStack {
                 // Top navigation buttons
                 VStack {
-                    HStack {
+                    HStack(spacing: 0) {
                         Button(action: {
                             showingHistoryView = true
                         }) {
-                            Text("History")
-                                .font(.system(size: 16, weight: .medium, design: .monospaced))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
-                                .lineSpacing(8) // 24px - 16px = 8px line spacing
-                                .tracking(0)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
+                            HStack(spacing: 6) {
+                                Image(systemName: "list.bullet")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(Color(hex: "#BBBBBB"))
+                                
+                                Text("History")
+                                    .font(.system(size: 16, weight: .medium, design: .monospaced))
+                                    .foregroundColor(Color(hex: "#BBBBBB"))
+                                    .tracking(0)
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 8)
                         }
                         .buttonStyle(PlainButtonStyle())
                         .accessibilityLabel("History")
@@ -55,13 +60,30 @@ struct MainView: View {
 
                         Spacer()
 
-                        NavigationButton(title: "Fragments") {
-                            showingFragmentsView = true
+                        Button(action: {
+                            showingWhisperView = true
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "waveform")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(Color(hex: "#BBBBBB"))
+                                
+                                Text("Whisper")
+                                    .font(.system(size: 16, weight: .medium, design: .monospaced))
+                                    .foregroundColor(Color(hex: "#BBBBBB"))
+                                    .tracking(0)
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 8)
                         }
+                        .buttonStyle(PlainButtonStyle())
+                        .accessibilityLabel("Whisper")
+                        .scaleEffect(1.0)
+                        .animation(.easeInOut(duration: 0.1), value: true)
 
                         Spacer()
 
-                        NavigationButton(title: "Settings") {
+                        NavigationButton(title: "Settings", icon: "globe") {
                             showingSettingsView = true
                         }
                     }
@@ -93,17 +115,12 @@ struct MainView: View {
 
 
 
-                // Bottom manual input button - only show when not in chat mode and not activated
+                // Bottom manual input button - only show when not in chat mode
                 VStack {
                 Spacer()
 
-                    if !isChatMode && !viewModel.isActivated {
+                    if !isChatMode {
                 VStack(spacing: 0) {
-                    // Dashed line above the text
-                    DashedLineAboveText(text: "Manual Input")
-                        .padding(.bottom, 8) // 8px spacing above text
-                        .opacity(textOpacity)
-
                     Button(action: {
                             showingTextModal = true
                     }) {
@@ -112,7 +129,7 @@ struct MainView: View {
                                     .font(.system(size: 14, weight: .medium))
                                     .foregroundColor(Color(hex: "#BBBBBB"))
 
-                                    Text("Manual Input")
+                                    Text("Text Input")
                                 .font(.system(size: 16, weight: .medium, design: .monospaced))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                                 .lineSpacing(8) // 24px - 16px = 8px line spacing
@@ -122,7 +139,7 @@ struct MainView: View {
                         .padding(.vertical, 8)
                     }
                     .buttonStyle(PlainButtonStyle())
-                            .accessibilityLabel("Manual Input")
+                            .accessibilityLabel("Text Input")
                     .scaleEffect(manualInputButtonScale)
                     .opacity(manualInputOpacity)
                     .animation(.easeInOut(duration: 0.1), value: true)
@@ -142,8 +159,8 @@ struct MainView: View {
                 mainViewModel: viewModel
             )
         }
-        .sheet(isPresented: $showingFragmentsView) {
-            FragmentsView(
+        .sheet(isPresented: $showingWhisperView) {
+            WhisperView(
                 showingTextModal: $showingTextModal,
                 mainViewModel: viewModel
             )
@@ -154,7 +171,35 @@ struct MainView: View {
                 mainViewModel: viewModel
             )
         }
-        // Removed onChange modifier - handling text animation directly in activateControlSequence
+        .onChange(of: viewModel.isActivated) { _, isActivated in
+            if isActivated {
+                // Trigger the same visual effects as activateControlSequence
+                withAnimation(.easeOut(duration: 0.8)) {
+                    textOpacity = 0.0 // Fade all text away
+                    manualInputOpacity = 0.0 // Fade manual input away
+                    blobColorOpacity = 1.0 // Keep blob fully visible
+                    
+                    // Set activated state values (copy of main state but full brightness)
+                    hueShift = 0.90
+                    saturationLevel = 0.12
+                    brightnessLevel = 1.0
+                }
+            } else {
+                // Return to normal state
+                withAnimation(.easeInOut(duration: 0.8)) {
+                    blobColorOpacity = 1.0 // Restore blob colors
+                    brightnessLevel = 0.3
+                }
+                
+                // Then, after a delay, start the text fade-in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    withAnimation(.easeInOut(duration: 0.8)) {
+                        textOpacity = 1.0 // Restore text
+                        manualInputOpacity = 1.0 // Restore manual input
+                    }
+                }
+            }
+        }
     }
 
     private func activateChatMode() {
@@ -238,16 +283,37 @@ struct MainView: View {
 struct NavigationButton: View {
     let title: String
     let action: () -> Void
+    let icon: String?
+    
+    init(title: String, icon: String? = nil, action: @escaping () -> Void) {
+        self.title = title
+        self.icon = icon
+        self.action = action
+    }
     
     var body: some View {
         Button(action: action) {
-            Text(title)
-                .font(.system(size: 16, weight: .medium, design: .monospaced))
-                .foregroundColor(Color(hex: "#BBBBBB"))
-                .lineSpacing(8) // 24px - 16px = 8px line spacing
-                .tracking(0)
-                .padding(.horizontal, 12)
+            if let icon = icon {
+                HStack(spacing: 6) {
+                    Image(systemName: icon)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
+                    
+                    Text(title)
+                        .font(.system(size: 16, weight: .medium, design: .monospaced))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
+                        .tracking(0)
+                }
+                .padding(.horizontal, 6)
                 .padding(.vertical, 8)
+            } else {
+                                    Text(title)
+                        .font(.system(size: 16, weight: .medium, design: .monospaced))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
+                        .tracking(0)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 8)
+            }
         }
         .buttonStyle(PlainButtonStyle())
         .accessibilityLabel(title)

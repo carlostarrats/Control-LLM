@@ -21,7 +21,7 @@ struct HistoryView: View {
             
             // Scrollable content
             ScrollView {
-                LazyVStack(spacing: 40) { // 40px between year groupings
+                LazyVStack(spacing: 60) { // 60px between year groupings
                     ForEach(viewModel.historyGroups) { group in
                         HistoryGroupView(group: group) { chatEntry in
                             // Handle continue chat action
@@ -45,29 +45,37 @@ struct HistoryView: View {
                     
                     // Header
                     HStack {
-                        Text("History")
-                            .font(.custom("IBMPlexMono", size: 20))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                            .padding(.horizontal, 20)
+                        HStack(spacing: 8) {
+                            Image(systemName: "list.bullet")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                            
+                            Text("History")
+                                .font(.custom("IBMPlexMono", size: 20))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                        }
+                        .padding(.leading, 20)
                         
                         Spacer()
+
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .frame(width: 32, height: 32)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.trailing, 20)
                     }
                     
                     // Buffer space below header
                     Spacer()
-                        .frame(height: 20)
+                        .frame(height: 18)
                 }
-                .background(
-                    LinearGradient(
-                        colors: [
-                            Color(hex: "#1D1D1D"),
-                            Color(hex: "#1D1D1D").opacity(0.8),
-                            Color(hex: "#1D1D1D").opacity(0)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
+                .background(Color(hex: "#1D1D1D"))
             }
         }
     }
@@ -81,6 +89,12 @@ struct HistoryView: View {
         
         // 3. Dismiss the history sheet smoothly
         dismiss()
+        
+        // 4. Trigger the activation sequence after a brief delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // This will trigger the visualizer activation and text fade-out
+            // The MainViewModel.isActivated = true will be picked up by MainView
+        }
     }
 }
 
@@ -102,8 +116,8 @@ struct HistoryGroupView: View {
             Spacer()
                 .frame(height: 20)
             
-            // Date entries with 20px spacing between date groupings
-            VStack(spacing: 20) {
+            // Date entries with 40px spacing between date groupings
+            VStack(spacing: 40) {
                 ForEach(group.entries) { entry in
                     HistoryEntryView(entry: entry, onTap: onChatSelected)
                 }
@@ -122,22 +136,17 @@ struct HistoryEntryView: View {
             // Date (left-aligned)
             HStack {
                 Text(entry.date)
-                    .font(.custom("IBMPlexMono", size: 16))
+                    .font(.custom("IBMPlexMono", size: 12))
                     .foregroundColor(Color(hex: "#BBBBBB"))
                 Spacer()
             }
             
-            // Horizontal line under date (left-aligned)
-            Rectangle()
-                .fill(Color(hex: "#333333"))
-                .frame(height: 2)
-            
-            // 10px spacing from horizontal line to first chat summary
+            // 10px spacing from date to first chat summary
             Spacer()
                 .frame(height: 10)
             
             // Chat entries
-            VStack(spacing: 10) { // 10px between groups of text
+            VStack(spacing: 20) { // 20px between groups of text
                 ForEach(entry.chats) { chat in
                     ChatSummaryView(chat: chat, entry: entry, onTap: onTap)
                 }
@@ -154,29 +163,33 @@ struct ChatSummaryView: View {
     @State private var isExpanded = false
     
     var body: some View {
-        HStack(spacing: 10) { // 10px between vertical line and content
-            // Vertical line that extends to cover both main and expanded content
-            Rectangle()
-                .fill(Color(hex: "#333333"))
-                .frame(width: 1)
-                .frame(maxHeight: .infinity) // Height of the entire content area
-            
-            // Main content area
-            VStack(spacing: 0) {
+        VStack(spacing: 0) {
+                // 1px line above summary
+                Rectangle()
+                    .fill(Color(hex: "#333333"))
+                    .frame(height: 1)
+                
+                // 4px spacing under the line
+                Spacer()
+                    .frame(height: 4)
+                
                 // Main summary headline (clickable)
-                HStack {
-                    Text(chat.summary)
-                        .font(.custom("IBMPlexMono", size: 14))
-                        .foregroundColor(Color(hex: "#EEEEEE"))
-                        .lineLimit(2) // Max 2 lines
-                        .multilineTextAlignment(.leading)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 6) // Changed from 8 to 6px
-                        .frame(maxWidth: .infinity, alignment: .leading) // Text is left-aligned within its own frame, and the frame expands
-                        .background(
-                            Rectangle()
-                                .fill(Color(hex: "#333333"))
-                        )
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(chat.summary)
+                            .font(.custom("IBMPlexMono", size: 14))
+                            .foregroundColor(Color(hex: "#EEEEEE"))
+                            .lineLimit(2) // Max 2 lines
+                            .multilineTextAlignment(.leading)
+                            .padding(.horizontal, 0)
+                            .frame(maxWidth: .infinity, alignment: .leading) // Text is left-aligned within its own frame, and the frame expands
+                        
+                        // Timestamp
+                        Text(chat.timestamp)
+                            .font(.custom("IBMPlexMono", size: 10))
+                            .foregroundColor(Color(hex: "#FF4444"))
+                            .padding(.horizontal, 0)
+                    }
                     
                     // Arrow indicator
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
@@ -207,11 +220,10 @@ struct ChatSummaryView: View {
                     ))
                 }
             }
+            .clipped() // Ensure expanded content doesn't overflow
+            .zIndex(isExpanded ? 1 : 0) // Ensure expanded content appears above other items
         }
-        .clipped() // Ensure expanded content doesn't overflow
-        .zIndex(isExpanded ? 1 : 0) // Ensure expanded content appears above other items
     }
-}
 
 struct ExpandedSummaryView: View {
     let summary: ExpandedSummary
@@ -219,47 +231,27 @@ struct ExpandedSummaryView: View {
     
     var body: some View {
         // Expanded summary content (no separate vertical line needed)
-        VStack(spacing: 8) { // 8px between summary text and button
+        VStack(spacing: 16) { // 16px between summary text and button (doubled from 8px)
             Text(summary.content)
                 .font(.custom("IBMPlexMono", size: 14))
-                .foregroundColor(Color(hex: "#EEEEEE"))
+                .foregroundColor(.orange)
                 .multilineTextAlignment(.leading)
-                .padding(.horizontal, 4)
-                .padding(.vertical, 6) // Changed from 16 to 6px
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    Rectangle()
-                        .fill(Color(hex: "#252525"))
-                )
             
             // Continue Chat button
             Button(action: onContinueChat) {
-                Text(summary.buttonText)
-                    .font(.custom("IBMPlexMono", size: 12))
-                    .foregroundColor(Color(hex: "#EEEEEE"))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(
-                        Rectangle()
-                            .fill(Color(hex: "#222222"))
-                    )
-                    .overlay(
-                        GeometryReader { geometry in
-                            Path { path in
-                                let width = geometry.size.width
-                                let height = geometry.size.height
-                                
-                                // Draw left and bottom as a single continuous path
-                                path.move(to: CGPoint(x: 0, y: 0))
-                                path.addLine(to: CGPoint(x: 0, y: height))
-                                path.addLine(to: CGPoint(x: width, y: height))
-                            }
-                            .stroke(Color(hex: "#444444"), lineWidth: 1)
-                        }
-                    )
+                HStack(spacing: 6) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 14))
+                        .foregroundColor(.green)
+                    
+                    Text(summary.buttonText)
+                        .font(.custom("IBMPlexMono", size: 14))
+                        .foregroundColor(.green)
+                }
             }
             .buttonStyle(PlainButtonStyle())
-            .frame(maxWidth: .infinity, alignment: .trailing)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }

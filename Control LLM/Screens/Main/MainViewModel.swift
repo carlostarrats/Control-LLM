@@ -21,9 +21,7 @@ class MainViewModel: ObservableObject {
     }
     
     func loadChatContext(from chatEntry: ChatHistoryEntry) {
-        // Clear existing messages
-        messages.removeAll()
-        
+        // Don't clear existing messages - just add a context indicator
         // Load the chat context from the history entry
         // This would typically load the actual conversation history
         // For now, we'll create a placeholder message indicating the context
@@ -40,13 +38,9 @@ class MainViewModel: ObservableObject {
     
     func activateVoiceInputMode() {
         isVoiceInputMode = true
+        isActivated = true
         
-        // Add a half-second delay before activating the main screen
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.activateMainScreen()
-        }
-        
-        // Simulate a friendly voice prompt
+        // Clear any existing messages and add a prompt
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             let promptMessage = ChatMessage(
                 content: "What can I help you with?",
@@ -55,6 +49,13 @@ class MainViewModel: ObservableObject {
             )
             self.messages.append(promptMessage)
             self.lastMessage = promptMessage.content
+        }
+        
+        // Return to normal state after 3 seconds (same as visualizer tap)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            withAnimation(.easeInOut(duration: 0.8)) {
+                self.isActivated = false
+            }
         }
     }
     

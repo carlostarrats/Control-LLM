@@ -137,7 +137,7 @@ struct RippleView: UIViewRepresentable {
         
         func draw(in view: MTKView) {
             // Check if Metal is properly initialized
-            guard let device = device,
+            guard let _ = device,
                   let commandQueue = commandQueue,
                   let pipelineState = pipelineState,
                   let vertexBuffer = vertexBuffer,

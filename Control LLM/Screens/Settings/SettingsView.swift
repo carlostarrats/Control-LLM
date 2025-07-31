@@ -5,6 +5,17 @@ struct SettingsView: View {
     @ObservedObject var mainViewModel: MainViewModel
     @Environment(\.dismiss) private var dismiss
     
+    // Sheet state variables
+    @State private var showingModels = false
+    @State private var showingAgents = false
+    @State private var showingAppearance = false
+    @State private var showingVoice = false
+    @State private var showingHistory = false
+    @State private var showingCredits = false
+    
+    // Toast state
+    @State private var showingToast = false
+    
     var body: some View {
         ZStack {
             // Background gradient
@@ -29,6 +40,21 @@ struct SettingsView: View {
                     }
                     .padding(.top, 0) // Removed negative padding
                     .padding(.horizontal, 20)
+                    
+                    // Footer section
+                    VStack(spacing: 4) {
+                        Text("V 1.0")
+                            .font(.custom("IBMPlexMono", size: 14))
+                            .foregroundColor(Color(hex: "#666666"))
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.top, 40)
+                        
+                        Text("Made by Control.Design")
+                            .font(.custom("IBMPlexMono", size: 14))
+                            .foregroundColor(Color(hex: "#666666"))
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    }
+                    .padding(.horizontal, 20)
                 }
                 .padding(.bottom, 20)
             }
@@ -44,12 +70,30 @@ struct SettingsView: View {
                     
                     // Header
                     HStack {
-                        Text("Settings")
-                            .font(.custom("IBMPlexMono", size: 20))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                            .padding(.horizontal, 20)
+                        HStack(spacing: 8) {
+                            Image(systemName: "globe")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                            
+                            Text("Settings")
+                                .font(.custom("IBMPlexMono", size: 20))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                        }
+                        .padding(.leading, 20)
                         
                         Spacer()
+
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .frame(width: 32, height: 32)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.trailing, 20)
                     }
                     
                     // Buffer space below header
@@ -61,14 +105,56 @@ struct SettingsView: View {
                 )
             }
         }
+        .sheet(isPresented: $showingModels) {
+            SettingsModelsView()
+        }
+        .sheet(isPresented: $showingAgents) {
+            AgentsView()
+        }
+        .sheet(isPresented: $showingAppearance) {
+            AppearanceView()
+        }
+        .sheet(isPresented: $showingVoice) {
+            VoiceView()
+        }
+        .sheet(isPresented: $showingHistory) {
+            SettingsHistoryView(onHistoryDeleted: {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        showingToast = true
+                    }
+                }
+            })
+        }
+        .sheet(isPresented: $showingCredits) {
+            CreditsView()
+        }
+        .overlay {
+            if showingToast {
+                ToastView(message: "History deleted")
+                    .transition(.asymmetric(
+                        insertion: AnyTransition.offset(y: 20).combined(with: .opacity),
+                        removal: AnyTransition.offset(y: 20).combined(with: .opacity)
+                    ))
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+                            withAnimation(.easeInOut(duration: 0.4)) {
+                                showingToast = false
+                            }
+                        }
+                    }
+            }
+        }
     }
     
     private var settingsItems: [SettingsItem] {
         [
-            SettingsItem(title: "Voice Settings", action: {}),
-            SettingsItem(title: "Model Configuration", action: {}),
-            SettingsItem(title: "Privacy & Security", action: {}),
-            SettingsItem(title: "About", action: {})
+            SettingsItem(title: "Models", action: { showingModels = true }),
+            SettingsItem(title: "Agents", action: { showingAgents = true }),
+            SettingsItem(title: "Appearance", action: { showingAppearance = true }),
+            SettingsItem(title: "Voice", action: { showingVoice = true }),
+            SettingsItem(title: "History", action: { showingHistory = true }),
+            SettingsItem(title: "Credits", action: { showingCredits = true })
         ]
     }
 }
@@ -83,8 +169,8 @@ struct SettingsItemView: View {
     let item: SettingsItem
     
     var body: some View {
-        Button(action: item.action) {
-            VStack(spacing: 0) {
+        VStack(spacing: 0) {
+            Button(action: item.action) {
                 HStack {
                     Text(item.title)
                         .font(.custom("IBMPlexMono", size: 16))
@@ -100,13 +186,45 @@ struct SettingsItemView: View {
                 .padding(.horizontal, 4)
                 .padding(.vertical, 12)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                
-                // Horizontal line under each item
-                Rectangle()
-                    .fill(Color(hex: "#333333"))
-                    .frame(height: 1)
             }
+            .frame(maxWidth: .infinity)
+            
+            // Horizontal line under each item
+            Rectangle()
+                .fill(Color(hex: "#333333"))
+                .frame(height: 1)
         }
-        .buttonStyle(PlainButtonStyle())
+        .frame(maxWidth: .infinity)
+    }
+}
+
+struct ToastView: View {
+    let message: String
+    
+    var body: some View {
+        VStack {
+            Spacer()
+            
+            HStack {
+                Text(message)
+                    .font(.custom("IBMPlexMono", size: 14))
+                    .foregroundColor(Color(hex: "#FF6B6B"))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(Color(hex: "#1D1D1D"))
+                    .overlay(
+                        Rectangle()
+                            .stroke(Color(hex: "#FF6B6B"), lineWidth: 1)
+                    )
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 100)
+        }
+        .transition(.asymmetric(
+            insertion: AnyTransition.offset(y: 20).combined(with: .opacity),
+            removal: AnyTransition.offset(y: 20).combined(with: .opacity)
+        ))
+        .animation(.easeInOut(duration: 0.5), value: true)
     }
 } 

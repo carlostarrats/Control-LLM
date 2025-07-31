@@ -26,12 +26,48 @@ struct TextModalView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Grab bar
-                RoundedRectangle(cornerRadius: 2.5)
-                    .fill(Color(hex: "#666666"))
-                    .frame(width: 36, height: 5)
-                    .padding(.top, 8)
-                    .padding(.bottom, 20)
+                // iOS standard header overlay
+                VStack(spacing: 0) {
+                    // Grab bar
+                    RoundedRectangle(cornerRadius: 2.5)
+                        .fill(Color(hex: "#666666"))
+                        .frame(width: 36, height: 5)
+                        .padding(.top, 8)
+                        .padding(.bottom, 20)
+                    
+                    // Header
+                    HStack {
+                        HStack(spacing: 8) {
+                            Image(systemName: "keyboard")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                            
+                            Text("Text Input")
+                                .font(.custom("IBMPlexMono", size: 20))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                        }
+                        .padding(.leading, 20)
+                        
+                        Spacer()
+
+                        Button(action: {
+                            isPresented = false
+                        }) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .frame(width: 32, height: 32)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .padding(.trailing, 20)
+                    }
+                    
+                    // Buffer space below header
+                    Spacer()
+                        .frame(height: 18)
+                }
+                .background(Color(hex: "#1D1D1D"))
                 
                 // Messages list - takes remaining space
                 ScrollViewReader { proxy in
