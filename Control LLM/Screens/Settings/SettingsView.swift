@@ -211,20 +211,27 @@ struct ToastView: View {
         VStack {
             Spacer()
             
-            HStack {
+            VStack(spacing: 12) {
+                // Checkmark icon
+                Image(systemName: "checkmark")
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundColor(Color(hex: "#1D1D1D"))
+                
+                // Message text
                 Text(message)
-                    .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#FF6B6B"))
+                    .font(.custom("IBMPlexMono", size: 16))
+                    .fontWeight(.medium)
+                    .foregroundColor(Color(hex: "#1D1D1D"))
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color(hex: "#1D1D1D"))
-                    .overlay(
-                        Rectangle()
-                            .stroke(Color(hex: "#FF6B6B"), lineWidth: 1)
-                    )
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+            .background(
+                Color(hex: "#FF6B6B")
+                    .opacity(0.9)
+            )
+            .cornerRadius(4)
+            .padding(.horizontal, 40)
             .padding(.bottom, 100)
         }
         .transition(.asymmetric(

@@ -78,10 +78,50 @@ class HistoryViewModel: ObservableObject {
                 let formattedDate = formatDate(entry.0, today: today)
                 print("Processing date: \(entry.0), formatted as: '\(formattedDate)'")
                 
-                // Create multiple summaries for yesterday to demonstrate the layout
+                // Create multiple summaries for today and yesterday to demonstrate the layout
                 var summaries: [ChatSummary] = []
                 
-                if formattedDate == "Yesterday" {
+                if formattedDate == "TODAY" {
+                    // Add multiple summaries for today
+                    summaries = [
+                        ChatSummary(
+                            id: UUID().uuidString,
+                            summary: "Top 10 kinds of movieslfksf sflksk ks slss skfsfsfdfksldfklsfkl ks slkd slkd sk",
+                            expandedSummaries: [
+                                ExpandedSummary(
+                                    id: UUID().uuidString,
+                                    content: "This conversation covered various movie genres including action, drama, comedy, thriller, horror, sci-fi, romance, documentary, animation, and musical. We discussed the characteristics of each genre and provided examples of notable films in each category.",
+                                    buttonText: "Continue Chat"
+                                )
+                            ],
+                            timestamp: formatTime(entry.0)
+                        ),
+                        ChatSummary(
+                            id: UUID().uuidString,
+                            summary: "Advanced iOS development techniques",
+                            expandedSummaries: [
+                                ExpandedSummary(
+                                    id: UUID().uuidString,
+                                    content: "We explored advanced iOS development techniques including custom animations, performance optimization, and modern Swift features. Covered topics included Combine framework, async/await, and advanced SwiftUI patterns.",
+                                    buttonText: "Continue Chat"
+                                )
+                            ],
+                            timestamp: formatTime(entry.0)
+                        ),
+                        ChatSummary(
+                            id: UUID().uuidString,
+                            summary: "Machine learning integration in mobile apps",
+                            expandedSummaries: [
+                                ExpandedSummary(
+                                    id: UUID().uuidString,
+                                    content: "We discussed integrating machine learning capabilities into iOS applications. Topics included Core ML framework, model optimization, real-time inference, and best practices for ML-powered features.",
+                                    buttonText: "Continue Chat"
+                                )
+                            ],
+                            timestamp: formatTime(entry.0)
+                        )
+                    ]
+                } else if formattedDate == "YESTERDAY" {
                     // Add multiple summaries for yesterday
                     summaries = [
                         ChatSummary(
@@ -156,17 +196,17 @@ class HistoryViewModel: ObservableObject {
         let dateFormatter = DateFormatter()
         
         if daysDiff == 0 {
-            return "Today"
+            return "TODAY"
         } else if daysDiff == 1 {
-            return "Yesterday"
+            return "YESTERDAY"
         } else if daysDiff <= 7 {
-            // Last 7 days: "Thursday, Dec 23"
+            // Last 7 days: "THURSDAY, DEC 23"
             dateFormatter.dateFormat = "EEEE, MMM d"
-            return dateFormatter.string(from: date)
+            return dateFormatter.string(from: date).uppercased()
         } else {
-            // Past 7 days: "Dec 15"
+            // Past 7 days: "DEC 15"
             dateFormatter.dateFormat = "MMM d"
-            return dateFormatter.string(from: date)
+            return dateFormatter.string(from: date).uppercased()
         }
     }
     

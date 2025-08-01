@@ -8,7 +8,7 @@ struct TextModalView: View {
     @State private var messageText = ""
     @State private var selectedDetent: PresentationDetent = .large
     @State private var glowAnimation: Double = 0
-    @State private var isTextFieldFocused = false
+    @FocusState private var isTextFieldFocused: Bool
     @State private var showingDocumentPicker = false
     
     init(viewModel: MainViewModel, isPresented: Binding<Bool>) {
@@ -132,17 +132,34 @@ struct TextModalView: View {
                             }
                             
                             // Text input field
-                            TextField("Ask Anything...", text: $messageText, axis: .vertical)
+                            TextField("", text: $messageText, axis: .vertical)
                                 .font(.custom("IBMPlexMono", size: 16))
+                                .foregroundColor(Color(hex: "#EEEEEE"))
                                 .padding(.horizontal, 16)
                                 .padding(.trailing, !messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 50 : 16)
                                 .padding(.vertical, 12)
                                 .background(Color(hex: "#2A2A2A"))
                                 .cornerRadius(4)
                                 .accentColor(.white)
+                                .focused($isTextFieldFocused)
                                 .onTapGesture {
                                     isTextFieldFocused = true
                                 }
+                                .overlay(
+                                    Group {
+                                        if messageText.isEmpty {
+                                            HStack {
+                                                                                            Text("Ask Anything...")
+                                                .font(.custom("IBMPlexMono", size: 16))
+                                                .foregroundColor(Color(hex: "#666666"))
+                                                .allowsHitTesting(false)
+                                                Spacer()
+                                            }
+                                            .padding(.horizontal, 16)
+                                        }
+                                    },
+                                    alignment: .leading
+                                )
                                 .overlay(
                                     Group {
                                         if !messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -241,18 +258,18 @@ struct MessageBubble: View {
                 if message.messageType == .file {
                     FileMessageView(message: message)
                 } else {
-                    Text(message.content)
-                        .font(.custom("IBMPlexMono", size: 16))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .background(message.isUser ? Color(hex: "#EEEEEE") : Color.gray.opacity(0.2))
-                        .cornerRadius(4)
-                        .foregroundColor(message.isUser ? .black : .primary)
+                                    Text(message.content)
+                    .font(.custom("IBMPlexMono", size: 16))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(message.isUser ? Color(hex: "#EEEEEE") : Color(hex: "#2A2A2A"))
+                    .cornerRadius(4)
+                    .foregroundColor(message.isUser ? .black : Color(hex: "#EEEEEE"))
                 }
                 
                 Text(message.timestamp, style: .time)
                     .font(.custom("IBMPlexMono", size: 12))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color(hex: "#BBBBBB"))
             }
             
             if !message.isUser {
@@ -274,19 +291,19 @@ struct FileMessageView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(message.fileName ?? "Unknown File")
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(message.isUser ? .black : .primary)
+                    .foregroundColor(message.isUser ? .black : Color(hex: "#EEEEEE"))
                     .lineLimit(1)
                 
                 if let fileURL = message.fileURL {
                     Text(fileURL.pathExtension.uppercased())
                         .font(.custom("IBMPlexMono", size: 10))
-                        .foregroundColor(message.isUser ? .black.opacity(0.6) : .secondary)
+                        .foregroundColor(message.isUser ? .black.opacity(0.6) : Color(hex: "#BBBBBB"))
                 }
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(message.isUser ? Color(hex: "#EEEEEE") : Color.gray.opacity(0.2))
+        .background(message.isUser ? Color(hex: "#EEEEEE") : Color(hex: "#2A2A2A"))
         .cornerRadius(4)
     }
 }

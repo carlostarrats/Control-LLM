@@ -133,7 +133,7 @@ struct WhisperView: View {
                         Spacer()
                     }
                     .padding(.top, 20)
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 16)
                     
                     // Chat history (placeholder)
                     VStack(spacing: 20) {
@@ -277,17 +277,17 @@ struct WhisperView: View {
         let dateFormatter = DateFormatter()
         
         if daysDiff == 0 {
-            return "Today"
+            return "TODAY"
         } else if daysDiff == 1 {
-            return "Yesterday"
+            return "YESTERDAY"
         } else if daysDiff <= 7 {
-            // Last 7 days: "Thursday, Dec 23"
+            // Last 7 days: "THURSDAY, DEC 23"
             dateFormatter.dateFormat = "EEEE, MMM d"
-            return dateFormatter.string(from: date)
+            return dateFormatter.string(from: date).uppercased()
         } else {
-            // Past 7 days: "Dec 15"
+            // Past 7 days: "DEC 15"
             dateFormatter.dateFormat = "MMM d"
-            return dateFormatter.string(from: date)
+            return dateFormatter.string(from: date).uppercased()
         }
     }
     
@@ -357,7 +357,7 @@ struct WhisperItemView: View {
                         
                         if isEditingTitle {
                             TextField("Enter title", text: $editedTitle)
-                                .font(.custom("IBMPlexMono", size: 14))
+                                .font(.custom("IBMPlexMono", size: 16))
                                 .foregroundColor(Color(hex: "#EEEEEE"))
                                 .textFieldStyle(PlainTextFieldStyle())
                                 .lineLimit(2)
@@ -374,7 +374,7 @@ struct WhisperItemView: View {
                                 }
                         } else {
                             Text(item.title)
-                                .font(.custom("IBMPlexMono", size: 14))
+                                .font(.custom("IBMPlexMono", size: 16))
                                 .foregroundColor(Color(hex: "#EEEEEE"))
                                 .lineLimit(2)
                                 .multilineTextAlignment(.leading)

@@ -25,11 +25,11 @@ struct SettingsModelsView: View {
                     Spacer()
                         .frame(height: 5)
                     // INSTALLED section
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text("INSTALLED")
                             .font(.custom("IBMPlexMono", size: 14))
                             .foregroundColor(Color(hex: "#BBBBBB"))
-                            .padding(.horizontal, 20)
+                            .padding(.horizontal, 24)
                         
                         VStack(spacing: 0) {
                             ForEach(installedModels, id: \.name) { model in
@@ -51,16 +51,16 @@ struct SettingsModelsView: View {
                     .padding(.horizontal, 20)
                 }
                 
-                // 40px spacing between sections
+                // 30px spacing between sections
                 Spacer()
-                    .frame(height: 40)
+                    .frame(height: 30)
                 
                 // Available Downloads section
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text("AVAILABLE DOWNLOADS")
                             .font(.custom("IBMPlexMono", size: 14))
                             .foregroundColor(Color(hex: "#BBBBBB"))
-                            .padding(.horizontal, 20)
+                            .padding(.horizontal, 24)
                         
                                                 VStack(spacing: 0) {
                             ForEach(availableModels, id: \.name) { model in
@@ -92,16 +92,16 @@ struct SettingsModelsView: View {
                     .padding(.horizontal, 20)
                 }
                 
-                // 40px spacing between sections
+                // 30px spacing between sections
                 Spacer()
-                    .frame(height: 40)
+                    .frame(height: 30)
                 
                 // Install your own model section
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text("INSTALL YOUR OWN")
                             .font(.custom("IBMPlexMono", size: 14))
                             .foregroundColor(Color(hex: "#BBBBBB"))
-                            .padding(.horizontal, 20)
+                            .padding(.horizontal, 24)
                         
                         VStack(spacing: 0) {
                                                     Button(action: {
@@ -113,15 +113,15 @@ struct SettingsModelsView: View {
                                     .foregroundColor(Color(hex: "#EEEEEE"))
                                     .multilineTextAlignment(.leading)
                                 
-                                Spacer()
-                                
-                                Image(systemName: "arrow.down.square")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(Color(hex: "#BBBBBB"))
-                            }
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 12)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                                                    Spacer()
+                    
+                    Image(systemName: "arrow.down.square")
+                        .font(.system(size: 20))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
+                }
+                .padding(.horizontal, 4)
+                .padding(.vertical, 16)
+                .frame(maxWidth: .infinity, alignment: .leading)
                         }
                             .frame(maxWidth: .infinity)
                             
@@ -276,7 +276,7 @@ struct InstalledModelView: View {
         VStack(spacing: 0) {
             Button(action: onSelect) {
                 HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 12) {
                         Text(model.name)
                             .font(.custom("IBMPlexMono", size: 16))
                             .foregroundColor(Color(hex: "#EEEEEE"))
@@ -297,7 +297,7 @@ struct InstalledModelView: View {
                         .foregroundColor(Color(hex: "#BBBBBB"))
                 }
                 .padding(.horizontal, 4)
-                .padding(.vertical, 12)
+                .padding(.vertical, 16)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .frame(maxWidth: .infinity)
@@ -322,7 +322,7 @@ struct AvailableModelView: View {
         VStack(spacing: 0) {
             Button(action: onToggle) {
                 HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 12) {
                         Text(model.name)
                             .font(.custom("IBMPlexMono", size: 16))
                             .foregroundColor(Color(hex: "#EEEEEE"))
@@ -346,7 +346,7 @@ struct AvailableModelView: View {
                     .buttonStyle(PlainButtonStyle())
                 }
                 .padding(.horizontal, 4)
-                .padding(.vertical, 12)
+                .padding(.vertical, 16)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .frame(maxWidth: .infinity)
