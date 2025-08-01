@@ -5,16 +5,9 @@ struct CreditsView: View {
     
     var body: some View {
         ZStack {
-            // Background gradient
-            LinearGradient(
-                colors: [
-                    Color(hex: "#1D1D1D"),  // Lighter color at top
-                    Color(hex: "#141414")   // Darker color at bottom
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            // Background
+            Color(hex: "#1D1D1D")
+                .ignoresSafeArea()
             
             // Scrollable content
             ScrollView {
@@ -25,13 +18,12 @@ struct CreditsView: View {
                             CreditsItemView(item: item)
                         }
                     }
-                    .padding(.top, 0)
                     .padding(.horizontal, 20)
                 }
                 .padding(.bottom, 20)
             }
             .safeAreaInset(edge: .top) {
-                // iOS standard header overlay
+                // Header
                 VStack(spacing: 0) {
                     // Grab bar
                     RoundedRectangle(cornerRadius: 2.5)
@@ -42,10 +34,16 @@ struct CreditsView: View {
                     
                     // Header
                     HStack {
-                        Text("Credits")
-                            .font(.custom("IBMPlexMono", size: 20))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                            .padding(.leading, 20)
+                        HStack(spacing: 8) {
+                            Image(systemName: "text.page")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                            
+                            Text("Credits")
+                                .font(.custom("IBMPlexMono", size: 20))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                        }
+                        .padding(.leading, 20)
                         
                         Spacer()
 
@@ -61,10 +59,7 @@ struct CreditsView: View {
                         .buttonStyle(PlainButtonStyle())
                         .padding(.trailing, 20)
                     }
-                    
-                    // Buffer space below header
-                    Spacer()
-                        .frame(height: 18)
+                    .padding(.bottom, 20)
                 }
                 .background(
                     Color(hex: "#1D1D1D")
@@ -110,14 +105,16 @@ struct CreditsItemView: View {
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(Color(hex: "#BBBBBB"))
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .buttonStyle(PlainButtonStyle())
+            .frame(maxWidth: .infinity)
             
-            Divider()
-                .background(Color(hex: "#333333"))
-                .padding(.leading, 20)
+            // Horizontal line under the item
+            Rectangle()
+                .fill(Color(hex: "#333333"))
+                .frame(height: 1)
         }
     }
 } 

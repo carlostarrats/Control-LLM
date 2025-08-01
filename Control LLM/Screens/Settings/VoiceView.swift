@@ -2,36 +2,35 @@ import SwiftUI
 
 struct VoiceView: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedVoice: String = "Tom" // Default selection
     
     var body: some View {
         ZStack {
-            // Background gradient
-            LinearGradient(
-                colors: [
-                    Color(hex: "#1D1D1D"),  // Lighter color at top
-                    Color(hex: "#141414")   // Darker color at bottom
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            // Background
+            Color(hex: "#1D1D1D")
+                .ignoresSafeArea()
             
             // Scrollable content
             ScrollView {
                 VStack(spacing: 8) {
-                    // Content placeholder
+                    // Voice personas list
                     VStack(spacing: 0) {
-                        Text("Voice Configuration")
-                            .font(.custom("IBMPlexMono", size: 16))
-                            .foregroundColor(Color(hex: "#EEEEEE"))
-                            .padding(.vertical, 20)
+                        ForEach(voicePersonas, id: \.name) { persona in
+                            VoicePersonaView(
+                                persona: persona,
+                                isSelected: selectedVoice == persona.name,
+                                onSelect: {
+                                    selectedVoice = persona.name
+                                }
+                            )
+                        }
                     }
                     .padding(.horizontal, 20)
                 }
                 .padding(.bottom, 20)
             }
             .safeAreaInset(edge: .top) {
-                // iOS standard header overlay
+                // Header
                 VStack(spacing: 0) {
                     // Grab bar
                     RoundedRectangle(cornerRadius: 2.5)
@@ -42,10 +41,16 @@ struct VoiceView: View {
                     
                     // Header
                     HStack {
-                        Text("Voice")
-                            .font(.custom("IBMPlexMono", size: 20))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                            .padding(.leading, 20)
+                        HStack(spacing: 8) {
+                            Image(systemName: "bubble.left")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                            
+                            Text("Voice")
+                                .font(.custom("IBMPlexMono", size: 20))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                        }
+                        .padding(.leading, 20)
                         
                         Spacer()
 
@@ -61,15 +66,60 @@ struct VoiceView: View {
                         .buttonStyle(PlainButtonStyle())
                         .padding(.trailing, 20)
                     }
-                    
-                    // Buffer space below header
-                    Spacer()
-                        .frame(height: 18)
+                    .padding(.bottom, 20)
                 }
                 .background(
                     Color(hex: "#1D1D1D")
                 )
             }
+        }
+    }
+    
+    private var voicePersonas: [VoicePersona] {
+        [
+            VoicePersona(name: "Tom"),
+            VoicePersona(name: "Frank"),
+            VoicePersona(name: "Mary")
+        ]
+    }
+}
+
+struct VoicePersona: Identifiable {
+    let id = UUID()
+    let name: String
+}
+
+struct VoicePersonaView: View {
+    let persona: VoicePersona
+    let isSelected: Bool
+    let onSelect: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Button(action: onSelect) {
+                HStack {
+                    Text(persona.name)
+                        .font(.custom("IBMPlexMono", size: 16))
+                        .foregroundColor(Color(hex: "#EEEEEE"))
+                        .multilineTextAlignment(.leading)
+                    
+                    Spacer()
+                    
+                    // Circular checkmark button
+                    Image(systemName: isSelected ? "checkmark.square.fill" : "square")
+                        .font(.system(size: 20))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
+                }
+                .padding(.horizontal, 4)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .frame(maxWidth: .infinity)
+            
+            // Horizontal line under the item
+            Rectangle()
+                .fill(Color(hex: "#333333"))
+                .frame(height: 1)
         }
     }
 } 

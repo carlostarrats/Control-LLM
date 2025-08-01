@@ -4,8 +4,8 @@ import SwiftUI
 struct AppColors {
     static let primary = Color.blue
     static let secondary = Color.gray
-    static let accent = Color.orange
-    static let success = Color.green
+    static let accent = Color(hex: "#F8C762")
+    static let success = Color(hex: "#3EBBA5")
     static let warning = Color.yellow
     static let error = Color.red
     

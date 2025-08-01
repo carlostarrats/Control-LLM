@@ -187,7 +187,7 @@ struct ChatSummaryView: View {
                         // Timestamp
                         Text(chat.timestamp)
                             .font(.custom("IBMPlexMono", size: 10))
-                            .foregroundColor(Color(hex: "#FF4444"))
+                            .foregroundColor(Color(hex: "#FF6B6B"))
                             .padding(.horizontal, 0)
                     }
                     
@@ -234,7 +234,7 @@ struct ExpandedSummaryView: View {
         VStack(spacing: 16) { // 16px between summary text and button (doubled from 8px)
             Text(summary.content)
                 .font(.custom("IBMPlexMono", size: 14))
-                .foregroundColor(.orange)
+                .foregroundColor(Color(hex: "#F8C762"))
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
@@ -243,11 +243,11 @@ struct ExpandedSummaryView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "sparkles")
                         .font(.system(size: 14))
-                        .foregroundColor(.green)
+                        .foregroundColor(Color(hex: "#94A8E1"))
                     
                     Text(summary.buttonText)
                         .font(.custom("IBMPlexMono", size: 14))
-                        .foregroundColor(.green)
+                        .foregroundColor(Color(hex: "#94A8E1"))
                 }
             }
             .buttonStyle(PlainButtonStyle())

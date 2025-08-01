@@ -72,7 +72,7 @@ struct UISettingsTab: View {
                     viewModel.resetToDefaults()
                 }
                 .frame(maxWidth: .infinity)
-                .foregroundColor(.orange)
+                .foregroundColor(Color(hex: "#F8C762"))
             }
         }
     }
@@ -135,7 +135,7 @@ struct DeveloperSettingsTab: View {
                     // TODO: Implement cache clearing
                 }
                 .frame(maxWidth: .infinity)
-                .foregroundColor(.orange)
+                .foregroundColor(Color(hex: "#F8C762"))
                 
                 Button("Reset App Data") {
                     // TODO: Implement app data reset

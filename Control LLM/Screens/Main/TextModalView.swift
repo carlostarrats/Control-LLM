@@ -1,4 +1,6 @@
 import SwiftUI
+import UIKit
+import UniformTypeIdentifiers
 
 struct TextModalView: View {
     @ObservedObject var viewModel: MainViewModel
@@ -6,6 +8,8 @@ struct TextModalView: View {
     @State private var messageText = ""
     @State private var selectedDetent: PresentationDetent = .large
     @State private var glowAnimation: Double = 0
+    @State private var isTextFieldFocused = false
+    @State private var showingDocumentPicker = false
     
     init(viewModel: MainViewModel, isPresented: Binding<Bool>) {
         self.viewModel = viewModel
@@ -42,7 +46,7 @@ struct TextModalView: View {
                                 .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                             
-                            Text("Text Input")
+                            Text("Control")
                                 .font(.custom("IBMPlexMono", size: 20))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                         }
@@ -104,34 +108,61 @@ struct TextModalView: View {
                     }
                 }
                 
-                // Input area - fixed at bottom
+                // Input area with clean background
                 VStack(spacing: 0) {
-                    Divider()
-                        .background(Color(hex: "#EEEEEE").opacity(0.6))
-                        .padding(.horizontal, 20)
                     
-                    HStack {
-                        TextField("Ask Anything...", text: $messageText, axis: .vertical)
-                            .font(.custom("IBMPlexMono", size: 16))
-                            .padding(.horizontal, 16)
-                            .padding(.trailing, 50)
-                            .padding(.vertical, 12)
-                            .cornerRadius(12)
-                            .accentColor(.white)
-                            .overlay(
-                                Button(action: sendMessage) {
-                                    Image(systemName: "arrow.up.circle")
-                                        .font(.title)
-                                        .foregroundColor(Color(hex: "#EEEEEE"))
+                    VStack(spacing: 0) {
+                        HStack(spacing: 12) {
+                            // File upload button
+                            Button(action: {
+                                showingDocumentPicker = true
+                            }) {
+                                Image(systemName: "doc.badge.plus")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(Color(hex: "#BBBBBB"))
+                                    .frame(width: 44, height: 44)
+                                    .background(Color(hex: "#2A2A2A"))
+                                    .cornerRadius(4)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .sheet(isPresented: $showingDocumentPicker) {
+                                DocumentPicker { url in
+                                    handleFileUpload(url)
                                 }
-                                .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                                .padding(.trailing, 8)
-                                .padding(.bottom, 8),
-                                alignment: .bottomTrailing
-                            )
+                            }
+                            
+                            // Text input field
+                            TextField("Ask Anything...", text: $messageText, axis: .vertical)
+                                .font(.custom("IBMPlexMono", size: 16))
+                                .padding(.horizontal, 16)
+                                .padding(.trailing, !messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 50 : 16)
+                                .padding(.vertical, 12)
+                                .background(Color(hex: "#2A2A2A"))
+                                .cornerRadius(4)
+                                .accentColor(.white)
+                                .onTapGesture {
+                                    isTextFieldFocused = true
+                                }
+                                .overlay(
+                                    Group {
+                                        if !messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                            Button(action: sendMessage) {
+                                                Image(systemName: "arrow.up.square.fill")
+                                                    .font(.title)
+                                                    .foregroundColor(Color(hex: "#EEEEEE"))
+                                            }
+                                            .transition(.opacity)
+                                            .padding(.trailing, 8)
+                                            .padding(.bottom, 8)
+                                        }
+                                    },
+                                    alignment: .bottomTrailing
+                                )
+                                .animation(.easeInOut(duration: 0.05), value: messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 16)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
                 }
             }
         }
@@ -145,6 +176,25 @@ struct TextModalView: View {
         
         viewModel.sendTextMessage(trimmedText)
         messageText = ""
+    }
+    
+    private func handleFileUpload(_ url: URL) {
+        let fileName = url.lastPathComponent
+        
+        // Create a file message
+        let fileMessage = ChatMessage(
+            content: "📎 \(fileName)",
+            isUser: true,
+            timestamp: Date(),
+            messageType: .file,
+            fileName: fileName,
+            fileURL: url
+        )
+        
+        viewModel.messages.append(fileMessage)
+        
+        // TODO: Process the file with the LLM
+        // This would involve reading the file content and sending it to the LLM
     }
     
     private func formatSmartDate(_ date: Date) -> String {
@@ -188,13 +238,17 @@ struct MessageBubble: View {
             }
             
             VStack(alignment: message.isUser ? .trailing : .leading, spacing: 4) {
-                Text(message.content)
-                    .font(.custom("IBMPlexMono", size: 16))
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(message.isUser ? Color(hex: "#EEEEEE") : Color.gray.opacity(0.2))
-                    .cornerRadius(18)
-                    .foregroundColor(message.isUser ? .black : .primary)
+                if message.messageType == .file {
+                    FileMessageView(message: message)
+                } else {
+                    Text(message.content)
+                        .font(.custom("IBMPlexMono", size: 16))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(message.isUser ? Color(hex: "#EEEEEE") : Color.gray.opacity(0.2))
+                        .cornerRadius(4)
+                        .foregroundColor(message.isUser ? .black : .primary)
+                }
                 
                 Text(message.timestamp, style: .time)
                     .font(.custom("IBMPlexMono", size: 12))
@@ -208,7 +262,69 @@ struct MessageBubble: View {
     }
 }
 
+struct FileMessageView: View {
+    let message: ChatMessage
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "doc.fill")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(message.isUser ? .black : Color(hex: "#BBBBBB"))
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(message.fileName ?? "Unknown File")
+                    .font(.custom("IBMPlexMono", size: 14))
+                    .foregroundColor(message.isUser ? .black : .primary)
+                    .lineLimit(1)
+                
+                if let fileURL = message.fileURL {
+                    Text(fileURL.pathExtension.uppercased())
+                        .font(.custom("IBMPlexMono", size: 10))
+                        .foregroundColor(message.isUser ? .black.opacity(0.6) : .secondary)
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(message.isUser ? Color(hex: "#EEEEEE") : Color.gray.opacity(0.2))
+        .cornerRadius(4)
+    }
+}
+
 #Preview {
     TextModalView(viewModel: MainViewModel(), isPresented: .constant(true))
         .preferredColorScheme(.dark)
-} 
+}
+
+// MARK: - Document Picker
+struct DocumentPicker: UIViewControllerRepresentable {
+    let onPick: (URL) -> Void
+    
+    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.text, .plainText, .pdf, .image, .audio, .movie], asCopy: true)
+        picker.delegate = context.coordinator
+        picker.allowsMultipleSelection = false
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIDocumentPickerViewController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, UIDocumentPickerDelegate {
+        let parent: DocumentPicker
+        
+        init(_ parent: DocumentPicker) {
+            self.parent = parent
+        }
+        
+        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+            guard let url = urls.first else { return }
+            parent.onPick(url)
+        }
+    }
+}
+
+ 

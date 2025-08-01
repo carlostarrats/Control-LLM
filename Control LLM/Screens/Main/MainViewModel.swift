@@ -145,9 +145,27 @@ class MainViewModel: ObservableObject {
     }
 }
 
+enum MessageType {
+    case text
+    case file
+}
+
 struct ChatMessage: Identifiable {
-    let id = UUID()
+    let id: String
     let content: String
     let isUser: Bool
     let timestamp: Date
+    let messageType: MessageType
+    let fileName: String?
+    let fileURL: URL?
+    
+    init(content: String, isUser: Bool, timestamp: Date, messageType: MessageType = .text, fileName: String? = nil, fileURL: URL? = nil) {
+        self.id = UUID().uuidString
+        self.content = content
+        self.isUser = isUser
+        self.timestamp = timestamp
+        self.messageType = messageType
+        self.fileName = fileName
+        self.fileURL = fileURL
+    }
 } 

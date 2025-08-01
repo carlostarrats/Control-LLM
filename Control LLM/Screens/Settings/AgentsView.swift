@@ -2,36 +2,39 @@ import SwiftUI
 
 struct AgentsView: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedAgents: Set<String> = ["Assistant"] // Default selection
     
     var body: some View {
         ZStack {
-            // Background gradient
-            LinearGradient(
-                colors: [
-                    Color(hex: "#1D1D1D"),  // Lighter color at top
-                    Color(hex: "#141414")   // Darker color at bottom
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            // Background
+            Color(hex: "#1D1D1D")
+                .ignoresSafeArea()
             
             // Scrollable content
             ScrollView {
                 VStack(spacing: 8) {
-                    // Content placeholder
+                    // Agents list
                     VStack(spacing: 0) {
-                        Text("Agents Configuration")
-                            .font(.custom("IBMPlexMono", size: 16))
-                            .foregroundColor(Color(hex: "#EEEEEE"))
-                            .padding(.vertical, 20)
+                        ForEach(agents, id: \.name) { agent in
+                            AgentItemView(
+                                agent: agent,
+                                isSelected: selectedAgents.contains(agent.name),
+                                onToggle: {
+                                    if selectedAgents.contains(agent.name) {
+                                        selectedAgents.remove(agent.name)
+                                    } else {
+                                        selectedAgents.insert(agent.name)
+                                    }
+                                }
+                            )
+                        }
                     }
                     .padding(.horizontal, 20)
                 }
                 .padding(.bottom, 20)
             }
             .safeAreaInset(edge: .top) {
-                // iOS standard header overlay
+                // Header
                 VStack(spacing: 0) {
                     // Grab bar
                     RoundedRectangle(cornerRadius: 2.5)
@@ -42,10 +45,16 @@ struct AgentsView: View {
                     
                     // Header
                     HStack {
-                        Text("Agents")
-                            .font(.custom("IBMPlexMono", size: 20))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                            .padding(.leading, 20)
+                        HStack(spacing: 8) {
+                            Image(systemName: "square.3.layers.3d")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                            
+                            Text("Agents")
+                                .font(.custom("IBMPlexMono", size: 20))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                        }
+                        .padding(.leading, 20)
                         
                         Spacer()
 
@@ -61,15 +70,62 @@ struct AgentsView: View {
                         .buttonStyle(PlainButtonStyle())
                         .padding(.trailing, 20)
                     }
-                    
-                    // Buffer space below header
-                    Spacer()
-                        .frame(height: 18)
+                    .padding(.bottom, 20)
                 }
                 .background(
                     Color(hex: "#1D1D1D")
                 )
             }
+        }
+    }
+    
+    private var agents: [AgentItem] {
+        [
+            AgentItem(name: "Assistant"),
+            AgentItem(name: "Coder"),
+            AgentItem(name: "Writer"),
+            AgentItem(name: "Analyst"),
+            AgentItem(name: "Creative")
+        ]
+    }
+}
+
+struct AgentItem: Identifiable {
+    let id = UUID()
+    let name: String
+}
+
+struct AgentItemView: View {
+    let agent: AgentItem
+    let isSelected: Bool
+    let onToggle: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Button(action: onToggle) {
+                HStack {
+                    Text(agent.name)
+                        .font(.custom("IBMPlexMono", size: 16))
+                        .foregroundColor(Color(hex: "#EEEEEE"))
+                        .multilineTextAlignment(.leading)
+                    
+                    Spacer()
+                    
+                    // Circular checkmark button
+                    Image(systemName: isSelected ? "checkmark.square.fill" : "square")
+                        .font(.system(size: 20))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
+                }
+                .padding(.horizontal, 4)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .frame(maxWidth: .infinity)
+            
+            // Horizontal line under the item
+            Rectangle()
+                .fill(Color(hex: "#333333"))
+                .frame(height: 1)
         }
     }
 } 

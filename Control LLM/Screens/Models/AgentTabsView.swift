@@ -60,7 +60,7 @@ struct AgentsTab: View {
                     Button(agent.isActive ? "Deactivate" : "Activate") {
                         viewModel.toggleAgent(agent)
                     }
-                    .tint(agent.isActive ? .orange : .green)
+                    .tint(agent.isActive ? Color(hex: "#F8C762") : Color(hex: "#3EBBA5"))
                     
                     Button("Delete", role: .destructive) {
                         viewModel.deleteAgent(agent)
@@ -116,7 +116,7 @@ struct ModelRow: View {
                 Spacer()
                 
                 if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
+                    Image(systemName: "checkmark.square.fill")
                         .foregroundColor(.blue)
                 }
                 
@@ -147,7 +147,7 @@ struct AgentRow: View {
                         if agent.isActive {
                             Text("• Active")
                                 .font(.caption)
-                                .foregroundColor(.green)
+                                .foregroundColor(Color(hex: "#3EBBA5"))
                         }
                     }
                     
@@ -166,7 +166,7 @@ struct AgentRow: View {
                 Spacer()
                 
                 if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
+                    Image(systemName: "checkmark.square.fill")
                         .foregroundColor(.blue)
                 }
             }

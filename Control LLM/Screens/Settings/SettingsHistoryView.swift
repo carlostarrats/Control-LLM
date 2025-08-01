@@ -58,10 +58,16 @@ struct SettingsHistoryView: View {
                     
                     // Header
                     HStack {
-                        Text("Delete All History")
-                            .font(.custom("IBMPlexMono", size: 20))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                            .padding(.leading, 20)
+                        HStack(spacing: 8) {
+                            Image(systemName: "list.bullet")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                            
+                            Text("Delete All History")
+                                .font(.custom("IBMPlexMono", size: 20))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                        }
+                        .padding(.leading, 20)
                         
                         Spacer()
 
@@ -113,10 +119,11 @@ struct DeleteHistorySheet: View {
                 VStack(spacing: 8) {
                                     // Content
                 VStack(spacing: 8) {
-                    Text("Are you sure? This cannot be undone.")
-                        .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(Color(hex: "#EEEEEE"))
-                        .multilineTextAlignment(.center)
+                                            Text("This action can't be undone.")
+                            .font(.custom("IBMPlexMono", size: 16))
+                            .foregroundColor(Color(hex: "#EEEEEE"))
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 20)
                         .padding(.top, 0)
                     

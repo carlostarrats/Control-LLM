@@ -66,49 +66,29 @@ struct WhisperView: View {
                         Button(action: toggleRecording) {
                             Group {
                                 if isRecording {
-                                    // Square for stop - Apple style with double squares
+                                    // Stop button - circle with square inside, matching record button style
                                     ZStack {
-                                        // Outer square (3px gap from inner)
-                                        Rectangle()
+                                        // Outer circle (3px gap from inner) - same as record button
+                                        Circle()
                                             .stroke(Color(hex: "#CC3333"), lineWidth: 2)
                                             .frame(width: 46, height: 46)
                                         
-                                        // Inner red square
+                                        // Inner square - traditional red, no corner radius
                                         Rectangle()
-                                            .fill(Color(hex: "#FF4444"))
-                                            .frame(width: 40, height: 40)
-                                            .overlay(
-                                                // X shape with diagonal lines
-                                                GeometryReader { geometry in
-                                                    Path { path in
-                                                        let size = geometry.size
-                                                        let centerX = size.width / 2
-                                                        let centerY = size.height / 2
-                                                        let halfSize: CGFloat = 10 // Half the size of the square
-                                                        
-                                                        // First diagonal line (top-left to bottom-right)
-                                                        path.move(to: CGPoint(x: centerX - halfSize, y: centerY - halfSize))
-                                                        path.addLine(to: CGPoint(x: centerX + halfSize, y: centerY + halfSize))
-                                                        
-                                                        // Second diagonal line (top-right to bottom-left)
-                                                        path.move(to: CGPoint(x: centerX + halfSize, y: centerY - halfSize))
-                                                        path.addLine(to: CGPoint(x: centerX - halfSize, y: centerY + halfSize))
-                                                    }
-                                                    .stroke(Color(hex: "#141414"), lineWidth: 2)
-                                                }
-                                            )
+                                            .fill(Color.red)
+                                            .frame(width: 20, height: 20)
                                     }
                                 } else {
-                                    // Circle for record - Apple style with double circles
+                                    // Circle for record - traditional red
                                     ZStack {
                                         // Outer circle (3px gap from inner)
                                         Circle()
                                             .stroke(Color(hex: "#CC3333"), lineWidth: 2)
                                             .frame(width: 46, height: 46)
                                         
-                                        // Inner red circle
+                                        // Inner red circle - traditional red
                                         Circle()
-                                            .fill(Color(hex: "#FF4444"))
+                                            .fill(Color.red)
                                             .frame(width: 40, height: 40)
                                     }
                                 }
@@ -416,12 +396,12 @@ struct WhisperItemView: View {
                     // Date
                     Text(formatDate(item.timestamp))
                         .font(.custom("IBMPlexMono", size: 10))
-                        .foregroundColor(Color(hex: "#FF4444"))
+                        .foregroundColor(Color(hex: "#FF6B6B"))
                     
                     // Recording time under the date
                     Text(formatDuration(item.duration))
                         .font(.custom("IBMPlexMono", size: 10))
-                        .foregroundColor(.orange)
+                        .foregroundColor(Color(hex: "#F8C762"))
                 }
                 
                 // Arrow indicator
@@ -564,7 +544,7 @@ struct WhisperItemView: View {
                                 }) {
                                     Image(systemName: "ellipsis")
                                         .font(.system(size: 16))
-                                        .foregroundColor(.orange)
+                                        .foregroundColor(Color(hex: "#F8C762"))
                                         .frame(width: 44, height: 44)
                                         .contentShape(Rectangle())
                                 }
@@ -582,7 +562,7 @@ struct WhisperItemView: View {
                                 }) {
                                     Image(systemName: "trash")
                                         .font(.system(size: 16))
-                                        .foregroundColor(Color(hex: "#FF4444"))
+                                        .foregroundColor(Color(hex: "#FF6B6B"))
                                 }
                                 .buttonStyle(PlainButtonStyle())
                             }
@@ -600,7 +580,7 @@ struct WhisperItemView: View {
                                             .frame(height: 2)
                                         
                                         Rectangle()
-                                            .fill(Color.orange)
+                                            .fill(Color(hex: "#F8C762"))
                                             .frame(width: UIScreen.main.bounds.width * 0.8 * CGFloat(item.transcriptionProgress), height: 2)
                                             .animation(.linear(duration: 0.1), value: item.transcriptionProgress)
                                     }
@@ -610,7 +590,7 @@ struct WhisperItemView: View {
                                 // Status text
                                 Text(item.isTranscribing ? "Transcription In Progress [\(Int(item.transcriptionProgress * 100))%]" : "Transcribed")
                                     .font(.custom("IBMPlexMono", size: 10))
-                                    .foregroundColor(item.isTranscribing ? .orange : Color(hex: "#00CC00"))
+                                    .foregroundColor(item.isTranscribing ? Color(hex: "#F8C762") : Color(hex: "#3EBBA5"))
                                     .frame(maxWidth: .infinity, alignment: .center)
                                     .padding(.top, item.isTranscribing ? 4 : 0)
                                     .animation(.easeInOut(duration: 0.5), value: item.isTranscribing)
@@ -913,7 +893,7 @@ struct WhisperOptionsView: View {
                 item.isTranscribed = false
                 item.transcriptionProgress = 0.0
                 dismiss()
-            }, color: Color(hex: "#FF4444")))
+            }, color: Color(hex: "#FF6B6B")))
         } else if item.isTranscribing {
             // Show download transcription option
             items.append(WhisperOptionsItem(title: "Transcription Download", icon: "square.and.arrow.down", action: {
@@ -1009,10 +989,11 @@ struct DeleteWhisperItemSheet: View {
                 VStack(spacing: 8) {
                                     // Content
                 VStack(spacing: 8) {
-                    Text("Are you sure? This cannot be undone.")
-                        .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(Color(hex: "#EEEEEE"))
-                        .multilineTextAlignment(.center)
+                                            Text("This action can't be undone.")
+                            .font(.custom("IBMPlexMono", size: 16))
+                            .foregroundColor(Color(hex: "#EEEEEE"))
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 20)
                         .padding(.top, 0)
                     

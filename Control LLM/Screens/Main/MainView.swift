@@ -129,7 +129,7 @@ struct MainView: View {
                                     .font(.system(size: 14, weight: .medium))
                                     .foregroundColor(Color(hex: "#BBBBBB"))
 
-                                    Text("Text Input")
+                                    Text("Control")
                                 .font(.system(size: 16, weight: .medium, design: .monospaced))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                                 .lineSpacing(8) // 24px - 16px = 8px line spacing
@@ -139,7 +139,7 @@ struct MainView: View {
                         .padding(.vertical, 8)
                     }
                     .buttonStyle(PlainButtonStyle())
-                            .accessibilityLabel("Text Input")
+                            .accessibilityLabel("Control")
                     .scaleEffect(manualInputButtonScale)
                     .opacity(manualInputOpacity)
                     .animation(.easeInOut(duration: 0.1), value: true)

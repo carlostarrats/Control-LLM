@@ -149,12 +149,12 @@ struct SettingsView: View {
     
     private var settingsItems: [SettingsItem] {
         [
-            SettingsItem(title: "Models", action: { showingModels = true }),
-            SettingsItem(title: "Agents", action: { showingAgents = true }),
-            SettingsItem(title: "Appearance", action: { showingAppearance = true }),
-            SettingsItem(title: "Voice", action: { showingVoice = true }),
-            SettingsItem(title: "History", action: { showingHistory = true }),
-            SettingsItem(title: "Credits", action: { showingCredits = true })
+            SettingsItem(title: "Models", symbol: "terminal", action: { showingModels = true }),
+            SettingsItem(title: "Agents", symbol: "square.3.layers.3d", action: { showingAgents = true }),
+            SettingsItem(title: "Appearance", symbol: "paintbrush.pointed", action: { showingAppearance = true }),
+            SettingsItem(title: "Voice", symbol: "bubble.left", action: { showingVoice = true }),
+            SettingsItem(title: "History", symbol: "list.bullet", action: { showingHistory = true }),
+            SettingsItem(title: "Credits", symbol: "text.page", action: { showingCredits = true })
         ]
     }
 }
@@ -162,6 +162,7 @@ struct SettingsView: View {
 struct SettingsItem: Identifiable {
     let id = UUID()
     let title: String
+    let symbol: String
     let action: () -> Void
 }
 
@@ -172,6 +173,11 @@ struct SettingsItemView: View {
         VStack(spacing: 0) {
             Button(action: item.action) {
                 HStack {
+                    Image(systemName: item.symbol)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
+                        .frame(width: 20)
+                    
                     Text(item.title)
                         .font(.custom("IBMPlexMono", size: 16))
                         .foregroundColor(Color(hex: "#EEEEEE"))
