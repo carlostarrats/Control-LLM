@@ -137,7 +137,7 @@ struct HistoryEntryView: View {
             HStack {
                 Text(entry.date)
                     .font(.custom("IBMPlexMono", size: 12))
-                    .foregroundColor(Color(hex: "#BBBBBB"))
+                    .foregroundColor(Color(hex: "#F8C762"))
                 Spacer()
             }
             

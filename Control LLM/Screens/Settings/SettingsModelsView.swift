@@ -11,6 +11,7 @@ struct SettingsModelsView: View {
     ]
     @State private var showingUnusedModelsSheet = false
     @State private var selectedUnusedModels: Set<String> = []
+    @State private var referenceChatHistory = true // Default to true
     
     var body: some View {
         ZStack {
@@ -24,11 +25,54 @@ struct SettingsModelsView: View {
                     // Add small top padding to align with other settings pages
                     Spacer()
                         .frame(height: 5)
+                    
+                    // Reference Chat History option
+                    VStack(spacing: 0) {
+                        Button(action: {
+                            referenceChatHistory.toggle()
+                        }) {
+                            HStack(alignment: .top) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Reference chat history")
+                                        .font(.custom("IBMPlexMono", size: 16))
+                                        .foregroundColor(Color(hex: "#EEEEEE"))
+                                        .multilineTextAlignment(.leading)
+                                    
+                                    Text("Let the LLM reference recent conversations when responding.")
+                                        .font(.custom("IBMPlexMono", size: 12))
+                                        .foregroundColor(Color(hex: "#BBBBBB"))
+                                        .multilineTextAlignment(.leading)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: referenceChatHistory ? "checkmark.square.fill" : "square")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(Color(hex: "#BBBBBB"))
+                            }
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .frame(maxWidth: .infinity)
+                        
+                        // Horizontal line under the item
+                        Rectangle()
+                            .fill(Color(hex: "#333333"))
+                            .frame(height: 1)
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    // 30px spacing before first section
+                    Spacer()
+                        .frame(height: 30)
+                    
                     // INSTALLED section
                     VStack(alignment: .leading, spacing: 4) {
                         Text("INSTALLED")
-                            .font(.custom("IBMPlexMono", size: 14))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
+                            .font(.custom("IBMPlexMono", size: 12))
+                            .foregroundColor(Color(hex: "#F8C762"))
                             .padding(.horizontal, 24)
                         
                         VStack(spacing: 0) {
@@ -58,8 +102,8 @@ struct SettingsModelsView: View {
                 // Available Downloads section
                     VStack(alignment: .leading, spacing: 4) {
                         Text("AVAILABLE DOWNLOADS")
-                            .font(.custom("IBMPlexMono", size: 14))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
+                            .font(.custom("IBMPlexMono", size: 12))
+                            .foregroundColor(Color(hex: "#F8C762"))
                             .padding(.horizontal, 24)
                         
                                                 VStack(spacing: 0) {
@@ -99,8 +143,8 @@ struct SettingsModelsView: View {
                 // Install your own model section
                     VStack(alignment: .leading, spacing: 4) {
                         Text("INSTALL YOUR OWN")
-                            .font(.custom("IBMPlexMono", size: 14))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
+                            .font(.custom("IBMPlexMono", size: 12))
+                            .foregroundColor(Color(hex: "#F8C762"))
                             .padding(.horizontal, 24)
                         
                         VStack(spacing: 0) {

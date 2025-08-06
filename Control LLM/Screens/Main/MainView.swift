@@ -37,15 +37,33 @@ struct MainView: View {
                 // Top navigation buttons
                 VStack {
                     HStack(spacing: 0) {
-                        Button(action: {
-                            showingHistoryView = true
-                        }) {
+                        Spacer()
+                        
+                        Menu {
+                            Button(action: {
+                                showingHistoryView = true
+                            }) {
+                                Label("History", systemImage: "list.bullet")
+                            }
+                            
+                            Button(action: {
+                                showingWhisperView = true
+                            }) {
+                                Label("Whisper", systemImage: "waveform")
+                            }
+                            
+                            Button(action: {
+                                showingSettingsView = true
+                            }) {
+                                Label("Settings", systemImage: "gearshape")
+                            }
+                        } label: {
                             HStack(spacing: 6) {
-                                Image(systemName: "list.bullet")
+                                Image(systemName: "line.3.horizontal")
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(Color(hex: "#BBBBBB"))
                                 
-                                Text("History")
+                                Text("Menu")
                                     .font(.system(size: 16, weight: .medium, design: .monospaced))
                                     .foregroundColor(Color(hex: "#BBBBBB"))
                                     .tracking(0)
@@ -54,38 +72,11 @@ struct MainView: View {
                             .padding(.vertical, 8)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        .accessibilityLabel("History")
+                        .accessibilityLabel("Menu")
                         .scaleEffect(1.0)
                         .animation(.easeInOut(duration: 0.1), value: true)
-
+                        
                         Spacer()
-
-                        Button(action: {
-                            showingWhisperView = true
-                        }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "waveform")
-                                    .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(Color(hex: "#BBBBBB"))
-                                
-                                Text("Whisper")
-                                    .font(.system(size: 16, weight: .medium, design: .monospaced))
-                                    .foregroundColor(Color(hex: "#BBBBBB"))
-                                    .tracking(0)
-                            }
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 8)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .accessibilityLabel("Whisper")
-                        .scaleEffect(1.0)
-                        .animation(.easeInOut(duration: 0.1), value: true)
-
-                        Spacer()
-
-                        NavigationButton(title: "Settings", icon: "globe") {
-                            showingSettingsView = true
-                        }
                     }
                     .padding(.top, 20)
                     .padding(.horizontal, 20)

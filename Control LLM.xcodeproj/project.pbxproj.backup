@@ -218,9 +218,11 @@
 			);
 			mainGroup = 58E7B4B32E347AF100713E9B;
 			minimizedProjectReferenceProxies = 1;
-					packageReferences = (
-			58CD8A9A2E368AB7006A68FD /* XCRemoteSwiftPackageReference "liquid" */,
-		);
+			packageReferences = (
+				58CD8A9A2E368AB7006A68FD /* XCRemoteSwiftPackageReference "liquid" */,
+				58261BE02E42D6CD00B78C9E /* XCRemoteSwiftPackageReference "FluidGradient" */,
+				58261F332E43104E00B78C9E /* XCRemoteSwiftPackageReference "Vortex" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 58E7B4BD2E347AF100713E9B /* Products */;
 			projectDirPath = "";
@@ -583,6 +585,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		58261BE02E42D6CD00B78C9E /* XCRemoteSwiftPackageReference "FluidGradient" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Cindori/FluidGradient";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+		58261F332E43104E00B78C9E /* XCRemoteSwiftPackageReference "Vortex" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/twostraws/Vortex";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.3;
+			};
+		};
 		58CD8A9A2E368AB7006A68FD /* XCRemoteSwiftPackageReference "liquid" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/maustinstar/liquid";

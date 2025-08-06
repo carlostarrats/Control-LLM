@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var showingAgents = false
     @State private var showingAppearance = false
     @State private var showingVoice = false
+    @State private var showingLanguage = false
     @State private var showingHistory = false
     @State private var showingCredits = false
     
@@ -29,34 +30,47 @@ struct SettingsView: View {
             )
             .ignoresSafeArea()
             
-            // Scrollable content
-            ScrollView {
-                VStack(spacing: 8) { // Reduced to 8 to move content up
-                    // Settings list
-                    VStack(spacing: 0) {
-                        ForEach(settingsItems, id: \.title) { item in
-                            SettingsItemView(item: item)
+            VStack {
+                // Scrollable content
+                ScrollView {
+                    VStack(spacing: 8) { // Reduced to 8 to move content up
+                        // Settings list
+                        VStack(spacing: 0) {
+                            ForEach(settingsItems, id: \.title) { item in
+                                SettingsItemView(item: item)
+                            }
                         }
-                    }
-                    .padding(.top, 0) // Removed negative padding
-                    .padding(.horizontal, 20)
-                    
-                    // Footer section
-                    VStack(spacing: 4) {
-                        Text("V 1.0")
-                            .font(.custom("IBMPlexMono", size: 14))
-                            .foregroundColor(Color(hex: "#666666"))
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.top, 40)
+                        .padding(.top, 0) // Removed negative padding
+                        .padding(.horizontal, 20)
                         
-                        Text("Made by Control.Design")
-                            .font(.custom("IBMPlexMono", size: 14))
-                            .foregroundColor(Color(hex: "#666666"))
-                            .frame(maxWidth: .infinity, alignment: .center)
+                        // Footer section
+                        VStack(spacing: 4) {
+                            Text("V 1.0")
+                                .font(.custom("IBMPlexMono", size: 14))
+                                .foregroundColor(Color(hex: "#666666"))
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding(.top, 40)
+                            
+                            Text("Made by Control.Design")
+                                .font(.custom("IBMPlexMono", size: 14))
+                                .foregroundColor(Color(hex: "#666666"))
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        }
+                        .padding(.horizontal, 20)
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.bottom, 20)
                 }
-                .padding(.bottom, 20)
+                
+                Spacer()
+                
+                // Privacy notice text
+                Text("This app stores all data on your device only — nothing is saved or shared, and no account exists. To remove all data, delete the app.")
+                    .font(.custom("IBMPlexMono", size: 12))
+                    .foregroundColor(Color(hex: "#666666"))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 40)
             }
             .safeAreaInset(edge: .top) {
                 // iOS standard header overlay
@@ -71,7 +85,7 @@ struct SettingsView: View {
                     // Header
                     HStack {
                         HStack(spacing: 8) {
-                            Image(systemName: "globe")
+                            Image(systemName: "gearshape")
                                 .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                             
@@ -117,6 +131,9 @@ struct SettingsView: View {
         .sheet(isPresented: $showingVoice) {
             VoiceView()
         }
+        .sheet(isPresented: $showingLanguage) {
+            LanguageView()
+        }
         .sheet(isPresented: $showingHistory) {
             SettingsHistoryView(onHistoryDeleted: {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -131,7 +148,7 @@ struct SettingsView: View {
         }
         .overlay {
             if showingToast {
-                ToastView(message: "History deleted")
+                ToastView(message: "History Deleted")
                     .transition(.asymmetric(
                         insertion: AnyTransition.offset(y: 20).combined(with: .opacity),
                         removal: AnyTransition.offset(y: 20).combined(with: .opacity)
@@ -153,7 +170,8 @@ struct SettingsView: View {
             SettingsItem(title: "Agents", symbol: "square.3.layers.3d", action: { showingAgents = true }),
             SettingsItem(title: "Appearance", symbol: "paintbrush.pointed", action: { showingAppearance = true }),
             SettingsItem(title: "Voice", symbol: "bubble.left", action: { showingVoice = true }),
-            SettingsItem(title: "History", symbol: "list.bullet", action: { showingHistory = true }),
+            SettingsItem(title: "Language", symbol: "globe", action: { showingLanguage = true }),
+            SettingsItem(title: "Chat History", symbol: "list.bullet", action: { showingHistory = true }),
             SettingsItem(title: "Credits", symbol: "text.page", action: { showingCredits = true })
         ]
     }

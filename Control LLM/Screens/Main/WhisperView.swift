@@ -57,7 +57,7 @@ struct WhisperView: View {
                     HStack {
                         Text(formatTime(elapsedTime))
                             .font(.custom("IBMPlexMono", size: 48))
-                            .foregroundColor(Color(hex: "#EEEEEE"))
+                            .foregroundColor(Color.red)
                         
                         Spacer()
                             .frame(width: UIScreen.main.bounds.width * 0.15) // 15% of screen width for spacing
@@ -396,12 +396,12 @@ struct WhisperItemView: View {
                     // Date
                     Text(formatDate(item.timestamp))
                         .font(.custom("IBMPlexMono", size: 10))
-                        .foregroundColor(Color(hex: "#FF6B6B"))
+                        .foregroundColor(Color(hex: "#F8C762"))
                     
                     // Recording time under the date
                     Text(formatDuration(item.duration))
                         .font(.custom("IBMPlexMono", size: 10))
-                        .foregroundColor(Color(hex: "#F8C762"))
+                        .foregroundColor(Color(hex: "#FF6B6B"))
                 }
                 
                 // Arrow indicator
@@ -472,13 +472,13 @@ struct WhisperItemView: View {
                         HStack {
                             Text(formatTime(currentTime))
                                 .font(.custom("IBMPlexMono", size: 14))
-                                .foregroundColor(Color(hex: "#EEEEEE"))
+                                .foregroundColor(Color(hex: "#FF6B6B"))
                             
                             Spacer()
                             
                             Text("-\(formatTime(item.duration - currentTime))")
                                 .font(.custom("IBMPlexMono", size: 14))
-                                .foregroundColor(Color(hex: "#EEEEEE"))
+                                .foregroundColor(Color(hex: "#FF6B6B"))
                         }
                         .padding(.horizontal, 4)
                         

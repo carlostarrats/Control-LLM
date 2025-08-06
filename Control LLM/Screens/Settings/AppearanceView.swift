@@ -343,8 +343,12 @@ struct AppearanceView: View {
             
             // Content
             ScrollView {
-                VStack(spacing: 30) {
-                    // Visualizer Section
+                VStack(spacing: 8) {
+                    // Add small top padding to align with other settings pages
+                    Spacer()
+                        .frame(height: 5)
+                    
+                    // Control Unit Section
                     VStack(alignment: .leading, spacing: 20) {
                         Text("Control Unit")
                             .font(.custom("IBMPlexMono", size: 18))
@@ -372,16 +376,23 @@ struct AppearanceView: View {
                                     Text("Test Control Unit")
                                         .font(.custom("IBMPlexMono", size: 16))
                                 }
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(hasChanges ? Color(hex: "#94A8E1") : Color(hex: "#888888"))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
                                 .background(Color(hex: "#2A2A2A"))
                                 .cornerRadius(4)
                             }
                             .buttonStyle(PlainButtonStyle())
+                            .disabled(!hasChanges)
+                            .animation(.easeInOut(duration: 0.3), value: hasChanges)
                         }
                     }
                     .padding(.horizontal, 20)
+                    .padding(.top, 30)
+                    
+                    // 30px spacing between sections
+                    Spacer()
+                        .frame(height: 30)
                     
                     // Text Elements Section
                     VStack(alignment: .leading, spacing: 20) {
@@ -389,48 +400,48 @@ struct AppearanceView: View {
                             .font(.custom("IBMPlexMono", size: 18))
                             .foregroundColor(Color(hex: "#EEEEEE"))
                         
-                                                                VStack(spacing: 16) {
-                                            HueSlider(
-                                                title: "Primary Text",
-                                                hue: $appearanceManager.whiteTextHue,
-                                                currentColor: appearanceManager.currentWhiteTextColor
-                                            )
-                                            .onChange(of: appearanceManager.whiteTextHue) { _, _ in hasChanges = true }
-                                            
-                                            HueSlider(
-                                                title: "Secondary Text",
-                                                hue: $appearanceManager.grayTextHue,
-                                                currentColor: appearanceManager.currentGrayTextColor
-                                            )
-                                            .onChange(of: appearanceManager.grayTextHue) { _, _ in hasChanges = true }
-                                            
-                                            HueSlider(
-                                                title: "Text Color 1",
-                                                hue: $appearanceManager.redTextHue,
-                                                currentColor: appearanceManager.currentRedTextColor
-                                            )
-                                            .onChange(of: appearanceManager.redTextHue) { _, _ in hasChanges = true }
-                                            
-                                            HueSlider(
-                                                title: "Text Color 2",
-                                                hue: $appearanceManager.orangeTextHue,
-                                                currentColor: appearanceManager.currentOrangeTextColor
-                                            )
-                                            .onChange(of: appearanceManager.orangeTextHue) { _, _ in hasChanges = true }
-                                            
-                                            HueSlider(
-                                                title: "Text Color 3",
-                                                hue: $appearanceManager.greenTextHue,
-                                                currentColor: appearanceManager.currentGreenTextColor
-                                            )
-                                            .onChange(of: appearanceManager.greenTextHue) { _, _ in hasChanges = true }
-                                            
-                                            HueSlider(
-                                                title: "Text Color 4",
-                                                hue: $appearanceManager.blueTextHue,
-                                                currentColor: appearanceManager.currentBlueTextColor
-                                            )
-                                            .onChange(of: appearanceManager.blueTextHue) { _, _ in hasChanges = true }
+                        VStack(spacing: 16) {
+                            HueSlider(
+                                title: "Primary Text",
+                                hue: $appearanceManager.whiteTextHue,
+                                currentColor: appearanceManager.currentWhiteTextColor
+                            )
+                            .onChange(of: appearanceManager.whiteTextHue) { _, _ in hasChanges = true }
+                            
+                            HueSlider(
+                                title: "Secondary Text",
+                                hue: $appearanceManager.grayTextHue,
+                                currentColor: appearanceManager.currentGrayTextColor
+                            )
+                            .onChange(of: appearanceManager.grayTextHue) { _, _ in hasChanges = true }
+                            
+                            HueSlider(
+                                title: "Text Color 1",
+                                hue: $appearanceManager.redTextHue,
+                                currentColor: appearanceManager.currentRedTextColor
+                            )
+                            .onChange(of: appearanceManager.redTextHue) { _, _ in hasChanges = true }
+                            
+                            HueSlider(
+                                title: "Text Color 2",
+                                hue: $appearanceManager.orangeTextHue,
+                                currentColor: appearanceManager.currentOrangeTextColor
+                            )
+                            .onChange(of: appearanceManager.orangeTextHue) { _, _ in hasChanges = true }
+                            
+                            HueSlider(
+                                title: "Text Color 3",
+                                hue: $appearanceManager.greenTextHue,
+                                currentColor: appearanceManager.currentGreenTextColor
+                            )
+                            .onChange(of: appearanceManager.greenTextHue) { _, _ in hasChanges = true }
+                            
+                            HueSlider(
+                                title: "Text Color 4",
+                                hue: $appearanceManager.blueTextHue,
+                                currentColor: appearanceManager.currentBlueTextColor
+                            )
+                            .onChange(of: appearanceManager.blueTextHue) { _, _ in hasChanges = true }
                         }
                     }
                     .padding(.horizontal, 20)
@@ -469,6 +480,7 @@ struct AppearanceView: View {
                         }
                         .buttonStyle(PlainButtonStyle())
                         .disabled(!hasChanges)
+                        .animation(.easeInOut(duration: 0.3), value: hasChanges)
                     }
                     .padding(.horizontal, 20)
                 }
@@ -516,11 +528,10 @@ struct AppearanceView: View {
                 .background(Color(hex: "#1D1D1D"))
             }
         }
-                    .sheet(isPresented: $showingVisualizerTest) {
-                VisualizerTestSheet(color: appearanceManager.currentVisualizerColor)
-                    .presentationDetents([.medium])
-            }
-
+        .sheet(isPresented: $showingVisualizerTest) {
+            VisualizerTestSheet(color: appearanceManager.currentVisualizerColor)
+                .presentationDetents([.medium])
+        }
     }
 }
 

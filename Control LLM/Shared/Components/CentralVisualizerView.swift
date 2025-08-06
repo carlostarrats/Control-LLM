@@ -46,7 +46,6 @@ struct CentralVisualizerView: View {
 
     var body: some View {
         ZStack {
-            
             // Deep background wave layer - creates depth with Liquid
             Liquid(samples:50, period: 3.0)
                 .frame(width: 400, height: 400)
@@ -467,24 +466,24 @@ struct CentralVisualizerView: View {
 }
 
 #Preview {
-    VStack {
-        Text("Central Visualizer Preview")
+    VStack(spacing: 20) {
+        Text("Visualizer Styles Preview")
             .foregroundColor(.white)
+            .font(.title2)
             .padding()
         
-        CentralVisualizerView(isSpeaking: .constant(false))
-            .frame(width: 300, height: 300)
-            .background(Color.black)
-            .clipShape(Circle())
+        // Liquid Blob
+        VStack {
+            Text("Liquid Blob")
+                .foregroundColor(.white)
+                .font(.headline)
+            CentralVisualizerView(isSpeaking: .constant(false))
+                .frame(width: 200, height: 200)
+                .background(Color.black)
+                .clipShape(Circle())
+        }
         
-        Text("Animation Demo")
-            .foregroundColor(.white)
-            .padding()
-        
-        CentralVisualizerView(isSpeaking: .constant(true))
-            .frame(width: 200, height: 200)
-            .background(Color.black)
-            .clipShape(Circle())
+
     }
     .background(Color.black)
 }

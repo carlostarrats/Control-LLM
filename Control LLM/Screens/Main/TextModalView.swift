@@ -79,15 +79,7 @@ struct TextModalView: View {
                         LazyVStack(spacing: 12) {
                             // Date header - iOS style
                             if !viewModel.messages.isEmpty {
-                                HStack {
-                                    Spacer()
-                                    Text(formatSmartDate(Date()))
-                                        .font(.custom("IBMPlexMono", size: 12))
-                                        .foregroundColor(Color(hex: "#BBBBBB"))
-                                    Spacer()
-                                }
-                                .padding(.top, 20)
-                                .padding(.bottom, 10)
+                                DateHeaderView()
                             }
                             
                             ForEach(viewModel.messages) { message in
@@ -247,6 +239,7 @@ struct TextModalView: View {
 
 struct MessageBubble: View {
     let message: ChatMessage
+    @State private var isVisible = false
     
     var body: some View {
         HStack {
@@ -271,10 +264,74 @@ struct MessageBubble: View {
                     .font(.custom("IBMPlexMono", size: 12))
                     .foregroundColor(Color(hex: "#BBBBBB"))
             }
+            .opacity(isVisible ? 1 : 0)
+            .offset(y: isVisible ? 0 : 8)
+            .animation(.easeOut(duration: 0.4), value: isVisible)
             
             if !message.isUser {
                 Spacer()
             }
+        }
+        .onAppear {
+            // Small delay to create a staggered effect
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                isVisible = true
+            }
+        }
+    }
+}
+
+struct DateHeaderView: View {
+    @State private var isVisible = false
+    
+    var body: some View {
+        HStack {
+            Spacer()
+            Text(formatSmartDate(Date()))
+                .font(.custom("IBMPlexMono", size: 12))
+                .foregroundColor(Color(hex: "#BBBBBB"))
+            Spacer()
+        }
+        .padding(.top, 20)
+        .padding(.bottom, 10)
+        .opacity(isVisible ? 1 : 0)
+        .offset(y: isVisible ? 0 : 4)
+        .animation(.easeOut(duration: 0.3), value: isVisible)
+        .onAppear {
+            // Small delay to appear after the first message animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                isVisible = true
+            }
+        }
+    }
+    
+    private func formatSmartDate(_ date: Date) -> String {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        // Check if it's today
+        if calendar.isDate(date, inSameDayAs: now) {
+            return "Today"
+        }
+        
+        // Check if it's yesterday
+        let yesterday = calendar.date(byAdding: .day, value: -1, to: now)!
+        if calendar.isDate(date, inSameDayAs: yesterday) {
+            return "Yesterday"
+        }
+        
+        // Check if it's within the last 7 days (this week)
+        let weekAgo = calendar.date(byAdding: .day, value: -7, to: now)!
+        if date > weekAgo {
+            // Format as "Wednesday, Jan 29"
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE, MMM d"
+            return formatter.string(from: date)
+        } else {
+            // Format as "Jan 20, 2025"
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMM d, yyyy"
+            return formatter.string(from: date)
         }
     }
 }
