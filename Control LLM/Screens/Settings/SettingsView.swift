@@ -11,6 +11,7 @@ struct SettingsView: View {
     @State private var showingAppearance = false
     @State private var showingVoice = false
     @State private var showingLanguage = false
+
     @State private var showingHistory = false
     @State private var showingCredits = false
     
@@ -134,6 +135,7 @@ struct SettingsView: View {
         .sheet(isPresented: $showingLanguage) {
             LanguageView()
         }
+
         .sheet(isPresented: $showingHistory) {
             SettingsHistoryView(onHistoryDeleted: {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -171,6 +173,7 @@ struct SettingsView: View {
             SettingsItem(title: "Appearance", symbol: "paintbrush.pointed", action: { showingAppearance = true }),
             SettingsItem(title: "Voice", symbol: "bubble.left", action: { showingVoice = true }),
             SettingsItem(title: "Language", symbol: "globe", action: { showingLanguage = true }),
+
             SettingsItem(title: "Chat History", symbol: "list.bullet", action: { showingHistory = true }),
             SettingsItem(title: "Credits", symbol: "text.page", action: { showingCredits = true })
         ]
@@ -196,10 +199,30 @@ struct SettingsItemView: View {
                         .foregroundColor(Color(hex: "#BBBBBB"))
                         .frame(width: 20)
                     
-                    Text(item.title)
-                        .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(Color(hex: "#EEEEEE"))
-                        .multilineTextAlignment(.leading)
+                    VStack(alignment: .leading, spacing: 2) {
+                        // Show language with current selection on same line
+                        if item.title == "Language" {
+                            HStack(spacing: 4) {
+                                Text(item.title)
+                                    .font(.custom("IBMPlexMono", size: 16))
+                                    .foregroundColor(Color(hex: "#EEEEEE"))
+                                
+                                Text(":")
+                                    .font(.custom("IBMPlexMono", size: 16))
+                                    .foregroundColor(Color(hex: "#EEEEEE"))
+                                
+                                Text(LanguageService.shared.selectedLanguage)
+                                    .font(.custom("IBMPlexMono", size: 16))
+                                    .foregroundColor(Color(hex: "#666666"))
+                            }
+
+                        } else {
+                            Text(item.title)
+                                .font(.custom("IBMPlexMono", size: 16))
+                                .foregroundColor(Color(hex: "#EEEEEE"))
+                                .multilineTextAlignment(.leading)
+                        }
+                    }
                     
                     Spacer()
                     

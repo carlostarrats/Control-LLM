@@ -207,7 +207,7 @@ struct ChatSummaryView: View {
                 // Expanded content with proper masking
                 if isExpanded {
                     VStack(spacing: 10) { // 10px between expanded summaries
-                        ForEach(chat.expandedSummaries.prefix(1)) { expandedSummary in
+                        ForEach(Array(chat.expandedSummaries.prefix(1))) { expandedSummary in
                             ExpandedSummaryView(summary: expandedSummary) {
                                 // Handle continue chat action
                                 onTap(entry)

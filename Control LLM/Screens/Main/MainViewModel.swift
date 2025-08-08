@@ -21,19 +21,23 @@ class MainViewModel: ObservableObject {
     }
     
     func loadChatContext(from chatEntry: ChatHistoryEntry) {
-        // Don't clear existing messages - just add a context indicator
-        // Load the chat context from the history entry
-        // This would typically load the actual conversation history
-        // For now, we'll create a placeholder message indicating the context
-        let contextMessage = ChatMessage(
-            content: "Continuing conversation from \(chatEntry.date): \(chatEntry.chats.first?.summary ?? "Previous chat")",
-            isUser: false,
-            timestamp: Date()
-        )
-        messages.append(contextMessage)
+        // Clear existing messages
+        messages.removeAll()
         
-        // TODO: Load actual conversation history from persistent storage
-        // This would involve loading the full conversation that matches this history entry
+        // Load the actual conversation history from the chat entry
+        if let firstChat = chatEntry.chats.first {
+            // Create a context message indicating we're continuing the conversation
+            let contextMessage = ChatMessage(
+                content: "Continuing conversation from \(chatEntry.date): \(firstChat.summary)",
+                isUser: false,
+                timestamp: Date()
+            )
+            messages.append(contextMessage)
+            
+            // TODO: Load the actual message history from the ChatSession
+            // For now, we'll just show the context message
+            // In a full implementation, you would load the messages from the ChatSession
+        }
     }
     
     func activateVoiceInputMode() {
@@ -116,16 +120,24 @@ class MainViewModel: ObservableObject {
         let userMessage = ChatMessage(content: text, isUser: true, timestamp: Date())
         messages.append(userMessage)
         
-        // TODO: Implement actual LLM integration
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            let response = ChatMessage(
-                content: "This is a placeholder response to: \(text)",
-                isUser: false,
-                timestamp: Date()
-            )
-            self.messages.append(response)
-            self.lastMessage = response.content
-        }
+        // Use ChatViewModel for LLM integration
+        // The actual LLM response will be handled by the TextModalView through ChatViewModel
+        // This is just for adding the user message to the conversation
+    }
+    
+    func saveChatSession(title: String, summary: String) {
+        let session = ChatSession(
+            id: UUID().uuidString,
+            title: title,
+            summary: summary,
+            date: Date(),
+            messages: messages
+        )
+        
+        ChatHistoryService.shared.addChatSession(session)
+        
+        // Clear current messages after saving
+        messages.removeAll()
     }
     
     private func processVoiceInput(_ text: String) {
@@ -145,14 +157,14 @@ class MainViewModel: ObservableObject {
     }
 }
 
-enum MessageType {
+enum MessageType: Codable {
     case text
     case file
 }
 
-struct ChatMessage: Identifiable {
+struct ChatMessage: Identifiable, Codable {
     let id: String
-    let content: String
+    var content: String
     let isUser: Bool
     let timestamp: Date
     let messageType: MessageType

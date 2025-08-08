@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+
+		588A2AD72E452B9700F3091C /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588A2AD62E452B9500F3091C /* ChatViewModel.swift */; };
+
 		58CD8A9D2E368C20006A68FD /* Liquid in Frameworks */ = {isa = PBXBuildFile; productRef = 58CD8A9C2E368C20006A68FD /* Liquid */; };
 		58CD8B112E369FEE006A68FD /* IBMPlexMono-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 58CD8B102E369FEE006A68FD /* IBMPlexMono-Regular.otf */; };
 		58CD8B122E369FEE006A68FD /* IBMPlexMono-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 58CD8B0E2E369FEE006A68FD /* IBMPlexMono-Bold.otf */; };
@@ -31,6 +34,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		588A2AD62E452B9500F3091C /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
+
 		58CD8B0E2E369FEE006A68FD /* IBMPlexMono-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexMono-Bold.otf"; sourceTree = "<group>"; };
 		58CD8B0F2E369FEE006A68FD /* IBMPlexMono-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexMono-Medium.otf"; sourceTree = "<group>"; };
 		58CD8B102E369FEE006A68FD /* IBMPlexMono-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexMono-Regular.otf"; sourceTree = "<group>"; };
@@ -93,6 +98,8 @@
 		58E7B4B32E347AF100713E9B = {
 			isa = PBXGroup;
 			children = (
+				588A2AD62E452B9500F3091C /* ChatViewModel.swift */,
+
 				58CD8B0E2E369FEE006A68FD /* IBMPlexMono-Bold.otf */,
 				58CD8B0F2E369FEE006A68FD /* IBMPlexMono-Medium.otf */,
 				58CD8B102E369FEE006A68FD /* IBMPlexMono-Regular.otf */,
@@ -218,9 +225,9 @@
 			);
 			mainGroup = 58E7B4B32E347AF100713E9B;
 			minimizedProjectReferenceProxies = 1;
-					packageReferences = (
-			58CD8A9A2E368AB7006A68FD /* XCRemoteSwiftPackageReference "liquid" */,
-		);
+			packageReferences = (
+				58CD8A9A2E368AB7006A68FD /* XCRemoteSwiftPackageReference "liquid" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 58E7B4BD2E347AF100713E9B /* Products */;
 			projectDirPath = "";
@@ -265,6 +272,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				588A2AD72E452B9700F3091C /* ChatViewModel.swift in Sources */,
+
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -318,6 +327,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INCOMPLETE_UMBRELLA = NO;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
@@ -381,6 +391,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INCOMPLETE_UMBRELLA = NO;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
@@ -424,6 +435,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TV4QZT7A7X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIAppFonts = "IBMPlexMono-Regular.otf IBMPlexMono-Medium.otf IBMPlexMono-Bold.otf";
@@ -432,14 +444,17 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				SWIFT_OBJC_BRIDGING_HEADER = "Control LLM/Control_LLM-Bridging-Header.h";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = "Control.Design.Control-LLM";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -452,6 +467,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TV4QZT7A7X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIAppFonts = "IBMPlexMono-Regular.otf IBMPlexMono-Medium.otf IBMPlexMono-Bold.otf";
@@ -460,11 +476,13 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				SWIFT_OBJC_BRIDGING_HEADER = "Control LLM/Control_LLM-Bridging-Header.h";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = "Control.Design.Control-LLM";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -482,6 +500,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = "Control.Design.Control-LLMTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -500,6 +519,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = "Control.Design.Control-LLMTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -516,6 +536,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = "Control.Design.Control-LLMUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -532,6 +553,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = "Control.Design.Control-LLMUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -551,7 +573,7 @@
 				58E7B4DC2E347AF200713E9B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		58E7B4DD2E347AF200713E9B /* Build configuration list for PBXNativeTarget "Control LLM" */ = {
 			isa = XCConfigurationList;
@@ -560,7 +582,7 @@
 				58E7B4DF2E347AF200713E9B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		58E7B4E02E347AF200713E9B /* Build configuration list for PBXNativeTarget "Control LLMTests" */ = {
 			isa = XCConfigurationList;
@@ -569,7 +591,7 @@
 				58E7B4E22E347AF200713E9B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		58E7B4E32E347AF200713E9B /* Build configuration list for PBXNativeTarget "Control LLMUITests" */ = {
 			isa = XCConfigurationList;
@@ -578,7 +600,7 @@
 				58E7B4E52E347AF200713E9B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 
@@ -591,6 +613,7 @@
 				kind = branch;
 			};
 		};
+
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -599,6 +622,7 @@
 			package = 58CD8A9A2E368AB7006A68FD /* XCRemoteSwiftPackageReference "liquid" */;
 			productName = Liquid;
 		};
+
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 58E7B4B42E347AF100713E9B /* Project object */;

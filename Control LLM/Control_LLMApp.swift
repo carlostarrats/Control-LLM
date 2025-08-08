@@ -10,13 +10,28 @@ import SwiftUI
 @main
 struct Control_LLMApp: App {
     init() {
+        // Write to a file to test if the app is actually running
+        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let logFile = documentsPath.appendingPathComponent("app_log.txt")
+        let timestamp = Date().description
+        let logMessage = "🔍 App starting... at \(timestamp)\n"
+        try? logMessage.write(to: logFile, atomically: true, encoding: .utf8)
+        
+        NSLog("🔍 App starting...")
         // Register custom fonts
         registerCustomFonts()
+        NSLog("🔍 App started successfully")
+        
+        let successMessage = "🔍 App started successfully at \(timestamp)\n"
+        try? successMessage.write(to: logFile, atomically: false, encoding: .utf8)
     }
     
     var body: some Scene {
         WindowGroup {
             MainView()
+                .onAppear {
+                    NSLog("🔍 MainView appeared!")
+                }
         }
     }
     

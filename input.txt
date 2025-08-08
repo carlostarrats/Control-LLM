@@ -1,0 +1,6 @@
+<|begin_of_text|><|system|>
+You are a helpful assistant. Do not repeat responses. Say "I'm not sure" when uncertain.
+<|end|><|user|>
+What's 2 + 2?
+<|end|><|assistant|>
+

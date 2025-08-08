@@ -2,9 +2,19 @@ import SwiftUI
 
 struct LanguageView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedLanguage: String = "English" // Default to English
+    @State private var selectedLanguage: String = LanguageService.shared.selectedLanguage
     
-    private let languages = ["English", "Spanish", "French"]
+    // Languages supported by Llama 3.2
+    private let languages = [
+        "English",
+        "Spanish", 
+        "French",
+        "German",
+        "Italian",
+        "Portuguese",
+        "Dutch",
+        "Russian"
+    ]
     
     var body: some View {
         ZStack {
@@ -23,6 +33,8 @@ struct LanguageView: View {
                                 isSelected: selectedLanguage == language,
                                 onSelect: {
                                     selectedLanguage = language
+                                    // Save via LanguageService
+                                    LanguageService.shared.selectedLanguage = language
                                 }
                             )
                         }

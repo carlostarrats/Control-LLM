@@ -100,7 +100,8 @@ extension String {
     
     func truncate(to length: Int, trailing: String = "...") -> String {
         if self.count > length {
-            return String(self.prefix(length)) + trailing
+            let safeLength = min(length, self.count)
+            return String(self.prefix(safeLength)) + trailing
         } else {
             return self
         }

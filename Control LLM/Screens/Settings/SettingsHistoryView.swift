@@ -3,7 +3,7 @@ import SwiftUI
 struct SettingsHistoryView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showingDeleteSheet = false
-    @State private var referenceChatHistory = true // Default to true
+    @StateObject private var chatHistoryService = ChatHistoryService.shared
     let onHistoryDeleted: () -> Void
     
     var body: some View {
@@ -18,7 +18,7 @@ struct SettingsHistoryView: View {
                     // Reference Chat History option
                     VStack(spacing: 0) {
                         Button(action: {
-                            referenceChatHistory.toggle()
+                            chatHistoryService.toggleReferenceChatHistory()
                         }) {
                             HStack(alignment: .top) {
                                 VStack(alignment: .leading, spacing: 4) {
@@ -36,7 +36,7 @@ struct SettingsHistoryView: View {
                                 
                                 Spacer()
                                 
-                                Image(systemName: referenceChatHistory ? "checkmark.square.fill" : "square")
+                                Image(systemName: chatHistoryService.referenceChatHistory ? "checkmark.square.fill" : "square")
                                     .font(.system(size: 20))
                                     .foregroundColor(Color(hex: "#BBBBBB"))
                             }
@@ -132,7 +132,7 @@ struct SettingsHistoryView: View {
         .sheet(isPresented: $showingDeleteSheet) {
             DeleteHistorySheet(
                 onDelete: {
-                    // TODO: Implement actual delete functionality
+                    chatHistoryService.deleteAllHistory()
                     onHistoryDeleted()
                     dismiss() // Dismiss the history settings sheet
                 }

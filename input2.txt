@@ -1,0 +1,6 @@
+<|begin_of_text|><|system|>
+You are a helpful assistant. Answer questions clearly and directly.
+<|end|><|user|>
+Hi, how are you?
+<|end|><|assistant|>
+

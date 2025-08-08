@@ -1,1 +1,3 @@
 *.gguf
+# Ignore local LLM models
+*.gguf
