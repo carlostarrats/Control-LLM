@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "BC75F008-5B1C-496F-BA28-2817381397AB"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7FB85C99-4973-4F45-B57D-42D1257EA66B"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../Library/Developer/Xcode/DerivedData/Control_LLM-dahbsysgbyzlrkhhusdlaosadvaa/SourcePackages/checkouts/llama.cpp/ggml/src/ggml-metal/ggml-metal.m"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "3150"
+            endingLineNumber = "3150"
+            landmarkName = "ggml_metal_encode_node(backend, idx, encoder)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

@@ -2,6 +2,10 @@ import SwiftUI
 
 struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
+    
+    init() {
+        NSLog("🔍 MainView init")
+    }
     @State private var showingTextModal = false
     @State private var showingHistoryView = false // Added state for History sheet
     @State private var showingWhisperView = false // Added state for Whisper sheet
@@ -20,6 +24,7 @@ struct MainView: View {
     @State private var brightnessLevel: Double = 0.3 // 0.3 = 30% brightness for non-active state
     
     var body: some View {
+        let _ = NSLog("🔍 MainView body executing!")
         ZStack {
             // Background gradient - stays dark
             LinearGradient(

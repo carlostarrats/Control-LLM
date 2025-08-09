@@ -2,16 +2,12 @@ import SwiftUI
 
 struct SettingsModelsView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var activeModel: String = "llama-3.2-3b-instruct-4bit"
-    @State private var selectedModelsToDownload: Set<String> = ["deepseek-r1-distill-qwen-1.5b-8bit"]
+    @StateObject private var modelManager = ModelManager.shared
+    @State private var selectedModelsToDownload: Set<String> = []
     @State private var downloadingModel: String? = nil
     @State private var downloadProgress: Double = 0.0
-    @State private var installedModelsList: [Model] = [
-        Model(name: "llama-3.2-3b-instruct-4bit", size: "1.8 GB")
-    ]
     @State private var showingUnusedModelsSheet = false
     @State private var selectedUnusedModels: Set<String> = []
-    @State private var referenceChatHistory = true // Default to true
     
     var body: some View {
         ZStack {
@@ -26,48 +22,6 @@ struct SettingsModelsView: View {
                     Spacer()
                         .frame(height: 5)
                     
-                    // Reference Chat History option
-                    VStack(spacing: 0) {
-                        Button(action: {
-                            referenceChatHistory.toggle()
-                        }) {
-                            HStack(alignment: .top) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Reference chat history")
-                                        .font(.custom("IBMPlexMono", size: 16))
-                                        .foregroundColor(Color(hex: "#EEEEEE"))
-                                        .multilineTextAlignment(.leading)
-                                    
-                                    Text("Let the LLM reference recent conversations when responding.")
-                                        .font(.custom("IBMPlexMono", size: 12))
-                                        .foregroundColor(Color(hex: "#BBBBBB"))
-                                        .multilineTextAlignment(.leading)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                }
-                                
-                                Spacer()
-                                
-                                Image(systemName: referenceChatHistory ? "checkmark.square.fill" : "square")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(Color(hex: "#BBBBBB"))
-                            }
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 12)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .frame(maxWidth: .infinity)
-                        
-                        // Horizontal line under the item
-                        Rectangle()
-                            .fill(Color(hex: "#333333"))
-                            .frame(height: 1)
-                    }
-                    .padding(.horizontal, 20)
-                    
-                    // 30px spacing before first section
-                    Spacer()
-                        .frame(height: 30)
-                    
                     // INSTALLED section
                     VStack(alignment: .leading, spacing: 4) {
                         Text("INSTALLED")
@@ -76,22 +30,22 @@ struct SettingsModelsView: View {
                             .padding(.horizontal, 24)
                         
                         VStack(spacing: 0) {
-                            ForEach(installedModels, id: \.name) { model in
-                                InstalledModelView(
+                            ForEach(modelManager.availableModels, id: \.filename) { model in
+                                InstalledLLMModelView(
                                     model: model,
-                                    isActive: activeModel == model.name,
+                                    isActive: modelManager.selectedModel?.filename == model.filename,
                                     onSelect: {
-                                        activeModel = model.name
+                                        modelManager.selectModel(model)
                                     },
                                     onDelete: {
                                         // Only allow deletion if not active
-                                        if activeModel != model.name {
+                                        if modelManager.selectedModel?.filename != model.filename {
                                             // TODO: Implement actual deletion
                                         }
                                     }
                                 )
                             }
-                                            }
+                        }
                     .padding(.horizontal, 20)
                 }
                 
@@ -106,79 +60,61 @@ struct SettingsModelsView: View {
                             .foregroundColor(Color(hex: "#F8C762"))
                             .padding(.horizontal, 24)
                         
-                                                VStack(spacing: 0) {
-                            ForEach(availableModels, id: \.name) { model in
-                                AvailableModelView(
-                                    model: model,
-                                    isSelected: false, // No longer using selection
-                                    isDownloading: downloadingModel == model.name,
-                                    downloadProgress: downloadProgress,
-                                    onToggle: {
-                                        // No longer needed
-                                    },
-                                    onDownload: {
-                                        if downloadingModel == model.name {
-                                            // Stop download
-                                            downloadingModel = nil
-                                            downloadProgress = 0.0
-                                        } else if downloadingModel == nil {
-                                            // Start download
-                                            downloadingModel = model.name
-                                            downloadProgress = 0.0
-                                            
-                                            // Simulate download progress
-                                            simulateDownload(for: model.name)
+                        VStack(spacing: 0) {
+                            if availableDownloadModels.isEmpty {
+                                // Show "Already Installed" when no downloads available
+                                HStack {
+                                    Text("Already Installed")
+                                        .font(.custom("IBMPlexMono", size: 16))
+                                        .foregroundColor(Color(hex: "#666666"))
+                                        .multilineTextAlignment(.leading)
+                                    
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 16)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                
+                                // Horizontal line under the item
+                                Rectangle()
+                                    .fill(Color(hex: "#333333"))
+                                    .frame(height: 1)
+                            } else {
+                                ForEach(availableDownloadModels, id: \.name) { model in
+                                    AvailableModelView(
+                                        model: model,
+                                        isSelected: false, // No longer using selection
+                                        isDownloading: downloadingModel == model.name,
+                                        downloadProgress: downloadProgress,
+                                        onToggle: {
+                                            // No longer needed
+                                        },
+                                        onDownload: {
+                                            if downloadingModel == model.name {
+                                                // Stop download
+                                                downloadingModel = nil
+                                                downloadProgress = 0.0
+                                            } else if downloadingModel == nil {
+                                                // Start download
+                                                downloadingModel = model.name
+                                                downloadProgress = 0.0
+                                                
+                                                // Simulate download progress
+                                                simulateDownload(for: model.name)
+                                            }
                                         }
-                                    }
-                                )
+                                    )
+                                }
                             }
                         }
-                    .padding(.horizontal, 20)
-                }
+                        .padding(.horizontal, 20)
+                    }
                 
                 // 30px spacing between sections
                 Spacer()
                     .frame(height: 30)
                 
-                // Install your own model section
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("INSTALL YOUR OWN")
-                            .font(.custom("IBMPlexMono", size: 12))
-                            .foregroundColor(Color(hex: "#F8C762"))
-                            .padding(.horizontal, 24)
-                        
-                        VStack(spacing: 0) {
-                                                    Button(action: {
-                            // TODO: Implement install your own model functionality
-                        }) {
-                            HStack {
-                                Text("Install Your Own Model")
-                                    .font(.custom("IBMPlexMono", size: 16))
-                                    .foregroundColor(Color(hex: "#EEEEEE"))
-                                    .multilineTextAlignment(.leading)
-                                
-                                                    Spacer()
-                    
-                    Image(systemName: "arrow.down.square")
-                        .font(.system(size: 20))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
-                }
-                .padding(.horizontal, 4)
-                .padding(.vertical, 16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                            .frame(maxWidth: .infinity)
-                            
-                            // Horizontal line under the item
-                            Rectangle()
-                                .fill(Color(hex: "#333333"))
-                                .frame(height: 1)
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                }
-                
-                // 60px spacing from Install Your Own section
+                // 60px spacing from Available Downloads section
                 Spacer()
                     .frame(height: 60)
                 
@@ -200,6 +136,7 @@ struct SettingsModelsView: View {
                 
                 .padding(.bottom, 20)
             }
+        }
             .safeAreaInset(edge: .top) {
                 // Header
                 VStack(spacing: 0) {
@@ -246,13 +183,14 @@ struct SettingsModelsView: View {
         }
         .sheet(isPresented: $showingUnusedModelsSheet) {
             UnusedModelsSheet(
-                installedModels: installedModelsList,
-                activeModel: activeModel,
+                availableModels: modelManager.availableModels,
+                activeModel: modelManager.selectedModel?.filename ?? "",
                 selectedModels: $selectedUnusedModels,
                 onDelete: {
                     // Delete selected unused models
-                    for modelName in selectedUnusedModels {
-                        installedModelsList.removeAll { $0.name == modelName }
+                    for modelFilename in selectedUnusedModels {
+                        // TODO: Implement actual model deletion from bundle
+                        print("Would delete model: \(modelFilename)")
                     }
                     selectedUnusedModels.removeAll()
                 }
@@ -261,20 +199,15 @@ struct SettingsModelsView: View {
         }
     }
     
-    private var installedModels: [Model] {
-        installedModelsList
-    }
-    
-    private var availableModels: [Model] {
+    private var availableDownloadModels: [Model] {
         [
-            Model(name: "deepseek-r1-distill-qwen-1.5b-4bit", size: "1 GB"),
-            Model(name: "deepseek-r1-distill-qwen-1.5b-8bit", size: "1.9 GB"),
-            Model(name: "llama-3.2-1b-instruct-4bit", size: "0.7 GB")
+            // These models are now included in the main list
+            // Keeping this empty for future downloadable models
         ]
     }
     
     private var unusedModelsCount: Int {
-        installedModelsList.filter { $0.name != activeModel }.count
+        modelManager.availableModels.filter { $0.filename != (modelManager.selectedModel?.filename ?? "") }.count
     }
     
     private func simulateDownload(for modelName: String) {
@@ -290,9 +223,9 @@ struct SettingsModelsView: View {
                     downloadProgress = 0.0
                     
                     // Move model from available to installed
-                    if let model = availableModels.first(where: { $0.name == modelName }) {
-                        // Add to installed models
-                        installedModelsList.append(model)
+                    if availableDownloadModels.contains(where: { $0.name == modelName }) {
+                        // TODO: Actually download and install the model
+                        print("Downloaded model: \(modelName)")
                         // Remove from selected (no longer needed since we're not using selection)
                         selectedModelsToDownload.remove(modelName)
                     }
@@ -310,8 +243,8 @@ struct Model: Identifiable {
     let size: String
 }
 
-struct InstalledModelView: View {
-    let model: Model
+struct InstalledLLMModelView: View {
+    let model: LLMModelInfo
     let isActive: Bool
     let onSelect: () -> Void
     let onDelete: () -> Void
@@ -321,16 +254,25 @@ struct InstalledModelView: View {
             Button(action: onSelect) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text(model.name)
+                        Text(model.displayName)
                             .font(.custom("IBMPlexMono", size: 16))
                             .foregroundColor(Color(hex: "#EEEEEE"))
                             .multilineTextAlignment(.leading)
                             .lineLimit(2)
                         
-                        Text(model.size)
-                            .font(.custom("IBMPlexMono", size: 10))
-                            .foregroundColor(Color(hex: "#FF6B6B"))
-                            .multilineTextAlignment(.leading)
+                        HStack {
+                            Text(model.size)
+                                .font(.custom("IBMPlexMono", size: 10))
+                                .foregroundColor(Color(hex: "#FF6B6B"))
+                            
+                            Text("•")
+                                .font(.custom("IBMPlexMono", size: 10))
+                                .foregroundColor(Color(hex: "#666666"))
+                            
+                            Text(model.provider)
+                                .font(.custom("IBMPlexMono", size: 10))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                        }
                     }
                     
                     Spacer()
@@ -353,6 +295,8 @@ struct InstalledModelView: View {
         }
     }
 }
+
+
 
 struct AvailableModelView: View {
     let model: Model
@@ -432,13 +376,13 @@ struct AvailableModelView: View {
 
 struct UnusedModelsSheet: View {
     @Environment(\.dismiss) private var dismiss
-    let installedModels: [Model]
+    let availableModels: [LLMModelInfo]
     let activeModel: String
     @Binding var selectedModels: Set<String>
     let onDelete: () -> Void
     
-    private var unusedModels: [Model] {
-        installedModels.filter { $0.name != activeModel }
+    private var unusedModels: [LLMModelInfo] {
+        availableModels.filter { $0.filename != activeModel }
     }
     
     var body: some View {
@@ -465,16 +409,16 @@ struct UnusedModelsSheet: View {
                     // List of unused models
                                             ScrollView {
                             VStack(spacing: 0) {
-                                ForEach(Array(unusedModels.enumerated()), id: \.element.name) { index, model in
-                                    UnusedModelRowView(
+                                ForEach(Array(unusedModels.enumerated()), id: \.element.filename) { index, model in
+                                    UnusedLLMModelRowView(
                                         model: model,
-                                        isSelected: selectedModels.contains(model.name),
+                                        isSelected: selectedModels.contains(model.filename),
                                         isLastItem: index == unusedModels.count - 1,
                                         onToggle: {
-                                            if selectedModels.contains(model.name) {
-                                                selectedModels.remove(model.name)
+                                            if selectedModels.contains(model.filename) {
+                                                selectedModels.remove(model.filename)
                                             } else {
-                                                selectedModels.insert(model.name)
+                                                selectedModels.insert(model.filename)
                                             }
                                         }
                                     )
@@ -555,6 +499,45 @@ struct UnusedModelsSheet: View {
                 .background(
                     Color(hex: "#1D1D1D")
                 )
+            }
+        }
+    }
+}
+
+struct UnusedLLMModelRowView: View {
+    let model: LLMModelInfo
+    let isSelected: Bool
+    let isLastItem: Bool
+    let onToggle: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Button(action: onToggle) {
+                HStack(alignment: .top) {
+                    Text(model.displayName)
+                        .font(.custom("IBMPlexMono", size: 16))
+                        .foregroundColor(Color(hex: "#EEEEEE"))
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
+                    
+                    Spacer()
+                    
+                    // Selection indicator
+                    Image(systemName: isSelected ? "checkmark.square.fill" : "square")
+                        .font(.system(size: 20))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
+                }
+                .padding(.horizontal, 4)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .frame(maxWidth: .infinity)
+            
+            // Horizontal line under the item (only if not the last item)
+            if !isLastItem {
+                Rectangle()
+                    .fill(Color(hex: "#333333"))
+                    .frame(height: 1)
             }
         }
     }
