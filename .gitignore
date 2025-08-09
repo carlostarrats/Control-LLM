@@ -1,3 +1,5 @@
 *.gguf
 # Ignore local LLM models
 *.gguf
+# Swift Package Manager
+**/**/Package.resolved
