@@ -15,43 +15,7 @@ struct SettingsHistoryView: View {
             // Scrollable content
             ScrollView {
                 VStack(spacing: 8) {
-                    // Reference Chat History option
-                    VStack(spacing: 0) {
-                        Button(action: {
-                            chatHistoryService.toggleReferenceChatHistory()
-                        }) {
-                            HStack(alignment: .top) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Reference Chat History")
-                                        .font(.custom("IBMPlexMono", size: 16))
-                                        .foregroundColor(Color(hex: "#EEEEEE"))
-                                        .multilineTextAlignment(.leading)
-                                    
-                                    Text("Let the LLM reference recent conversations when responding.")
-                                        .font(.custom("IBMPlexMono", size: 12))
-                                        .foregroundColor(Color(hex: "#BBBBBB"))
-                                        .multilineTextAlignment(.leading)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                }
-                                
-                                Spacer()
-                                
-                                Image(systemName: chatHistoryService.referenceChatHistory ? "checkmark.square.fill" : "square")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(Color(hex: "#BBBBBB"))
-                            }
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 12)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .frame(maxWidth: .infinity)
-                        
-                        // Horizontal line under the item
-                        Rectangle()
-                            .fill(Color(hex: "#333333"))
-                            .frame(height: 1)
-                    }
-                    .padding(.horizontal, 20)
+                    // Reference Chat History option removed
                     
                     // Delete All History option
                     VStack(spacing: 0) {

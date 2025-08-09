@@ -10,10 +10,18 @@ class ChatHistoryService: ObservableObject {
     private let userDefaults = UserDefaults.standard
     private let historyKey = "chat_history"
     private let referenceKey = "reference_chat_history"
+    private let sessionsKey = "chat_sessions"
+    
+    // Store full ChatSession objects separately for complete message history
+    private var chatSessions: [String: ChatSession] = [:]
     
     private init() {
         loadReferenceSetting()
+        loadChatSessions()
         loadHistoryData()
+        
+        // Clear any existing sample data on first run after update
+        clearSampleDataIfNeeded()
     }
     
     // MARK: - Reference Chat History Setting
@@ -34,20 +42,48 @@ class ChatHistoryService: ObservableObject {
     // MARK: - Chat History Management
     
     func addChatSession(_ session: ChatSession) {
-        // Add new chat session to history
-        let entry = createHistoryEntry(from: session)
+        // Store the full session for message retrieval
+        chatSessions[session.id] = session
+        saveChatSessions()
         
         // Find or create the year group
         let year = Calendar.current.component(.year, from: session.date)
         let yearString = String(year)
         
-        if let index = historyGroups.firstIndex(where: { $0.year == yearString }) {
-            // Add to existing year group
-            historyGroups[index].entries.insert(entry, at: 0) // Add at beginning
+        // Format the date for grouping conversations by day
+        let today = Date()
+        let formattedDate = formatDate(session.date, today: today)
+        
+        // Create the chat summary for this session
+        let fullSummary = createFullSummary(from: session)
+        let summary = ChatSummary(
+            id: session.id,
+            summary: session.title,
+            expandedSummaries: [
+                ExpandedSummary(
+                    id: UUID().uuidString,
+                    content: fullSummary,
+                    buttonText: "Continue Chat"
+                )
+            ],
+            timestamp: formatTime(session.date)
+        )
+        
+        if let yearIndex = historyGroups.firstIndex(where: { $0.year == yearString }) {
+            // Check if there's already an entry for this date
+            if let entryIndex = historyGroups[yearIndex].entries.firstIndex(where: { $0.date == formattedDate }) {
+                // Add to existing date entry - insert at beginning for newest first
+                historyGroups[yearIndex].entries[entryIndex].chats.insert(summary, at: 0)
+            } else {
+                // Create new date entry and insert at beginning
+                let newEntry = ChatHistoryEntry(date: formattedDate, chats: [summary])
+                historyGroups[yearIndex].entries.insert(newEntry, at: 0)
+            }
         } else {
-            // Create new year group
-            let newGroup = HistoryGroup(year: yearString, entries: [entry])
-            historyGroups.insert(newGroup, at: 0) // Add at beginning
+            // Create new year group with new date entry
+            let newEntry = ChatHistoryEntry(date: formattedDate, chats: [summary])
+            let newGroup = HistoryGroup(year: yearString, entries: [newEntry])
+            historyGroups.insert(newGroup, at: 0)
         }
         
         saveHistoryData()
@@ -55,7 +91,28 @@ class ChatHistoryService: ObservableObject {
     
     func deleteAllHistory() {
         historyGroups.removeAll()
+        chatSessions.removeAll()
         saveHistoryData()
+        saveChatSessions()
+    }
+    
+    func getChatSession(byId id: String) -> ChatSession? {
+        // Return the full session with complete message history
+        return chatSessions[id]
+    }
+    
+    private func parseDate(from dateString: String, timestamp: String) -> Date? {
+        // Try to parse the date and timestamp back to a Date object
+        // This is a simplified implementation
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d" // e.g., "Dec 25"
+        if let date = formatter.date(from: dateString) {
+            // Add current year if not specified
+            let calendar = Calendar.current
+            let currentYear = calendar.component(.year, from: Date())
+            return calendar.date(byAdding: .year, value: currentYear - 1970, to: date) // Adjust for year
+        }
+        return nil
     }
     
     func deleteHistoryEntry(_ entry: ChatHistoryEntry) {
@@ -78,8 +135,8 @@ class ChatHistoryService: ObservableObject {
     private func loadHistoryData() {
         guard let data = userDefaults.data(forKey: historyKey),
               let savedGroups = try? JSONDecoder().decode([HistoryGroup].self, from: data) else {
-            // No saved data, create sample data for demonstration
-            createSampleData()
+            // No saved data, start with empty history
+            historyGroups = []
             return
         }
         
@@ -91,11 +148,28 @@ class ChatHistoryService: ObservableObject {
         userDefaults.set(data, forKey: historyKey)
     }
     
+    private func loadChatSessions() {
+        guard let data = userDefaults.data(forKey: sessionsKey),
+              let sessions = try? JSONDecoder().decode([String: ChatSession].self, from: data) else {
+            chatSessions = [:]
+            return
+        }
+        chatSessions = sessions
+    }
+    
+    private func saveChatSessions() {
+        guard let data = try? JSONEncoder().encode(chatSessions) else { return }
+        userDefaults.set(data, forKey: sessionsKey)
+    }
+    
     // MARK: - Helper Methods
     
     private func createHistoryEntry(from session: ChatSession) -> ChatHistoryEntry {
         let today = Date()
         let formattedDate = formatDate(session.date, today: today)
+        
+        // Store a detailed summary including the full conversation context
+        let fullSummary = createFullSummary(from: session)
         
         let summary = ChatSummary(
             id: session.id,
@@ -103,7 +177,7 @@ class ChatHistoryService: ObservableObject {
             expandedSummaries: [
                 ExpandedSummary(
                     id: UUID().uuidString,
-                    content: session.summary,
+                    content: fullSummary,
                     buttonText: "Continue Chat"
                 )
             ],
@@ -114,6 +188,27 @@ class ChatHistoryService: ObservableObject {
             date: formattedDate,
             chats: [summary]
         )
+    }
+    
+    private func createFullSummary(from session: ChatSession) -> String {
+        // Create a natural conversation summary
+        guard let messages = session.messages, !messages.isEmpty else {
+            return session.summary
+        }
+        
+        let userMessages = messages.filter { $0.isUser }
+        let _ = messages.filter { !$0.isUser && !$0.content.isEmpty }
+        
+        // Get first few user messages to create a better summary
+        let keyQuestions = userMessages.prefix(3).map { $0.content.trimmingCharacters(in: .whitespacesAndNewlines) }
+        
+        if keyQuestions.count == 1 {
+            return keyQuestions[0]
+        } else if keyQuestions.count == 2 {
+            return "\(keyQuestions[0]) and \(keyQuestions[1])"
+        } else {
+            return "\(keyQuestions[0]), \(keyQuestions[1]), and more"
+        }
     }
     
     private func formatDate(_ date: Date, today: Date) -> String {
@@ -141,77 +236,54 @@ class ChatHistoryService: ObservableObject {
         return dateFormatter.string(from: date)
     }
     
-    // MARK: - Sample Data Creation
+    // MARK: - Helper Methods for Chat Summaries
     
-    private func createSampleData() {
-        let calendar = Calendar.current
-        let today = Date()
-        
-        let sampleSessions: [ChatSession] = [
-            ChatSession(
-                id: UUID().uuidString,
-                title: "Top 10 kinds of movies",
-                summary: "This conversation covered various movie genres including action, drama, comedy, thriller, horror, sci-fi, romance, documentary, animation, and musical. We discussed the characteristics of each genre and provided examples of notable films in each category.",
-                date: today
-            ),
-            ChatSession(
-                id: UUID().uuidString,
-                title: "Best programming practices for Swift development",
-                summary: "We discussed essential Swift programming practices including proper naming conventions, memory management, error handling, and design patterns. Key topics covered were ARC, optionals, protocols, and SwiftUI best practices.",
-                date: calendar.date(byAdding: .day, value: -1, to: today)!
-            ),
-            ChatSession(
-                id: UUID().uuidString,
-                title: "How to implement dark mode in iOS apps",
-                summary: "Comprehensive guide on implementing dark mode in iOS applications. We covered color schemes, asset management, dynamic colors, and user preference handling for seamless dark mode transitions.",
-                date: calendar.date(byAdding: .day, value: -3, to: today)!
-            ),
-            ChatSession(
-                id: UUID().uuidString,
-                title: "Machine learning algorithms comparison",
-                summary: "We compared various machine learning algorithms including supervised learning (linear regression, logistic regression, decision trees), unsupervised learning (clustering, dimensionality reduction), and deep learning approaches.",
-                date: calendar.date(byAdding: .day, value: -5, to: today)!
-            ),
-            ChatSession(
-                id: UUID().uuidString,
-                title: "Advanced SwiftUI animations",
-                summary: "We explored advanced SwiftUI animation techniques including custom transitions, spring animations, and complex gesture-based interactions. Covered topics included matched geometry effects, timeline animations, and performance optimization.",
-                date: calendar.date(byAdding: .day, value: -10, to: today)!
-            ),
-            ChatSession(
-                id: UUID().uuidString,
-                title: "iOS app architecture patterns",
-                summary: "We discussed various iOS app architecture patterns including MVC, MVVM, VIPER, and Clean Architecture. Each pattern was analyzed for its benefits, trade-offs, and implementation strategies.",
-                date: calendar.date(byAdding: .day, value: -15, to: today)!
-            ),
-            ChatSession(
-                id: UUID().uuidString,
-                title: "Legacy project migration strategies",
-                summary: "We covered strategies for migrating legacy iOS projects to modern frameworks and practices. Topics included gradual migration approaches, dependency management, and testing strategies for large codebases.",
-                date: calendar.date(byAdding: .year, value: -1, to: today)!
-            )
-        ]
-        
-        // Group sessions by year
-        var groupedByYear: [String: [ChatSession]] = [:]
-        
-        for session in sampleSessions {
-            let year = calendar.component(.year, from: session.date)
-            let yearString = String(year)
-            if groupedByYear[yearString] == nil {
-                groupedByYear[yearString] = []
+    func generateChatSummary(from messages: [ChatMessage]) -> String {
+        // Create a summary from the first user message or use a default
+        let userMessages = messages.filter { $0.isUser }
+        if let firstUserMessage = userMessages.first {
+            let content = firstUserMessage.content.trimmingCharacters(in: .whitespacesAndNewlines)
+            // Truncate to reasonable length for summary
+            if content.count > 60 {
+                return String(content.prefix(57)) + "..."
             }
-            groupedByYear[yearString]?.append(session)
+            return content
         }
-        
-        // Convert to HistoryGroup format
-        historyGroups = groupedByYear.keys.sorted(by: >).map { year in
-            let sessions = groupedByYear[year]!.sorted { $0.date > $1.date }
-            let entries = sessions.map { createHistoryEntry(from: $0) }
-            return HistoryGroup(year: year, entries: entries)
+        return "New conversation"
+    }
+    
+    func generateChatTitle(from messages: [ChatMessage]) -> String {
+        // Use first user message as title, or generate from content
+        let userMessages = messages.filter { $0.isUser }
+        if let firstUserMessage = userMessages.first {
+            let content = firstUserMessage.content.trimmingCharacters(in: .whitespacesAndNewlines)
+            // Keep title shorter
+            if content.count > 40 {
+                return String(content.prefix(37)) + "..."
+            }
+            return content
         }
+        return "Chat conversation"
+    }
+    
+    private func clearSampleDataIfNeeded() {
+        let hasSeenUpdateKey = "has_cleared_sample_data_v3"
         
-        saveHistoryData()
+        if !userDefaults.bool(forKey: hasSeenUpdateKey) {
+            // Clear all existing data including UI state
+            historyGroups.removeAll()
+            chatSessions.removeAll()
+            saveHistoryData()
+            saveChatSessions()
+            
+            // Also clear date header tracking for fresh start
+            userDefaults.removeObject(forKey: "lastDateHeaderShown")
+            
+            // Mark that we've cleared the sample data
+            userDefaults.set(true, forKey: hasSeenUpdateKey)
+            
+            print("🧹 Cleared sample data and UI state - starting fresh with real conversations only")
+        }
     }
 }
 

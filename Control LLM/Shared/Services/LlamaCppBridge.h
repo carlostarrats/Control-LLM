@@ -3,24 +3,28 @@
 
 #include <Foundation/Foundation.h>
 
-// Llama.cpp C API wrapper functions
+// C-friendly wrapper functions to bridge Swift and llama.cpp without symbol/type conflicts
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Model loading and context management
-void* llama_load_model(const char* model_path);
-void llama_free_model(void* model);
-void* llama_create_context(void* model);
-void llama_free_context(void* context);
+// Model loading and context management (opaque pointers on the boundary)
+void* llm_bridge_load_model(const char* model_path);
+void llm_bridge_free_model(void* model);
+void* llm_bridge_create_context(void* model);
+void llm_bridge_free_context(void* context);
 
 // Text generation
-int llama_generate_text(void* context, const char* prompt, char* output, int max_length);
-int llama_generate_token(void* context, char* token, int max_token_length);
+int llm_bridge_generate_text(void* context, const char* prompt, char* output, int max_length);
+int llm_bridge_generate_token(void* context, char* token, int max_token_length);
 
 // Context management
-void llama_reset_context(void* context);
-int llama_get_context_size(void* context);
+void llm_bridge_reset_context(void* context);
+int llm_bridge_get_context_size(void* context);
+
+// Streaming callback API for Swift
+typedef void (^llm_piece_block)(const char* piece);
+void llm_bridge_generate_stream_block(void* context, const char* prompt, llm_piece_block callback, int max_new_tokens);
 
 #ifdef __cplusplus
 }

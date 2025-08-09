@@ -24,19 +24,22 @@ class MainViewModel: ObservableObject {
         // Clear existing messages
         messages.removeAll()
         
-        // Load the actual conversation history from the chat entry
-        if let firstChat = chatEntry.chats.first {
-            // Create a context message indicating we're continuing the conversation
-            let contextMessage = ChatMessage(
-                content: "Continuing conversation from \(chatEntry.date): \(firstChat.summary)",
-                isUser: false,
-                timestamp: Date()
-            )
-            messages.append(contextMessage)
+        // Find the actual ChatSession and load its messages
+        if let firstChat = chatEntry.chats.first,
+           let session = ChatHistoryService.shared.getChatSession(byId: firstChat.id) {
             
-            // TODO: Load the actual message history from the ChatSession
-            // For now, we'll just show the context message
-            // In a full implementation, you would load the messages from the ChatSession
+            // Load the actual message history from the ChatSession
+            if let sessionMessages = session.messages {
+                messages = sessionMessages
+            } else {
+                // Fallback: create a context message if no messages available
+                let contextMessage = ChatMessage(
+                    content: "Continuing conversation: \(firstChat.summary)",
+                    isUser: false,
+                    timestamp: Date()
+                )
+                messages.append(contextMessage)
+            }
         }
     }
     
@@ -125,19 +128,61 @@ class MainViewModel: ObservableObject {
         // This is just for adding the user message to the conversation
     }
     
-    func saveChatSession(title: String, summary: String) {
+    func saveChatSession(title: String? = nil, summary: String? = nil) {
+        print("📝 Attempting to save chat session...")
+        print("   Messages count: \(messages.count)")
+        print("   User messages: \(messages.filter { $0.isUser }.count)")
+        print("   Assistant messages: \(messages.filter { !$0.isUser }.count)")
+        print("   Non-empty assistant messages: \(messages.filter { !$0.isUser && !$0.content.isEmpty }.count)")
+        
+        // Only save if there are meaningful messages (at least one user and one assistant message)
+        guard messages.count >= 2,
+              messages.contains(where: { $0.isUser }),
+              messages.contains(where: { !$0.isUser && !$0.content.isEmpty }) else {
+            print("❌ Save failed: Not enough meaningful messages")
+            return
+        }
+        
+        let chatHistoryService = ChatHistoryService.shared
+        let generatedTitle = title ?? chatHistoryService.generateChatTitle(from: messages)
+        let generatedSummary = summary ?? chatHistoryService.generateChatSummary(from: messages)
+        
+        print("   Generated title: '\(generatedTitle)'")
+        print("   Generated summary: '\(generatedSummary)'")
+        
         let session = ChatSession(
             id: UUID().uuidString,
-            title: title,
-            summary: summary,
-            date: Date(),
+            title: generatedTitle,
+            summary: generatedSummary,
+            date: messages.first?.timestamp ?? Date(),
             messages: messages
         )
         
-        ChatHistoryService.shared.addChatSession(session)
-        
-        // Clear current messages after saving
+        chatHistoryService.addChatSession(session)
+        print("✅ Chat session saved successfully!")
+    }
+    
+    func clearMessages() {
         messages.removeAll()
+        hasAutoSaved = false // Reset auto-save flag for new conversation
+    }
+    
+    private var hasAutoSaved = false
+    
+    func autoSaveIfNeeded() {
+        // Only save when conversation has meaningful content (multiple exchanges)
+        let userMessageCount = messages.filter { $0.isUser }.count
+        let assistantMessageCount = messages.filter { !$0.isUser && !$0.content.isEmpty }.count
+        
+        print("🔄 AutoSave check: \(userMessageCount) user messages, \(assistantMessageCount) assistant messages")
+        print("   Has already auto-saved: \(hasAutoSaved)")
+        
+        // Save after first complete exchange (1 user + 1 assistant) but only once per conversation
+        if userMessageCount >= 1 && assistantMessageCount >= 1 && !hasAutoSaved {
+            print("💾 Auto-saving conversation...")
+            saveChatSession()
+            hasAutoSaved = true
+        }
     }
     
     private func processVoiceInput(_ text: String) {

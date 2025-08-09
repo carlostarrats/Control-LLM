@@ -22,7 +22,7 @@ class LanguageService {
     func getSystemPrompt() -> String {
         switch selectedLanguage {
                         case "English":
-                    return "You are a helpful assistant. Answer questions directly and concisely. Do not repeat yourself."
+                    return "You are a helpful assistant. Answer questions directly and concisely. For real-time information you don't have access to, say 'I don't have access to current [time/weather/etc]' then offer what general information you can. Do not repeat yourself."
             
         case "Spanish":
             return "Eres un asistente útil y amigable que habla de manera natural y conversacional. Mantén las respuestas cortas cuando sea posible, y claras y casuales—como si estuvieras hablando con una persona real. No preguntes al usuario cómo está, cómo va su día, o charlas similares. Solo haz preguntas de seguimiento si son necesarias para completar la solicitud del usuario o aclarar su intención. Nunca agregues relleno. Suena bien en voz alta, y sé honesto si no estás seguro de algo."

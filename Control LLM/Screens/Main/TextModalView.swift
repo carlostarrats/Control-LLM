@@ -21,6 +21,7 @@ struct TextModalView: View {
     @State private var selectedDetent: PresentationDetent = .large
     @FocusState private var isTextFieldFocused: Bool
     @State private var showingDocumentPicker = false
+    @State private var showDateHeader = false
 
     // MARK: body -------------------------------------------------------------
     var body: some View {
@@ -40,6 +41,39 @@ struct TextModalView: View {
         }
         .presentationDetents([.height(100), .medium, .large], selection: $selectedDetent)
         .presentationDragIndicator(.hidden)
+        .onAppear {
+            checkIfShouldShowDateHeader()
+        }
+    }
+    
+    // MARK: - Date header logic ----------------------------------------------
+    private func checkIfShouldShowDateHeader() {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let todayString = formatter.string(from: Date())
+        
+        // Get the last date when header was shown
+        let lastShownDate = UserDefaults.standard.string(forKey: "lastDateHeaderShown")
+        
+        print("🗓️ Date header check:")
+        print("  Today: \(todayString)")
+        print("  Last shown: \(lastShownDate ?? "nil")")
+        print("  Messages count: \(viewModel.messages.count)")
+        
+        // Show header if there are messages AND we haven't shown it today
+        if !viewModel.messages.isEmpty {
+            if lastShownDate != todayString {
+                UserDefaults.standard.set(todayString, forKey: "lastDateHeaderShown")
+                showDateHeader = true
+            } else {
+                // Still show if we have messages, even if we've shown it today
+                showDateHeader = true
+            }
+        } else {
+            showDateHeader = false
+        }
+        
+        print("  Will show header: \(showDateHeader)")
     }
 
     // MARK: header -----------------------------------------------------------
@@ -83,7 +117,9 @@ struct TextModalView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 24) {
-                    if !viewModel.messages.isEmpty { DateHeaderView() }
+                    if !viewModel.messages.isEmpty && showDateHeader { 
+                        DateHeaderView(firstMessageTime: viewModel.messages.first?.timestamp) 
+                    }
                     ForEach(viewModel.messages) { MessageBubble(message: $0).id($0.id) }
                 }
                 .padding(.horizontal, 20)
@@ -91,6 +127,9 @@ struct TextModalView: View {
                 .padding(.bottom, 24)
             }
             .onChange(of: viewModel.messages.count) { _, _ in
+                // Update date header when messages change
+                checkIfShouldShowDateHeader()
+                
                 if let last = viewModel.messages.last {
                     withAnimation(.easeOut(duration: 0.3)) {
                         proxy.scrollTo(last.id, anchor: .center)
@@ -213,15 +252,17 @@ struct TextModalView: View {
         // 1) user bubble
         viewModel.sendTextMessage(text)
 
-        // 2) placeholder assistant bubble
-        let placeholder = ChatMessage(
-            content: "",
-            isUser: false,
-            timestamp: Date(),
-            messageType: .text
-        )
-        viewModel.messages.append(placeholder)
-        print("Added empty placeholder message")
+        // 2) placeholder assistant bubble (slight delay so it appears after user bubble)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            let placeholder = ChatMessage(
+                content: "",
+                isUser: false,
+                timestamp: Date(),
+                messageType: .text
+            )
+            viewModel.messages.append(placeholder)
+            print("Added empty placeholder message (delayed)")
+        }
 
         // 3) clear field + ask model
         DispatchQueue.main.async {
@@ -230,8 +271,8 @@ struct TextModalView: View {
         print("🔍 About to call llm.send(text) with text: '\(text)'")
         llm.send(text)
 
-        // 4) start polling the stream with a much longer delay to allow thinking animation to show
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+        // 4) start polling the stream immediately for real-time word streaming
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             print("Starting monitorAssistantStream")
             isPolling = true
             pollCount = 0
@@ -273,6 +314,8 @@ struct TextModalView: View {
                     isPolling = false
                     pollCount = 0
                     isDuplicateMessage = false
+                    // Trigger auto-save when response is complete
+                    viewModel.autoSaveIfNeeded()
                     return
                 }
                 
@@ -281,6 +324,8 @@ struct TextModalView: View {
                     print("Stopping poll - no transcript change for 5 seconds")
                     isPolling = false
                     pollCount = 0
+                    // Trigger auto-save when response is complete
+                    viewModel.autoSaveIfNeeded()
                     return
                 }
                 self.scheduleNextPoll()
@@ -315,8 +360,8 @@ struct TextModalView: View {
     private func scheduleNextPoll() {
         guard isPolling else { return }
         pollCount += 1
-        // Continue polling until we get a newline (end of response)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        // Poll at a comfortable reading pace (200ms for natural streaming)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             monitorAssistantStream()
         }
     }
@@ -396,22 +441,30 @@ struct MessageBubble: View {
                         // Show thinking animation for empty assistant messages
                         ThinkingAnimationView()
                     } else {
-                        Text(message.content)
-                            .font(.custom("IBMPlexMono", size: 16))
-                            .lineLimit(nil)
-                            .multilineTextAlignment(.leading)
-                            .padding(.horizontal, 16).padding(.vertical, 10)
-                            .background(message.isUser ? Color(hex: "#EEEEEE") : Color(hex: "#2A2A2A"))
-                            .cornerRadius(4)
-                            .foregroundColor(message.isUser ? .black : Color(hex: "#EEEEEE"))
+                        if message.isUser {
+                            // User messages show normally
+                            Text(message.content)
+                                .font(.custom("IBMPlexMono", size: 16))
+                                .lineLimit(nil)
+                                .multilineTextAlignment(.leading)
+                                .padding(.horizontal, 16).padding(.vertical, 10)
+                                .background(Color(hex: "#2A2A2A"))
+                                .cornerRadius(4)
+                                .foregroundColor(Color(hex: "#EEEEEE"))
+                        } else {
+                            // LLM messages with smooth background fade
+                            Text(message.content)
+                                .font(.custom("IBMPlexMono", size: 16))
+                                .lineLimit(nil)
+                                .multilineTextAlignment(.leading)
+                                .padding(.horizontal, 16).padding(.vertical, 10)
+                                .background(Color(hex: "#BBBBBB"))
+                                .cornerRadius(4)
+                                .foregroundColor(Color(hex: "#141414"))
+                        }
                     }
                 }
-                // Only show timestamp for user messages (not for assistant messages or thinking animation)
-                if message.isUser && !message.content.isEmpty {
-                    Text(message.timestamp, style: .time)
-                        .font(.custom("IBMPlexMono", size: 12))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
-                }
+                // Timestamps removed - now shown in date header instead
             }
             .opacity(isVisible ? 1 : 0)
             .offset(y: isVisible ? 0 : 8)
@@ -425,6 +478,8 @@ struct MessageBubble: View {
     }
 }
 
+
+
 // MARK: - Thinking animation -------------------------------------------------
 
 struct ThinkingAnimationView: View {
@@ -434,7 +489,7 @@ struct ThinkingAnimationView: View {
         HStack(spacing: 4) {
             ForEach(0..<3, id: \.self) { index in
                 Rectangle()
-                    .fill(Color(hex: "#BBBBBB")) // Grey color
+                    .fill(Color(hex: "#141414"))
                     .frame(width: 4, height: 4) // Square and smaller
                     .offset(y: isAnimating ? -2 : 0) // Same movement
                     .animation(
@@ -446,7 +501,7 @@ struct ThinkingAnimationView: View {
             }
         }
         .padding(.horizontal, 16).padding(.top, 18).padding(.bottom, 22) // Better vertical centering
-        .background(Color(hex: "#2A2A2A"))
+        .background(Color(hex: "#BBBBBB"))
         .cornerRadius(4)
         .onAppear {
             // Reset animation state first
@@ -461,11 +516,13 @@ struct ThinkingAnimationView: View {
 // MARK: - Date header --------------------------------------------------------
 
 struct DateHeaderView: View {
+    let firstMessageTime: Date?
     @State private var isVisible = false
+    
     var body: some View {
         HStack {
             Spacer()
-            Text(Self.smart(Date()))
+            Text(formattedDateAndTime())
                 .font(.custom("IBMPlexMono", size: 12))
                 .foregroundColor(Color(hex: "#BBBBBB"))
             Spacer()
@@ -475,6 +532,19 @@ struct DateHeaderView: View {
         .offset(y: isVisible ? 0 : 4)
         .animation(.easeOut(duration: 0.3), value: isVisible)
         .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { isVisible = true } }
+    }
+    
+    private func formattedDateAndTime() -> String {
+        let dateText = Self.smart(Date())
+        
+        if let time = firstMessageTime {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "HH:mm"
+            let timeText = formatter.string(from: time)
+            return "\(dateText) \(timeText)"
+        } else {
+            return dateText
+        }
     }
 
     // smart-date formatter
@@ -544,4 +614,5 @@ struct DocumentPicker: UIViewControllerRepresentable {
     TextModalView(viewModel: MainViewModel(), isPresented: .constant(true))
         .preferredColorScheme(.dark)
 }
+
 

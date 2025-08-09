@@ -173,36 +173,40 @@ struct ChatSummaryView: View {
                 Spacer()
                     .frame(height: 4)
                 
-                // Main summary headline (clickable)
-                HStack(alignment: .firstTextBaseline) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(chat.summary)
-                            .font(.custom("IBMPlexMono", size: 16))
-                            .foregroundColor(Color(hex: "#EEEEEE"))
-                            .lineLimit(2) // Max 2 lines
-                            .multilineTextAlignment(.leading)
-                            .padding(.horizontal, 0)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.vertical, 8) // Add vertical padding to match Whisper spacing
-                        
-                        // Timestamp
-                        Text(chat.timestamp)
-                            .font(.custom("IBMPlexMono", size: 10))
-                            .foregroundColor(Color(hex: "#FF6B6B"))
-                            .padding(.horizontal, 0)
-                    }
-                    
-                    // Arrow indicator
-                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 12))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
-                        .padding(.trailing, 8)
-                }
-                .onTapGesture {
+                // Main summary headline (clickable) - full row is tappable
+                Button(action: {
                     withAnimation(.easeInOut(duration: 0.3)) {
                         isExpanded.toggle()
                     }
+                }) {
+                    HStack(alignment: .firstTextBaseline) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(chat.summary)
+                                .font(.custom("IBMPlexMono", size: 16))
+                                .foregroundColor(Color(hex: "#EEEEEE"))
+                                .lineLimit(2) // Max 2 lines
+                                .multilineTextAlignment(.leading)
+                                .padding(.horizontal, 0)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.vertical, 8) // Add vertical padding to match Whisper spacing
+                            
+                            // Timestamp
+                            Text(chat.timestamp)
+                                .font(.custom("IBMPlexMono", size: 10))
+                                .foregroundColor(Color(hex: "#FF6B6B"))
+                                .padding(.horizontal, 0)
+                        }
+                        
+                        // Arrow indicator
+                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 12))
+                            .foregroundColor(Color(hex: "#BBBBBB"))
+                            .padding(.trailing, 8)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle()) // Make entire area tappable
                 }
+                .buttonStyle(PlainButtonStyle())
                 
                 // Expanded content with proper masking
                 if isExpanded {

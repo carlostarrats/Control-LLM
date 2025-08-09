@@ -7,7 +7,6 @@ struct SettingsView: View {
     
     // Sheet state variables
     @State private var showingModels = false
-    @State private var showingAgents = false
     @State private var showingAppearance = false
     @State private var showingVoice = false
     @State private var showingLanguage = false
@@ -123,9 +122,6 @@ struct SettingsView: View {
         .sheet(isPresented: $showingModels) {
             SettingsModelsView()
         }
-        .sheet(isPresented: $showingAgents) {
-            AgentsView()
-        }
         .sheet(isPresented: $showingAppearance) {
             AppearanceView()
         }
@@ -169,7 +165,7 @@ struct SettingsView: View {
     private var settingsItems: [SettingsItem] {
         [
             SettingsItem(title: "Models", symbol: "terminal", action: { showingModels = true }),
-            SettingsItem(title: "Agents", symbol: "square.3.layers.3d", action: { showingAgents = true }),
+            // Agents removed
             SettingsItem(title: "Appearance", symbol: "paintbrush.pointed", action: { showingAppearance = true }),
             SettingsItem(title: "Voice", symbol: "bubble.left", action: { showingVoice = true }),
             SettingsItem(title: "Language", symbol: "globe", action: { showingLanguage = true }),
