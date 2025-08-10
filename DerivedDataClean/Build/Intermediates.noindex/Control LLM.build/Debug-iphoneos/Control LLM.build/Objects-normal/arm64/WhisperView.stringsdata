@@ -1,0 +1,136 @@
+{
+  "source": "/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Main/WhisperView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "All Audio",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 129
+        }
+      },
+      {
+        "comment": "",
+        "key": "Whisper",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 188
+        }
+      },
+      {
+        "comment": "",
+        "key": "Enter title",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 359
+        }
+      },
+      {
+        "comment": "",
+        "key": "-%@",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 479
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transcription In Progress [%lld%%]",
+        "location": {
+          "startingColumn": 60,
+          "startingLine": 591
+        }
+      },
+      {
+        "comment": "",
+        "key": "Transcribed",
+        "location": {
+          "startingColumn": 134,
+          "startingLine": 591
+        }
+      },
+      {
+        "comment": "",
+        "key": "0.0 dB",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 701
+        }
+      },
+      {
+        "comment": "",
+        "key": "AUTO",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 691
+        }
+      },
+      {
+        "comment": "",
+        "key": "Peak %@",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 715
+        }
+      },
+      {
+        "comment": "",
+        "key": "RMS %@",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 720
+        }
+      },
+      {
+        "comment": "",
+        "key": "%llddB",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 748
+        }
+      },
+      {
+        "comment": "",
+        "key": "Whisper Options",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 847
+        }
+      },
+      {
+        "comment": "",
+        "key": "This action can't be undone.",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 992
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete Audio",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 1006
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 1019
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete Audio",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 1048
+        }
+      }
+    ]
+  },
+  "version": 1
+}

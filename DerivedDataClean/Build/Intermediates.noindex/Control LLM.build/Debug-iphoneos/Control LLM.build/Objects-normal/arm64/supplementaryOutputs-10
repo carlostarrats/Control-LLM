@@ -1,0 +1,18 @@
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Shared/Components/LoadingView.swift":
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LoadingView.o"
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LoadingView.dia"
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LoadingView.swiftconstvalues"
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LoadingView.swiftdeps"
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LoadingView.d"
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Shared/Components/AdvancedEqualizerView.swift":
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AdvancedEqualizerView.dia"
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AdvancedEqualizerView.d"
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AdvancedEqualizerView.swiftdeps"
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AdvancedEqualizerView.o"
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AdvancedEqualizerView.swiftconstvalues"
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Settings/AgentsView.swift":
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AgentsView.swiftdeps"
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AgentsView.o"
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AgentsView.swiftconstvalues"
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AgentsView.d"
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AgentsView.dia"

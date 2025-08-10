@@ -269,7 +269,7 @@ struct TextModalView: View {
             self.messageText = ""
         }
         print("🔍 About to call llm.send(text) with text: '\(text)'")
-        llm.send(text)
+        llm.send(text, conversationHistory: viewModel.messages)
 
         // 4) start polling the stream immediately for real-time word streaming
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -401,7 +401,7 @@ struct TextModalView: View {
                 }
                 
                 // Send the file content to LLM for processing
-                llm.send("Please analyze this file content and provide a summary: \(formattedContent)")
+                llm.send("Please analyze this file content and provide a summary: \(formattedContent)", conversationHistory: viewModel.messages)
                 
                 // Start monitoring the stream
                 await MainActor.run {
@@ -452,15 +452,12 @@ struct MessageBubble: View {
                                 .cornerRadius(4)
                                 .foregroundColor(Color(hex: "#EEEEEE"))
                         } else {
-                            // LLM messages with smooth background fade
+                            // LLM messages without background
                             Text(message.content)
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .lineLimit(nil)
                                 .multilineTextAlignment(.leading)
-                                .padding(.horizontal, 16).padding(.vertical, 10)
-                                .background(Color(hex: "#BBBBBB"))
-                                .cornerRadius(4)
-                                .foregroundColor(Color(hex: "#141414"))
+                                .foregroundColor(Color(hex: "#EEEEEE"))
                         }
                     }
                 }
@@ -489,7 +486,7 @@ struct ThinkingAnimationView: View {
         HStack(spacing: 4) {
             ForEach(0..<3, id: \.self) { index in
                 Rectangle()
-                    .fill(Color(hex: "#141414"))
+                    .fill(Color(hex: "#EEEEEE"))
                     .frame(width: 4, height: 4) // Square and smaller
                     .offset(y: isAnimating ? -2 : 0) // Same movement
                     .animation(
@@ -500,9 +497,6 @@ struct ThinkingAnimationView: View {
                     )
             }
         }
-        .padding(.horizontal, 16).padding(.top, 18).padding(.bottom, 22) // Better vertical centering
-        .background(Color(hex: "#BBBBBB"))
-        .cornerRadius(4)
         .onAppear {
             // Reset animation state first
             isAnimating = false

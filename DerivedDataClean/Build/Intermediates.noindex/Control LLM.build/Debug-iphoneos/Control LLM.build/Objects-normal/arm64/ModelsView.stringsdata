@@ -1,0 +1,16 @@
+{
+  "source": "/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Models/ModelsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Models & Agents",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 11
+        }
+      }
+    ]
+  },
+  "version": 1
+}

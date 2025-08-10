@@ -8,7 +8,7 @@ final class ChatViewModel: ObservableObject {
     private var lastSentMessage = ""
     private var isProcessing = false
 
-    func send(_ userText: String) {
+    func send(_ userText: String, conversationHistory: [ChatMessage] = []) {
         print("🔍 ChatViewModel: send started — \(userText)")
         print("🔍 ChatViewModel: transcript before = '\(transcript)'")
         
@@ -41,7 +41,7 @@ final class ChatViewModel: ObservableObject {
                 await MainActor.run {
                     self.transcript = ""
                 }
-                try await LLMService.shared.chat(user: userText) { token in
+                try await LLMService.shared.chat(user: userText, conversationHistory: conversationHistory) { token in
                     print("🔍 ChatViewModel: received token: '\(token)'")
                     await MainActor.run { 
                         // token is now already a String from LLMService

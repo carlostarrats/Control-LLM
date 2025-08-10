@@ -1,0 +1,16 @@
+{
+  "source": "/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Settings/CreditsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Credits",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 42
+        }
+      }
+    ]
+  },
+  "version": 1
+}

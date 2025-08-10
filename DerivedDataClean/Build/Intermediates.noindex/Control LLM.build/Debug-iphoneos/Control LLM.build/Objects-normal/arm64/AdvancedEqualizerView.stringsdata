@@ -1,0 +1,64 @@
+{
+  "source": "/Users/carlostarrats/Desktop/Control LLM/Control LLM/Shared/Components/AdvancedEqualizerView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "[%@]",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 50
+        }
+      },
+      {
+        "comment": "",
+        "key": "0Hz",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "1kHz",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 77
+        }
+      },
+      {
+        "comment": "",
+        "key": "5kHz",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 81
+        }
+      },
+      {
+        "comment": "",
+        "key": "20kHz",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 85
+        }
+      },
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 89
+        }
+      },
+      {
+        "comment": "",
+        "key": "Advanced Equalizer Preview",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 189
+        }
+      }
+    ]
+  },
+  "version": 1
+}

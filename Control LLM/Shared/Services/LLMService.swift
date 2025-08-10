@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 final class LLMService {
     static let shared = LLMService()
@@ -187,6 +188,7 @@ final class LLMService {
 
     /// Stream tokens for a user prompt
     func chat(user text: String,
+              conversationHistory: [ChatMessage] = [],
               onToken: @escaping (String) async -> Void) async throws {
 
         print("🚨 LLMService: chat started with text: '\(text)'")
@@ -233,9 +235,10 @@ final class LLMService {
                 NSLog("🔍 DEBUG: Model filename: \(currentModelFilename ?? "unknown")")
                 fflush(stdout)
                 
-                // Build the prompt in the correct Llama 3.2 format
+                // Build the prompt with conversation context
                 let systemPrompt = LanguageService.shared.getSystemPrompt()
-                let prompt = "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n\(systemPrompt)<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n\(text)<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
+                let conversationContext = buildConversationContext(from: conversationHistory)
+                let prompt = "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n\(systemPrompt)<|eot_id|>\(conversationContext)<|start_header_id|>user<|end_header_id|>\n\n\(text)<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
                 
                 print("🔍 DEBUG: Full prompt: '\(prompt)'")
                 
@@ -305,6 +308,23 @@ final class LLMService {
         
         // For now, return empty (chat UI already received streamed tokens)
         return ""
+    }
+    
+    /// Build conversation context from recent message history
+    private func buildConversationContext(from messages: [ChatMessage]) -> String {
+        // Take only the last 4 message pairs (8 messages total) to keep context manageable
+        let recentMessages = Array(messages.suffix(8))
+        
+        var context = ""
+        for message in recentMessages {
+            if message.isUser {
+                context += "<|start_header_id|>user<|end_header_id|>\n\n\(message.content)<|eot_id|>"
+            } else if !message.content.isEmpty {
+                context += "<|start_header_id|>assistant<|end_header_id|>\n\n\(message.content)<|eot_id|>"
+            }
+        }
+        
+        return context
     }
     
     /// Clear any potential state to ensure fresh calls

@@ -1,0 +1,16 @@
+{
+  "source": "/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Settings/AgentsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Agents",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 53
+        }
+      }
+    ]
+  },
+  "version": 1
+}

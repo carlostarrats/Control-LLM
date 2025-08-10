@@ -1,0 +1,336 @@
+{
+  "source": "/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Settings/SettingsTabsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Settings Type",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 9
+        }
+      },
+      {
+        "comment": "",
+        "key": "UI",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 10
+        }
+      },
+      {
+        "comment": "",
+        "key": "Dev",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "App Settings",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 34
+        }
+      },
+      {
+        "comment": "",
+        "key": "UI Customization",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 50
+        }
+      },
+      {
+        "comment": "",
+        "key": "Voice Commands",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 35
+        }
+      },
+      {
+        "comment": "",
+        "key": "Auto Transcribe",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 36
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save Chat History",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Notifications",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 38
+        }
+      },
+      {
+        "comment": "",
+        "key": "Language",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 40
+        }
+      },
+      {
+        "comment": "",
+        "key": "Max History Items: %lld",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 46
+        }
+      },
+      {
+        "comment": "",
+        "key": "English",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "Spanish",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 42
+        }
+      },
+      {
+        "comment": "",
+        "key": "French",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 43
+        }
+      },
+      {
+        "comment": "",
+        "key": "Dark Mode",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "Haptic Feedback",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Animations",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 53
+        }
+      },
+      {
+        "comment": "",
+        "key": "Font Size",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 55
+        }
+      },
+      {
+        "comment": "",
+        "key": "Primary Color",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 61
+        }
+      },
+      {
+        "comment": "",
+        "key": "Secondary Color",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 62
+        }
+      },
+      {
+        "comment": "",
+        "key": "Save Settings",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 66
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reset to Defaults",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 71
+        }
+      },
+      {
+        "comment": "",
+        "key": "App Information",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 86
+        }
+      },
+      {
+        "comment": "",
+        "key": "API Configuration",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 109
+        }
+      },
+      {
+        "comment": "",
+        "key": "Developer Tools",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 128
+        }
+      },
+      {
+        "comment": "",
+        "key": "About",
+        "location": {
+          "startingColumn": 21,
+          "startingLine": 147
+        }
+      },
+      {
+        "comment": "",
+        "key": "Version",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 88
+        }
+      },
+      {
+        "comment": "",
+        "key": "Build",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 95
+        }
+      },
+      {
+        "comment": "",
+        "key": "Last Updated",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 102
+        }
+      },
+      {
+        "comment": "",
+        "key": "Debug Mode",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 118
+        }
+      },
+      {
+        "comment": "",
+        "key": "Log Level",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 120
+        }
+      },
+      {
+        "comment": "",
+        "key": "API Endpoint",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 111
+        }
+      },
+      {
+        "comment": "",
+        "key": "Debug",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 121
+        }
+      },
+      {
+        "comment": "",
+        "key": "Info",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 122
+        }
+      },
+      {
+        "comment": "",
+        "key": "Warning",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 123
+        }
+      },
+      {
+        "comment": "",
+        "key": "Error",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 124
+        }
+      },
+      {
+        "comment": "",
+        "key": "Export Settings",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 129
+        }
+      },
+      {
+        "comment": "",
+        "key": "Clear Cache",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 134
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reset App Data",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 140
+        }
+      },
+      {
+        "comment": "",
+        "key": "Control LLM",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 149
+        }
+      },
+      {
+        "comment": "",
+        "key": "A voice-first AI assistant with custom UI and MVVM architecture.",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 151
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,112 @@
+{
+  "source": "/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Settings/SettingsModelsView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "INSTALLED",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 27
+        }
+      },
+      {
+        "comment": "",
+        "key": "AVAILABLE DOWNLOADS",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 58
+        }
+      },
+      {
+        "comment": "",
+        "key": "Already Installed",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 67
+        }
+      },
+      {
+        "comment": "",
+        "key": "Manage Unused Models",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 130
+        }
+      },
+      {
+        "comment": "",
+        "key": "Models",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 157
+        }
+      },
+      {
+        "comment": "",
+        "key": "•",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 268
+        }
+      },
+      {
+        "comment": "",
+        "key": "Installing [%lld%%]",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 358
+        }
+      },
+      {
+        "comment": "",
+        "key": "No Unused Models",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 398
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete your unused models.",
+        "location": {
+          "startingColumn": 70,
+          "startingLine": 398
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete Model",
+        "location": {
+          "startingColumn": 62,
+          "startingLine": 436
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete Models",
+        "location": {
+          "startingColumn": 79,
+          "startingLine": 436
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 450
+        }
+      },
+      {
+        "comment": "",
+        "key": "Unused Models",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 478
+        }
+      }
+    ]
+  },
+  "version": 1
+}

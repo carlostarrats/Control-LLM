@@ -1,0 +1,18 @@
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Settings/SettingsTabsView.swift":
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/SettingsTabsView.o"
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/SettingsTabsView.swiftconstvalues"
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/SettingsTabsView.d"
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/SettingsTabsView.swiftdeps"
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/SettingsTabsView.dia"
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Shared/Styles/AppStyles.swift":
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AppStyles.swiftdeps"
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AppStyles.o"
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AppStyles.swiftconstvalues"
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AppStyles.dia"
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/AppStyles.d"
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Shared/Services/LLMService.swift":
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LLMService.d"
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LLMService.o"
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LLMService.dia"
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LLMService.swiftconstvalues"
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LLMService.swiftdeps"
