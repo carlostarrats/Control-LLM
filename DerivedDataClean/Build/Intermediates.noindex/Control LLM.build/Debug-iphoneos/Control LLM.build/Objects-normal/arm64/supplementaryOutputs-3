@@ -1,0 +1,18 @@
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Shared/Components/CentralVisualizerView.swift":
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/CentralVisualizerView.swiftdeps"
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/CentralVisualizerView.d"
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/CentralVisualizerView.swiftconstvalues"
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/CentralVisualizerView.dia"
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/CentralVisualizerView.o"
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Main/TextModalView.swift":
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/TextModalView.d"
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/TextModalView.o"
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/TextModalView.swiftconstvalues"
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/TextModalView.swiftdeps"
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/TextModalView.dia"
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Settings/SettingsViewModel.swift":
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/SettingsViewModel.swiftconstvalues"
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/SettingsViewModel.swiftdeps"
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/SettingsViewModel.dia"
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/SettingsViewModel.o"
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/SettingsViewModel.d"

@@ -1,0 +1,118 @@
+{
+  "" : {
+    "diagnostics" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Liquid-master.dia",
+    "emit-module-dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Liquid-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Liquid-master-emit-module.dia",
+    "swift-dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Liquid-master.swiftdeps"
+  },
+  "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/SourcePackages/checkouts/liquid/Sources/Liquid/PrivateViews/LiquidCircle.swift" : {
+    "const-values" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircle.swiftconstvalues",
+    "dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircle.d",
+    "diagnostics" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircle.dia",
+    "index-unit-output-path" : "/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircle.o",
+    "llvm-bc" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircle.bc",
+    "object" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircle.o",
+    "swift-dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircle.swiftdeps",
+    "swiftmodule" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircle~partial.swiftmodule"
+  },
+  "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/SourcePackages/checkouts/liquid/Sources/Liquid/PrivateViews/LiquidCircleView.swift" : {
+    "const-values" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircleView.swiftconstvalues",
+    "dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircleView.d",
+    "diagnostics" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircleView.dia",
+    "index-unit-output-path" : "/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircleView.o",
+    "llvm-bc" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircleView.bc",
+    "object" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircleView.o",
+    "swift-dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircleView.swiftdeps",
+    "swiftmodule" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidCircleView~partial.swiftmodule"
+  },
+  "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/SourcePackages/checkouts/liquid/Sources/Liquid/PrivateViews/LiquidPath.swift" : {
+    "const-values" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPath.swiftconstvalues",
+    "dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPath.d",
+    "diagnostics" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPath.dia",
+    "index-unit-output-path" : "/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPath.o",
+    "llvm-bc" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPath.bc",
+    "object" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPath.o",
+    "swift-dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPath.swiftdeps",
+    "swiftmodule" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPath~partial.swiftmodule"
+  },
+  "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/SourcePackages/checkouts/liquid/Sources/Liquid/PrivateViews/LiquidPathView.swift" : {
+    "const-values" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPathView.swiftconstvalues",
+    "dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPathView.d",
+    "diagnostics" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPathView.dia",
+    "index-unit-output-path" : "/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPathView.o",
+    "llvm-bc" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPathView.bc",
+    "object" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPathView.o",
+    "swift-dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPathView.swiftdeps",
+    "swiftmodule" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/LiquidPathView~partial.swiftmodule"
+  },
+  "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/SourcePackages/checkouts/liquid/Sources/Liquid/Processing/AnimatableArray.swift" : {
+    "const-values" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/AnimatableArray.swiftconstvalues",
+    "dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/AnimatableArray.d",
+    "diagnostics" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/AnimatableArray.dia",
+    "index-unit-output-path" : "/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/AnimatableArray.o",
+    "llvm-bc" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/AnimatableArray.bc",
+    "object" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/AnimatableArray.o",
+    "swift-dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/AnimatableArray.swiftdeps",
+    "swiftmodule" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/AnimatableArray~partial.swiftmodule"
+  },
+  "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/SourcePackages/checkouts/liquid/Sources/Liquid/Processing/ControlPoints.swift" : {
+    "const-values" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/ControlPoints.swiftconstvalues",
+    "dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/ControlPoints.d",
+    "diagnostics" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/ControlPoints.dia",
+    "index-unit-output-path" : "/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/ControlPoints.o",
+    "llvm-bc" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/ControlPoints.bc",
+    "object" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/ControlPoints.o",
+    "swift-dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/ControlPoints.swiftdeps",
+    "swiftmodule" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/ControlPoints~partial.swiftmodule"
+  },
+  "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/SourcePackages/checkouts/liquid/Sources/Liquid/Processing/Extensions/Array.swift" : {
+    "const-values" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Array.swiftconstvalues",
+    "dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Array.d",
+    "diagnostics" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Array.dia",
+    "index-unit-output-path" : "/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Array.o",
+    "llvm-bc" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Array.bc",
+    "object" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Array.o",
+    "swift-dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Array.swiftdeps",
+    "swiftmodule" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Array~partial.swiftmodule"
+  },
+  "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/SourcePackages/checkouts/liquid/Sources/Liquid/Processing/Extensions/CGPath.swift" : {
+    "const-values" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/CGPath.swiftconstvalues",
+    "dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/CGPath.d",
+    "diagnostics" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/CGPath.dia",
+    "index-unit-output-path" : "/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/CGPath.o",
+    "llvm-bc" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/CGPath.bc",
+    "object" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/CGPath.o",
+    "swift-dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/CGPath.swiftdeps",
+    "swiftmodule" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/CGPath~partial.swiftmodule"
+  },
+  "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/SourcePackages/checkouts/liquid/Sources/Liquid/Processing/Extensions/Interpolate.swift" : {
+    "const-values" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Interpolate.swiftconstvalues",
+    "dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Interpolate.d",
+    "diagnostics" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Interpolate.dia",
+    "index-unit-output-path" : "/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Interpolate.o",
+    "llvm-bc" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Interpolate.bc",
+    "object" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Interpolate.o",
+    "swift-dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Interpolate.swiftdeps",
+    "swiftmodule" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Interpolate~partial.swiftmodule"
+  },
+  "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/SourcePackages/checkouts/liquid/Sources/Liquid/Processing/Extensions/Path.swift" : {
+    "const-values" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Path.swiftconstvalues",
+    "dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Path.d",
+    "diagnostics" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Path.dia",
+    "index-unit-output-path" : "/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Path.o",
+    "llvm-bc" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Path.bc",
+    "object" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Path.o",
+    "swift-dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Path.swiftdeps",
+    "swiftmodule" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Path~partial.swiftmodule"
+  },
+  "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/SourcePackages/checkouts/liquid/Sources/Liquid/PublicViews/Liquid.swift" : {
+    "const-values" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Liquid.swiftconstvalues",
+    "dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Liquid.d",
+    "diagnostics" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Liquid.dia",
+    "index-unit-output-path" : "/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Liquid.o",
+    "llvm-bc" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Liquid.bc",
+    "object" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Liquid.o",
+    "swift-dependencies" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Liquid.swiftdeps",
+    "swiftmodule" : "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Liquid.build/Debug-iphoneos/Liquid.build/Objects-normal/arm64/Liquid~partial.swiftmodule"
+  }
+}

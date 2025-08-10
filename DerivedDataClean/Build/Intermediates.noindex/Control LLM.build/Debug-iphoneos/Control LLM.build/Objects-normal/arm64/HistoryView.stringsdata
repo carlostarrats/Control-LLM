@@ -1,0 +1,16 @@
+{
+  "source": "/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/History/HistoryView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "History",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 53
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,9 @@
+Target dependency graph (4 targets)
+Target 'Control LLM' in project 'Control LLM'
+➜ Explicit dependency on target 'Liquid' in project 'Liquid'
+Target 'Liquid' in project 'Liquid'
+➜ Explicit dependency on target 'Liquid' in project 'Liquid'
+➜ Explicit dependency on target 'CLiquid' in project 'Liquid'
+Target 'Liquid' in project 'Liquid'
+➜ Explicit dependency on target 'CLiquid' in project 'Liquid'
+Target 'CLiquid' in project 'Liquid' (no dependencies)

@@ -1,23 +1,42 @@
 import Foundation
+import SwiftUI
 
-final class LLMService {
+final class LLMService: @unchecked Sendable {
     static let shared = LLMService()
     private var modelPath: String?
     private var currentModelFilename: String?
     private var llamaModel: UnsafeMutableRawPointer?
     private var llamaContext: UnsafeMutableRawPointer?
     private var isModelLoaded = false
-
+    private var conversationCount = 0
+    private let maxConversationsBeforeReset = 3  // Reduced from 5 to 3 for 3B model
+    private var isModelOperationInProgress = false  // For model loading/unloading
+    private var isChatOperationInProgress = false   // For chat generation
+    private var lastOperationTime: Date = Date()  // Track when operations start
+    
     /// Load the currently selected model from ModelManager
     func loadSelectedModel() async throws {
-        print("🚨 LLMService: loadSelectedModel started")
-        NSLog("🚨 LLMService: loadSelectedModel started")
-        fflush(stdout)
+        // Safety mechanism: if the flag has been stuck for more than 5 minutes, reset it
+        if isModelOperationInProgress {
+            let timeSinceLastOperation = Date().timeIntervalSince(lastOperationTime)
+            if timeSinceLastOperation > 300 { // 5 minutes
+                print("⚠️ WARNING: isModelOperationInProgress flag stuck for \(Int(timeSinceLastOperation)) seconds, resetting")
+                isModelOperationInProgress = false
+            }
+        }
+        
+        // Prevent concurrent model operations
+        guard !isModelOperationInProgress else {
+            throw NSError(domain: "LLMService", code: 11, userInfo: [NSLocalizedDescriptionKey: "Another model operation is in progress"])
+        }
+        
+        isModelOperationInProgress = true
+        lastOperationTime = Date()
+        defer { 
+            isModelOperationInProgress = false 
+        }
         
         guard let modelFilename = await ModelManager.shared.getSelectedModelFilename() else {
-            print("🚨 LLMService: ERROR - No model selected")
-            NSLog("🚨 LLMService: ERROR - No model selected")
-            fflush(stdout)
             throw NSError(domain: "LLMService",
                           code: 1,
                           userInfo: [NSLocalizedDescriptionKey: "No model selected"])
@@ -125,19 +144,26 @@ final class LLMService {
     }
     
     private func unloadModel() {
+        print("LLMService: Unloading model and cleaning up resources")
+        
         if let context = llamaContext {
             // Free llama.cpp context
             llm_bridge_free_context(context)
             llamaContext = nil
+            print("LLMService: Context freed")
         }
+        
         if let model = llamaModel {
             // Free llama.cpp model
             llm_bridge_free_model(model)
             llamaModel = nil
+            print("LLMService: Model freed")
         }
+        
         isModelLoaded = false
         modelPath = nil
         currentModelFilename = nil
+        print("LLMService: Model unload completed")
     }
     
     private func loadModelWithLlamaCpp() async throws {
@@ -145,19 +171,32 @@ final class LLMService {
             throw NSError(domain: "LLMService", code: 3, userInfo: [NSLocalizedDescriptionKey: "No model path"])
         }
         
+        print("LLMService: Loading model from path: \(modelPath)")
+        
         // Run heavy C calls off the main thread
         try await Task.detached(priority: .userInitiated) {
             self.llamaModel = nil
             modelPath.withCString { cString in
                 self.llamaModel = llm_bridge_load_model(cString)
             }
+            
             guard let model = self.llamaModel else {
-                throw NSError(domain: "LLMService", code: 4, userInfo: [NSLocalizedDescriptionKey: "Failed to load model"])
+                print("LLMService: llm_bridge_load_model returned NULL")
+                throw NSError(domain: "LLMService", code: 4, userInfo: [NSLocalizedDescriptionKey: "Failed to load model - bridge returned NULL"])
             }
+            
+            print("LLMService: Model loaded successfully, creating context...")
             self.llamaContext = llm_bridge_create_context(model)
+            
             guard self.llamaContext != nil else {
-                throw NSError(domain: "LLMService", code: 5, userInfo: [NSLocalizedDescriptionKey: "Failed to create context"])
+                print("LLMService: llm_bridge_create_context returned NULL")
+                // Clean up the model if context creation fails
+                llm_bridge_free_model(model)
+                self.llamaModel = nil
+                throw NSError(domain: "LLMService", code: 5, userInfo: [NSLocalizedDescriptionKey: "Failed to create context - bridge returned NULL"])
             }
+            
+            print("LLMService: Context created successfully")
         }.value
         
         self.isModelLoaded = true
@@ -185,131 +224,212 @@ final class LLMService {
         }
     }
 
-    /// Stream tokens for a user prompt
-    func chat(user text: String,
-              onToken: @escaping (String) async -> Void) async throws {
-
-        print("🚨 LLMService: chat started with text: '\(text)'")
-        NSLog("🚨 LLMService: chat started with text: '\(text)'")
-        fflush(stdout)
+    /// Stream tokens for a user prompt, optionally with chat history
+    func chat(user text: String, history: [ChatMessage]? = nil, onToken: @escaping (String) async -> Void) async throws {
+        // Safety check - ensure we're not in the middle of unloading
+        guard !text.isEmpty else {
+            throw NSError(domain: "LLMService", code: 10, userInfo: [NSLocalizedDescriptionKey: "Empty input text"])
+        }
         
-        print("🚨 LLMService: About to load model")
-        NSLog("🚨 LLMService: About to load model")
-        fflush(stdout)
+        // Safety mechanism: if the flag has been stuck for more than 5 minutes, reset it
+        if isChatOperationInProgress {
+            let timeSinceLastOperation = Date().timeIntervalSince(lastOperationTime)
+            if timeSinceLastOperation > 300 { // 5 minutes
+                print("⚠️ WARNING: isChatOperationInProgress flag stuck for \(Int(timeSinceLastOperation)) seconds, resetting")
+                isChatOperationInProgress = false
+            }
+        }
         
-        try await loadSelectedModel()
+        // Prevent concurrent chat operations
+        guard !isChatOperationInProgress else {
+            throw NSError(domain: "LLMService", code: 11, userInfo: [NSLocalizedDescriptionKey: "Another chat operation is in progress"])
+        }
         
-        print("🚨 LLMService: Model loaded, isModelLoaded = \(isModelLoaded)")
-        NSLog("🚨 LLMService: Model loaded, isModelLoaded = \(isModelLoaded)")
-        fflush(stdout)
+        isChatOperationInProgress = true
+        lastOperationTime = Date()
+        
+        // Ensure the flag is always reset, even if errors occur
+        defer { 
+            isChatOperationInProgress = false 
+        }
+        
+        // Increment conversation counter
+        conversationCount += 1
+        
+        // Validate input text
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw NSError(domain: "LLMService",
+                          code: 5,
+                          userInfo: [NSLocalizedDescriptionKey: "Empty or whitespace-only input"])
+        }
+        
+        // Check input length to prevent memory issues
+        let maxInputLength = 2000 // Conservative limit for 3B models
+        var processedText = text
+        if processedText.count > maxInputLength {
+            print("⚠️ WARNING: Input text too long (\(processedText.count) chars), truncating to \(maxInputLength)")
+            let truncatedText = String(processedText.prefix(maxInputLength))
+            print("🔍 DEBUG: Truncated text: '\(truncatedText)'")
+            processedText = truncatedText
+        }
+        
+        // Reset context if we've had too many conversations
+        if conversationCount >= maxConversationsBeforeReset {
+            print("🔄 DEBUG: Resetting LLM context after \(conversationCount) conversations")
+            clearState()
+            try await loadSelectedModel()
+            conversationCount = 0
+        } else {
+            // Only load model if we haven't already loaded it
+            if !isModelLoaded {
+                try await loadSelectedModel()
+            }
+        }
         
         guard isModelLoaded, let context = llamaContext else {
-            print("🚨 LLMService: ERROR - Model not loaded")
-            NSLog("🚨 LLMService: ERROR - Model not loaded")
-            fflush(stdout)
             throw NSError(domain: "LLMService",
                           code: 2,
                           userInfo: [NSLocalizedDescriptionKey: "Model not loaded"])
         }
-
-        print("🚨 LLMService: About to start prediction")
-        NSLog("🚨 LLMService: About to start prediction")
-        fflush(stdout)
         
         do {
-            // Add timeout protection for the prediction
-            try await withTimeout(seconds: 30) { [self] in
-
-                // Force console output with multiple approaches
-                print("🔍 DEBUG: User message: '\(text)'")
-                NSLog("🔍 DEBUG: User message: '\(text)'")
-                fflush(stdout)
-                
-                print("🔍 DEBUG: System prompt: '\(LanguageService.shared.getSystemPrompt())'")
-                NSLog("🔍 DEBUG: System prompt: '\(LanguageService.shared.getSystemPrompt())'")
-                fflush(stdout)
-                
-                print("🔍 DEBUG: Model filename: \(currentModelFilename ?? "unknown")")
-                NSLog("🔍 DEBUG: Model filename: \(currentModelFilename ?? "unknown")")
-                fflush(stdout)
-                
-                // Build the prompt in the correct Llama 3.2 format
-                let systemPrompt = LanguageService.shared.getSystemPrompt()
-                let prompt = "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n\(systemPrompt)<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n\(text)<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
-                
-                print("🔍 DEBUG: Full prompt: '\(prompt)'")
-                
-                // Use llama.cpp to generate response
-                let response = try await generateResponseWithLlamaCpp(context: context, prompt: prompt, onToken: onToken)
-                
-                print("🔍 DEBUG: Generated response: '\(response)'")
+            // Build the prompt using the new helper
+            let prompt = buildPrompt(userText: processedText, history: history)
+            
+            // Safety check for extremely long prompts
+            let maxPromptLength = 3000
+            if prompt.count > maxPromptLength {
+                throw NSError(domain: "LLMService", 
+                             code: 6, 
+                             userInfo: [NSLocalizedDescriptionKey: "Prompt too long (\(prompt.count) characters). Please shorten your message."])
             }
+            
+            // Use llama.cpp to generate response
+            let response = try await Task.detached(priority: .userInitiated) {
+                try await self.generateResponseWithLlamaCpp(context: context, prompt: prompt, onToken: onToken)
+            }.value
+            
         } catch {
-            // Provide a helpful error message if the LLM fails
-            await onToken("I'm having trouble responding right now. Please try again.")
             throw error
         }
     }
     
     private func generateResponseWithLlamaCpp(context: UnsafeMutableRawPointer, prompt: String, onToken: @escaping (String) async -> Void) async throws -> String {
-        print("🔍 DEBUG: Using llama.cpp bridge for text generation")
         
         // Convert prompt to C string
         let promptCString = prompt.cString(using: .utf8)!
         
-        // Run blocking llama.cpp call off the main thread to avoid UI freeze.
-        // Avoid capturing a non-Sendable raw pointer by passing its bitPattern instead.
-        let ctxBits = UInt(bitPattern: context)
-        DispatchQueue.global(qos: .userInitiated).async { [ctxBits] in
-            // Rolling buffer filter to strip sequences like <|python_tag|> even when split across pieces
-            var buffer = ""
-            guard let ctxPtr = UnsafeMutableRawPointer(bitPattern: ctxBits) else { return }
-            llm_bridge_generate_stream_block(ctxPtr, promptCString, { piece in
-                if let piece = piece {
-                    // Copy the C string immediately on this thread to avoid use-after-free
-                    let incoming = String(cString: piece)
-                    buffer += incoming
-
-                    // Drain complete tags and produce clean text
-                    func drainBufferRemovingTags(_ bufferRef: inout String) -> String {
-                        var output = ""
-                        while true {
-                            if let start = bufferRef.range(of: "<|") {
-                                // emit clean text before the tag start
-                                output += String(bufferRef[..<start.lowerBound])
-                                if let end = bufferRef.range(of: "|>", range: start.upperBound..<bufferRef.endIndex) {
-                                    // remove the whole tag and continue scanning
-                                    bufferRef.removeSubrange(start.lowerBound...end.upperBound)
-                                    continue
-                                } else {
-                                    // keep the partial tag in buffer; stop draining
-                                    bufferRef.removeSubrange(bufferRef.startIndex..<start.lowerBound)
-                                    break
-                                }
-                            } else {
-                                // no tag start: emit everything and clear
-                                output += bufferRef
-                                bufferRef.removeAll(keepingCapacity: true)
-                                break
-                            }
-                        }
-                        return output
-                    }
-
-                    let cleaned = drainBufferRemovingTags(&buffer)
-                    if cleaned.isEmpty { return }
-                    Task { await onToken(cleaned) }
+        // Use async/await with proper completion handling and timeout
+        return try await withCheckedThrowingContinuation { continuation in
+            // Run blocking llama.cpp call off the main thread to avoid UI freeze.
+            // Avoid capturing a non-Sendable raw pointer by passing its bitPattern instead.
+            let ctxBits = UInt(bitPattern: context)
+            
+            // Track completion state to prevent race conditions
+            var hasCompleted = false
+            
+            // Add timeout to prevent getting stuck
+            let timeoutTask = Task {
+                try await Task.sleep(nanoseconds: 30_000_000_000) // 30 second timeout
+                
+                if !hasCompleted {
+                    hasCompleted = true
+                    continuation.resume(throwing: NSError(domain: "LLMService", code: 4, userInfo: [NSLocalizedDescriptionKey: "LLM generation timed out"]))
                 }
-            }, 32)
+            }
+            
+            DispatchQueue.global(qos: .userInitiated).async { [ctxBits] in
+                 guard let ctxPtr = UnsafeMutableRawPointer(bitPattern: ctxBits) else {
+                      if !hasCompleted {
+                          hasCompleted = true
+                          timeoutTask.cancel()
+                          continuation.resume(throwing: NSError(domain: "LLMService", code: 3, userInfo: [NSLocalizedDescriptionKey: "Invalid context pointer - conversion failed"]))
+                      }
+                     return
+                  }
+
+                 if !self.isModelLoaded {
+                      if !hasCompleted {
+                          hasCompleted = true
+                          timeoutTask.cancel()
+                          continuation.resume(throwing: NSError(domain: "LLMService", code: 9, userInfo: [NSLocalizedDescriptionKey: "Model was unloaded during generation"]))
+                      }
+                     return
+                 }
+                 
+                 // Use reliable non-streaming generation (streaming has issues)
+                 let outputBuffer = UnsafeMutablePointer<CChar>.allocate(capacity: 4096)
+                 defer { outputBuffer.deallocate() }
+                 
+                 let result = llm_bridge_generate_text(ctxPtr, promptCString, outputBuffer, 4096)
+                 if result > 0 {
+                     let response = String(cString: outputBuffer)
+                     
+                     // Send response as token
+                     Task { @MainActor in
+                         await onToken(response)
+                     }
+                     
+                     if !hasCompleted {
+                         hasCompleted = true
+                         timeoutTask.cancel()
+                         continuation.resume(returning: response)
+                     }
+                 } else {
+                     if !hasCompleted {
+                         hasCompleted = true
+                         timeoutTask.cancel()
+                         continuation.resume(throwing: NSError(domain: "LLMService", code: 3, userInfo: [NSLocalizedDescriptionKey: "LLM generation failed"]))
+                      }
+                 }
+                 
+              }
         }
-        
-        // For now, return empty (chat UI already received streamed tokens)
-        return ""
+    }
+    
+    private func buildPrompt(userText: String, history: [ChatMessage]?) -> String {
+        let systemPrompt = LanguageService.shared.getSystemPrompt()
+        var fullPrompt = "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n\(systemPrompt)<|eot_id|>"
+
+        if let history = history {
+            for message in history {
+                if message.isUser {
+                    fullPrompt += "<|start_header_id|>user<|end_header_id|>\n\n\(message.content)<|eot_id|>"
+                } else {
+                    fullPrompt += "<|start_header_id|>assistant<|end_header_id|>\n\n\(message.content)<|eot_id|>"
+                }
+            }
+        }
+
+        fullPrompt += "<|start_header_id|>user<|end_header_id|>\n\n\(userText)<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
+        return fullPrompt
     }
     
     /// Clear any potential state to ensure fresh calls
     func clearState() {
+
+        conversationCount = 0
         unloadModel()
+    }
+
+    private func getErrorMessage(for error: Error) -> String {
+        if let nsError = error as NSError? {
+            switch nsError.code {
+            case 7:
+                return "Model loading timed out. Please try a smaller model like TinyLlama."
+            case 6:
+                return "Input too long. Please use shorter text."
+            case 9:
+                return "Model was unloaded. Please try again."
+            case 10:
+                return "Empty input text. Please provide some text to process."
+            case 11:
+                return "Another operation is in progress. Please wait and try again."
+            default:
+                return error.localizedDescription
+            }
+        }
+        return error.localizedDescription
     }
 }
 

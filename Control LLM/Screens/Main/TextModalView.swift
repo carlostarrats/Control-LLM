@@ -9,10 +9,11 @@ struct TextModalView: View {
     @ObservedObject var viewModel: MainViewModel          // your existing VM
     @StateObject private var llm = ChatViewModel()        // NEW: streams reply
     
-    init(viewModel: MainViewModel, isPresented: Binding<Bool>) {
+    init(viewModel: MainViewModel, isPresented: Binding<Bool>, messageHistory: [ChatMessage]? = nil) {
         print("🔍 TextModalView init")
         self.viewModel = viewModel
         self._isPresented = isPresented
+        self.messageHistory = messageHistory
     }
 
     // UI state
@@ -22,6 +23,7 @@ struct TextModalView: View {
     @FocusState private var isTextFieldFocused: Bool
     @State private var showingDocumentPicker = false
     @State private var showDateHeader = false
+    var messageHistory: [ChatMessage]?
 
     // MARK: body -------------------------------------------------------------
     var body: some View {
@@ -43,6 +45,9 @@ struct TextModalView: View {
         .presentationDragIndicator(.hidden)
         .onAppear {
             checkIfShouldShowDateHeader()
+            if let history = messageHistory {
+                llm.messageHistory = history
+            }
         }
     }
     
@@ -145,11 +150,11 @@ struct TextModalView: View {
             HStack(spacing: 12) {
                 // File picker button
                 Button { showingDocumentPicker = true } label: {
-                    Image(systemName: "doc.badge.plus")
-                        .font(.system(size: 20, weight: .medium))
+                    Image(systemName: "plus")
+                        .font(.system(size: 16, weight: .medium)) // Consistent sizing
                         .foregroundColor(Color(hex: "#BBBBBB"))
                         .frame(width: 44, height: 44)
-                        .background(Color(hex: "#2A2A2A"))
+                        .background(Color(hex: "#141414")) // New color
                         .cornerRadius(4)
                 }
                 .buttonStyle(.plain)
@@ -164,22 +169,21 @@ struct TextModalView: View {
                     .padding(.horizontal, 16)
                     .padding(.trailing, trailingPadding)
                     .padding(.vertical, 12)
-                    .background(Color(hex: "#2A2A2A"))
+                    .background(Color(hex: "#141414")) // New color
                     .cornerRadius(4)
                     .accentColor(.white)
                     .focused($isTextFieldFocused)
                     .onSubmit {
-                        print("TextField onSubmit triggered!")
-                        NSLog("TextField onSubmit triggered!")
-                        sendMessage()
+                        // DO NOTHING to allow return key for new lines
                     }
-                    .overlay(placeholderOverlay, alignment: .leading)
-                    .overlay(sendButtonOverlay, alignment: .bottomTrailing)
+                    .overlay(placeholderOverlay.allowsHitTesting(false), alignment: .leading) // Fix placeholder tap issue
+                    .overlay(sendButtonOverlay, alignment: .trailing) // Center vertically
                     .animation(.easeInOut(duration: 0.05), value: isTextFieldFocused)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
         }
+        .background(Color(hex: "#222222"))
     }
 
     // trailing padding changes when send-button visible
@@ -210,13 +214,16 @@ struct TextModalView: View {
                 NSLog("Send button pressed!")
                 sendMessage()
             }) {
-                Image(systemName: "arrow.up.square.fill")
-                    .font(.title)
-                    .foregroundColor(Color(hex: "#EEEEEE"))
+                Image(systemName: "arrow.up")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(Color(hex: "#141414"))
+                    .frame(width: 32, height: 32)
+                    .background(Color(hex: "#BBBBBB"))
+                    .cornerRadius(4)
             }
-            .transition(.opacity)
+            .buttonStyle(.plain)
+            .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             .padding(.trailing, 8)
-            .padding(.bottom, 8)
         }
     }
 
@@ -452,15 +459,12 @@ struct MessageBubble: View {
                                 .cornerRadius(4)
                                 .foregroundColor(Color(hex: "#EEEEEE"))
                         } else {
-                            // LLM messages with smooth background fade
+                            // LLM messages without background
                             Text(message.content)
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .lineLimit(nil)
                                 .multilineTextAlignment(.leading)
-                                .padding(.horizontal, 16).padding(.vertical, 10)
-                                .background(Color(hex: "#BBBBBB"))
-                                .cornerRadius(4)
-                                .foregroundColor(Color(hex: "#141414"))
+                                .foregroundColor(Color(hex: "#EEEEEE"))
                         }
                     }
                 }
@@ -489,7 +493,7 @@ struct ThinkingAnimationView: View {
         HStack(spacing: 4) {
             ForEach(0..<3, id: \.self) { index in
                 Rectangle()
-                    .fill(Color(hex: "#141414"))
+                    .fill(Color(hex: "#EEEEEE"))
                     .frame(width: 4, height: 4) // Square and smaller
                     .offset(y: isAnimating ? -2 : 0) // Same movement
                     .animation(
@@ -500,9 +504,6 @@ struct ThinkingAnimationView: View {
                     )
             }
         }
-        .padding(.horizontal, 16).padding(.top, 18).padding(.bottom, 22) // Better vertical centering
-        .background(Color(hex: "#BBBBBB"))
-        .cornerRadius(4)
         .onAppear {
             // Reset animation state first
             isAnimating = false
@@ -610,8 +611,7 @@ struct DocumentPicker: UIViewControllerRepresentable {
 // ------------ Preview ------------------------------------------------------
 
 #Preview {
-    // Provide default init values for preview
-    TextModalView(viewModel: MainViewModel(), isPresented: .constant(true))
+    TextModalView(viewModel: MainViewModel(), isPresented: .constant(true), messageHistory: [])
         .preferredColorScheme(.dark)
 }
 

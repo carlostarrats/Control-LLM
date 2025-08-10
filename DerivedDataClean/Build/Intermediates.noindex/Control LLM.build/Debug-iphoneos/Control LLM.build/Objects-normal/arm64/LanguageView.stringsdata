@@ -1,0 +1,16 @@
+{
+  "source": "/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Settings/LanguageView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Language",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 63
+        }
+      }
+    ]
+  },
+  "version": 1
+}

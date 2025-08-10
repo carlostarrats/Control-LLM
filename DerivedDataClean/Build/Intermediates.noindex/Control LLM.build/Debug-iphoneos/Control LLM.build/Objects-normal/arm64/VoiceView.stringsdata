@@ -1,0 +1,16 @@
+{
+  "source": "/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Settings/VoiceView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Voice",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 49
+        }
+      }
+    ]
+  },
+  "version": 1
+}

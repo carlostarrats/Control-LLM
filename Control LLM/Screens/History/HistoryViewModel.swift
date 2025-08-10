@@ -14,8 +14,7 @@ class HistoryViewModel: ObservableObject {
 
 struct HistoryGroup: Identifiable, Codable {
     var id = UUID()
-    let year: String
-    var entries: [ChatHistoryEntry] // Changed to var
+    var entries: [ChatHistoryEntry]
 }
 
 struct ChatHistoryEntry: Identifiable, Codable {

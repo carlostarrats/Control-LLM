@@ -62,6 +62,13 @@ void* llm_bridge_load_model(const char* model_path) {
     model_params.use_mlock = false;
     model_params.n_gpu_layers = 0; // CPU/Accelerate
     s_model = llama_model_load_from_file(model_path, model_params);
+    
+    if (!s_model) {
+        NSLog(@"LlamaCppBridge: Failed to load model from %s", model_path);
+        return NULL;
+    }
+    
+    NSLog(@"LlamaCppBridge: Successfully loaded model from %s", model_path);
     return (void*)s_model;
 }
 
@@ -73,11 +80,22 @@ void llm_bridge_free_model(void* model) {
 }
 
 void* llm_bridge_create_context(void* model) {
-    if (!model) return NULL;
+    if (!model) {
+        NSLog(@"LlamaCppBridge: Cannot create context - model is NULL");
+        return NULL;
+    }
+    
     struct llama_context_params ctx_params = llama_context_default_params();
     // Conservative memory defaults to avoid stalls
-    ctx_params.n_ctx = 256;
+    ctx_params.n_ctx = 2048; // Increased from 256 - was too small for any meaningful conversation
     s_ctx = llama_init_from_model((struct llama_model*)model, ctx_params);
+    
+    if (!s_ctx) {
+        NSLog(@"LlamaCppBridge: Failed to create context");
+        return NULL;
+    }
+    
+    NSLog(@"LlamaCppBridge: Successfully created context");
     return (void*)s_ctx;
 }
 
@@ -131,14 +149,24 @@ int llm_bridge_generate_text(void* context, const char* prompt, char* output, in
     // Build sampler chain to strongly bias against special/control-like strings
     struct llama_sampler_chain_params sparams = llama_sampler_chain_default_params();
     struct llama_sampler * smpl = llama_sampler_chain_init(sparams);
-    if (!smpl) return 0;
+    if (!smpl) {
+        NSLog(@"LlamaCppBridge: Failed to initialize streaming sampler chain");
+        return 0;
+    }
+    
     // Stable sampling with small randomness to avoid loops; keep temp low
     llama_sampler_chain_add(smpl, llama_sampler_init_top_k(50));
     llama_sampler_chain_add(smpl, llama_sampler_init_top_p(0.95f, 1));
     llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.7f));
     // chain MUST end with a selection sampler
     llama_sampler_chain_add(smpl, llama_sampler_init_greedy());
-    if (!smpl) return 0;
+    
+    // Verify the chain has at least one sampler
+    if (llama_sampler_chain_n(smpl) == 0) {
+        NSLog(@"LlamaCppBridge: Streaming sampler chain is empty after initialization");
+        llama_sampler_free(smpl);
+        return 0;
+    }
 
     for (int t = 0; t < max_new_tokens; ++t) {
         // Before sampling, fetch logits distribution for safety
@@ -208,47 +236,120 @@ int llm_bridge_get_context_size(void* context) {
 
 // Streaming version using ObjC block
 void llm_bridge_generate_stream_block(void* context, const char* prompt, llm_piece_block callback, int max_new_tokens) {
-    if (!context || !prompt || !callback) return;
+    NSLog(@"LlamaCppBridge: Starting streaming generation with max_tokens=%d", max_new_tokens);
+    
+    if (!context || !prompt || !callback) {
+        NSLog(@"LlamaCppBridge: Invalid parameters for streaming generation");
+        callback(NULL);
+        return;
+    }
+    
     struct llama_context * ctx = (struct llama_context *) context;
     struct llama_model   * model = s_model;
-    if (!model) return;
+    if (!model) {
+        NSLog(@"LlamaCppBridge: No model available for streaming generation");
+        callback(NULL);
+        return;
+    }
 
     const struct llama_vocab * vocab = llama_model_get_vocab(model);
-    if (!vocab) return;
+    if (!vocab) {
+        NSLog(@"LlamaCppBridge: No vocabulary available for streaming generation");
+        callback(NULL);
+        return;
+    }
+    
+    NSLog(@"LlamaCppBridge: Prompt length: %zu characters", strlen(prompt));
+    // Log first 200 chars of prompt for debugging
+    const int preview_len = 200;
+    if (strlen(prompt) > preview_len) {
+        char preview[preview_len + 1];
+        strncpy(preview, prompt, preview_len);
+        preview[preview_len] = '\0';
+        NSLog(@"LlamaCppBridge: Prompt preview: %s...", preview);
+    } else {
+        NSLog(@"LlamaCppBridge: Full prompt: %s", prompt);
+    }
 
     // tokenize prompt
     const int32_t max_prompt_tokens = 1024;
     llama_token prompt_tokens[max_prompt_tokens];
     int32_t n_prompt = llama_tokenize(vocab, prompt, (int32_t)strlen(prompt), prompt_tokens, max_prompt_tokens, /*add_special*/ true, /*parse_special*/ true);
-    if (n_prompt <= 0) return;
+    if (n_prompt <= 0) {
+        NSLog(@"LlamaCppBridge: Tokenization failed for streaming generation (returned %d tokens)", n_prompt);
+        callback(NULL);
+        return;
+    }
+    
+    NSLog(@"LlamaCppBridge: Tokenized prompt into %d tokens", n_prompt);
 
     struct llama_batch batch = llama_batch_get_one(prompt_tokens, n_prompt);
     if (batch.logits && n_prompt > 0) {
         memset(batch.logits, 0, (size_t)n_prompt);
         batch.logits[n_prompt - 1] = 1;
     }
-    if (llama_decode(ctx, batch) != 0) return;
+    if (llama_decode(ctx, batch) != 0) {
+        NSLog(@"LlamaCppBridge: Initial decode failed for streaming generation");
+        callback(NULL);
+        return;
+    }
 
     struct llama_sampler_chain_params sparams = llama_sampler_chain_default_params();
     struct llama_sampler * smpl = llama_sampler_chain_init(sparams);
-    if (!smpl) return;
-    llama_sampler_chain_add(smpl, llama_sampler_init_top_k(50));
-    llama_sampler_chain_add(smpl, llama_sampler_init_top_p(0.95f, 1));
-    llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.7f));
-    // Ensure the chain ends with a selection sampler to avoid asserts
-    llama_sampler_chain_add(smpl, llama_sampler_init_greedy());
+    if (!smpl) {
+        NSLog(@"LlamaCppBridge: Failed to initialize streaming sampler chain");
+        // Call callback with NULL to indicate failure/completion
+        callback(NULL);
+        return;
+    }
+    
+    // Verify the chain has at least one sampler
+    if (llama_sampler_chain_n(smpl) == 0) {
+        NSLog(@"LlamaCppBridge: Streaming sampler chain is empty after initialization");
+        llama_sampler_free(smpl);
+        callback(NULL);
+        return;
+    }
 
     char piece_buf[256];
     std::string stream_buf; // accumulate to strip tags across piece boundaries
+    
+    llama_sampler_chain_add(smpl, llama_sampler_init_top_k(50));
+    llama_sampler_chain_add(smpl, llama_sampler_init_top_p(0.95f, 1));
+    llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.7f));
+    // Ensure the chain ends with a selection sampler
+    llama_sampler_chain_add(smpl, llama_sampler_init_greedy());
+    
+    NSLog(@"LlamaCppBridge: Starting generation loop for %d tokens", max_new_tokens);
+    
+    int tokens_generated = 0;
     for (int t = 0; t < max_new_tokens; ++t) {
         llama_token next_id = llama_sampler_sample(smpl, ctx, -1);
-        if (next_id < 0) break;
+        if (next_id < 0) {
+            NSLog(@"LlamaCppBridge: Invalid token ID %d during streaming generation", next_id);
+            break;
+        }
         llama_sampler_accept(smpl, next_id);
-        if (next_id == llama_vocab_eos(vocab) || next_id == llama_vocab_eot(vocab)) break;
+        
+        if (next_id == llama_vocab_eos(vocab) || next_id == llama_vocab_eot(vocab)) {
+            NSLog(@"LlamaCppBridge: Hit end token at position %d", t);
+            break;
+        }
         if (!should_skip_token(vocab, next_id)) {
             int32_t nbytes = llama_token_to_piece(vocab, next_id, piece_buf, (int32_t)sizeof(piece_buf), 0, false);
             if (nbytes > 0 && !piece_looks_like_special(piece_buf, nbytes)) {
+                // Bounds checking for piece buffer
+                if (nbytes >= (int32_t)sizeof(piece_buf)) {
+                    NSLog(@"LlamaCppBridge: Token piece too long (%d bytes), truncating", nbytes);
+                    nbytes = (int32_t)sizeof(piece_buf) - 1;
+                }
+                
                 stream_buf.append(piece_buf, piece_buf + nbytes);
+                tokens_generated++;
+                
+                if (tokens_generated <= 5) {
+                    NSLog(@"LlamaCppBridge: Token %d: '%.*s'", tokens_generated, nbytes, piece_buf);
+                }
 
                 // Drain stream_buf: remove <|...|> tags and emit clean text
                 auto drain = [&]() {
@@ -262,15 +363,16 @@ void llm_bridge_generate_stream_block(void* context, const char* prompt, llm_pie
                             }
                             // if closing not present yet, keep partial
                             size_t e = stream_buf.find("|>", s + 2);
-                            if (e == std::string::npos) {
+                            if (e != std::string::npos) {
+                                // drop entire tag
+                                stream_buf.erase(0, e + 2);
+                                // continue scanning for next tag
+                                continue;
+                            } else {
                                 // keep from tag start
                                 stream_buf.erase(0, s);
                                 break;
                             }
-                            // drop entire tag
-                            stream_buf.erase(0, e + 2);
-                            // continue scanning for next tag
-                            continue;
                         } else {
                             // No tag start present: emit up to a safe boundary
                             size_t len = stream_buf.size();
@@ -295,10 +397,27 @@ void llm_bridge_generate_stream_block(void* context, const char* prompt, llm_pie
         llama_token cur = next_id;
         struct llama_batch next_batch = llama_batch_get_one(&cur, 1);
         if (next_batch.logits) next_batch.logits[0] = 1;
-        if (llama_decode(ctx, next_batch) != 0) break;
+        if (llama_decode(ctx, next_batch) != 0) {
+            NSLog(@"LlamaCppBridge: Decode failed during streaming generation at token %d", t);
+            break;
+        }
     }
 
+    NSLog(@"LlamaCppBridge: Generation loop completed. Generated %d tokens.", tokens_generated);
+    
     llama_sampler_free(smpl);
+    
+    // Drain any remaining buffer content before completion
+    if (!stream_buf.empty()) {
+        NSLog(@"LlamaCppBridge: Draining final buffer: '%s'", stream_buf.c_str());
+        callback(stream_buf.c_str());
+        stream_buf.clear();
+    }
+    
+    // Call completion callback
+    callback(NULL);
+    
+    NSLog(@"LlamaCppBridge: Streaming generation completed");
 }
 
 #else

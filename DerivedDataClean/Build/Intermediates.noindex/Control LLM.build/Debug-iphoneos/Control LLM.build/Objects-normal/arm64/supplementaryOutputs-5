@@ -1,0 +1,18 @@
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Shared/Utils/Extensions.swift":
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/Extensions.o"
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/Extensions.dia"
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/Extensions.swiftconstvalues"
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/Extensions.swiftdeps"
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/Extensions.d"
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Shared/Components/Unused_VortexVisualizerView.swift":
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/Unused_VortexVisualizerView.swiftdeps"
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/Unused_VortexVisualizerView.d"
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/Unused_VortexVisualizerView.swiftconstvalues"
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/Unused_VortexVisualizerView.dia"
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/Unused_VortexVisualizerView.o"
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Models/ModelsView.swift":
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/ModelsView.swiftdeps"
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/ModelsView.swiftconstvalues"
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/ModelsView.o"
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/ModelsView.d"
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/ModelsView.dia"

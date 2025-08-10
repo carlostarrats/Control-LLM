@@ -1,0 +1,56 @@
+{
+  "source": "/Users/carlostarrats/Desktop/Control LLM/Control LLM/Shared/Components/CentralVisualizerView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Visualizer Styles Preview",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 468
+        }
+      },
+      {
+        "comment": "",
+        "key": "Liquid Blob",
+        "location": {
+          "startingColumn": 1,
+          "startingLine": 468
+        }
+      },
+      {
+        "comment": "",
+        "key": "Animation Cycle Demo",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 500
+        }
+      },
+      {
+        "comment": "",
+        "key": "Speaking...",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 510
+        }
+      },
+      {
+        "comment": "",
+        "key": "Idle",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 510
+        }
+      },
+      {
+        "comment": "",
+        "key": "Toggle Animation",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 514
+        }
+      }
+    ]
+  },
+  "version": 1
+}

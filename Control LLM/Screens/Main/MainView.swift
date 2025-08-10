@@ -39,55 +39,8 @@ struct MainView: View {
 
             // Main content
             ZStack {
-                // Top navigation buttons
+                // Top navigation buttons - NOW EMPTY
                 VStack {
-                    HStack(spacing: 0) {
-                        Spacer()
-                        
-                        Menu {
-                            Button(action: {
-                                showingHistoryView = true
-                            }) {
-                                Label("History", systemImage: "list.bullet")
-                            }
-                            
-                            Button(action: {
-                                showingWhisperView = true
-                            }) {
-                                Label("Whisper", systemImage: "waveform")
-                            }
-                            
-                            Button(action: {
-                                showingSettingsView = true
-                            }) {
-                                Label("Settings", systemImage: "gearshape")
-                            }
-                        } label: {
-                            HStack(spacing: 6) {
-                                Image(systemName: "line.3.horizontal")
-                                    .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(Color(hex: "#BBBBBB"))
-                                
-                                Text("Menu")
-                                    .font(.system(size: 16, weight: .medium, design: .monospaced))
-                                    .foregroundColor(Color(hex: "#BBBBBB"))
-                                    .tracking(0)
-                            }
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 8)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .accessibilityLabel("Menu")
-                        .scaleEffect(1.0)
-                        .animation(.easeInOut(duration: 0.1), value: true)
-                        
-                        Spacer()
-                    }
-                    .padding(.top, 20)
-                    .padding(.horizontal, 20)
-                    .opacity(textOpacity)
-                    .animation(.easeInOut(duration: 0.6), value: textOpacity)
-
                     Spacer()
                 }
 
@@ -111,43 +64,75 @@ struct MainView: View {
 
 
 
-                // Bottom manual input button - only show when not in chat mode
+                // Bottom manual input button
                 VStack {
-                Spacer()
-
-                    if !isChatMode {
-                VStack(spacing: 0) {
-                    Button(action: {
-                            showingTextModal = true
-                    }) {
-                        HStack(spacing: 8) {
-                                Image(systemName: "keyboard")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(Color(hex: "#BBBBBB"))
-
-                                    Text("Control")
-                                .font(.system(size: 16, weight: .medium, design: .monospaced))
+                    Spacer()
+                    HStack(spacing: 12) {
+                        // Group of three buttons on the left
+                        Button(action: {
+                            showingHistoryView = true
+                        }) {
+                            Image(systemName: "list.bullet")
+                                .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
-                                .lineSpacing(8) // 24px - 16px = 8px line spacing
-                                .tracking(0)
+                                .padding(16)
+                                .background(Color(hex: "#1D1D1D"))
+                                .cornerRadius(4)
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
+                        .buttonStyle(PlainButtonStyle())
+
+                        Button(action: {
+                            showingWhisperView = true
+                        }) {
+                            Image(systemName: "waveform")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .padding(16)
+                                .background(Color(hex: "#1D1D1D"))
+                                .cornerRadius(4)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        Button(action: {
+                            showingSettingsView = true
+                        }) {
+                            Image(systemName: "gearshape")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .padding(16)
+                                .background(Color(hex: "#1D1D1D"))
+                                .cornerRadius(4)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+
+                        Spacer() // Pushes keyboard button to the right
+
+                        // Control Button on the right
+                        Button(action: {
+                            showingTextModal = true
+                        }) {
+                            Image(systemName: "keyboard")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .padding(16)
+                                .background(Color(hex: "#1D1D1D"))
+                                .cornerRadius(4)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
-                    .buttonStyle(PlainButtonStyle())
-                            .accessibilityLabel("Control")
-                    .scaleEffect(manualInputButtonScale)
-                    .opacity(manualInputOpacity)
+                    .padding(.bottom, 50)
+                    .padding(.horizontal, 20)
+                    .opacity(manualInputOpacity) // Re-using existing opacity animation
                     .animation(.easeInOut(duration: 0.1), value: true)
-                }
-                .padding(.bottom, 50)
-                .frame(maxWidth: .infinity) // Ensure full width for centering
-            }
                 }
             }
         }
         .sheet(isPresented: $showingTextModal) {
-            TextModalView(viewModel: viewModel, isPresented: $showingTextModal)
+            TextModalView(viewModel: viewModel, isPresented: $showingTextModal, messageHistory: viewModel.messages)
+                .onDisappear {
+                    showingTextModal = false
+                    viewModel.deactivateVoiceInputMode()
+                }
         }
         .sheet(isPresented: $showingHistoryView) {
             HistoryView(

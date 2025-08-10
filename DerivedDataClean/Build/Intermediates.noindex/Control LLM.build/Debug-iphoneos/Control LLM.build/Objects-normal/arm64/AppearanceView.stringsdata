@@ -1,0 +1,104 @@
+{
+  "source": "/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Settings/AppearanceView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Hue",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 118
+        }
+      },
+      {
+        "comment": "",
+        "key": "Saturation",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 127
+        }
+      },
+      {
+        "comment": "",
+        "key": "Brightness",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 136
+        }
+      },
+      {
+        "comment": "",
+        "key": "Control Color Preview",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 252
+        }
+      },
+      {
+        "comment": "",
+        "key": "Loading Control Unit...",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 275
+        }
+      },
+      {
+        "comment": "",
+        "key": "This shows how the control unit will look with the selected color",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 310
+        }
+      },
+      {
+        "comment": "",
+        "key": "Control Unit",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 353
+        }
+      },
+      {
+        "comment": "",
+        "key": "Test Control Unit",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 376
+        }
+      },
+      {
+        "comment": "",
+        "key": "Text Elements",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 399
+        }
+      },
+      {
+        "comment": "",
+        "key": "Restore Defaults",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 457
+        }
+      },
+      {
+        "comment": "",
+        "key": "Apply Changes",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 473
+        }
+      },
+      {
+        "comment": "",
+        "key": "Appearance",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 506
+        }
+      }
+    ]
+  },
+  "version": 1
+}

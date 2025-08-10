@@ -1,0 +1,18 @@
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/History/HistoryView.swift":
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/HistoryView.o"
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/HistoryView.swiftconstvalues"
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/HistoryView.d"
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/HistoryView.dia"
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/HistoryView.swiftdeps"
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Settings/LanguageView.swift":
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LanguageView.o"
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LanguageView.swiftdeps"
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LanguageView.dia"
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LanguageView.d"
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/LanguageView.swiftconstvalues"
+"/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Settings/CreditsView.swift":
+  const-values: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/CreditsView.swiftconstvalues"
+  swift-dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/CreditsView.swiftdeps"
+  dependencies: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/CreditsView.d"
+  object: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/CreditsView.o"
+  diagnostics: "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/Build/Intermediates.noindex/Control LLM.build/Debug-iphoneos/Control LLM.build/Objects-normal/arm64/CreditsView.dia"

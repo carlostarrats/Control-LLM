@@ -1,0 +1,72 @@
+{
+  "source": "/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Settings/SettingsHistoryView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Reference Chat History",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 25
+        }
+      },
+      {
+        "comment": "",
+        "key": "Let the LLM reference recent conversations when responding.",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 30
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete All History",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 62
+        }
+      },
+      {
+        "comment": "",
+        "key": "Chat History",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 105
+        }
+      },
+      {
+        "comment": "",
+        "key": "This action can't be undone.",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 161
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete All History",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 177
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 190
+        }
+      },
+      {
+        "comment": "",
+        "key": "Delete All History",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 219
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -22,6 +22,11 @@ struct Control_LLMApp: App {
         registerCustomFonts()
         NSLog("🔍 App started successfully")
         
+        // Initialize ModelManager to ensure models are discovered at startup
+        DispatchQueue.main.async {
+            let _ = ModelManager.shared
+        }
+        
         let successMessage = "🔍 App started successfully at \(timestamp)\n"
         try? successMessage.write(to: logFile, atomically: false, encoding: .utf8)
     }
