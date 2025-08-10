@@ -103,24 +103,10 @@ struct HistoryGroupView: View {
     let onChatSelected: (ChatHistoryEntry) -> Void
     
     var body: some View {
-        VStack(spacing: 0) { // No spacing - we'll control it manually
-            // Year (left-aligned)
-            HStack {
-                Text(group.year)
-                    .font(.custom("IBMPlexMono", size: 18))
-                    .foregroundColor(Color(hex: "#BBBBBB"))
-                Spacer()
-            }
-            
-            // 20px spacing from year to first date
-            Spacer()
-                .frame(height: 20)
-            
-            // Date entries with 44px spacing between date groupings
-            VStack(spacing: 44) {
-                ForEach(group.entries) { entry in
-                    HistoryEntryView(entry: entry, onTap: onChatSelected)
-                }
+        // Date entries with 44px spacing between date groupings
+        VStack(spacing: 44) {
+            ForEach(group.entries) { entry in
+                HistoryEntryView(entry: entry, onTap: onChatSelected)
             }
         }
         .frame(maxWidth: .infinity)

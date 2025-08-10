@@ -46,10 +46,6 @@ class ChatHistoryService: ObservableObject {
         chatSessions[session.id] = session
         saveChatSessions()
         
-        // Find or create the year group
-        let year = Calendar.current.component(.year, from: session.date)
-        let yearString = String(year)
-        
         // Format the date for grouping conversations by day
         let today = Date()
         let formattedDate = formatDate(session.date, today: today)
@@ -69,21 +65,22 @@ class ChatHistoryService: ObservableObject {
             timestamp: formatTime(session.date)
         )
         
-        if let yearIndex = historyGroups.firstIndex(where: { $0.year == yearString }) {
-            // Check if there's already an entry for this date
-            if let entryIndex = historyGroups[yearIndex].entries.firstIndex(where: { $0.date == formattedDate }) {
+        // Since we no longer group by year, we'll have one main group.
+        // If it doesn't exist, create it.
+        if historyGroups.isEmpty {
+            let newEntry = ChatHistoryEntry(date: formattedDate, chats: [summary])
+            let newGroup = HistoryGroup(entries: [newEntry])
+            historyGroups.append(newGroup)
+        } else {
+            // Check if there's an entry for this date in the first group
+            if let entryIndex = historyGroups[0].entries.firstIndex(where: { $0.date == formattedDate }) {
                 // Add to existing date entry - insert at beginning for newest first
-                historyGroups[yearIndex].entries[entryIndex].chats.insert(summary, at: 0)
+                historyGroups[0].entries[entryIndex].chats.insert(summary, at: 0)
             } else {
                 // Create new date entry and insert at beginning
                 let newEntry = ChatHistoryEntry(date: formattedDate, chats: [summary])
-                historyGroups[yearIndex].entries.insert(newEntry, at: 0)
+                historyGroups[0].entries.insert(newEntry, at: 0)
             }
-        } else {
-            // Create new year group with new date entry
-            let newEntry = ChatHistoryEntry(date: formattedDate, chats: [summary])
-            let newGroup = HistoryGroup(year: yearString, entries: [newEntry])
-            historyGroups.insert(newGroup, at: 0)
         }
         
         saveHistoryData()

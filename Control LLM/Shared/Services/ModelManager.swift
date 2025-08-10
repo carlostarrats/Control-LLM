@@ -125,10 +125,7 @@ class ModelManager: ObservableObject {
         
         availableModels = infos
         
-        print("ModelManager: Loaded \(availableModels.count) available models")
-        for model in availableModels {
-            print("- \(model.displayName) (\(model.filename))")
-        }
+                print("ModelManager: Loaded \(availableModels.count) available models")
     }
     
     private func loadSelectedModel() {
