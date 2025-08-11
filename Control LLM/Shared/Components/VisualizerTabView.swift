@@ -3,6 +3,7 @@ import SwiftUI
 enum VisualizerType: Int, CaseIterable {
     case liquid = 0
     case particle = 1
+    case flowing = 2
     
     var displayName: String {
         switch self {
@@ -10,6 +11,8 @@ enum VisualizerType: Int, CaseIterable {
             return "Liquid"
         case .particle:
             return "Particle"
+        case .flowing:
+            return "Flowing"
         }
     }
     
@@ -19,6 +22,8 @@ enum VisualizerType: Int, CaseIterable {
             return "drop.fill"
         case .particle:
             return "sparkles"
+        case .flowing:
+            return "waveform.path.ecg"
         }
     }
 }
@@ -53,6 +58,18 @@ struct VisualizerTabView: View {
                 // New particle visualizer
                 if selectedTab == .particle {
                     ParticleVisualizerView(
+                        isSpeaking: $isSpeaking,
+                        onTap: onTap
+                    )
+                    .transition(.asymmetric(
+                        insertion: .opacity.combined(with: .scale(scale: 0.8)),
+                        removal: .opacity.combined(with: .scale(scale: 1.2))
+                    ))
+                }
+                
+                // New flowing liquid visualizer
+                if selectedTab == .flowing {
+                    FlowingLiquidView(
                         isSpeaking: $isSpeaking,
                         onTap: onTap
                     )
