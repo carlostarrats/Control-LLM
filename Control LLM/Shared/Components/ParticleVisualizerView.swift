@@ -7,14 +7,24 @@ struct ParticleVisualizerView: View {
     
     // Particle system parameters
     private let particleCount = 2000
-    private let sphereRadius: CGFloat = 150
+    private let baseSpherRadius: CGFloat = 150
     private let particleSize: CGFloat = 3.0
+    
+         // Test mechanism for activation
+     @State private var isTestSpeaking: Bool = false
+     private var effectiveSpeakingState: Bool { isSpeaking || isTestSpeaking }
+     private var sphereRadius: CGFloat = 150 // Keep constant size
+     
+     // Activation plane parameters
+     @State private var activationPlaneX: CGFloat = -300 // Start off-screen
+     @State private var activationPlaneSpeed: CGFloat = 100 // pixels/sec
+     @State private var lastUpdateTime: Date?
     
     // Liquid motion parameters
     @State private var motionPhase: [Double]
     @State private var motionTimer: Timer.TimerPublisher?
     @State private var motionCancellable: Cancellable?
-    private let motionPeriod: TimeInterval = 8.0 // Restore original timing for smooth, biological motion
+    private let motionPeriod: TimeInterval = 2.0 // Back closer to original speed
     
     init(isSpeaking: Binding<Bool>, onTap: (() -> Void)? = nil) {
         self._isSpeaking = isSpeaking
@@ -25,21 +35,42 @@ struct ParticleVisualizerView: View {
         self._motionPhase = .init(initialValue: initialPhases)
     }
     
-    var body: some View {
-        ZStack {
-            // Generate particles on sphere surface using spherical coordinates
-            ForEach(0..<particleCount, id: \.self) { index in
-                SphereParticle(
-                    index: index,
-                    totalParticles: particleCount,
-                    sphereRadius: sphereRadius,
-                    particleSize: particleSize,
-                    motionPhase: motionPhase[index % motionPhase.count]
-                )
-            }
-        }
-        .frame(width: 300, height: 300)
-        .onTapGesture {
+         var body: some View {
+         TimelineView(.animation) { timeline in
+             ZStack {
+                 // Generate particles on sphere surface using spherical coordinates
+                 ForEach(0..<particleCount, id: \.self) { index in
+                                      SphereParticle(
+                     index: index,
+                     totalParticles: particleCount,
+                     sphereRadius: sphereRadius,
+                     particleSize: particleSize,
+                     motionPhase: motionPhase[index % motionPhase.count],
+                     isActivated: effectiveSpeakingState,
+                     activationPlaneX: activationPlaneX
+                 )
+                 }
+             }
+             .onChange(of: timeline.date) { _, newDate in
+                 updateActivationPlane(currentTime: newDate)
+             }
+             .onChange(of: effectiveSpeakingState) { _, newState in
+                 if !newState {
+                     // When deactivating, reset the plane immediately
+                     activationPlaneX = -300
+                     lastUpdateTime = nil
+                 }
+             }
+         }
+                 .frame(width: 300, height: 300)
+ 
+         .onAppear {
+             // Ensure the plane is reset when the view first appears
+             activationPlaneX = -300
+             lastUpdateTime = nil
+         }
+         .onTapGesture {
+            isTestSpeaking.toggle()
             onTap?()
         }
         .onAppear {
@@ -48,6 +79,7 @@ struct ParticleVisualizerView: View {
         .onDisappear {
             stopMotionTimer()
         }
+        .animation(.easeInOut(duration: 0.6), value: effectiveSpeakingState)
     }
     
     private func startMotionTimer() {
@@ -66,18 +98,35 @@ struct ParticleVisualizerView: View {
             }
     }
     
-    private func stopMotionTimer() {
-        motionCancellable?.cancel()
-        motionCancellable = nil
-    }
+         private func stopMotionTimer() {
+         motionCancellable?.cancel()
+         motionCancellable = nil
+     }
+     
+     private func updateActivationPlane(currentTime: Date) {
+         guard effectiveSpeakingState else {
+             // Reset plane when not speaking
+             activationPlaneX = -200
+             return
+         }
+         
+         let deltaTime = currentTime.timeIntervalSince(lastUpdateTime ?? Date())
+         lastUpdateTime = currentTime
+         
+         // Move activation plane from left to right
+         activationPlaneX += activationPlaneSpeed * CGFloat(deltaTime)
+         
+                 // Reset plane when it passes completely through
+        if activationPlaneX > 200 {
+            activationPlaneX = -200
+        }
+     }
     
     private func updateMotion() {
         // Gradually increment phases for smooth, continuous motion without twisting
         let newPhases = motionPhase.enumerated().map { index, currentPhase in
-            // Add a larger increment that varies per particle for organic movement
-            // Increased by 20% and sized to complete full cycle in one timer interval
-            let baseIncrement = (2 * .pi) / 8.0 // Full circle divided by timer interval
-            let increment = baseIncrement * (0.8 + Double(index % 7) * 0.05) // 20% faster with variation
+            // Add a small increment that varies per particle for organic movement
+            let increment = 0.1 + Double(index % 7) * 0.02 // Good visible motion, slightly slower than original
             var newPhase = currentPhase + increment
             
             // Keep phase within 0 to 2π range
@@ -88,54 +137,92 @@ struct ParticleVisualizerView: View {
             return newPhase
         }
         
-        withAnimation(.easeInOut(duration: 12.0)) { // Longer than timer interval for overlapping animations
+        withAnimation(.easeInOut(duration: 4.0)) { // Smooth animation that matches the feel
             motionPhase = newPhases
         }
     }
 }
 
-struct SphereParticle: View {
-    let index: Int
-    let totalParticles: Int
-    let sphereRadius: CGFloat
-    let particleSize: CGFloat
-    let motionPhase: Double
-    
-    // Store random offsets as state to avoid recomputation
-    @State private var randomPhiOffset: Double
-    @State private var randomThetaOffset: Double
-    
-    init(index: Int, totalParticles: Int, sphereRadius: CGFloat, particleSize: CGFloat, motionPhase: Double) {
-        self.index = index
-        self.totalParticles = totalParticles
-        self.sphereRadius = sphereRadius
-        self.particleSize = particleSize
-        self.motionPhase = motionPhase
+ struct SphereParticle: View {
+     let index: Int
+     let totalParticles: Int
+     let sphereRadius: CGFloat
+     let particleSize: CGFloat
+     let motionPhase: Double
+     let isActivated: Bool
+     let activationPlaneX: CGFloat
+     
+     // Store random offsets as state to avoid recomputation
+     @State private var randomPhiOffset: Double
+     @State private var randomThetaOffset: Double
+     @State private var depthVariance: Double
+     
+     init(index: Int, totalParticles: Int, sphereRadius: CGFloat, particleSize: CGFloat, motionPhase: Double, isActivated: Bool, activationPlaneX: CGFloat) {
+                 self.index = index
+         self.totalParticles = totalParticles
+         self.sphereRadius = sphereRadius
+         self.particleSize = particleSize
+         self.motionPhase = motionPhase
+         self.isActivated = isActivated
+         self.activationPlaneX = activationPlaneX
         
         // Initialize random offsets once
         self._randomPhiOffset = State(initialValue: Double.random(in: -0.05...0.05))
         self._randomThetaOffset = State(initialValue: Double.random(in: -0.05...0.05))
+        self._depthVariance = State(initialValue: Double.random(in: -0.15...0.15))
     }
     
-    // Generate proper 3D sphere surface points with motion
-    private var position: (x: CGFloat, y: CGFloat, z: CGFloat) {
-        // Use golden ratio for better distribution (this was working)
-        let goldenRatio = 1.618033988749895
+         // Generate proper 3D sphere surface points with motion
+     private var position: (x: CGFloat, y: CGFloat, z: CGFloat) {
+         // Use golden ratio for better distribution (this was working)
+         let goldenRatio = 1.618033988749895
+         
+         // Generate spherical coordinates with motion phase
+         let phi = acos(1 - 2.0 * Double(index) / Double(totalParticles))
+         let theta = 2.0 * .pi * Double(index) * goldenRatio + motionPhase
+         
+         // Add minimal randomness to break up patterns but keep clean edges
+         let randomPhi = phi + randomPhiOffset
+         let randomTheta = theta + randomThetaOffset
+         
+         // Position on sphere surface with depth variance for texture
+         let effectiveRadius = sphereRadius * (1.0 + CGFloat(depthVariance))
+         let x = effectiveRadius * CGFloat(sin(randomPhi) * cos(randomTheta))
+         let y = effectiveRadius * CGFloat(sin(randomPhi) * sin(randomTheta))
+         let z = effectiveRadius * CGFloat(cos(randomPhi))
+         
+         return (x: x, y: y, z: z)
+     }
+     
+         // Calculate sine wave activation effect
+    private var activationEffect: (waveOffset: CGFloat, isActivated: Bool) {
+        // Only apply wave effect when activated
+        guard isActivated else {
+            return (waveOffset: 0, isActivated: false)
+        }
         
-        // Generate spherical coordinates with motion phase
-        let phi = acos(1 - 2.0 * Double(index) / Double(totalParticles))
-        let theta = 2.0 * .pi * Double(index) * goldenRatio + motionPhase
+        // Calculate distance from activation plane
+        let distanceFromPlane = abs(position.x - activationPlaneX)
+        let activationWidth: CGFloat = 60 // Width of activation effect
         
-        // Add minimal randomness to break up patterns but keep clean edges
-        let randomPhi = phi + randomPhiOffset
-        let randomTheta = theta + randomThetaOffset
+        if distanceFromPlane > activationWidth {
+            // No activation effect
+            return (waveOffset: 0, isActivated: false)
+        }
         
-        // Position on sphere surface (all at same radius)
-        let x = sphereRadius * CGFloat(sin(randomPhi) * cos(randomTheta))
-        let y = sphereRadius * CGFloat(sin(randomPhi) * sin(randomTheta))
-        let z = sphereRadius * CGFloat(cos(randomPhi))
+        // Calculate activation intensity (0 to 1)
+        let intensity = 1.0 - (distanceFromPlane / activationWidth)
         
-        return (x: x, y: y, z: z)
+        // Create sine wave motion
+        let waveAmplitude: CGFloat = 20.0
+        let waveFrequency: Double = 12.0 // Cycles per second
+        let currentTime = Date().timeIntervalSinceReferenceDate
+        
+        // Calculate wave offset based on time and particle position
+        let wavePhase = currentTime * waveFrequency + Double(index) * 0.1
+        let waveOffset = waveAmplitude * CGFloat(sin(wavePhase)) * intensity
+        
+        return (waveOffset: waveOffset, isActivated: true)
     }
     
     // Apply edge density bias to 3D points
@@ -162,18 +249,27 @@ struct SphereParticle: View {
         return 0.4 + 0.6 * depthFactor // Dimmer when further back
     }
     
-    var body: some View {
-        if shouldShowParticle {
-            Circle()
-                .fill(Color.white)
-                .frame(width: depthAdjustedSize, height: depthAdjustedSize)
-                .position(
-                    x: 150 + position.x,
-                    y: 150 + position.y
-                )
-                .opacity(depthOpacity) // Depth-based opacity
-        }
-    }
+         var body: some View {
+         if shouldShowParticle {
+             Circle()
+                 .fill(activationEffect.isActivated ? Color(red: 0.8, green: 0.8, blue: 0.8) : particleColor)
+                 .frame(width: depthAdjustedSize, height: depthAdjustedSize)
+                 .position(
+                     x: 150 + position.x,
+                     y: 150 + position.y + activationEffect.waveOffset
+                 )
+                 .opacity(depthOpacity) // Opacity based on Z-depth for 3D effect
+         }
+     }
+     
+     // Color based on activation state
+     private var particleColor: Color {
+         if isActivated {
+             return Color(red: 0.933, green: 0.933, blue: 0.933) // #eeeeee
+         } else {
+             return Color(red: 0.6, green: 0.6, blue: 0.6) // #999999
+         }
+     }
 }
 
 #Preview {
@@ -185,8 +281,7 @@ struct SphereParticle: View {
         
         ParticleVisualizerView(isSpeaking: .constant(false))
             .frame(width: 300, height: 300)
-            .background(Color.black)
+
             .clipShape(Circle())
     }
-    .background(Color.black)
 }

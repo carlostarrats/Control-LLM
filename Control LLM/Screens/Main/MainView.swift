@@ -44,19 +44,9 @@ struct MainView: View {
                     Spacer()
                 }
 
-                // Central visual design element - fixed center position
-                CentralVisualizerView(isSpeaking: $viewModel.isSpeaking, hueShift: hueShift, saturationLevel: saturationLevel, brightnessLevel: brightnessLevel)
-                        .frame(width: 253, height: 253)
+                // Central visual design element with tabs - fixed center position
+                VisualizerTabView(isSpeaking: $viewModel.isSpeaking, hueShift: hueShift, saturationLevel: saturationLevel, brightnessLevel: brightnessLevel, onTap: handleBlobTap)
                         .scaleEffect(blobScale)
-                    .allowsHitTesting(false) // Completely disable hit testing
-                    .overlay(
-                        Rectangle()
-                            .fill(Color.clear)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                    handleBlobTap()
-                }
-                    )
                         .accessibilityLabel("Voice recording button")
                         .accessibilityHint("Double tap to start or stop voice recording")
                     .opacity(blobColorOpacity)

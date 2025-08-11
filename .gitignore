@@ -3,3 +3,12 @@
 *.gguf
 # Swift Package Manager
 **/**/Package.resolved
+# Xcode
+#
+build/
+DerivedData/
+*.hmap
+*.xccoverage
+*.xcscmblueprint
+*.xcuserstate
+xcuserdata/
