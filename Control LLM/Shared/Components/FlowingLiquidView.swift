@@ -16,15 +16,19 @@ struct FlowingLiquidView: View {
             FlowingRingShaderView(
                 ringRadius: ringRadius,
                 ringThickness: ringThickness,
-                animationTime: animationTime
+                animationTime: animationTime,
+                isActivated: isSpeaking // Use isSpeaking for activation state
             )
             .frame(width: 400, height: 400) // KEEPING ORIGINAL SIZE - DON'T TOUCH RING
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
-        .onTapGesture { onTap?() }
+        .onTapGesture {
+            // Just call onTap like liquid visualizer - don't manage local state
+            onTap?()
+        }
         .onAppear {
-            startAnimation()
+            startAnimation() // Calls the new animation timer
         }
     }
     
@@ -41,6 +45,7 @@ struct FlowingRingShaderView: UIViewRepresentable {
     let ringRadius: CGFloat
     let ringThickness: CGFloat
     let animationTime: Double
+    let isActivated: Bool
     
     func makeUIView(context: Context) -> MTKView {
         let mtkView = MTKView()
@@ -64,6 +69,7 @@ struct FlowingRingShaderView: UIViewRepresentable {
         context.coordinator.animationTime = Float(animationTime)
         context.coordinator.ringRadius = Float(ringRadius)
         context.coordinator.ringThickness = Float(ringThickness)
+        context.coordinator.isActivated = isActivated ? 1.0 : 0.0 // Pass the new state
         uiView.setNeedsDisplay()
     }
     
@@ -82,6 +88,7 @@ struct FlowingRingShaderView: UIViewRepresentable {
         var animationTime: Float = 0
         var ringRadius: Float = 140
         var ringThickness: Float = 35
+        var isActivated: Float = 0.0 // New state variable
         
         init(_ parent: FlowingRingShaderView) {
             self.parent = parent
@@ -104,8 +111,8 @@ struct FlowingRingShaderView: UIViewRepresentable {
             
             vertexBuffer = device.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<Float>.size, options: [])
             
-            // Create uniform buffer
-            uniformBuffer = device.makeBuffer(length: 3 * MemoryLayout<Float>.size, options: [])
+            // Create uniform buffer - need 4 floats: time, radius, thickness, isActivated
+            uniformBuffer = device.makeBuffer(length: 4 * MemoryLayout<Float>.size, options: [])
             
             // Create render pipeline
             let library = device.makeDefaultLibrary()
@@ -117,6 +124,8 @@ struct FlowingRingShaderView: UIViewRepresentable {
             pipelineDescriptor.fragmentFunction = fragmentFunction
             pipelineDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat
             pipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
+            
+            // Use proper alpha blending for transparency - FIXED
             pipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
             pipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .sourceAlpha
             pipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
@@ -127,18 +136,6 @@ struct FlowingRingShaderView: UIViewRepresentable {
             // Disable depth testing to ensure transparency works
             pipelineDescriptor.depthAttachmentPixelFormat = .invalid
             pipelineDescriptor.stencilAttachmentPixelFormat = .invalid
-            
-            // Try different blend factors for better transparency
-            pipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .one
-            pipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
-            pipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
-            pipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
-            
-            // Try a completely different blend mode - additive blending
-            pipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
-            pipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .sourceAlpha
-            pipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = .one
-            pipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = .one
             
             do {
                 pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
@@ -167,6 +164,7 @@ struct FlowingRingShaderView: UIViewRepresentable {
             uniforms[0] = animationTime
             uniforms[1] = ringRadius
             uniforms[2] = ringThickness
+            uniforms[3] = isActivated // Update the new state variable
             
             // Set render pipeline state
             renderEncoder.setRenderPipelineState(pipelineState)

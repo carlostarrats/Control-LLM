@@ -1,47 +1,21 @@
 import SwiftUI
 
-enum VisualizerType: Int, CaseIterable {
-    case liquid = 0
-    case particle = 1
-    case flowing = 2
-    
-    var displayName: String {
-        switch self {
-        case .liquid:
-            return "Liquid"
-        case .particle:
-            return "Particle"
-        case .flowing:
-            return "Flowing"
-        }
-    }
-    
-    var icon: String {
-        switch self {
-        case .liquid:
-            return "drop.fill"
-        case .particle:
-            return "sparkles"
-        case .flowing:
-            return "waveform.path.ecg"
-        }
-    }
-}
-
 struct VisualizerTabView: View {
     @Binding var isSpeaking: Bool
-    @State private var selectedTab: VisualizerType = .liquid
     var hueShift: Double = 0.0
     var saturationLevel: Double = 1.0
     var brightnessLevel: Double = 1.0
     var onTap: (() -> Void)?
+    
+    // Use the shared VisualizerStateManager instead of local state
+    @StateObject private var visualizerState = VisualizerStateManager.shared
     
     var body: some View {
         ZStack {
             // Visualizer content - full screen, no constraints
             ZStack {
                 // Original liquid visualizer
-                if selectedTab == .liquid {
+                if visualizerState.selectedVisualizerType == .liquid {
                     CentralVisualizerView(
                         isSpeaking: $isSpeaking,
                         hueShift: hueShift,
@@ -56,7 +30,7 @@ struct VisualizerTabView: View {
                 }
                 
                 // New particle visualizer
-                if selectedTab == .particle {
+                if visualizerState.selectedVisualizerType == .particle {
                     ParticleVisualizerView(
                         isSpeaking: $isSpeaking,
                         onTap: onTap
@@ -68,7 +42,7 @@ struct VisualizerTabView: View {
                 }
                 
                 // New flowing liquid visualizer
-                if selectedTab == .flowing {
+                if visualizerState.selectedVisualizerType == .flowing {
                     FlowingLiquidView(
                         isSpeaking: $isSpeaking,
                         onTap: onTap
@@ -80,41 +54,6 @@ struct VisualizerTabView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
-            // Tab selector floating on top
-            VStack {
-                HStack(spacing: 0) {
-                    ForEach(VisualizerType.allCases, id: \.self) { tab in
-                        Button(action: {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                selectedTab = tab
-                            }
-                        }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: tab.icon)
-                                    .font(.system(size: 12, weight: .medium))
-                                Text(tab.displayName)
-                                    .font(.system(size: 12, weight: .medium))
-                            }
-                            .foregroundColor(selectedTab == tab ? Color.white : Color(hex: "#666666"))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(selectedTab == tab ? Color(hex: "#333333") : Color.clear)
-                            )
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(Color(hex: "#1A1A1A"))
-                .cornerRadius(8)
-                
-                Spacer()
-            }
-            .allowsHitTesting(true)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

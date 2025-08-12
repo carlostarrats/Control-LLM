@@ -334,6 +334,7 @@ struct AppearanceView: View {
     @StateObject private var appearanceManager = AppearanceManager()
     @State private var hasChanges = false
     @State private var showingVisualizerTest = false
+    @StateObject private var visualizerState = VisualizerStateManager.shared
     
     var body: some View {
         ZStack {
@@ -344,13 +345,50 @@ struct AppearanceView: View {
             // Content
             ScrollView {
                 VStack(spacing: 8) {
-                    // Add small top padding to align with other settings pages
+                    // Control Unit Selection Section
+                    VStack(alignment: .leading, spacing: 20) {
+                        Text("Control Unit Selection")
+                            .font(.custom("IBMPlexMono", size: 18))
+                            .foregroundColor(Color(hex: "#EEEEEE"))
+                        
+                        // Visualizer tabs - same styling as other design system elements
+                        HStack(spacing: 0) {
+                            ForEach(VisualizerType.allCases, id: \.self) { tab in
+                                Button(action: {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        visualizerState.selectedVisualizerType = tab
+                                    }
+                                }) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: tab.icon)
+                                            .font(.system(size: 14, weight: .medium))
+                                        Text(tab.displayName)
+                                            .font(.system(size: 14, weight: .medium))
+                                    }
+                                    .foregroundColor(visualizerState.selectedVisualizerType == tab ? Color.white : Color(hex: "#666666"))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .fill(visualizerState.selectedVisualizerType == tab ? Color(hex: "#333333") : Color.clear)
+                                    )
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                        }
+                        .background(Color(hex: "#1A1A1A"))
+                        .cornerRadius(4)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 11)
+                    
+                    // 30px spacing between sections
                     Spacer()
-                        .frame(height: 5)
+                        .frame(height: 30)
                     
                     // Control Unit Section
                     VStack(alignment: .leading, spacing: 20) {
-                        Text("Control Unit")
+                        Text("Control Unit Color")
                             .font(.custom("IBMPlexMono", size: 18))
                             .foregroundColor(Color(hex: "#EEEEEE"))
                         
@@ -373,7 +411,7 @@ struct AppearanceView: View {
                                     Image(systemName: "testtube.2")
                                         .font(.system(size: 16))
                                     
-                                    Text("Test Control Unit")
+                                    Text("Test Control Unit Color")
                                         .font(.custom("IBMPlexMono", size: 16))
                                 }
                                 .foregroundColor(hasChanges ? Color(hex: "#94A8E1") : Color(hex: "#888888"))
@@ -388,7 +426,6 @@ struct AppearanceView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, 30)
                     
                     // 30px spacing between sections
                     Spacer()
@@ -396,7 +433,7 @@ struct AppearanceView: View {
                     
                     // Text Elements Section
                     VStack(alignment: .leading, spacing: 20) {
-                        Text("Text Elements")
+                        Text("Text Elements Color")
                             .font(.custom("IBMPlexMono", size: 18))
                             .foregroundColor(Color(hex: "#EEEEEE"))
                         
