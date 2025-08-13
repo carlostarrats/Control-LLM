@@ -12,36 +12,74 @@ struct CentralVisualizerView: View {
 
     var onTap: (() -> Void)?
     
+    // OPTIMIZATION: Cache transformed colors to avoid repeated calculations
+    @State private var cachedColors: [String: Color] = [:]
+    
     // Helper function to apply hue shift, saturation, and brightness to a color
     private func applyHueShift(to color: Color) -> Color {
+        // OPTIMIZATION: Early return for no transformation
         if hueShift == 0.0 && saturationLevel == 1.0 && brightnessLevel == 1.0 {
-            return color // No shift
-        } else {
-            // Apply hue rotation, saturation, and brightness using HSB color space
-            let uiColor = UIColor(color)
-            var hue: CGFloat = 0
-            var saturation: CGFloat = 0
-            var brightness: CGFloat = 0
-            var alpha: CGFloat = 0
-            
-            uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
-            
-            // Rotate hue by the shift amount (0.0 to 1.0 maps to 0° to 360°)
-            let newHue = (hue + hueShift).truncatingRemainder(dividingBy: 1.0)
-            
-            // Apply saturation level (1.0 = full saturation, 0.0 = black and white)
-            let newSaturation = saturation * saturationLevel
-            
-            // Apply brightness level (1.0 = full brightness, 0.0 = black)
-            let newBrightness = brightness * brightnessLevel
-            
-            return Color(hue: newHue, saturation: newSaturation, brightness: newBrightness, opacity: alpha)
+            return color
         }
+        
+        // OPTIMIZATION: Create a cache key for this transformation
+        let colorKey = "\(color.description)-\(hueShift)-\(saturationLevel)-\(brightnessLevel)"
+        
+        if let cachedColor = cachedColors[colorKey] {
+            return cachedColor
+        }
+        
+        // Apply hue rotation, saturation, and brightness using HSB color space
+        let uiColor = UIColor(color)
+        var hue: CGFloat = 0
+        var saturation: CGFloat = 0
+        var brightness: CGFloat = 0
+        var alpha: CGFloat = 0
+        
+        uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+        
+        // Rotate hue by the shift amount (0.0 to 1.0 maps to 0° to 360°)
+        let newHue = (hue + hueShift).truncatingRemainder(dividingBy: 1.0)
+        
+        // Apply saturation level (1.0 = full saturation, 0.0 = black and white)
+        let newSaturation = saturation * saturationLevel
+        
+        // Apply brightness level (1.0 = full brightness, 0.0 = black)
+        let newBrightness = brightness * brightnessLevel
+        
+        let transformedColor = Color(hue: newHue, saturation: newSaturation, brightness: newBrightness, opacity: alpha)
+        
+        // OPTIMIZATION: Cache the result (limit cache size)
+        if cachedColors.count < 50 {
+            cachedColors[colorKey] = transformedColor
+        }
+        
+        return transformedColor
     }
     
-    // Helper function to apply hue shift to an array of colors
+    // OPTIMIZATION: Cache color arrays to avoid repeated mapping
+    @State private var cachedColorArrays: [String: [Color]] = [:]
+    
     private func applyHueShift(to colors: [Color]) -> [Color] {
-        return colors.map { applyHueShift(to: $0) }
+        // OPTIMIZATION: Early return for no transformation
+        if hueShift == 0.0 && saturationLevel == 1.0 && brightnessLevel == 1.0 {
+            return colors
+        }
+        
+        let arrayKey = "\(colors.map(\.description).joined())-\(hueShift)-\(saturationLevel)-\(brightnessLevel)"
+        
+        if let cachedArray = cachedColorArrays[arrayKey] {
+            return cachedArray
+        }
+        
+        let transformedArray = colors.map { applyHueShift(to: $0) }
+        
+        // OPTIMIZATION: Cache the result (limit cache size)
+        if cachedColorArrays.count < 20 {
+            cachedColorArrays[arrayKey] = transformedArray
+        }
+        
+        return transformedArray
     }
 
     var body: some View {
@@ -52,7 +90,7 @@ struct CentralVisualizerView: View {
                 .foregroundColor(applyHueShift(to: Color(hex: "#5D0C14")))
                 .opacity(0.6)
                 .blur(radius: 30)
-                .offset(x: isAnimating ? sin(animationPhase * 0.5) * 8 : 0, 
+                .offset(x: isAnimating ? sin(animationPhase * 0.5) * 8 : 0,
                         y: isAnimating ? cos(animationPhase * 0.5) * 6 : 0)
             
             // Mid-depth wave layer - adds dimension with Liquid
@@ -61,7 +99,7 @@ struct CentralVisualizerView: View {
                 .foregroundColor(applyHueShift(to: Color(hex: "#D20001")))
                 .opacity(0.3)
                 .blur(radius: 20)
-                .offset(x: isAnimating ? cos(animationPhase * 0.6) * 6 : 0, 
+                .offset(x: isAnimating ? cos(animationPhase * 0.6) * 6 : 0,
                         y: isAnimating ? sin(animationPhase * 0.6) * 4 : 0)
             
             // Organic irregular ring 1 - Pink outer ring
@@ -78,10 +116,10 @@ struct CentralVisualizerView: View {
             // Organic irregular ring 2 - Red inner ring with ripple distortion
             Ellipse()
                 .fill(applyHueShift(to: Color(hex: "#D20001")))
-                .frame(width: 240 + cos(animationPhase * 1.5) * 28, 
+                .frame(width: 240 + cos(animationPhase * 1.5) * 28,
                        height: 240 + sin(animationPhase * 2.1) * 20)
                 .scaleEffect(1.0 + cos(animationPhase * 1.2) * 0.064)
-                .offset(x: cos(animationPhase * 1.3) * 5, 
+                .offset(x: cos(animationPhase * 1.3) * 5,
                         y: sin(animationPhase * 1.3) * 3)
                 .blur(radius: 10)
                 .opacity(0.7)
@@ -89,7 +127,7 @@ struct CentralVisualizerView: View {
             // Center organic motion - Dark ring with organic distortion
             Ellipse()
                 .fill(applyHueShift(to: Color(hex: "#2D0000")))
-                .frame(width: 80 + sin(animationPhase * 1.8) * 15, 
+                .frame(width: 80 + sin(animationPhase * 1.8) * 15,
                        height: 80 + cos(animationPhase * 2.2) * 12)
                 .scaleEffect(1.0 + sin(animationPhase * 2.5) * 0.3)
                 .offset(x: sin(animationPhase * 2.0) * 8, y: cos(animationPhase * 2.0) * 6)
@@ -101,8 +139,8 @@ struct CentralVisualizerView: View {
                 .fill(
                     RadialGradient(
                         colors: applyHueShift(to: [
-                            Color(hex: "#FF00D0"), 
-                            Color(hex: "#8B0000"), 
+                            Color(hex: "#FF00D0"),
+                            Color(hex: "#8B0000"),
                             Color.clear
                         ]),
                         center: .center,
@@ -110,7 +148,7 @@ struct CentralVisualizerView: View {
                         endRadius: 50
                     )
                 )
-                .frame(width: 60 + cos(animationPhase * 2.1) * 10, 
+                .frame(width: 60 + cos(animationPhase * 2.1) * 10,
                        height: 60 + sin(animationPhase * 1.9) * 8)
                 .scaleEffect(1.0 + sin(animationPhase * 2.5) * 0.4)
                 .offset(x: cos(animationPhase * 2.3) * 5, y: sin(animationPhase * 2.3) * 4)
@@ -120,7 +158,7 @@ struct CentralVisualizerView: View {
             // Additional organic motion - Middle ring with distortion
             Ellipse()
                 .fill(applyHueShift(to: Color(hex: "#FF00D0")))
-                .frame(width: 160 + sin(animationPhase * 2.0) * 20, 
+                .frame(width: 160 + sin(animationPhase * 2.0) * 20,
                        height: 160 + cos(animationPhase * 1.6) * 16)
                 .scaleEffect(1.0 + sin(animationPhase * 1.8) * 0.12)
                 .offset(x: sin(animationPhase * 1.3) * 8, y: cos(animationPhase * 1.3) * 6)
@@ -146,7 +184,7 @@ struct CentralVisualizerView: View {
                     )
                     .frame(width: 320, height: 280)
                     .blur(radius: 12)
-                    .offset(x: isAnimating ? 8 + sin(animationPhase * 0.4) * 8 : 0, 
+                    .offset(x: isAnimating ? 8 + sin(animationPhase * 0.4) * 8 : 0,
                             y: isAnimating ? -4 + cos(animationPhase * 0.4) * 4 : 0)
                     .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 0.8) * 0.08 : 1.0, anchor: .center)
                 
@@ -167,7 +205,7 @@ struct CentralVisualizerView: View {
                     )
                     .frame(width: 280, height: 320)
                     .blur(radius: 18)
-                    .offset(x: isAnimating ? -4 + cos(animationPhase * 0.5) * 4 : 0, 
+                    .offset(x: isAnimating ? -4 + cos(animationPhase * 0.5) * 4 : 0,
                             y: isAnimating ? 4 + sin(animationPhase * 0.5) * 3 : 0)
                     .scaleEffect(isAnimating ? 1.0 + cos(animationPhase * 0.9) * 0.1 : 1.0, anchor: .center)
                 
@@ -187,7 +225,7 @@ struct CentralVisualizerView: View {
                     )
                     .frame(width: 240, height: 260)
                     .blur(radius: 22)
-                    .offset(x: isAnimating ? 4 + sin(animationPhase * 0.6) * 4 : 0, 
+                    .offset(x: isAnimating ? 4 + sin(animationPhase * 0.6) * 4 : 0,
                             y: isAnimating ? 8 + cos(animationPhase * 0.6) * 3 : 0)
                     .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 1.0) * 0.12 : 1.0, anchor: .center)
             }
@@ -209,7 +247,7 @@ struct CentralVisualizerView: View {
                 )
                 .frame(width: 320, height: 320)
                 .blur(radius: 15)
-                .offset(x: isAnimating ? sin(animationPhase * 0.7) * 5 : 0, 
+                .offset(x: isAnimating ? sin(animationPhase * 0.7) * 5 : 0,
                         y: isAnimating ? cos(animationPhase * 0.7) * 3 : 0)
                 .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 0.6) * 0.0035 : 1.0, anchor: .center)
             
@@ -230,7 +268,7 @@ struct CentralVisualizerView: View {
                     )
                     .frame(width: 200, height: 80)
                     .blur(radius: 8)
-                    .offset(x: isAnimating ? -2 + sin(animationPhase * 0.8) * 2 : 0, 
+                    .offset(x: isAnimating ? -2 + sin(animationPhase * 0.8) * 2 : 0,
                             y: isAnimating ? -4 + cos(animationPhase * 0.8) * 2 : 0)
                     .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 1.2) * 0.15 : 1.0, anchor: .center)
                 
@@ -249,7 +287,7 @@ struct CentralVisualizerView: View {
                     )
                     .frame(width: 160, height: 100)
                     .blur(radius: 10)
-                    .offset(x: isAnimating ? 12 + cos(animationPhase * 0.9) * 4 : 0, 
+                    .offset(x: isAnimating ? 12 + cos(animationPhase * 0.9) * 4 : 0,
                             y: isAnimating ? 10 + sin(animationPhase * 0.9) * 3 : 0)
                     .scaleEffect(isAnimating ? 1.0 + cos(animationPhase * 1.3) * 0.18 : 1.0, anchor: .center)
                 
@@ -268,7 +306,7 @@ struct CentralVisualizerView: View {
                     )
                     .frame(width: 60, height: 180)
                     .blur(radius: 12)
-                    .offset(x: isAnimating ? -6 + sin(animationPhase * 1.0) * 3 : 0, 
+                    .offset(x: isAnimating ? -6 + sin(animationPhase * 1.0) * 3 : 0,
                             y: isAnimating ? 15 + cos(animationPhase * 1.0) * 2 : 0)
                     .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 1.4) * 0.2 : 1.0, anchor: .center)
             }
@@ -290,7 +328,7 @@ struct CentralVisualizerView: View {
                 )
                 .frame(width: 280, height: 280)
                 .blur(radius: 12)
-                .offset(x: isAnimating ? cos(animationPhase * 0.8) * 3 : 0, 
+                .offset(x: isAnimating ? cos(animationPhase * 0.8) * 3 : 0,
                         y: isAnimating ? sin(animationPhase * 0.8) * 2 : 0)
                 .scaleEffect(isAnimating ? 1.0 + cos(animationPhase * 0.7) * 0.0045 : 1.0, anchor: .center)
             
@@ -312,7 +350,7 @@ struct CentralVisualizerView: View {
                     )
                     .frame(width: 220 + sin(animationPhase * 1.1) * 12, height: 200 + cos(animationPhase * 1.6) * 10)
                     .blur(radius: 4)
-                    .offset(x: 5 + sin(animationPhase * 0.9) * 4, 
+                    .offset(x: 5 + sin(animationPhase * 0.9) * 4,
                             y: -3 + cos(animationPhase * 0.9) * 2)
                     .rotationEffect(.degrees(sin(animationPhase * 0.4) * 4))
                 
@@ -321,7 +359,7 @@ struct CentralVisualizerView: View {
                     .stroke(applyHueShift(to: Color(hex: "#FF00D0").opacity(0.6)), lineWidth: 6)
                     .frame(width: 200 + cos(animationPhase * 1.3) * 11, height: 220 + sin(animationPhase * 1.9) * 8)
                     .blur(radius: 6)
-                    .offset(x: -3 + cos(animationPhase * 1.1) * 3, 
+                    .offset(x: -3 + cos(animationPhase * 1.1) * 3,
                             y: 4 + sin(animationPhase * 1.1) * 2)
                     .rotationEffect(.degrees(cos(animationPhase * 0.6) * -8))
                 
@@ -330,7 +368,7 @@ struct CentralVisualizerView: View {
                     .stroke(applyHueShift(to: Color(hex: "#D20001").opacity(0.5)), lineWidth: 4)
                     .frame(width: 240 + sin(animationPhase * 1.5) * 14, height: 180 + cos(animationPhase * 2.1) * 6)
                     .blur(radius: 8)
-                    .offset(x: 2 + sin(animationPhase * 1.2) * 2, 
+                    .offset(x: 2 + sin(animationPhase * 1.2) * 2,
                             y: 6 + cos(animationPhase * 1.2) * 2)
                     .rotationEffect(.degrees(sin(animationPhase * 0.8) * 6))
             }
@@ -352,10 +390,10 @@ struct CentralVisualizerView: View {
                             endRadius: 80
                         )
                     )
-                    .frame(width: 140 + sin(animationPhase * 1.2) * 16, 
+                    .frame(width: 140 + sin(animationPhase * 1.2) * 16,
                            height: 120 + cos(animationPhase * 1.8) * 12)
                     .blur(radius: 25)
-                    .offset(x: 3 + sin(animationPhase * 0.4) * 8, 
+                    .offset(x: 3 + sin(animationPhase * 0.4) * 8,
                             y: -2 + cos(animationPhase * 0.6) * 6)
                     .scaleEffect(1.0 + sin(animationPhase * 0.5) * 0.12, anchor: .center)
                 
@@ -364,7 +402,7 @@ struct CentralVisualizerView: View {
                     .fill(applyHueShift(to: Color(hex: "#5D0C14").opacity(0.8)))
                     .frame(width: 120 + cos(animationPhase * 1.5) * 14, height: 140 + sin(animationPhase * 2.0) * 10)
                     .blur(radius: 35)
-                    .offset(x: -2 + cos(animationPhase * 0.7) * 10, 
+                    .offset(x: -2 + cos(animationPhase * 0.7) * 10,
                             y: 3 + sin(animationPhase * 0.6) * 8)
                     .scaleEffect(1.0 + cos(animationPhase * 0.6) * 0.096, anchor: .center)
                 
@@ -373,7 +411,7 @@ struct CentralVisualizerView: View {
                     .fill(applyHueShift(to: Color(hex: "#5D0C14").opacity(0.6)))
                     .frame(width: 130 + sin(animationPhase * 1.8) * 13, height: 110 + cos(animationPhase * 2.2) * 8)
                     .blur(radius: 45)
-                    .offset(x: 1 + sin(animationPhase * 0.8) * 11, 
+                    .offset(x: 1 + sin(animationPhase * 0.8) * 11,
                             y: 1 + cos(animationPhase * 0.7) * 10)
                     .scaleEffect(1.0 + sin(animationPhase * 0.7) * 0.08, anchor: .center)
             }
@@ -398,18 +436,18 @@ struct CentralVisualizerView: View {
             )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .offset(x: isAnimating ? sin(animationPhase * 0.6) * 2 : 0, 
+        .offset(x: isAnimating ? sin(animationPhase * 0.6) * 2 : 0,
                 y: isAnimating ? cos(animationPhase * 0.6) * 1 : 0)
         .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 0.4) * 0.004 : 1.0, anchor: .center)
         .contentShape(Rectangle()) // Make the entire frame tappable
         .onTapGesture {
             onTap?()
         }
-        .shadow(color: isAnimating ? applyHueShift(to: Color(hex: "#FF00D0").opacity(0.6)) : Color.clear, 
+        .shadow(color: isAnimating ? applyHueShift(to: Color(hex: "#FF00D0").opacity(0.6)) : Color.clear,
                 radius: isAnimating ? 20 + sin(animationPhase * 0.3) * 10 : 0)
         .animation(
-            isAnimating ? 
-                .easeInOut(duration: 0.8).repeatForever(autoreverses: true) : 
+            isAnimating ?
+                .easeInOut(duration: 0.8).repeatForever(autoreverses: true) :
                 .easeOut(duration: 0.5),
             value: isAnimating
         )
@@ -434,6 +472,19 @@ struct CentralVisualizerView: View {
             } else {
                 stopSpeechAnimation()
             }
+        }
+        .onChange(of: hueShift) { _, _ in
+            // OPTIMIZATION: Clear caches when hue parameters change
+            cachedColors.removeAll()
+            cachedColorArrays.removeAll()
+        }
+        .onChange(of: saturationLevel) { _, _ in
+            cachedColors.removeAll()
+            cachedColorArrays.removeAll()
+        }
+        .onChange(of: brightnessLevel) { _, _ in
+            cachedColors.removeAll()
+            cachedColorArrays.removeAll()
         }
     }
     
@@ -532,4 +583,3 @@ struct AnimationCycleDemo: View {
         }
     }
 }
-

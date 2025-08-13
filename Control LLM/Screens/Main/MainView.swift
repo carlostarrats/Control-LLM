@@ -74,7 +74,7 @@ struct MainView: View {
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(Color(hex: "#1D1D1D"))
                                     .frame(width: 48, height: 48) // Fixed square size
-                                    .background(Color(hex: "#94A8E1"))
+                                    .background(Color(hex: "#FF6B6B"))
                                     .cornerRadius(4, corners: [.topLeft, .bottomLeft]) // Only left corners
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -87,7 +87,7 @@ struct MainView: View {
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(Color(hex: "#1D1D1D"))
                                     .frame(width: 48, height: 48) // Fixed square size
-                                    .background(Color(hex: "#3EBBA5"))
+                                    .background(Color(hex: "#F8C762"))
                                     .cornerRadius(0) // No corners
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -100,7 +100,7 @@ struct MainView: View {
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(Color(hex: "#1D1D1D"))
                                     .frame(width: 48, height: 48) // Fixed square size
-                                    .background(Color(hex: "#F8C762"))
+                                    .background(Color(hex: "#94A8E1"))
                                     .cornerRadius(4, corners: [.topRight, .bottomRight]) // Only right corners
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -132,11 +132,11 @@ struct MainView: View {
                         Button(action: {
                             viewModel.processVoiceMessage()
                         }) {
-                            Image(systemName: "xmark") // Proper X mark symbol, not in a circle or square
+                            Image(systemName: "paperplane") // Paper airplane symbol
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(Color(hex: "#1D1D1D"))
                                 .frame(width: 48, height: 48) // Fixed square size
-                                .background(Color(hex: "#FF6B6B"))
+                                .background(Color(hex: "#3EBBA5"))
                                 .cornerRadius(4)
                         }
                         .buttonStyle(PlainButtonStyle())
