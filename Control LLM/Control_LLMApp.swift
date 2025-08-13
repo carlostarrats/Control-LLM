@@ -6,10 +6,32 @@
 //
 
 import SwiftUI
+import os.log
+
+// MARK: - Console Flooding Prevention
+private func disableConsoleFlooding() {
+    // Disable SwiftUI's excessive logging that causes console flooding
+    UserDefaults.standard.set(false, forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
+    setenv("OS_ACTIVITY_MODE", "disable", 1)
+    setenv("SWIFTUI_DEBUG", "0", 1)
+    setenv("SWIFTUI_ENABLE_LOGGING", "0", 1)
+    
+    // Reduce Metal/GPU logging
+    setenv("METAL_DEVICE_WRAPPER_TYPE", "1", 1)
+    setenv("GGML_METAL_DEBUG", "0", 1)
+    
+    // Disable Core Data and other verbose logging
+    setenv("SQLITE_ENABLE_LOGGING", "0", 1)
+    
+    print("🔇 Console flooding prevention enabled")
+}
 
 @main
 struct Control_LLMApp: App {
     init() {
+        // FIRST: Stop console flooding immediately
+        disableConsoleFlooding()
+        
         // Write to a file to test if the app is actually running
         let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let logFile = documentsPath.appendingPathComponent("app_log.txt")
@@ -17,10 +39,10 @@ struct Control_LLMApp: App {
         let logMessage = "🔍 App starting... at \(timestamp)\n"
         try? logMessage.write(to: logFile, atomically: true, encoding: .utf8)
         
-        NSLog("🔍 App starting...")
+        print("🔍 App starting...")
         // Register custom fonts
         registerCustomFonts()
-        NSLog("🔍 App started successfully")
+        print("🔍 App started successfully")
         
         // Initialize ModelManager to ensure models are discovered at startup
         DispatchQueue.main.async {
@@ -35,7 +57,7 @@ struct Control_LLMApp: App {
         WindowGroup {
             MainView()
                 .onAppear {
-                    NSLog("🔍 MainView appeared!")
+                    print("🔍 MainView appeared!")
                 }
         }
     }

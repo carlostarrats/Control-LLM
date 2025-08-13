@@ -24,7 +24,7 @@ struct MainView: View {
     @State private var brightnessLevel: Double = 0.3 // 0.3 = 30% brightness for non-active state
     
     var body: some View {
-        let _ = NSLog("🔍 MainView body executing!")
+        // REMOVED ALL DEBUG - app is working now
         
         // Computed property for stable nav button visibility
         let shouldShowNavButtons = !viewModel.isVoiceDetected && !viewModel.isActivated && !viewModel.isInVoiceFlow
@@ -47,16 +47,74 @@ struct MainView: View {
                 VStack {
                     Spacer()
                 }
+        .sheet(isPresented: $showingTextModal) {
+            TextModalView(viewModel: viewModel, isPresented: $showingTextModal, messageHistory: viewModel.messages)
+                .onDisappear {
+                    showingTextModal = false
+                    viewModel.deactivateVoiceInputMode()
+                }
+        }
+        .sheet(isPresented: $showingHistoryView) {
+            HistoryView(
+                showingTextModal: $showingTextModal,
+                mainViewModel: viewModel
+            )
+        }
+        .sheet(isPresented: $showingWhisperView) {
+            WhisperView(
+                showingTextModal: $showingTextModal,
+                mainViewModel: viewModel
+            )
+        }
+        .sheet(isPresented: $showingSettingsView) {
+            SettingsView(
+                showingTextModal: $showingTextModal,
+                mainViewModel: viewModel
+            )
+        }
+        .onChange(of: viewModel.isActivated) { _, isActivated in
+            if isActivated {
+                // Trigger the same visual effects as activateControlSequence
+                withAnimation(.easeOut(duration: 0.8)) {
+                    textOpacity = 0.0 // Fade all text away
+                    manualInputOpacity = 0.0 // Fade manual input away
+                    blobColorOpacity = 1.0 // Keep blob fully visible
+                    
+                    // Set activated state values (copy of main state but full brightness)
+                    hueShift = 0.90
+                    saturationLevel = 0.12
+                    brightnessLevel = 1.0
+                }
+            } else {
+                // Return to normal state
+                withAnimation(.easeInOut(duration: 0.8)) {
+                    blobColorOpacity = 1.0 // Restore blob colors
+                    brightnessLevel = 0.3
+                }
+                
+                // Then, after a delay, start the text fade-in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    withAnimation(.easeInOut(duration: 0.8)) {
+                        textOpacity = 1.0 // Restore text
+                        manualInputOpacity = 1.0 // Restore manual input
+                    }
+                }
+            }
+        }
 
-                // Central visual design element with tabs - fixed center position
-                VisualizerTabView(isSpeaking: $viewModel.isActivated, hueShift: hueShift, saturationLevel: saturationLevel, brightnessLevel: brightnessLevel, onTap: handleBlobTap)
-                        .scaleEffect(blobScale)
-                        .accessibilityLabel("Voice recording button")
-                        .accessibilityHint("Double tap to start or stop voice recording")
-                    .opacity(blobColorOpacity)
-                    .animation(.easeInOut(duration: 0.8), value: blobColorOpacity)
-
-
+                // Central visual design element with tabs - RESTORED ORIGINAL
+                VisualizerTabView(
+                    isSpeaking: $viewModel.isActivated,
+                    hueShift: hueShift,
+                    saturationLevel: saturationLevel,
+                    brightnessLevel: brightnessLevel,
+                    onTap: handleBlobTap
+                )
+                .scaleEffect(blobScale)
+                .accessibilityLabel("Voice recording button")
+                .accessibilityHint("Double tap to start or stop voice recording")
+                .opacity(blobColorOpacity)
+                .animation(.easeInOut(duration: 0.8), value: blobColorOpacity)
 
                 // Bottom navigation buttons with voice interaction flow
                 VStack {
@@ -87,7 +145,7 @@ struct MainView: View {
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(Color(hex: "#1D1D1D"))
                                     .frame(width: 48, height: 48) // Fixed square size
-                                    .background(Color(hex: "#F8C762"))
+                                    .background(Color(hex: "#94A8E1"))
                                     .cornerRadius(0) // No corners
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -100,7 +158,7 @@ struct MainView: View {
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(Color(hex: "#1D1D1D"))
                                     .frame(width: 48, height: 48) // Fixed square size
-                                    .background(Color(hex: "#94A8E1"))
+                                    .background(Color(hex: "#F8C762"))
                                     .cornerRadius(4, corners: [.topRight, .bottomRight]) // Only right corners
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -382,4 +440,4 @@ struct DashedLineAboveText: View {
 #Preview {
     MainView()
         .preferredColorScheme(.dark)
-} 
+}

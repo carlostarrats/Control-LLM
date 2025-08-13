@@ -1,112 +1,135 @@
+import Foundation
 import SwiftUI
 
-@MainActor
-final class ChatViewModel: ObservableObject {
-    @Published var transcript: String = ""
-    var messageHistory: [ChatMessage]?
-    private var modelLoaded = false
-    private var lastLoadedModel: String?
-    private var lastSentMessage = ""
-    private var isProcessing = false
-
+@Observable
+class ChatViewModel: ObservableObject {
+    var transcript: String = ""
+    var isProcessing: Bool = false
+    var modelLoaded: Bool = false
+    var lastLoadedModel: String? = nil
+    var lastSentMessage: String? = nil
+    var messageHistory: [ChatMessage]? = []
+    
+    private var modelChangeObserver: NSObjectProtocol?
+    private var updateTimer: Timer?
+    
+    init() {
+        print("🔍 ChatViewModel: init")
+        setupModelChangeObserver()
+    }
+    
+    deinit {
+        if let observer = modelChangeObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        updateTimer?.invalidate()
+    }
+    
+    private func setupModelChangeObserver() {
+        modelChangeObserver = NotificationCenter.default.addObserver(
+            forName: NSNotification.Name("ModelSelectionChanged"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.handleModelChange()
+        }
+    }
+    
+    private func handleModelChange() {
+        print("ChatViewModel: Model changed, reloading...")
+        DispatchQueue.main.async {
+            self.modelLoaded = false
+            self.lastLoadedModel = nil
+        }
+    }
+    
     func send(_ userText: String) {
         print("🔍 ChatViewModel: send started — \(userText)")
-        print("🔍 ChatViewModel: transcript before = '\(transcript)'")
         
         // Check if this is a duplicate message
         let isDuplicate = userText == lastSentMessage
-        print("🔍 ChatViewModel: isDuplicate = \(isDuplicate)")
-        lastSentMessage = userText
         
-        // Allow duplicate messages to be processed
-        // Reset processing state to allow new requests
-        isProcessing = false
-        
-        // For duplicate messages, reset transcript to force UI update
         if isDuplicate {
-            self.transcript = ""
+            print("🔍 ChatViewModel: Duplicate message detected, ignoring")
+            return
         }
+        
+        lastSentMessage = userText
         
         Task { [weak self] in
             guard let self = self else { return }
-            do {
-                await MainActor.run { 
-                    self.isProcessing = true
-                    // Don't reset transcript - let it accumulate naturally
-                }
-                
-                print("🔍 ChatViewModel: calling ensureModel()")
-                try await ensureModel()
-                print("🔍 ChatViewModel: ensureModel() completed successfully")
-                
-                print("🔍 ChatViewModel: calling LLMService.shared.chat()")
-                // Clear transcript for new assistant response
-                await MainActor.run {
-                    self.transcript = ""
-                }
-                
-                print("🔍 ChatViewModel: About to call LLMService.shared.chat with text: '\(userText)'")
-                try await LLMService.shared.chat(user: userText, history: self.messageHistory) { token in
-                    print("🔍 ChatViewModel: received token: '\(token)'")
-                    await MainActor.run { 
-                        // token is now already a String from LLMService
-                        if !token.isEmpty {
-                            self.transcript += token 
-                        }
-                        print("🔍 ChatViewModel: transcript updated to: '\(self.transcript)'")
-                    }
-                }
-                print("🔍 ChatViewModel: LLMService.shared.chat() completed successfully")
-                
-                // Check if we received any tokens
-                await MainActor.run {
-                    if self.transcript.isEmpty {
-                        print("⚠️ ChatViewModel: No tokens received from LLM")
-                        self.transcript = "No response received from the model."
-                    }
-                }
-                // No extra newline needed - let the text end naturally
-            } catch {
-                let errorMessage = getErrorMessage(for: error)
-                await MainActor.run { 
-                    self.transcript += "\n⚠️ \(errorMessage)\n" 
-                }
-            }
             
-            await MainActor.run {
-                self.isProcessing = false
-                print("🔍 ChatViewModel: send completed, transcript = '\(self.transcript)'")
+            do {
+                await MainActor.run {
+                    self.isProcessing = true
+                }
+                
+                // Check if model has changed and force reload if needed
+                let currentModel = await ModelManager.shared.getSelectedModelFilename()
+                let modelSwitched = self.lastLoadedModel != currentModel
+                
+                if modelSwitched {
+                    print("🔍 ChatViewModel: Model switch detected: \(self.lastLoadedModel ?? "nil") -> \(currentModel ?? "nil")")
+                    
+                    // Force unload and reload the model
+                    try await LLMService.shared.forceUnloadModel()
+                    try await LLMService.shared.loadSelectedModel()
+                    
+                    await MainActor.run {
+                        self.lastLoadedModel = currentModel
+                        self.messageHistory = [] // Clear history for fresh responses
+                    }
+                    
+                    print("🔍 ChatViewModel: Model switched and reloaded successfully")
+                }
+                
+                // Always use empty history to ensure different responses from different models
+                let historyToSend: [ChatMessage] = []
+                
+                // Use throttled transcript updates to prevent console flooding
+                var pendingTranscript = ""
+                
+                // Use the correct LLMService method signature
+                try await LLMService.shared.chat(
+                    user: userText,
+                    history: historyToSend,
+                    onToken: { [weak self] partialResponse in
+                        // Store the response but don't update UI immediately
+                        pendingTranscript = partialResponse
+                        
+                        // Throttle UI updates to prevent flooding
+                        DispatchQueue.main.async {
+                            // Invalidate previous timer
+                            self?.updateTimer?.invalidate()
+                            
+                            // Set new timer to update UI after a brief delay
+                            self?.updateTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { _ in
+                                self?.transcript = pendingTranscript
+                            }
+                        }
+                    }
+                )
+                
+                await MainActor.run {
+                    self.isProcessing = false
+                }
+                
+            } catch {
+                await MainActor.run {
+                    print("❌ ChatViewModel: Error in send: \(error)")
+                    self.isProcessing = false
+                    self.transcript = "Error: \(error.localizedDescription)"
+                }
             }
         }
     }
-
-    private func ensureModel() async throws {
-        let currentModel = ModelManager.shared.getSelectedModelFilename()
-        
-        // Reload if model changed or not loaded yet
-        if !modelLoaded || lastLoadedModel != currentModel {
-            try await LLMService.shared.loadSelectedModel()
-            modelLoaded = true
-            lastLoadedModel = currentModel
-            print("ChatViewModel: Loaded model \(currentModel ?? "unknown")")
-        }
-    }
     
-    /// Force reload the model (useful when user changes model selection)
-    func reloadModel() {
-        modelLoaded = false
-        lastLoadedModel = nil
-    }
-    
-    private func getErrorMessage(for error: Error) -> String {
-        if let nsError = error as NSError? {
-            switch nsError.code {
-            case 7:
-                return "Model loading timed out. Please try a smaller model like TinyLlama."
-            default:
-                return error.localizedDescription
-            }
+    func clearConversation() {
+        DispatchQueue.main.async {
+            self.transcript = ""
+            self.messageHistory = []
+            self.lastSentMessage = nil
+            print("🔍 ChatViewModel: Conversation cleared")
         }
-        return error.localizedDescription
     }
 }

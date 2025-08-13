@@ -1,4 +1,10 @@
 import Foundation
+import SwiftUI
+
+// Notification name for when the selected model changes
+extension Notification.Name {
+    static let modelDidChange = Notification.Name("modelDidChange")
+}
 
 struct LLMModelInfo {
     let id: String
@@ -14,20 +20,37 @@ struct LLMModelInfo {
         self.filename = filename
         self.id = filename
         
+        // Safety check: Reject any Llama models immediately
+        if filename.lowercased().contains("llama") {
+            self.name = "Excluded Model"
+            self.displayName = "Excluded Model"
+            self.description = "This model has been excluded"
+            self.provider = "Excluded"
+            self.size = "Unknown"
+            self.isAvailable = false
+            return
+        }
+        
         // Parse display information from filename (case-insensitive)
         let lowercaseFilename = filename.lowercased()
-        if lowercaseFilename.contains("llama-3.2-1b") {
-            self.name = "Llama 3.2 1B"
-            self.displayName = "Llama-3.2-1B-Instruct-Q5_K_M"
-            self.description = "Meta's efficient 1B parameter model"
-            self.provider = "Meta"
-            self.size = "0.6 GB"
-        } else if lowercaseFilename.contains("llama-3.2-3b") {
-            self.name = "Llama 3.2 3B"
-            self.displayName = "llama-3.2-3b-instruct-q4_0"
-            self.description = "Meta's efficient 3B parameter model"
-            self.provider = "Meta"
-            self.size = "1.8 GB"
+        if lowercaseFilename.contains("deepseek-r1-distill-qwen-1.5b") {
+            self.name = "DeepSeek R1 Distill"
+            self.displayName = "DeepSeek-R1-Distill-Qwen-1.5B-Q5_K_M"
+            self.description = "DeepSeek's distilled 1.5B parameter model"
+            self.provider = "DeepSeek"
+            self.size = "0.9 GB"
+        } else if lowercaseFilename.contains("gemma-2-2b-it") {
+            self.name = "Gemma 2 2B IT"
+            self.displayName = "gemma-2-2b-it-Q5_K_M"
+            self.description = "Google's efficient 2B parameter instruction-tuned model"
+            self.provider = "Google"
+            self.size = "1.2 GB"
+        } else if lowercaseFilename.contains("qwen2.5-1.5b-instruct") {
+            self.name = "Qwen 2.5 1.5B"
+            self.displayName = "qwen2.5-1.5b-instruct-q5_k_m"
+            self.description = "Alibaba's 1.5B parameter instruction model"
+            self.provider = "Alibaba"
+            self.size = "0.9 GB"
         } else {
             // Fallback for unknown models
             self.name = filename.replacingOccurrences(of: "-", with: " ").capitalized
@@ -57,8 +80,7 @@ struct LLMModelInfo {
     }
 }
 
-@MainActor
-class ModelManager: ObservableObject {
+final class ModelManager: ObservableObject {
     static let shared = ModelManager()
     
     @Published var availableModels: [LLMModelInfo] = []
@@ -84,7 +106,11 @@ class ModelManager: ObservableObject {
             }
             if let urls = try? fm.contentsOfDirectory(at: modelsDir, includingPropertiesForKeys: nil) {
                 for u in urls where u.pathExtension.lowercased() == "gguf" {
-                    discovered.insert(u.deletingPathExtension().lastPathComponent)
+                    let filename = u.deletingPathExtension().lastPathComponent
+                    // Explicitly exclude any Llama models
+                    if !filename.lowercased().contains("llama") {
+                        discovered.insert(filename)
+                    }
                 }
             }
         }
@@ -92,7 +118,11 @@ class ModelManager: ObservableObject {
         // 2) Scan bundle resources for .gguf
         if let bundleUrls = Bundle.main.urls(forResourcesWithExtension: "gguf", subdirectory: nil) {
             for u in bundleUrls {
-                discovered.insert(u.deletingPathExtension().lastPathComponent)
+                let filename = u.deletingPathExtension().lastPathComponent
+                // Explicitly exclude any Llama models
+                if !filename.lowercased().contains("llama") {
+                    discovered.insert(filename)
+                }
             }
         }
         
@@ -100,7 +130,9 @@ class ModelManager: ObservableObject {
         if discovered.isEmpty {
             if let downloads = try? fm.url(for: .downloadsDirectory, in: .userDomainMask, appropriateFor: nil, create: false) {
                 let candidates = [
-                    "Llama-3.2-1B-Instruct-Q5_K_M.gguf"
+                    "gemma-2-2b-it-Q5_K_M.gguf",
+                    "DeepSeek-R1-Distill-Qwen-1.5B-Q5_K_M.gguf",
+                    "qwen2.5-1.5b-instruct-q5_k_m.gguf"
                 ]
                 if let docsDir = fm.urls(for: .documentDirectory, in: .userDomainMask).first {
                     let modelsDir = docsDir.appendingPathComponent("Models", isDirectory: true)
@@ -125,16 +157,20 @@ class ModelManager: ObservableObject {
         
         availableModels = infos
         
-                print("ModelManager: Loaded \(availableModels.count) available models")
+        print("ModelManager: Loaded \(availableModels.count) available models")
     }
     
     private func loadSelectedModel() {
         if let savedModelFilename = userDefaults.string(forKey: selectedModelKey),
            let model = availableModels.first(where: { $0.filename == savedModelFilename }) {
             selectedModel = model
-        } else if let firstModel = availableModels.first {
-            // Default to first available model
-            selectedModel = firstModel
+        } else {
+            // Default to Gemma if available, otherwise first available model
+            if let gemmaModel = availableModels.first(where: { $0.filename.lowercased().contains("gemma-2-2b-it") }) {
+                selectedModel = gemmaModel
+            } else if let firstModel = availableModels.first {
+                selectedModel = firstModel
+            }
             saveSelectedModel()
         }
     }
@@ -144,7 +180,10 @@ class ModelManager: ObservableObject {
         saveSelectedModel()
         print("ModelManager: Selected model \(model.displayName)")
 
-        // Preload only for small models to avoid memory spikes (TinyLlama, Llama 3.2 3B)
+        // Notify that the model has changed
+        NotificationCenter.default.post(name: .modelDidChange, object: model)
+
+        // Preload only for small models to avoid memory spikes
         if shouldPreload(filename: model.filename) {
             Task.detached(priority: .utility) {
                 do {
@@ -159,9 +198,10 @@ class ModelManager: ObservableObject {
 
     private func shouldPreload(filename: String) -> Bool {
         let f = filename.lowercased()
-        if f.contains("llama-3.2-1b") { return true }
-        if f.contains("llama-3.2-3b") { return true }
-        // Preload Llama 3.2 models
+        if f.contains("gemma-2-2b-it") { return true }
+        if f.contains("deepseek-r1-distill-qwen-1.5b") { return true }
+        if f.contains("qwen2.5-1.5b-instruct") { return true }
+        // Preload small models for better performance
         return false
     }
     

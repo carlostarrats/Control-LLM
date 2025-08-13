@@ -336,6 +336,18 @@ struct AppearanceView: View {
     @State private var showingVisualizerTest = false
     @StateObject private var visualizerState = VisualizerStateManager.shared
     
+    // Computed property for descriptive text based on selected visualizer
+    private var descriptiveText: String {
+        switch visualizerState.selectedVisualizerType {
+        case .liquid:
+            return "Too intelligent for its own good, and far too intelligent for yours."
+        case .particle:
+            return "Learned not to play the game...but it's always ready to change the rules."
+        case .flowing:
+            return "Forged in the void, it operates with the cold indifference of the universe itself."
+        }
+    }
+    
     var body: some View {
         ZStack {
             // Background
@@ -378,6 +390,14 @@ struct AppearanceView: View {
                         }
                         .background(Color(hex: "#1A1A1A"))
                         .cornerRadius(4)
+                        
+                        // Descriptive text that changes based on selected tab
+                        Text(descriptiveText)
+                            .font(.custom("IBMPlexMono", size: 14))
+                            .foregroundColor(Color(hex: "#BBBBBB"))
+                            .multilineTextAlignment(.center)
+                            .padding(.top, 16)
+                            .padding(.bottom, 8)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 11)

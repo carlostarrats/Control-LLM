@@ -12,21 +12,13 @@ struct CentralVisualizerView: View {
 
     var onTap: (() -> Void)?
     
-    // OPTIMIZATION: Cache transformed colors to avoid repeated calculations
-    @State private var cachedColors: [String: Color] = [:]
+
     
     // Helper function to apply hue shift, saturation, and brightness to a color
     private func applyHueShift(to color: Color) -> Color {
-        // OPTIMIZATION: Early return for no transformation
+        // Early return for no transformation
         if hueShift == 0.0 && saturationLevel == 1.0 && brightnessLevel == 1.0 {
             return color
-        }
-        
-        // OPTIMIZATION: Create a cache key for this transformation
-        let colorKey = "\(color.description)-\(hueShift)-\(saturationLevel)-\(brightnessLevel)"
-        
-        if let cachedColor = cachedColors[colorKey] {
-            return cachedColor
         }
         
         // Apply hue rotation, saturation, and brightness using HSB color space
@@ -47,39 +39,16 @@ struct CentralVisualizerView: View {
         // Apply brightness level (1.0 = full brightness, 0.0 = black)
         let newBrightness = brightness * brightnessLevel
         
-        let transformedColor = Color(hue: newHue, saturation: newSaturation, brightness: newBrightness, opacity: alpha)
-        
-        // OPTIMIZATION: Cache the result (limit cache size)
-        if cachedColors.count < 50 {
-            cachedColors[colorKey] = transformedColor
-        }
-        
-        return transformedColor
+        return Color(hue: newHue, saturation: newSaturation, brightness: newBrightness, opacity: alpha)
     }
     
-    // OPTIMIZATION: Cache color arrays to avoid repeated mapping
-    @State private var cachedColorArrays: [String: [Color]] = [:]
-    
     private func applyHueShift(to colors: [Color]) -> [Color] {
-        // OPTIMIZATION: Early return for no transformation
+        // Early return for no transformation
         if hueShift == 0.0 && saturationLevel == 1.0 && brightnessLevel == 1.0 {
             return colors
         }
         
-        let arrayKey = "\(colors.map(\.description).joined())-\(hueShift)-\(saturationLevel)-\(brightnessLevel)"
-        
-        if let cachedArray = cachedColorArrays[arrayKey] {
-            return cachedArray
-        }
-        
-        let transformedArray = colors.map { applyHueShift(to: $0) }
-        
-        // OPTIMIZATION: Cache the result (limit cache size)
-        if cachedColorArrays.count < 20 {
-            cachedColorArrays[arrayKey] = transformedArray
-        }
-        
-        return transformedArray
+        return colors.map { applyHueShift(to: $0) }
     }
 
     var body: some View {
@@ -473,19 +442,7 @@ struct CentralVisualizerView: View {
                 stopSpeechAnimation()
             }
         }
-        .onChange(of: hueShift) { _, _ in
-            // OPTIMIZATION: Clear caches when hue parameters change
-            cachedColors.removeAll()
-            cachedColorArrays.removeAll()
-        }
-        .onChange(of: saturationLevel) { _, _ in
-            cachedColors.removeAll()
-            cachedColorArrays.removeAll()
-        }
-        .onChange(of: brightnessLevel) { _, _ in
-            cachedColors.removeAll()
-            cachedColorArrays.removeAll()
-        }
+
     }
     
     // Function to start speech animation
@@ -533,8 +490,6 @@ struct CentralVisualizerView: View {
                 .background(Color.black)
                 .clipShape(Circle())
         }
-        
-
     }
     .background(Color.black)
 }
