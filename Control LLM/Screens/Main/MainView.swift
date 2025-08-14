@@ -25,6 +25,10 @@ struct MainView: View {
     
     var body: some View {
         let _ = NSLog("🔍 MainView body executing!")
+        
+        // Computed property for stable nav button visibility
+        let shouldShowNavButtons = !viewModel.isVoiceDetected && !viewModel.isActivated && !viewModel.isInVoiceFlow
+        
         ZStack {
             // Background gradient - stays dark
             LinearGradient(
@@ -45,7 +49,7 @@ struct MainView: View {
                 }
 
                 // Central visual design element with tabs - fixed center position
-                VisualizerTabView(isSpeaking: $viewModel.isSpeaking, hueShift: hueShift, saturationLevel: saturationLevel, brightnessLevel: brightnessLevel, onTap: handleBlobTap)
+                VisualizerTabView(isSpeaking: $viewModel.isActivated, hueShift: hueShift, saturationLevel: saturationLevel, brightnessLevel: brightnessLevel, onTap: handleBlobTap)
                         .scaleEffect(blobScale)
                         .accessibilityLabel("Voice recording button")
                         .accessibilityHint("Double tap to start or stop voice recording")
@@ -54,66 +58,94 @@ struct MainView: View {
 
 
 
-                // Bottom manual input button
+                // Bottom navigation buttons with voice interaction flow
                 VStack {
                     Spacer()
-                    HStack(spacing: 12) {
-                        // Group of three buttons on the left
-                        Button(action: {
-                            showingHistoryView = true
-                        }) {
-                            Image(systemName: "list.bullet")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
-                                .padding(16)
-                                .background(Color(hex: "#1D1D1D"))
-                                .cornerRadius(4)
-                        }
-                        .buttonStyle(PlainButtonStyle())
+                    
+                    // ZStack to prevent button movement - both buttons occupy same space
+                    ZStack {
+                        // Navigation buttons (always present, fade out when voice detected)
+                        HStack(spacing: 0) { // No spacing between buttons
+                            // Group of three buttons on the left
+                            Button(action: {
+                                showingHistoryView = true
+                            }) {
+                                Image(systemName: "list.bullet")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(Color(hex: "#1D1D1D"))
+                                    .frame(width: 48, height: 48) // Fixed square size
+                                    .background(Color(hex: "#94A8E1"))
+                                    .cornerRadius(4, corners: [.topLeft, .bottomLeft]) // Only left corners
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .contentShape(Rectangle()) // Ensure full area is tappable
 
-                        Button(action: {
-                            showingWhisperView = true
-                        }) {
-                            Image(systemName: "waveform")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
-                                .padding(16)
-                                .background(Color(hex: "#1D1D1D"))
-                                .cornerRadius(4)
+                            Button(action: {
+                                showingWhisperView = true
+                            }) {
+                                Image(systemName: "waveform")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(Color(hex: "#1D1D1D"))
+                                    .frame(width: 48, height: 48) // Fixed square size
+                                    .background(Color(hex: "#3EBBA5"))
+                                    .cornerRadius(0) // No corners
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .contentShape(Rectangle()) // Ensure full area is tappable
+                            
+                            Button(action: {
+                                showingSettingsView = true
+                            }) {
+                                Image(systemName: "gearshape")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(Color(hex: "#1D1D1D"))
+                                    .frame(width: 48, height: 48) // Fixed square size
+                                    .background(Color(hex: "#F8C762"))
+                                    .cornerRadius(4, corners: [.topRight, .bottomRight]) // Only right corners
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .contentShape(Rectangle()) // Ensure full area is tappable
+
+                            Spacer() // Pushes keyboard button to the right
+
+                            // Control Button on the right
+                            Button(action: {
+                                showingTextModal = true
+                            }) {
+                                Image(systemName: "keyboard")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(Color(hex: "#BBBBBB"))
+                                    .frame(width: 48, height: 48) // Fixed square size
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .stroke(Color(hex: "#BBBBBB"), lineWidth: 1)
+                                    )
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .contentShape(Rectangle()) // Ensure full area is tappable
                         }
-                        .buttonStyle(PlainButtonStyle())
+                        .padding(.bottom, 50)
+                        .padding(.horizontal, 20)
+                        .opacity(shouldShowNavButtons ? 1.0 : 0.0) // Use computed property for stable visibility
                         
+                        // X button (always present, fade in when voice detected)
                         Button(action: {
-                            showingSettingsView = true
+                            viewModel.processVoiceMessage()
                         }) {
-                            Image(systemName: "gearshape")
+                            Image(systemName: "xmark") // Proper X mark symbol, not in a circle or square
                                 .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
-                                .padding(16)
-                                .background(Color(hex: "#1D1D1D"))
+                                .foregroundColor(Color(hex: "#1D1D1D"))
+                                .frame(width: 48, height: 48) // Fixed square size
+                                .background(Color(hex: "#FF6B6B"))
                                 .cornerRadius(4)
                         }
                         .buttonStyle(PlainButtonStyle())
-
-                        Spacer() // Pushes keyboard button to the right
-
-                        // Control Button on the right
-                        Button(action: {
-                            showingTextModal = true
-                        }) {
-                            Image(systemName: "keyboard")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
-                                .padding(16)
-                                .background(Color(hex: "#1D1D1D"))
-                                .cornerRadius(4)
-                        }
-                        .buttonStyle(PlainButtonStyle())
+                        .contentShape(Rectangle()) // Ensure full area is tappable
+                        .padding(.bottom, 50)
+                        .padding(.horizontal, 20)
+                        .opacity(viewModel.isVoiceDetected ? 1.0 : 0.0) // Fade in when voice detected, use fixed opacity
+                        .animation(.easeInOut(duration: 0.8), value: viewModel.isVoiceDetected) // Smooth fade in and out
                     }
-                    .padding(.bottom, 50)
-                    .padding(.horizontal, 20)
-                    .opacity(manualInputOpacity) // Re-using existing opacity animation
-                    .animation(.easeInOut(duration: 0.1), value: true)
                 }
             }
         }
@@ -206,8 +238,8 @@ struct MainView: View {
 
     private func handleBlobTap() {
         if !viewModel.isActivated && !isChatMode {
-            // Trigger "control" activation sequence
-            activateControlSequence()
+            // Start voice detection flow instead of immediate activation
+            viewModel.voiceDetected()
         }
     }
 

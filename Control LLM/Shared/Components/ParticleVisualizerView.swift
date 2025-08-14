@@ -10,15 +10,14 @@ struct ParticleVisualizerView: View {
     private let baseSpherRadius: CGFloat = 150
     private let particleSize: CGFloat = 3.0
     
-         // Test mechanism for activation
-     @State private var isTestSpeaking: Bool = false
-     private var effectiveSpeakingState: Bool { isSpeaking || isTestSpeaking }
-     private var sphereRadius: CGFloat = 150 // Keep constant size
+    // Remove local activation state - use global isSpeaking like liquid visualizer
+    private var effectiveSpeakingState: Bool { isSpeaking }
+    private var sphereRadius: CGFloat = 150 // Keep constant size
      
-     // Activation plane parameters
-     @State private var activationPlaneX: CGFloat = -300 // Start off-screen
-     @State private var activationPlaneSpeed: CGFloat = 100 // pixels/sec
-     @State private var lastUpdateTime: Date?
+    // Activation plane parameters
+    @State private var activationPlaneX: CGFloat = -300 // Start off-screen
+    @State private var activationPlaneSpeed: CGFloat = 100 // pixels/sec
+    @State private var lastUpdateTime: Date?
     
     // Liquid motion parameters
     @State private var motionPhase: [Double]
@@ -70,7 +69,6 @@ struct ParticleVisualizerView: View {
              lastUpdateTime = nil
          }
          .onTapGesture {
-            isTestSpeaking.toggle()
             onTap?()
         }
         .onAppear {

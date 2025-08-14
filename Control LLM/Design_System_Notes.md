@@ -105,7 +105,8 @@
 
 ### Main Screen (MainView)
 - Background: Dark gradient (`#141414` to `#1D1D1D`)
-- Text: Light gray (`#BBBBBB`)
+- Text: Light gray (`#BBBBBB
+`)
 - Font: 16pt monospaced for navigation, 14pt for icons
 
 ### Text Modal (TextModalView)

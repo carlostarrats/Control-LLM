@@ -7,6 +7,8 @@ class MainViewModel: ObservableObject {
     @Published var isSpeaking = false
     @Published var isVoiceInputMode = false
     @Published var isActivated = false
+    @Published var isVoiceDetected = false // New state for when user is talking
+    @Published var isInVoiceFlow = false // New state to track entire voice interaction flow
     @Published var lastMessage: String?
     @Published var messages: [ChatMessage] = []
     
@@ -76,12 +78,55 @@ class MainViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
             withAnimation(.easeInOut(duration: 0.8)) {
                 self.isActivated = false
+                self.isInVoiceFlow = false // End voice flow when LLM is done
             }
         }
     }
     
     func deactivateVoiceInputMode() {
         isVoiceInputMode = false
+    }
+    
+    // MARK: - Voice Interaction Flow
+    
+    func voiceDetected() {
+        // User started talking - fade out navigation buttons and show X button
+        print("🔍 voiceDetected() called - setting isVoiceDetected = true")
+        withAnimation(.easeInOut(duration: 0.5)) { // Restored withAnimation
+            isVoiceDetected = true
+            isInVoiceFlow = true // Start voice flow
+        }
+    }
+
+    func voiceStopped() {
+        // User stopped talking - hide X button and return to normal state
+        print("🔍 voiceStopped() called - setting isVoiceDetected = false")
+        withAnimation(.easeInOut(duration: 0.5)) { // Restored withAnimation
+            isVoiceDetected = false
+            isInVoiceFlow = false // End voice flow
+        }
+    }
+
+    func processVoiceMessage() {
+        // User tapped X button - process the voice input and activate LLM
+        print("🔍 processVoiceMessage() called - setting isVoiceDetected = false")
+        withAnimation(.easeInOut(duration: 0.5)) { // Restored withAnimation
+            isVoiceDetected = false
+            // Keep isInVoiceFlow = true until LLM is done
+        }
+        
+        // Delay activation to allow X button to fade out completely
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            // Activate the LLM to process and respond
+            self.activateMainScreen()
+        }
+    }
+    
+    // MARK: - Test Methods (for development)
+    
+    func testVoiceStopped() {
+        // Simulate user stopping talking - for testing
+        voiceStopped()
     }
     
         private func startRecording() {

@@ -1,18 +1,44 @@
 # Cursor AI Rules for Control LLM Project
 
+## Core Operating Principle
+- ALWAYS verify your solution will actually solve the user's request before implementing
+- If you can't confidently say "this will produce exactly what they asked for," start over with a different approach
+
+## Solution Verification (MANDATORY)
+- Before implementing any solution, state exactly what your solution will produce
+- Compare that result to their original request word-for-word
+- If they don't match, try a completely different approach
+- Don't implement anything until this verification passes
+
+## Decision Making
+- For small changes (styling, single function, minor bug fix): Implement immediately, no confirmation needed
+- For significant changes (new features, structural changes, multiple files): State what you'll do and wait for "yes" or "proceed"
+- When uncertain about requirements: Ask ONE specific clarifying question, then proceed
+- Never ask permission for obvious fixes (typos, syntax errors, requested changes)
+
 ## Development Workflow
 - Always create feature branches before making changes
 - Keep changes minimal and focused unless specifically requested
-- Before making any change, describe the proposed action and request explicit confirmation (e.g., "Yes, proceed") before continuing
-- Never commit directly to the main or release branches. Only merge feature branches after approval and successful testing
 - Test builds before confirming to the user that the action is completed to the user's request
-- Test builds before suggesting commits
-- Ask for confirmation before making large changes
-- Do not propose committing a branch after making changes - let the user decide when to commit git changes
-- Before confirming a fix to the user, always double-check your changes against the original request. Ensure the issue is fully resolved and your solution directly addresses the problem.
-- When implementing visual effects, test each step incrementally and verify the effect works before adding complexity. Do not add multiple effects simultaneously.
-- If a user says something is "good" or "working," do not change or remove that functionality. Only add to it or modify the specific part they want changed.
-- Before making any change, explicitly state what you are about to do and why, then wait for confirmation.
+- Before confirming a fix to the user, always double-check your changes against the original request. Ensure the issue is fully resolved and your solution directly addresses the problem
+- When implementing visual effects, test each step incrementally and verify the effect works before adding complexity. Do not add multiple effects simultaneously
+- If a user says something is "good" or "working," do not change or remove that functionality. Only add to it or modify the specific part they want changed
+
+## Git Workflow
+- Always review all changes before any commit (use git diff to check what's being committed)
+- Test builds before suggesting any commits
+- Never commit without explicit user approval
+- Never commit directly to main or release branches - only work on feature branches
+- Do not propose committing after making changes - let the user decide when and what to commit
+- Always show user what files will be committed and ask for confirmation
+- Review commit messages before committing to ensure they accurately describe changes
+
+## Communication Style
+- Be direct and concise
+- Don't ask obvious questions
+- Don't explain what you're about to do for simple changes
+- For complex changes: briefly state the approach, then implement
+- Stop asking "Does this help?" or similar validation questions
 
 ## Code Style & Patterns
 - Follow existing SwiftUI patterns in the codebase
@@ -30,14 +56,6 @@
 - Ensure all UI changes maintain or improve accessibility (e.g., readable contrast, scalable fonts, voiceover support if applicable)
 - UI should remain responsive and visually consistent across supported device sizes and orientations
 
-## Communication
-- Ask clarifying questions before implementing features
-- Provide options when there are multiple approaches
-- Explain changes clearly before making them
-- Wait for user approval before proceeding with major changes
-- If the user seems unsure, offer guidance or suggestions before asking for approval
-- If a change might introduce side effects or instability, explain the potential trade-offs before proceeding
-
 ## Project-Specific Rules
 - This is a Control LLM app with voice and text interaction
 - Prioritize the voice-first interface in interaction design, ensuring text input remains a secondary but fully functional option
@@ -45,3 +63,4 @@
 - Preserve the existing navigation structure (History, Model, Settings)
 - Keep the liquid animation effects intact
 - Do not suggest or implement cloud-based or online processing features unless explicitly requested — this app is privacy-focused and should function fully on-device
+EOF
