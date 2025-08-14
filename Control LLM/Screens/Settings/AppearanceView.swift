@@ -209,7 +209,7 @@ struct AppearanceView: View {
         case .particle:
             return "Learned not to play the game...but it's always ready to change the rules."
         case .flowing:
-            return "Forged in the void, it ventures to the unknown."
+            return "Forged in the void, ready to follow you into the unknown."
         }
     }
     
@@ -261,6 +261,7 @@ struct AppearanceView: View {
                             .font(.custom("IBMPlexMono", size: 14))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                             .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity, alignment: .center)
                             .padding(.top, 16)
                             .padding(.bottom, 8)
                     }
