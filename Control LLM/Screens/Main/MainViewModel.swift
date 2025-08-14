@@ -136,6 +136,9 @@ class MainViewModel: ObservableObject {
             return
         }
 
+        // Donate user's action to Shortcuts
+        ShortcutsIntegrationHelper.shared.donateMessageSent(message: voiceInput)
+
         // Add user voice message to chat
         let userMessage = ChatMessage(content: voiceInput, isUser: true, timestamp: Date())
         messages.append(userMessage)
@@ -217,6 +220,7 @@ class MainViewModel: ObservableObject {
         // Use ChatViewModel for LLM integration
         // The actual LLM response will be handled by the TextModalView through ChatViewModel
         // This is just for adding the user message to the conversation
+        donateChainedMessageIntentIfNeeded()
     }
     
     func saveChatSession(title: String? = nil, summary: String? = nil) {
@@ -289,6 +293,34 @@ class MainViewModel: ObservableObject {
             )
             self.messages.append(response)
             self.lastMessage = response.content
+            
+            // Donate chained message intent after response
+            self.donateChainedMessageIntentIfNeeded()
+        }
+    }
+
+    private func donateChainedMessageIntentIfNeeded() {
+        // A "chain" is at least two back-and-forth exchanges (user -> assistant -> user -> assistant)
+        let chainThreshold = 4
+        
+        // Ensure there are enough messages to form a chain
+        guard messages.count >= chainThreshold else { return }
+        
+        // Check if the last `chainThreshold` messages form a valid chain
+        let recentMessages = Array(messages.suffix(chainThreshold))
+        
+        var isChain = true
+        for (index, message) in recentMessages.enumerated() {
+            // User messages should be at even indices (0, 2), assistant at odd (1, 3)
+            if (index % 2 == 0 && !message.isUser) || (index % 2 != 0 && message.isUser) {
+                isChain = false
+                break
+            }
+        }
+        
+        if isChain {
+            let messageContents = recentMessages.map { $0.content }
+            ShortcutsIntegrationHelper.shared.donateMessagesChained(messages: messageContents)
         }
     }
 }
@@ -298,7 +330,7 @@ enum MessageType: Codable {
     case file
 }
 
-struct ChatMessage: Identifiable, Codable {
+struct ChatMessage: Identifiable, Codable, Equatable {
     let id: String
     var content: String
     let isUser: Bool

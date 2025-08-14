@@ -7,6 +7,7 @@
 
 import SwiftUI
 import os.log
+import AppIntents
 
 // MARK: - Console Flooding Prevention
 private func disableConsoleFlooding() {
@@ -49,6 +50,11 @@ struct Control_LLMApp: App {
             let _ = ModelManager.shared
         }
         
+        // Initialize Shortcuts integration if available
+        if #available(iOS 16.0, *) {
+            initializeShortcutsIntegration()
+        }
+        
         let successMessage = "🔍 App started successfully at \(timestamp)\n"
         try? successMessage.write(to: logFile, atomically: false, encoding: .utf8)
     }
@@ -72,5 +78,21 @@ struct Control_LLMApp: App {
                 CTFontManagerRegisterFontsForURL(fontURL as CFURL, .process, &error)
             }
         }
+    }
+    
+    @available(iOS 16.0, *)
+    private func initializeShortcutsIntegration() {
+        print("🔗 Initializing Shortcuts integration...")
+        
+        // Initialize the Shortcuts service
+        let _ = ShortcutsService.shared
+        
+        // Initialize the Shortcuts integration helper
+        let _ = ShortcutsIntegrationHelper.shared
+        
+        // App Intents automatically handle authorization and integration
+        // No need to manually request Siri authorization with App Intents
+        
+        print("🔗 Shortcuts integration initialized with App Intents")
     }
 }

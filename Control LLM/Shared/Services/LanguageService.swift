@@ -15,6 +15,10 @@ class LanguageService: ObservableObject {
         didSet {
             userDefaults.set(selectedLanguage, forKey: languageKey)
             NotificationCenter.default.post(name: .languageDidChange, object: selectedLanguage)
+
+            // Donate the change to Shortcuts
+            let newPrompt = getSystemPrompt()
+            ShortcutsIntegrationHelper.shared.donateSystemBehaviorModified(prompt: newPrompt, behaviorType: "Language Change")
         }
     }
     

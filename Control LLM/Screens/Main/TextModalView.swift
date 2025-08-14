@@ -1,6 +1,119 @@
 import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
+import Lottie
+
+// MARK: - Lottie View Wrapper -------------------------------------------------
+
+struct LottieView: UIViewRepresentable {
+    let name: String
+    let loopMode: LottieLoopMode
+    
+    init(name: String, loopMode: LottieLoopMode = .loop) {
+        self.name = name
+        self.loopMode = loopMode
+    }
+    
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        let animationView = LottieAnimationView()
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(animationView)
+        
+        NSLayoutConstraint.activate([
+            animationView.topAnchor.constraint(equalTo: view.topAnchor),
+            animationView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            animationView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            animationView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
+        // Try to load the animation
+        var animation: LottieAnimation?
+        
+        // Method 1: Try named animation (this should work for assets)
+        if let namedAnimation = LottieAnimation.named(name) {
+            animation = namedAnimation
+            print("✅ Lottie: Loaded animation '\(name)' using .named()")
+        }
+        // Method 2: Try to load from the animations subdirectory
+        else if let url = Bundle.main.url(forResource: "16cfa363-2720-425f-bcde-0cf315dd706a", withExtension: "json", subdirectory: "Animations.dataset/animations") {
+            print("📁 Lottie: Found JSON file at URL: \(url)")
+            // Note: loadedFrom is async, so we can't use it here
+            // We'll need to handle this differently
+        }
+        // Method 3: Try from bundle URL
+        else if let url = Bundle.main.url(forResource: name, withExtension: "lottie") {
+            print("📁 Lottie: Found .lottie file at URL: \(url)")
+        }
+        // Method 4: Try from main bundle path
+        else if let path = Bundle.main.path(forResource: name, ofType: "lottie") {
+            print("📁 Lottie: Found .lottie file at path: \(path)")
+        }
+        
+        if let animation = animation {
+            animationView.animation = animation
+            animationView.loopMode = loopMode
+            animationView.contentMode = .scaleAspectFit
+            animationView.play()
+            print("✅ Lottie: Animation '\(name)' started playing")
+        } else {
+            print("❌ Lottie: Could not load animation '\(name)' - falling back to dots")
+            // Fallback: Create a simple loading indicator
+            let fallbackView = createFallbackView()
+            view.addSubview(fallbackView)
+            fallbackView.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                fallbackView.topAnchor.constraint(equalTo: view.topAnchor),
+                fallbackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                fallbackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                fallbackView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            ])
+        }
+        
+        return view
+    }
+    
+    private func createFallbackView() -> UIView {
+        let fallbackView = UIView()
+        fallbackView.backgroundColor = .clear
+        
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 4
+        stackView.distribution = .fillEqually
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        for i in 0..<3 {
+            let dot = UIView()
+            dot.backgroundColor = UIColor.white
+            dot.layer.cornerRadius = 2
+            dot.translatesAutoresizingMaskIntoConstraints = false
+            stackView.addArrangedSubview(dot)
+            
+            NSLayoutConstraint.activate([
+                dot.widthAnchor.constraint(equalToConstant: 4),
+                dot.heightAnchor.constraint(equalToConstant: 4)
+            ])
+            
+            // Animate the dot
+            UIView.animate(withDuration: 0.6, delay: Double(i) * 0.2, options: [.repeat, .autoreverse], animations: {
+                dot.transform = CGAffineTransform(translationX: 0, y: -2)
+            })
+        }
+        
+        fallbackView.addSubview(stackView)
+        NSLayoutConstraint.activate([
+            stackView.centerXAnchor.constraint(equalTo: fallbackView.centerXAnchor),
+            stackView.centerYAnchor.constraint(equalTo: fallbackView.centerYAnchor)
+        ])
+        
+        return fallbackView
+    }
+    
+    func updateUIView(_ uiView: UIView, context: Context) {
+        // No updates needed
+    }
+}
 
 // MARK: - Chat screen --------------------------------------------------------
 
@@ -151,13 +264,14 @@ struct TextModalView: View {
                 .padding(.top, 20)
                 .padding(.bottom, 24)
             }
-            .onChange(of: viewModel.messages.count) { _, _ in
+            .safeAreaPadding(.bottom, 70)
+            .onChange(of: viewModel.messages) { _, _ in
                 // Update date header when messages change
                 checkIfShouldShowDateHeader()
                 
                 if let last = viewModel.messages.last {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        proxy.scrollTo(last.id, anchor: .center)
+                    withAnimation(.spring()) {
+                        proxy.scrollTo(last.id, anchor: .bottom)
                     }
                 }
             }
@@ -198,7 +312,8 @@ struct TextModalView: View {
                 TextField("Type your message...", text: $messageText, axis: .vertical)
                     .font(.custom("IBMPlexMono", size: 16))
                     .foregroundColor(colorManager.purpleColor)
-                    .padding(.horizontal, 16)
+                    .padding(.leading, 16)
+                    .padding(.trailing, trailingPadding)
                     .padding(.vertical, 12)
                     .background(Color(hex: "#2A2A2A"))
                     .cornerRadius(4)
@@ -267,6 +382,9 @@ struct TextModalView: View {
             print("🔍 TextModalView: sendMessage called but text is empty")
             return 
         }
+
+        // Donate user's action to Shortcuts
+        ShortcutsIntegrationHelper.shared.donateMessageSent(message: text)
 
         print("🔍 TextModalView: sendMessage called with text: '\(text)'")
         NSLog("🔍 TextModalView: sendMessage called with text: '\(text)'")
@@ -508,30 +626,33 @@ struct MessageBubble: View {
                 if message.messageType == .file {
                     FileMessageView(message: message)
                 } else {
-                    if !message.isUser && message.content.isEmpty {
-                        // Show thinking animation for empty assistant messages
-                        ThinkingAnimationView()
+                    if message.isUser {
+                        // User messages: dark bubble, purple text
+                        Text(message.content)
+                            .font(.custom("IBMPlexMono", size: 14))
+                            .foregroundColor(colorManager.purpleColor)
+                            .multilineTextAlignment(.leading)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .background(Color(hex: "#2A2A2A"))
+                            .cornerRadius(4)
                     } else {
-                        if message.isUser {
-                            // User messages: dark bubble, purple text
-                            Text(message.content)
-                                .font(.custom("IBMPlexMono", size: 14))
-                                .foregroundColor(colorManager.purpleColor)
-                                .multilineTextAlignment(.leading)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 12)
-                                .background(Color(hex: "#2A2A2A"))
-                                .cornerRadius(4)
-                        } else {
-                            // Assistant messages: no bubble, plain text
+                        // Assistant messages: ZStack for stable transition
+                        ZStack(alignment: .topLeading) {
+                            // Animation is always in the layout to reserve space, but hidden when there's text
+                            ThinkingAnimationView()
+                                .offset(x: -31, y: -35)
+                                .opacity(message.content.isEmpty ? 1 : 0)
+
+                            // Actual text content
                             Text(message.content)
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .lineLimit(nil)
                                 .multilineTextAlignment(.leading)
                                 .foregroundColor(Color(hex: "#EEEEEE"))
-                                // Align with header keyboard icon (content inset is already 20pt)
                                 .padding(.leading, 2)
                         }
+                        .animation(.spring(duration: 0.4), value: message.content.isEmpty)
                     }
                 }
                 // Timestamps removed - now shown in date header instead
@@ -553,30 +674,9 @@ struct MessageBubble: View {
 // MARK: - Thinking animation -------------------------------------------------
 
 struct ThinkingAnimationView: View {
-    @State private var isAnimating = false
-    
     var body: some View {
-        HStack(spacing: 4) {
-            ForEach(0..<3, id: \.self) { index in
-                Rectangle()
-                    .fill(Color(hex: "#EEEEEE"))
-                    .frame(width: 4, height: 4) // Square and smaller
-                    .offset(y: isAnimating ? -2 : 0) // Same movement
-                    .animation(
-                        .linear(duration: 0.6)
-                        .repeatForever(autoreverses: true)
-                        .delay(Double(index) * 0.2),
-                        value: isAnimating
-                    )
-            }
-        }
-        .onAppear {
-            // Reset animation state first
-            isAnimating = false
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                isAnimating = true
-            }
-        }
+        LottieView(name: "thinking_animation", loopMode: .loop)
+            .frame(width: 89, height: 89) // 15% smaller
     }
 }
 
