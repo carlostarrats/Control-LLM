@@ -12,30 +12,46 @@ struct ErrorView: View {
     }
     
     var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 50))
-                .foregroundColor(Color(hex: "#F8C762"))
+        ZStack {
+            // Background gradient - matches main app design
+            LinearGradient(
+                colors: [
+                    Color(hex: "#1D1D1D"),  // Lighter color at top
+                    Color(hex: "#141414")   // Darker color at bottom
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
             
-            Text(title)
-                .font(.title2)
-                .fontWeight(.semibold)
-            
-            Text(message)
-                .font(.body)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-            
-            if let retryAction = retryAction {
-                Button("Retry") {
-                    retryAction()
+            VStack(spacing: 20) {
+                Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 50))
+                    .foregroundColor(Color(hex: "#F8C762"))
+                
+                Text(title)
+                    .font(.custom("IBMPlexMono-Medium", size: 18))
+                    .foregroundColor(Color(hex: "#EEEEEE"))
+                
+                Text(message)
+                    .font(.custom("IBMPlexMono-Regular", size: 16))
+                    .foregroundColor(Color(hex: "#EEEEEE"))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                
+                if let retryAction = retryAction {
+                    Button("Retry") {
+                        retryAction()
+                    }
+                    .font(.custom("IBMPlexMono-Medium", size: 16))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(Color.blue)
+                    .cornerRadius(4)
                 }
-                .buttonStyle(.borderedProminent)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
     }
 }
 
