@@ -132,7 +132,7 @@ struct MainView: View {
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(Color(hex: "#1D1D1D"))
                                     .frame(width: 48, height: 48) // Fixed square size
-                                    .background(Color(hex: "#FF6B6B"))
+                                    .background(Color(hex: "#3EBBA5"))
                                     .cornerRadius(4, corners: [.topLeft, .bottomLeft]) // Only left corners
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -194,7 +194,7 @@ struct MainView: View {
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(Color(hex: "#1D1D1D"))
                                 .frame(width: 48, height: 48) // Fixed square size
-                                .background(Color(hex: "#3EBBA5"))
+                                .background(Color(hex: "#EEEEEE"))
                                 .cornerRadius(4)
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -206,31 +206,6 @@ struct MainView: View {
                     }
                 }
             }
-        }
-        .sheet(isPresented: $showingTextModal) {
-            TextModalView(viewModel: viewModel, isPresented: $showingTextModal, messageHistory: viewModel.messages)
-                .onDisappear {
-                    showingTextModal = false
-                    viewModel.deactivateVoiceInputMode()
-                }
-        }
-        .sheet(isPresented: $showingHistoryView) {
-            HistoryView(
-                showingTextModal: $showingTextModal,
-                mainViewModel: viewModel
-            )
-        }
-        .sheet(isPresented: $showingWhisperView) {
-            WhisperView(
-                showingTextModal: $showingTextModal,
-                mainViewModel: viewModel
-            )
-        }
-        .sheet(isPresented: $showingSettingsView) {
-            SettingsView(
-                showingTextModal: $showingTextModal,
-                mainViewModel: viewModel
-            )
         }
         .onChange(of: viewModel.isActivated) { _, isActivated in
             if isActivated {
