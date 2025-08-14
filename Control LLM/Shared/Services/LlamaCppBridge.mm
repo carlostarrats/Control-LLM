@@ -4,6 +4,8 @@
 #import "LlamaCppBridge.h"
 #import <Foundation/Foundation.h>
 #include <string>
+#include <strings.h>
+#include <vector>
 
 // If you vendor llama.cpp headers (e.g., llama.h) into Vendor/llama, include them here
 // and link against a prebuilt static library (Option A). Otherwise fall back to placeholders.
@@ -22,17 +24,17 @@ static inline bool should_skip_token(const struct llama_vocab * vocab, llama_tok
     if (id == llama_vocab_bos(vocab)) return true;
     if (id == llama_vocab_eos(vocab)) return true;
     if (id == llama_vocab_eot(vocab)) return true;
-    if (id == llama_vocab_sep(vocab)) return true;
-    if (id == llama_vocab_pad(vocab)) return true;
-    if (id == llama_vocab_mask(vocab)) return true;
+    // Do not skip sep/pad/mask; some quantizations use them as regular pieces
     return false;
 }
 
 static inline bool piece_looks_like_special(const char * piece, int32_t nbytes) {
     if (!piece || nbytes <= 0) return false;
-    if (piece[0] == '<' && nbytes >= 3 && piece[1] == '|' && piece[nbytes-2] == '|' && piece[nbytes-1] == '>') {
+    // Detect ASCII-style tags like <|...|>
+    if (strstr(piece, "<|") != NULL && strstr(piece, "|>") != NULL) {
         return true;
     }
+    // Remove only ASCII-style special tags, leave other text intact
     return false;
 }
 
@@ -46,6 +48,48 @@ static void bridge_llama_log_callback(enum ggml_log_level level, const char * te
         message = [message stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
         NSLog(@"llama[%d]: %@", (int)level, message);
     }
+}
+
+int llm_bridge_apply_chat_template(const char* system_msg, const char* user_msg, char* out_buf, int out_buf_len, bool add_assistant_start) {
+    if (!s_model || !out_buf || out_buf_len <= 1) return 0;
+    const struct llama_model * model = s_model;
+    const char * tmpl = llama_model_chat_template(model, NULL);
+    if (!tmpl) {
+        return 0; // no template available
+    }
+    struct llama_chat_message msgs[2];
+    size_t n = 0;
+    if (system_msg && system_msg[0] != '\0') {
+        msgs[n++] = { "system", system_msg };
+    }
+    if (user_msg && user_msg[0] != '\0') {
+        msgs[n++] = { "user", user_msg };
+    }
+    int32_t written = llama_chat_apply_template(tmpl, msgs, n, add_assistant_start, out_buf, (int32_t)out_buf_len);
+    return (int)written;
+}
+
+int llm_bridge_apply_chat_template_messages(const char* const* roles, const char* const* contents, int n_messages, bool add_assistant_start, char* out_buf, int out_buf_len) {
+    if (!s_model || !out_buf || out_buf_len <= 1 || n_messages <= 0 || !roles || !contents) return 0;
+    const struct llama_model * model = s_model;
+    const char * tmpl = llama_model_chat_template(model, NULL);
+    if (!tmpl) {
+        NSLog(@"LlamaCppBridge: No chat template available for model.");
+        return 0;
+    }
+    NSLog(@"LlamaCppBridge: Using chat template: %s", tmpl);
+
+    // Allocate a temporary vector of llama_chat_message
+    std::vector<llama_chat_message> msgs;
+    msgs.reserve((size_t)n_messages);
+    for (int i = 0; i < n_messages; ++i) {
+        const char * role = roles[i] ? roles[i] : "";
+        const char * text = contents[i] ? contents[i] : "";
+        msgs.push_back({ role, text });
+    }
+
+    int32_t written = llama_chat_apply_template(tmpl, msgs.data(), msgs.size(), add_assistant_start, out_buf, (int32_t)out_buf_len);
+    return (int)written;
 }
 
 void* llm_bridge_load_model(const char* model_path) {
@@ -116,10 +160,15 @@ int llm_bridge_generate_text(void* context, const char* prompt, char* output, in
     const struct llama_vocab * vocab = llama_model_get_vocab(model);
     if (!vocab) return 0;
 
-    // 1) Tokenize prompt
+    // Unified path for all models
+    
+    // 1) Tokenize prompt with model-specific parameters
     const int32_t max_prompt_tokens = 1024;
     llama_token prompt_tokens[max_prompt_tokens];
-    int32_t n_prompt = llama_tokenize(
+    int32_t n_prompt;
+    
+    // Standard models: use normal special token handling
+    n_prompt = llama_tokenize(
         vocab,
         prompt,
         (int32_t)strlen(prompt),
@@ -128,6 +177,7 @@ int llm_bridge_generate_text(void* context, const char* prompt, char* output, in
         /*add_special*/ true,
         /*parse_special*/ true
     );
+    
     if (n_prompt <= 0) return 0;
 
     // 2) Build batch for prompt (compute logits for last token)
@@ -146,7 +196,7 @@ int llm_bridge_generate_text(void* context, const char* prompt, char* output, in
     char piece_buf[256];
     std::string stream_buf; // accumulate to strip tags across piece boundaries
 
-    // Build sampler chain to strongly bias against special/control-like strings
+    // Build sampler chain with conservative decoding for stability on small R1-distill models
     struct llama_sampler_chain_params sparams = llama_sampler_chain_default_params();
     struct llama_sampler * smpl = llama_sampler_chain_init(sparams);
     if (!smpl) {
@@ -154,10 +204,12 @@ int llm_bridge_generate_text(void* context, const char* prompt, char* output, in
         return 0;
     }
     
-    // Stable sampling with small randomness to avoid loops; keep temp low
-    llama_sampler_chain_add(smpl, llama_sampler_init_top_k(50));
-    llama_sampler_chain_add(smpl, llama_sampler_init_top_p(0.95f, 1));
-    llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.7f));
+    // Tighter decoding for small DeepSeek-R1-distill models
+    llama_sampler_chain_add(smpl, llama_sampler_init_top_k(20));
+    llama_sampler_chain_add(smpl, llama_sampler_init_top_p(0.70f, 1));
+    llama_sampler_chain_add(smpl, llama_sampler_init_min_p(0.05f, 1));
+    llama_sampler_chain_add(smpl, llama_sampler_init_typical(0.70f, 1));
+    llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.20f));
     // chain MUST end with a selection sampler
     llama_sampler_chain_add(smpl, llama_sampler_init_greedy());
     
@@ -189,7 +241,7 @@ int llm_bridge_generate_text(void* context, const char* prompt, char* output, in
                 piece_buf,
                 (int32_t)sizeof(piece_buf),
                 /*lstrip*/ 0,
-                /*special*/ false
+                /*special*/ true
             );
             if (nbytes > 0 && !piece_looks_like_special(piece_buf, nbytes)) {
                 if (out_len + nbytes >= max_length - 1) {
@@ -235,8 +287,8 @@ int llm_bridge_get_context_size(void* context) {
 }
 
 // Streaming version using ObjC block
-void llm_bridge_generate_stream_block(void* context, const char* prompt, llm_piece_block callback, int max_new_tokens) {
-    NSLog(@"LlamaCppBridge: Starting streaming generation with max_tokens=%d", max_new_tokens);
+void llm_bridge_generate_stream_block(void* context, const char* model_name, const char* prompt, llm_piece_block callback, int max_new_tokens) {
+    NSLog(@"LlamaCppBridge: Starting streaming generation with max_tokens=%d for model %s", max_new_tokens, model_name);
     
     if (!context || !prompt || !callback) {
         NSLog(@"LlamaCppBridge: Invalid parameters for streaming generation");
@@ -259,6 +311,8 @@ void llm_bridge_generate_stream_block(void* context, const char* prompt, llm_pie
         return;
     }
     
+    // Unified path for all models
+
     NSLog(@"LlamaCppBridge: Prompt length: %zu characters", strlen(prompt));
     // Log first 200 chars of prompt for debugging
     const int preview_len = 200;
@@ -272,9 +326,13 @@ void llm_bridge_generate_stream_block(void* context, const char* prompt, llm_pie
     }
 
     // tokenize prompt
-    const int32_t max_prompt_tokens = 1024;
+    const int32_t max_prompt_tokens = 2048; // Increased from 1024
     llama_token prompt_tokens[max_prompt_tokens];
-    int32_t n_prompt = llama_tokenize(vocab, prompt, (int32_t)strlen(prompt), prompt_tokens, max_prompt_tokens, /*add_special*/ true, /*parse_special*/ true);
+    int32_t n_prompt;
+
+    NSLog(@"LlamaCppBridge: Using standard tokenization (add_special=true, parse_special=true)");
+    n_prompt = llama_tokenize(vocab, prompt, (int32_t)strlen(prompt), prompt_tokens, max_prompt_tokens, /*add_special*/ true, /*parse_special*/ true);
+
     if (n_prompt <= 0) {
         NSLog(@"LlamaCppBridge: Tokenization failed for streaming generation (returned %d tokens)", n_prompt);
         callback(NULL);
@@ -302,7 +360,17 @@ void llm_bridge_generate_stream_block(void* context, const char* prompt, llm_pie
         callback(NULL);
         return;
     }
-    
+
+    // Add samplers BEFORE verifying the chain to avoid empty-chain failures
+    // Decoding settings
+    llama_sampler_chain_add(smpl, llama_sampler_init_top_k(20));
+    llama_sampler_chain_add(smpl, llama_sampler_init_top_p(0.70f, 1));
+    llama_sampler_chain_add(smpl, llama_sampler_init_min_p(0.05f, 1));
+    llama_sampler_chain_add(smpl, llama_sampler_init_typical(0.70f, 1));
+    llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.20f));
+    // Ensure the chain ends with a selection sampler
+    llama_sampler_chain_add(smpl, llama_sampler_init_greedy());
+
     // Verify the chain has at least one sampler
     if (llama_sampler_chain_n(smpl) == 0) {
         NSLog(@"LlamaCppBridge: Streaming sampler chain is empty after initialization");
@@ -314,15 +382,10 @@ void llm_bridge_generate_stream_block(void* context, const char* prompt, llm_pie
     char piece_buf[256];
     std::string stream_buf; // accumulate to strip tags across piece boundaries
     
-    llama_sampler_chain_add(smpl, llama_sampler_init_top_k(50));
-    llama_sampler_chain_add(smpl, llama_sampler_init_top_p(0.95f, 1));
-    llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.7f));
-    // Ensure the chain ends with a selection sampler
-    llama_sampler_chain_add(smpl, llama_sampler_init_greedy());
-    
     NSLog(@"LlamaCppBridge: Starting generation loop for %d tokens", max_new_tokens);
     
     int tokens_generated = 0;
+    bool in_think_block = false; // hide content between <think> ... </think>
     for (int t = 0; t < max_new_tokens; ++t) {
         llama_token next_id = llama_sampler_sample(smpl, ctx, -1);
         if (next_id < 0) {
@@ -336,7 +399,7 @@ void llm_bridge_generate_stream_block(void* context, const char* prompt, llm_pie
             break;
         }
         if (!should_skip_token(vocab, next_id)) {
-            int32_t nbytes = llama_token_to_piece(vocab, next_id, piece_buf, (int32_t)sizeof(piece_buf), 0, false);
+            int32_t nbytes = llama_token_to_piece(vocab, next_id, piece_buf, (int32_t)sizeof(piece_buf), 0, true);
             if (nbytes > 0 && !piece_looks_like_special(piece_buf, nbytes)) {
                 // Bounds checking for piece buffer
                 if (nbytes >= (int32_t)sizeof(piece_buf)) {
@@ -353,8 +416,53 @@ void llm_bridge_generate_stream_block(void* context, const char* prompt, llm_pie
 
                 // Drain stream_buf: remove <|...|> tags and emit clean text
                 auto drain = [&]() {
+                    const std::string tag_start_ascii = "<|";
+                    const std::string tag_end_ascii   = "|>";
+                    const std::string tag_start_full  = "<\xEF\xBD\x9C"; // '<' + U+FF5C
+                    const std::string tag_end_full    = "\xEF\xBD\x9C>"; // U+FF5C + '>'
+                    const std::string think_open      = "<think>";
+                    const std::string think_close     = "</think>";
                     for (;;) {
-                        size_t s = stream_buf.find("<|");
+                        // 0) If inside <think>, consume until we find </think>
+                        if (in_think_block) {
+                            size_t eclose = stream_buf.find(think_close);
+                            if (eclose != std::string::npos) {
+                                // drop everything up to and including </think>
+                                stream_buf.erase(0, eclose + think_close.size());
+                                in_think_block = false;
+                                // continue to process any remaining text
+                                continue;
+                            } else {
+                                // wait for more pieces
+                                break;
+                            }
+                        }
+
+                        // 1) Look for start of <think>
+                        size_t s_think = stream_buf.find(think_open);
+                        if (s_think != std::string::npos) {
+                            // emit any clean text before <think>
+                            if (s_think > 0) {
+                                std::string pre = stream_buf.substr(0, s_think);
+                                if (!pre.empty()) callback(pre.c_str());
+                            }
+                            // enter think mode and remove the opening tag
+                            stream_buf.erase(0, s_think + think_open.size());
+                            in_think_block = true;
+                            // loop back to consume until </think>
+                            continue;
+                        }
+
+                        size_t s_ascii = stream_buf.find(tag_start_ascii);
+                        size_t s_full  = stream_buf.find(tag_start_full);
+                        size_t s;
+                        if (s_ascii == std::string::npos) {
+                            s = s_full;
+                        } else if (s_full == std::string::npos) {
+                            s = s_ascii;
+                        } else {
+                            s = std::min(s_ascii, s_full);
+                        }
                         if (s != std::string::npos) {
                             // emit clean prefix before tag
                             if (s > 0) {
@@ -362,10 +470,29 @@ void llm_bridge_generate_stream_block(void* context, const char* prompt, llm_pie
                                 if (!pre.empty()) callback(pre.c_str());
                             }
                             // if closing not present yet, keep partial
-                            size_t e = stream_buf.find("|>", s + 2);
+                            size_t e_ascii = stream_buf.find(tag_end_ascii, s + 2);
+                            size_t e_full  = stream_buf.find(tag_end_full, s + 4);
+                            size_t e;
+                            size_t end_len;
+                            if (e_ascii == std::string::npos && e_full == std::string::npos) {
+                                e = std::string::npos;
+                                end_len = 0;
+                            } else if (e_ascii == std::string::npos) {
+                                e = e_full;
+                                end_len = tag_end_full.size();
+                            } else if (e_full == std::string::npos) {
+                                e = e_ascii;
+                                end_len = tag_end_ascii.size();
+                            } else if (e_ascii < e_full) {
+                                e = e_ascii;
+                                end_len = tag_end_ascii.size();
+                            } else {
+                                e = e_full;
+                                end_len = tag_end_full.size();
+                            }
                             if (e != std::string::npos) {
-                                // drop entire tag
-                                stream_buf.erase(0, e + 2);
+                                // drop entire tag including its end marker
+                                stream_buf.erase(0, e + end_len);
                                 // continue scanning for next tag
                                 continue;
                             } else {
@@ -376,10 +503,17 @@ void llm_bridge_generate_stream_block(void* context, const char* prompt, llm_pie
                         } else {
                             // No tag start present: emit up to a safe boundary
                             size_t len = stream_buf.size();
+                            // Handle partial ASCII tag start
                             if (len >= 2 && stream_buf[len - 2] == '<' && stream_buf[len - 1] == '|') {
                                 len -= 2; // keep trailing "<|" for next piece
                             } else if (len >= 1 && stream_buf[len - 1] == '<') {
                                 len -= 1; // keep trailing '<' for next piece
+                            }
+                            // Handle partial fullwidth tag start: "<\xEF" or "<\xEF\xBD"
+                            else if (len >= 2 && stream_buf[len - 2] == '<' && (unsigned char)stream_buf[len - 1] == 0xEF) {
+                                len -= 2;
+                            } else if (len >= 3 && stream_buf[len - 3] == '<' && (unsigned char)stream_buf[len - 2] == 0xEF && (unsigned char)stream_buf[len - 1] == 0xBD) {
+                                len -= 3;
                             }
                             if (len > 0) {
                                 std::string out = stream_buf.substr(0, len);

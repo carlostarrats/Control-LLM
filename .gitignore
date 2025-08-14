@@ -12,3 +12,7 @@ DerivedData/
 *.xcscmblueprint
 *.xcuserstate
 xcuserdata/
+
+# Xcode build cache
+DerivedDataClean/
+
