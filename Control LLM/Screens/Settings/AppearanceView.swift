@@ -328,6 +328,7 @@ struct AppearanceView: View {
                     VStack(spacing: 12) {
                         // Restore Defaults Button
                         Button(action: {
+                            FeedbackService.shared.playHaptic(.light)
                             // Prevent onChange handlers from re-activating Apply during reset
                             suppressChangeTracking = true
                             // Reset editor values to defaults
@@ -355,6 +356,7 @@ struct AppearanceView: View {
                         
                         // Apply Changes Button
                         Button(action: {
+                            FeedbackService.shared.playHaptic(.light)
                             // Apply changes by refreshing the ColorManager
                             colorManager.refreshColors()
                             hasVisualizerChanges = false

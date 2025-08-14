@@ -235,6 +235,7 @@ struct WhisperView: View {
     private func toggleRecording() {
         if isRecording {
             // Stop recording
+            FeedbackService.shared.playSound(.endRecord)
             timer?.invalidate()
             timer = nil
             isRecording = false
@@ -256,6 +257,7 @@ struct WhisperView: View {
             elapsedTime = 0
         } else {
             // Start recording immediately
+            FeedbackService.shared.playSound(.beginRecord)
             isRecording = true
             recordingStartTime = Date()
             elapsedTime = 0
@@ -880,6 +882,7 @@ struct WhisperOptionsView: View {
         var items: [WhisperOptionsItem] = [
             WhisperOptionsItem(title: "Audio Download", icon: "square.and.arrow.down", action: {
                 // TODO: Implement audio download
+                FeedbackService.shared.playHaptic(.light)
                 dismiss()
             }, color: Color(hex: "#BBBBBB"))
         ]
@@ -923,6 +926,8 @@ struct WhisperOptionsView: View {
             } else {
                 item.isTranscribing = false
                 item.isTranscribed = true
+                FeedbackService.shared.playSound(.endRecord) // Sound on completion
+                FeedbackService.shared.playHaptic(.light) // Haptic on completion
                 timer.invalidate()
             }
         }
@@ -1001,6 +1006,7 @@ struct DeleteWhisperItemSheet: View {
                     // Stacked buttons
                     VStack(spacing: 12) {
                         Button(action: {
+                            FeedbackService.shared.playHaptic(.light)
                             onDelete()
                             dismiss()
                         }) {

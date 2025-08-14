@@ -133,6 +133,7 @@ struct DeleteHistorySheet: View {
                     // Stacked buttons
                     VStack(spacing: 12) {
                         Button(action: {
+                            FeedbackService.shared.playHaptic(.light)
                             onDelete()
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                 dismiss()

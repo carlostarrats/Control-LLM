@@ -219,6 +219,7 @@ struct SettingsModelsView: View {
                 
                 if downloadProgress >= 1.0 {
                     // Download complete
+                    FeedbackService.shared.playHaptic(.light)
                     timer.invalidate()
                     downloadingModel = nil
                     downloadProgress = 0.0
@@ -456,6 +457,7 @@ struct UnusedModelsSheet: View {
                     // Buttons
                     VStack(spacing: 12) {
                         Button(action: {
+                            FeedbackService.shared.playHaptic(.light)
                             onDelete()
                             dismiss()
                         }) {
