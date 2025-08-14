@@ -1,21 +1,25 @@
 import Foundation
+import SwiftUI
 
-class LanguageService {
+extension Notification.Name {
+    static let languageDidChange = Notification.Name("languageDidChange")
+}
+
+class LanguageService: ObservableObject {
     static let shared = LanguageService()
     
     private let userDefaults = UserDefaults.standard
     private let languageKey = "selectedLanguage"
     
-    private init() {}
+    @Published var selectedLanguage: String {
+        didSet {
+            userDefaults.set(selectedLanguage, forKey: languageKey)
+            NotificationCenter.default.post(name: .languageDidChange, object: selectedLanguage)
+        }
+    }
     
-    /// Get the currently selected language
-    var selectedLanguage: String {
-        get {
-            return userDefaults.string(forKey: languageKey) ?? "English"
-        }
-        set {
-            userDefaults.set(newValue, forKey: languageKey)
-        }
+    private init() {
+        self.selectedLanguage = userDefaults.string(forKey: languageKey) ?? "English"
     }
     
     /// Get the system prompt for the selected language

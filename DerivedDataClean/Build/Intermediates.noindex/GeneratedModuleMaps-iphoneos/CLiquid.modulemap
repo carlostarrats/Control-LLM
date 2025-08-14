@@ -1,4 +1,0 @@
-module CLiquid {
-umbrella "/Users/carlostarrats/Desktop/Control LLM/DerivedDataClean/SourcePackages/checkouts/liquid/Sources/CLiquid/include"
-export *
-}

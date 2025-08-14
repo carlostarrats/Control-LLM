@@ -39,7 +39,7 @@ struct CreditsView: View {
                                 .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                             
-                            Text("Credits")
+                            Text(NSLocalizedString("Credits", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 20))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                         }

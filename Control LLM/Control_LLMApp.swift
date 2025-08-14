@@ -56,6 +56,7 @@ struct Control_LLMApp: App {
     var body: some Scene {
         WindowGroup {
             MainView()
+                .environmentObject(ColorManager.shared)
                 .onAppear {
                     print("🔍 MainView appeared!")
                 }

@@ -60,7 +60,7 @@ struct AgentsTab: View {
                     Button(agent.isActive ? "Deactivate" : "Activate") {
                         viewModel.toggleAgent(agent)
                     }
-                    .tint(agent.isActive ? Color(hex: "#F8C762") : Color(hex: "#3EBBA5"))
+                    .tint(agent.isActive ? ColorManager.shared.orangeColor : ColorManager.shared.greenColor)
                     
                     Button("Delete", role: .destructive) {
                         viewModel.deleteAgent(agent)
@@ -147,7 +147,7 @@ struct AgentRow: View {
                         if agent.isActive {
                             Text("• Active")
                                 .font(.caption)
-                                .foregroundColor(Color(hex: "#3EBBA5"))
+                                .foregroundColor(ColorManager.shared.greenColor)
                         }
                     }
                     

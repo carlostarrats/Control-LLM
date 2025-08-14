@@ -222,6 +222,7 @@
 			knownRegions = (
 				en,
 				Base,
+				es,
 			);
 			mainGroup = 58E7B4B32E347AF100713E9B;
 			minimizedProjectReferenceProxies = 1;
@@ -459,6 +460,9 @@
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 				);
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
@@ -471,7 +475,7 @@
 				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = "Control.Design.Control-LLM";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Control LLM/Control_LLM-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -511,6 +515,9 @@
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 				);
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
@@ -523,7 +530,7 @@
 				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = "Control.Design.Control-LLM";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "Control LLM/Control_LLM-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

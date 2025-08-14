@@ -23,16 +23,16 @@ struct SettingsHistoryView: View {
                             showingDeleteSheet = true
                         }) {
                             HStack {
-                                Text("Delete All History")
+                                Text(NSLocalizedString("Delete All History", comment: ""))
                                     .font(.custom("IBMPlexMono", size: 16))
-                                    .foregroundColor(Color(hex: "#FF6B6B"))
+                                    .foregroundColor(ColorManager.shared.redColor)
                                     .multilineTextAlignment(.leading)
                                 
                                 Spacer()
                                 
                                 Image(systemName: "trash")
                                     .font(.system(size: 16))
-                                    .foregroundColor(Color(hex: "#FF6B6B"))
+                                    .foregroundColor(ColorManager.shared.redColor)
                             }
                             .padding(.horizontal, 4)
                             .padding(.vertical, 12)
@@ -66,7 +66,7 @@ struct SettingsHistoryView: View {
                                 .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                             
-                            Text("Chat History")
+                            Text(NSLocalizedString("Chat History", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 20))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                         }
@@ -140,7 +140,7 @@ struct DeleteHistorySheet: View {
                         }) {
                             Text("Delete All History")
                                 .font(.custom("IBMPlexMono", size: 16))
-                                .foregroundColor(Color(hex: "#FF6B6B"))
+                                .foregroundColor(ColorManager.shared.redColor)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
                                 .background(Color(hex: "#2A2A2A"))

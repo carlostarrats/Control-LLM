@@ -111,55 +111,7 @@ class ColorManager: ObservableObject {
     }
 }
 
-// MARK: - Simple Color Picker
-struct SimpleColorPicker: View {
-    @Binding var hue: Double
-    @Binding var saturation: Double
-    @Binding var brightness: Double
-    
-    var body: some View {
-        VStack(spacing: 16) {
-            // Hue slider
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Hue")
-                    .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#BBBBBB"))
-                
-                CustomSlider(value: $hue, range: 0...360, accentColor: Color(hue: hue / 360, saturation: 1, brightness: 1))
-            }
-            
-            // Saturation slider
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Saturation")
-                    .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#BBBBBB"))
-                
-                CustomSlider(value: $saturation, range: 0...1, accentColor: Color(hue: hue / 360, saturation: saturation, brightness: brightness))
-            }
-            
-            // Brightness slider
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Brightness")
-                    .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#BBBBBB"))
-                
-                CustomSlider(value: $brightness, range: 0...1, accentColor: Color(hue: hue / 360, saturation: saturation, brightness: brightness))
-            }
-            
-            // Color preview
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(hue: hue / 360, saturation: saturation, brightness: brightness))
-                .frame(height: 60)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 4)
-                        .stroke(Color(hex: "#333333"), lineWidth: 1)
-                )
-        }
-        .padding()
-        .background(Color(hex: "#2A2A2A"))
-        .cornerRadius(4)
-    }
-}
+// (Removed SimpleColorPicker - Control Unit Color editor is no longer used)
 
 struct CustomSlider: View {
     @Binding var value: Double
@@ -235,148 +187,7 @@ struct HueSlider: View {
     }
 }
 
-// MARK: - Control Unit Static Preview
-struct ControlUnitPreview: View {
-    let visualizerType: VisualizerType
-    let color: Color
-    
-    var body: some View {
-        ZStack {
-            // Card background
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(hex: "#2A2A2A"))
-            
-            switch visualizerType {
-            case .liquid:
-                // Organic liquid-like blobs (still)
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.28))
-                        .frame(width: 34, height: 34)
-                        .offset(x: -10, y: -6)
-                    Circle()
-                        .fill(color.opacity(0.55))
-                        .frame(width: 26, height: 26)
-                        .offset(x: 8, y: 6)
-                    Circle()
-                        .fill(color)
-                        .frame(width: 18, height: 18)
-                }
-                .blendMode(.plusLighter)
-            case .particle:
-                // Dense sphere of points (still)
-                ZStack {
-                    ForEach(0..<70, id: \.self) { i in
-                        let angle = Double(i) / 70.0 * 2 * .pi
-                        let radius = 16 + CGFloat((i % 7))
-                        Circle()
-                            .fill(i % 5 == 0 ? color : Color(hex: "#888888").opacity(0.7))
-                            .frame(width: 2, height: 2)
-                            .position(x: 40 + cos(angle) * radius, y: 24 + sin(angle) * radius)
-                    }
-                }
-                .drawingGroup()
-            case .flowing:
-                // Flowing ring (still)
-                ZStack {
-                    Circle()
-                        .stroke(Color(hex: "#444444"), lineWidth: 6)
-                        .frame(width: 42, height: 42)
-                    Circle()
-                        .trim(from: 0.05, to: 0.85)
-                        .stroke(color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
-                        .frame(width: 42, height: 42)
-                        .rotationEffect(.degrees(-20))
-                }
-                .blendMode(.plusLighter)
-            }
-        }
-        .frame(width: 80, height: 50)
-        .overlay(
-            RoundedRectangle(cornerRadius: 4)
-                .stroke(Color(hex: "#333333"), lineWidth: 1)
-        )
-    }
-}
-
-// MARK: - Visualizer Test Sheet
-struct VisualizerTestSheet: View {
-    @Environment(\.dismiss) private var dismiss
-    let color: Color
-    @StateObject private var visualizerState = VisualizerStateManager.shared
-    @State private var isLoading = true
-    
-    var body: some View {
-        ZStack {
-            // Background
-            Color(hex: "#1D1D1D")
-                .ignoresSafeArea()
-            
-            VStack(spacing: 20) {
-                // Grab bar and close button
-                RoundedRectangle(cornerRadius: 2.5)
-                    .fill(Color(hex: "#666666"))
-                    .frame(width: 36, height: 5)
-                    .padding(.top, 8)
-                
-                HStack {
-                    Text("Control Color Preview")
-                        .font(.custom("IBMPlexMono", size: 18))
-                        .foregroundColor(Color(hex: "#EEEEEE"))
-                    Spacer()
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                            .frame(width: 32, height: 32)
-                            .contentShape(Rectangle())
-                    }
-                }
-                .padding(.horizontal, 20)
-                
-                if isLoading {
-                    // Loading state
-                    VStack(spacing: 16) {
-                        ProgressView()
-                            .scaleEffect(1.2)
-                            .tint(Color(hex: "#BBBBBB"))
-                        
-                        Text("Loading Control Unit...")
-                            .font(.custom("IBMPlexMono", size: 16))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                    }
-                } else {
-                    // Visualizer content
-                    VStack(spacing: 20) {
-                        Spacer()
-                            .frame(height: 30)
-                        
-                        ControlUnitPreview(visualizerType: visualizerState.selectedVisualizerType, color: color)
-                            .frame(width: 200, height: 150)
-                            .scaleEffect(2.0)
-                        
-                        Text("This shows how the control unit will look with the selected color")
-                            .font(.custom("IBMPlexMono", size: 14))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 20)
-                    }
-                }
-                
-                Spacer()
-            }
-            .padding(.top, 40)
-        }
-        .onAppear {
-            // Simulate loading time
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                isLoading = false
-            }
-        }
-    }
-}
+// (Removed VisualizerTestSheet - preview sheet no longer used)
 
 // MARK: - Main Appearance View
 struct AppearanceView: View {
@@ -386,7 +197,7 @@ struct AppearanceView: View {
     @State private var hasVisualizerChanges = false
     @State private var hasMainColorsChanges = false
     @State private var suppressChangeTracking = false
-    @State private var showingVisualizerTest = false
+    // Removed visualizer preview/testing UI
     @StateObject private var visualizerState = VisualizerStateManager.shared
     @StateObject private var colorManager = ColorManager.shared
     
@@ -398,7 +209,7 @@ struct AppearanceView: View {
         case .particle:
             return "Learned not to play the game...but it's always ready to change the rules."
         case .flowing:
-            return "Forged in the void, it operates with the cold indifference of the universe itself."
+            return "Forged in the void, it ventures to the unknown."
         }
     }
     
@@ -456,68 +267,29 @@ struct AppearanceView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 11)
                     
-                    // 30px spacing between sections
+                    // Extra spacing before Main UI Colors
                     Spacer()
                         .frame(height: 30)
-                    
-                    // Control Unit Section
-                    VStack(alignment: .leading, spacing: 20) {
-                        Text("Control Unit Color")
-                            .font(.custom("IBMPlexMono", size: 18))
-                            .foregroundColor(Color(hex: "#EEEEEE"))
-                        
-                        VStack(spacing: 16) {
-                            // Color picker
-                            SimpleColorPicker(
-                                hue: $appearanceManager.visualizerHue,
-                                saturation: $appearanceManager.visualizerSaturation,
-                                brightness: $appearanceManager.visualizerBrightness
-                            )
-                            .onChange(of: appearanceManager.visualizerHue) { _, _ in if !suppressChangeTracking { hasVisualizerChanges = true; hasChanges = true } }
-                            .onChange(of: appearanceManager.visualizerSaturation) { _, _ in if !suppressChangeTracking { hasVisualizerChanges = true; hasChanges = true } }
-                            .onChange(of: appearanceManager.visualizerBrightness) { _, _ in if !suppressChangeTracking { hasVisualizerChanges = true; hasChanges = true } }
-                            
-                            // Test Visualizer Button
-                            Button(action: {
-                                showingVisualizerTest = true
-                            }) {
-                                HStack(spacing: 12) {
-                                    Image(systemName: "testtube.2")
-                                        .font(.system(size: 16))
-                                    Text("Test Control Unit Color")
-                                        .font(.custom("IBMPlexMono", size: 16))
-                                    Spacer()
-                                    // Static preview thumbnail (activated look)
-                                    ControlUnitPreview(visualizerType: visualizerState.selectedVisualizerType, color: appearanceManager.currentVisualizerColor)
-                                }
-                                .foregroundColor(hasVisualizerChanges ? ColorManager.shared.purpleColor : Color(hex: "#888888"))
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(Color(hex: "#2A2A2A"))
-                                .cornerRadius(4)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .disabled(!hasVisualizerChanges)
-                            .animation(.easeInOut(duration: 0.3), value: hasVisualizerChanges)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    
-                    // 30px spacing between sections
-                    Spacer()
-                        .frame(height: 30)
+
+                    // Remove Control Unit Color editor and immediately continue to Main UI Colors
                     
                     // Main UI Colors Section
-                    VStack(alignment: .leading, spacing: 20) {
+                    VStack(alignment: .leading, spacing: 0) {
                         Text("Main UI Colors")
                             .font(.custom("IBMPlexMono", size: 18))
                             .foregroundColor(Color(hex: "#EEEEEE"))
                         
-                        Text("These colors affect text and other UI elements")
+                        Text("These colors affect text and other UI elements.")
                             .font(.custom("IBMPlexMono", size: 14))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                             .multilineTextAlignment(.leading)
-                        
+                            .padding(.top, 8)
+                            .padding(.bottom, 16)
+
+                        // Forced gap before the first hex label
+                        Color.clear
+                            .frame(height: 16)
+
                         VStack(spacing: 16) {
                             HueSlider(
                                 title: appearanceManager.currentRedColor.hexString,
@@ -646,10 +418,6 @@ struct AppearanceView: View {
                 }
                 .background(Color(hex: "#1D1D1D"))
             }
-        }
-        .sheet(isPresented: $showingVisualizerTest) {
-            VisualizerTestSheet(color: appearanceManager.currentVisualizerColor)
-                .presentationDetents([.medium])
         }
     }
 }
