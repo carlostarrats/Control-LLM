@@ -235,10 +235,75 @@ struct HueSlider: View {
     }
 }
 
+// MARK: - Control Unit Static Preview
+struct ControlUnitPreview: View {
+    let visualizerType: VisualizerType
+    let color: Color
+    
+    var body: some View {
+        ZStack {
+            // Card background
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color(hex: "#2A2A2A"))
+            
+            switch visualizerType {
+            case .liquid:
+                // Organic liquid-like blobs (still)
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.28))
+                        .frame(width: 34, height: 34)
+                        .offset(x: -10, y: -6)
+                    Circle()
+                        .fill(color.opacity(0.55))
+                        .frame(width: 26, height: 26)
+                        .offset(x: 8, y: 6)
+                    Circle()
+                        .fill(color)
+                        .frame(width: 18, height: 18)
+                }
+                .blendMode(.plusLighter)
+            case .particle:
+                // Dense sphere of points (still)
+                ZStack {
+                    ForEach(0..<70, id: \.self) { i in
+                        let angle = Double(i) / 70.0 * 2 * .pi
+                        let radius = 16 + CGFloat((i % 7))
+                        Circle()
+                            .fill(i % 5 == 0 ? color : Color(hex: "#888888").opacity(0.7))
+                            .frame(width: 2, height: 2)
+                            .position(x: 40 + cos(angle) * radius, y: 24 + sin(angle) * radius)
+                    }
+                }
+                .drawingGroup()
+            case .flowing:
+                // Flowing ring (still)
+                ZStack {
+                    Circle()
+                        .stroke(Color(hex: "#444444"), lineWidth: 6)
+                        .frame(width: 42, height: 42)
+                    Circle()
+                        .trim(from: 0.05, to: 0.85)
+                        .stroke(color, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                        .frame(width: 42, height: 42)
+                        .rotationEffect(.degrees(-20))
+                }
+                .blendMode(.plusLighter)
+            }
+        }
+        .frame(width: 80, height: 50)
+        .overlay(
+            RoundedRectangle(cornerRadius: 4)
+                .stroke(Color(hex: "#333333"), lineWidth: 1)
+        )
+    }
+}
+
 // MARK: - Visualizer Test Sheet
 struct VisualizerTestSheet: View {
     @Environment(\.dismiss) private var dismiss
     let color: Color
+    @StateObject private var visualizerState = VisualizerStateManager.shared
     @State private var isLoading = true
     
     var body: some View {
@@ -288,30 +353,9 @@ struct VisualizerTestSheet: View {
                         Spacer()
                             .frame(height: 30)
                         
-                        // Simple visualizer representation
-                        ZStack {
-                            // Background
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color(hex: "#2A2A2A"))
-                                .frame(width: 200, height: 150)
-                            
-                            // Liquid effect simulation
-                            ZStack {
-                                Circle()
-                                    .fill(color.opacity(0.3))
-                                    .frame(width: 60, height: 60)
-                                    .offset(x: -20, y: -10)
-                                
-                                Circle()
-                                    .fill(color.opacity(0.6))
-                                    .frame(width: 45, height: 45)
-                                    .offset(x: 15, y: 10)
-                                
-                                Circle()
-                                    .fill(color)
-                                    .frame(width: 30, height: 30)
-                            }
-                        }
+                        ControlUnitPreview(visualizerType: visualizerState.selectedVisualizerType, color: color)
+                            .frame(width: 200, height: 150)
+                            .scaleEffect(2.0)
                         
                         Text("This shows how the control unit will look with the selected color")
                             .font(.custom("IBMPlexMono", size: 14))
@@ -437,12 +481,14 @@ struct AppearanceView: View {
                             Button(action: {
                                 showingVisualizerTest = true
                             }) {
-                                HStack {
+                                HStack(spacing: 12) {
                                     Image(systemName: "testtube.2")
                                         .font(.system(size: 16))
-                                    
                                     Text("Test Control Unit Color")
                                         .font(.custom("IBMPlexMono", size: 16))
+                                    Spacer()
+                                    // Static preview thumbnail (activated look)
+                                    ControlUnitPreview(visualizerType: visualizerState.selectedVisualizerType, color: appearanceManager.currentVisualizerColor)
                                 }
                                 .foregroundColor(hasVisualizerChanges ? ColorManager.shared.purpleColor : Color(hex: "#888888"))
                                 .frame(maxWidth: .infinity)
