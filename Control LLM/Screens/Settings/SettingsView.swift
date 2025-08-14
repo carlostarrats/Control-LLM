@@ -12,6 +12,7 @@ struct SettingsView: View {
     @State private var showingLanguage = false
 
     @State private var showingHistory = false
+    @State private var showingFAQ = false
     @State private var showingCredits = false
     
     // Toast state
@@ -144,6 +145,9 @@ struct SettingsView: View {
         .sheet(isPresented: $showingCredits) {
             CreditsView()
         }
+        .sheet(isPresented: $showingFAQ) {
+            FAQView()
+        }
         .overlay {
             if showingToast {
                 ToastView(message: "History Deleted")
@@ -171,6 +175,7 @@ struct SettingsView: View {
             SettingsItem(title: "Language", symbol: "globe", action: { showingLanguage = true }),
 
             SettingsItem(title: "Chat History", symbol: "list.bullet", action: { showingHistory = true }),
+            SettingsItem(title: "FAQs", symbol: "info.circle", action: { showingFAQ = true }),
             SettingsItem(title: "Credits", symbol: "text.page", action: { showingCredits = true })
         ]
     }

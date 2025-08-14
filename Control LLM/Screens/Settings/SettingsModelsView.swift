@@ -64,7 +64,7 @@ struct SettingsModelsView: View {
                             if availableDownloadModels.isEmpty {
                                 // Show "Already Installed" when no downloads available
                                 HStack {
-                                    Text("Already Installed")
+                                    Text("All Available Installed")
                                         .font(.custom("IBMPlexMono", size: 16))
                                         .foregroundColor(Color(hex: "#666666"))
                                         .multilineTextAlignment(.leading)
@@ -260,6 +260,15 @@ struct InstalledLLMModelView: View {
                             .multilineTextAlignment(.leading)
                             .lineLimit(2)
                         
+                        // Subtext under model name
+                        if let subtitle = modelSubtitle {
+                            Text(subtitle)
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .multilineTextAlignment(.leading)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+
                         HStack {
                             Text(model.size)
                                 .font(.custom("IBMPlexMono", size: 10))
@@ -293,6 +302,21 @@ struct InstalledLLMModelView: View {
                 .fill(Color(hex: "#333333"))
                 .frame(height: 1)
         }
+    }
+
+    // MARK: - Subtitle helper
+    private var modelSubtitle: String? {
+        let key = (model.displayName + " " + model.name).lowercased()
+        if key.contains("gemma") {
+            return "General conversations, writing, and everyday tasks | English-focused"
+        }
+        if key.contains("phi") {
+            return "General tasks with stronger code and math capabilities | 22 languages"
+        }
+        if key.contains("qwen") {
+            return "General tasks with broader technical abilities and language support | 29 languages"
+        }
+        return nil
     }
 }
 

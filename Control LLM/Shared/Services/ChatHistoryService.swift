@@ -50,7 +50,7 @@ class ChatHistoryService: ObservableObject {
         let today = Date()
         let formattedDate = formatDate(session.date, today: today)
         
-        // Create the chat summary for this session
+        // Create the initial (heuristic) chat summary for this session
         let fullSummary = createFullSummary(from: session)
         let summary = ChatSummary(
             id: session.id,
@@ -84,6 +84,22 @@ class ChatHistoryService: ObservableObject {
         }
         
         saveHistoryData()
+
+        // Kick off an async refinement using the on-device LLM to produce a concise abstract
+        Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                if let refined = try await self.generateLLMSummary(from: session.messages ?? []) {
+                    await MainActor.run {
+                        self.updateExpandedSummaryContent(forChatId: session.id, newContent: refined)
+                        self.saveHistoryData()
+                    }
+                }
+            } catch {
+                // If LLM summary fails (e.g., busy), keep the heuristic summary
+                print("⚠️ ChatHistoryService: LLM summary generation failed: \(error.localizedDescription)")
+            }
+        }
     }
     
     func deleteAllHistory() {
@@ -205,6 +221,61 @@ class ChatHistoryService: ObservableObject {
             return "\(keyQuestions[0]) and \(keyQuestions[1])"
         } else {
             return "\(keyQuestions[0]), \(keyQuestions[1]), and more"
+        }
+    }
+
+    // MARK: - LLM-powered summary
+    private func generateLLMSummary(from messages: [ChatMessage]) async throws -> String? {
+        // Filter and trim history to avoid overwhelming the model
+        let textMessages = messages.filter { $0.messageType == .text && !$0.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        if textMessages.isEmpty { return nil }
+
+        let maxMessages = 20
+        let maxCharacters = 3500
+        var trimmed = Array(textMessages.suffix(maxMessages))
+        func totalChars(_ msgs: [ChatMessage]) -> Int { msgs.reduce(0) { $0 + $1.content.count } }
+        while totalChars(trimmed) > maxCharacters && !trimmed.isEmpty {
+            trimmed.removeFirst()
+        }
+
+        // Ask the model for a concise abstract
+        let instruction = "Write a concise 1–2 sentence summary of the conversation above, focusing on the user's goals and key decisions. No preamble, no emojis, no bullet points. Keep under 240 characters."
+        var collected = ""
+        do {
+            try await LLMService.shared.chat(
+                user: instruction,
+                history: trimmed,
+                onToken: { piece in
+                    collected += piece
+                }
+            )
+            let result = collected.trimmingCharacters(in: .whitespacesAndNewlines)
+            return result.isEmpty ? nil : result
+        } catch {
+            // If another chat is in progress, skip silently
+            throw error
+        }
+    }
+
+    private func updateExpandedSummaryContent(forChatId chatId: String, newContent: String) {
+        guard !historyGroups.isEmpty else { return }
+        for groupIndex in historyGroups.indices {
+            for entryIndex in historyGroups[groupIndex].entries.indices {
+                if let chatIndex = historyGroups[groupIndex].entries[entryIndex].chats.firstIndex(where: { $0.id == chatId }) {
+                    var chat = historyGroups[groupIndex].entries[entryIndex].chats[chatIndex]
+                    if let first = chat.expandedSummaries.first {
+                        let updatedExpanded = ExpandedSummary(id: first.id, content: newContent, buttonText: first.buttonText)
+                        let updatedChat = ChatSummary(
+                            id: chat.id,
+                            summary: chat.summary,
+                            expandedSummaries: [updatedExpanded],
+                            timestamp: chat.timestamp
+                        )
+                        historyGroups[groupIndex].entries[entryIndex].chats[chatIndex] = updatedChat
+                        return
+                    }
+                }
+            }
         }
     }
     

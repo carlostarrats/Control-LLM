@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import AVFoundation
 
 @MainActor
 class MainViewModel: ObservableObject {
@@ -11,6 +12,9 @@ class MainViewModel: ObservableObject {
     @Published var isInVoiceFlow = false // New state to track entire voice interaction flow
     @Published var lastMessage: String?
     @Published var messages: [ChatMessage] = []
+    
+    // Add ChatViewModel instance for LLM operations
+    let llm = ChatViewModel()
     
     func toggleRecording() {
         isRecording.toggle()
@@ -33,6 +37,8 @@ class MainViewModel: ObservableObject {
             // Load the actual message history from the ChatSession
             if let sessionMessages = session.messages {
                 messages = sessionMessages
+                // Also set the LLM history so the next request uses this context
+                llm.messageHistory = sessionMessages
             } else {
                 // Fallback: create a context message if no messages available
                 let contextMessage = ChatMessage(
@@ -41,6 +47,7 @@ class MainViewModel: ObservableObject {
                     timestamp: Date()
                 )
                 messages.append(contextMessage)
+                llm.messageHistory = messages
             }
         }
     }
@@ -122,10 +129,52 @@ class MainViewModel: ObservableObject {
             // Keep isInVoiceFlow = true until LLM is done
         }
         
-        // Delay activation to allow X button to fade out completely
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            // Activate the LLM to process and respond
-            self.activateMainScreen()
+        // Acquire actual voice transcription when integrated
+        let voiceInput = "".trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !voiceInput.isEmpty else {
+            print("🔇 No voice transcript available — skipping processing")
+            return
+        }
+
+        // Add user voice message to chat
+        let userMessage = ChatMessage(content: voiceInput, isUser: true, timestamp: Date())
+        messages.append(userMessage)
+
+        // Send to LLM and get response
+        Task {
+            do {
+                // Use the correct async method from ChatViewModel
+                try await llm.send(voiceInput)
+                
+                // Wait for response to complete
+                while llm.isProcessing {
+                    try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                }
+                
+                let responseText = llm.transcript
+                
+                // Add assistant response to chat
+                let assistantMessage = ChatMessage(content: responseText, isUser: false, timestamp: Date())
+                await MainActor.run {
+                    self.messages.append(assistantMessage)
+                }
+                
+                // Speak the response
+                await MainActor.run {
+                    TTSService.shared.speak(responseText)
+                }
+                
+                // Activate main screen after response is complete
+                await MainActor.run {
+                    self.activateMainScreen()
+                }
+                
+            } catch {
+                print("❌ Error processing voice message: \(error)")
+                await MainActor.run {
+                    self.activateMainScreen()
+                }
+            }
         }
     }
     
@@ -144,16 +193,6 @@ class MainViewModel: ObservableObject {
     private func stopRecording() {
         // TODO: Implement actual voice recording stop and processing
         print("Stopped recording...")
-        
-        // Simulate processing and response
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.processVoiceInput("Hello, this is a placeholder voice message")
-        }
-        
-        // Simulate LLM speaking response
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.startSpeaking()
-        }
     }
     
     private func startSpeaking() {

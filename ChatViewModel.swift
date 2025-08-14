@@ -73,7 +73,7 @@ class ChatViewModel: ObservableObject {
         }
     }
     
-    func send(_ userText: String) {
+    func send(_ userText: String) async throws {
         print("🔍 ChatViewModel: send started — \(userText)")
         
         // Check if this is a duplicate message to the same model
@@ -111,8 +111,8 @@ class ChatViewModel: ObservableObject {
                     print("🔍 ChatViewModel: Continuing with current model to avoid crash")
                 }
                 
-                // Always use empty history to ensure different responses from different models
-                let historyToSend: [ChatMessage] = []
+                // Use any loaded conversation context from history, with safeguards
+                let historyToSend: [ChatMessage] = buildSafeHistory(from: messageHistory ?? [])
                 
                 // Use the correct LLMService method signature
                 try await LLMService.shared.chat(
@@ -143,6 +143,27 @@ class ChatViewModel: ObservableObject {
                 }
             }
         }
+    }
+
+    // MARK: - History Safeguard
+    private func buildSafeHistory(from fullHistory: [ChatMessage]) -> [ChatMessage] {
+        // Limits to prevent overwhelming the prompt
+        let maxMessages = 20
+        let maxCharacters = 4000
+
+        // Take the most recent messages up to maxMessages
+        var trimmed = Array(fullHistory.suffix(maxMessages))
+
+        // If still too long, trim from the oldest in this window until below character cap
+        func totalChars(_ msgs: [ChatMessage]) -> Int {
+            msgs.reduce(0) { $0 + $1.content.count }
+        }
+
+        while totalChars(trimmed) > maxCharacters && !trimmed.isEmpty {
+            trimmed.removeFirst()
+        }
+
+        return trimmed
     }
     
     func clearConversation() {

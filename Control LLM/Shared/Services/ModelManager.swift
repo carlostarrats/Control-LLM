@@ -38,19 +38,19 @@ struct LLMModelInfo {
             self.displayName = "Gemma-2-2B-It-Q4_K_M"
             self.description = "Google's 2B instruction-tuned model (Q4_K_M)"
             self.provider = "Google"
-            self.size = "~1.0 GB"
+            self.size = "1.7 GB"
         } else if lowercaseFilename.contains("phi-3.5-mini-instruct-q4_k_m") || lowercaseFilename.contains("phi-3.5-mini-instruct") {
             self.name = "Phi-3.5 Mini Instruct"
             self.displayName = "Phi-3.5-Mini-Instruct-Q4_K_M"
             self.description = "Microsoft Phi-3.5 Mini Instruct (Q4_K_M)"
             self.provider = "Microsoft"
-            self.size = "~1.0 GB"
+            self.size = "2.4 GB"
         } else if lowercaseFilename.contains("qwen2.5-1.5b-instruct-q5_k_m") || lowercaseFilename.contains("qwen2.5-1.5b-instruct") {
             self.name = "Qwen2.5 1.5B Instruct"
             self.displayName = "Qwen2.5-1.5B-Instruct-Q5_K_M"
             self.description = "Alibaba Qwen2.5 1.5B Instruct (Q5_K_M)"
             self.provider = "Alibaba"
-            self.size = "~0.9 GB"
+            self.size = "1.3 GB"
         } else {
             // Fallback for unknown models
             self.name = filename.replacingOccurrences(of: "-", with: " ").capitalized
