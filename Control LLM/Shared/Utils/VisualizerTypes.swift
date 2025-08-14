@@ -9,17 +9,17 @@ enum VisualizerType: Int, CaseIterable {
     
     var displayName: String {
         switch self {
-        case .liquid: return "Hydrogen"
-        case .particle: return "Carbon"
-        case .flowing: return "Mercury"
+        case .liquid: return "MYCROFT"
+        case .particle: return "WOPR"
+        case .flowing: return "TARS"
         }
     }
     
     var icon: String {
         switch self {
-        case .liquid: return "drop.fill"
-        case .particle: return "sparkles"
-        case .flowing: return "waveform.path.ecg"
+        case .liquid: return "cpu.fill"
+        case .particle: return "cylinder.split.1x2"
+        case .flowing: return "atom"
         }
     }
 }

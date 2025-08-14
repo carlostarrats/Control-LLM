@@ -90,11 +90,18 @@ class MainViewModel: ObservableObject {
     // MARK: - Voice Interaction Flow
     
     func voiceDetected() {
-        // User started talking - fade out navigation buttons and show X button
-        print("🔍 voiceDetected() called - setting isVoiceDetected = true")
-        withAnimation(.easeInOut(duration: 0.5)) { // Restored withAnimation
-            isVoiceDetected = true
-            isInVoiceFlow = true // Start voice flow
+        // User started talking - fade out navigation buttons first, then show paperplane button
+        print("🔍 voiceDetected() called - setting isInVoiceFlow = true first")
+        withAnimation(.easeInOut(duration: 0.5)) {
+            isInVoiceFlow = true // Start voice flow - this fades out navigation buttons
+        }
+        
+        // Delay the paperplane button appearance to create visual separation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [self] in // 0.8 second delay
+            print("🔍 Delayed setting isVoiceDetected = true")
+            withAnimation(.easeInOut(duration: 0.5)) {
+                self.isVoiceDetected = true // This fades in the paperplane button
+            }
         }
     }
 

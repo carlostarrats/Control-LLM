@@ -12,48 +12,42 @@ struct VisualizerTabView: View {
     
     var body: some View {
         ZStack {
-            // Visualizer content - full screen, no constraints
-            ZStack {
-                // Original liquid visualizer
-                if visualizerState.selectedVisualizerType == .liquid {
-                    CentralVisualizerView(
-                        isSpeaking: $isSpeaking,
-                        hueShift: hueShift,
-                        saturationLevel: saturationLevel,
-                        brightnessLevel: brightnessLevel,
-                        onTap: onTap
-                    )
-                    .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .scale(scale: 0.8)),
-                        removal: .opacity.combined(with: .scale(scale: 1.2))
-                    ))
-                }
+            // FIX: Use a single switch statement instead of multiple if statements
+            // This prevents the render loop caused by multiple conditional evaluations
+            switch visualizerState.selectedVisualizerType {
+            case .liquid:
+                CentralVisualizerView(
+                    isSpeaking: $isSpeaking,
+                    hueShift: hueShift,
+                    saturationLevel: saturationLevel,
+                    brightnessLevel: brightnessLevel,
+                    onTap: onTap
+                )
+                .transition(.asymmetric(
+                    insertion: .opacity.combined(with: .scale(scale: 0.8)),
+                    removal: .opacity.combined(with: .scale(scale: 1.2))
+                ))
                 
-                // New particle visualizer
-                if visualizerState.selectedVisualizerType == .particle {
-                    ParticleVisualizerView(
-                        isSpeaking: $isSpeaking,
-                        onTap: onTap
-                    )
-                    .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .scale(scale: 0.8)),
-                        removal: .opacity.combined(with: .scale(scale: 1.2))
-                    ))
-                }
+            case .particle:
+                ParticleVisualizerView(
+                    isSpeaking: $isSpeaking,
+                    onTap: onTap
+                )
+                .transition(.asymmetric(
+                    insertion: .opacity.combined(with: .scale(scale: 0.8)),
+                    removal: .opacity.combined(with: .scale(scale: 1.2))
+                ))
                 
-                // New flowing liquid visualizer
-                if visualizerState.selectedVisualizerType == .flowing {
-                    FlowingLiquidView(
-                        isSpeaking: $isSpeaking,
-                        onTap: onTap
-                    )
-                    .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .scale(scale: 0.8)),
-                        removal: .opacity.combined(with: .scale(scale: 1.2))
-                    ))
-                }
+            case .flowing:
+                FlowingLiquidView(
+                    isSpeaking: $isSpeaking,
+                    onTap: onTap
+                )
+                .transition(.asymmetric(
+                    insertion: .opacity.combined(with: .scale(scale: 0.8)),
+                    removal: .opacity.combined(with: .scale(scale: 1.2))
+                ))
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

@@ -9,7 +9,7 @@ final class LLMService: @unchecked Sendable {
     private var llamaContext: UnsafeMutableRawPointer?
     private var isModelLoaded = false
     private var conversationCount = 0
-    private let maxConversationsBeforeReset = 3  // Reduced from 5 to 3 for 3B model
+    private let maxConversationsBeforeReset = 50  // Increased from 3 to prevent interference with model switching
     private var isModelOperationInProgress = false  // For model loading/unloading
     private var isChatOperationInProgress = false   // For chat generation
     private var lastOperationTime: Date = Date()  // Track when operations start
@@ -42,10 +42,16 @@ final class LLMService: @unchecked Sendable {
                           userInfo: [NSLocalizedDescriptionKey: "No model selected"])
         }
         
-        // Don't reload if it's the same model
-        if currentModelFilename == modelFilename && isModelLoaded {
+        // IMPROVEMENT: Check if we're already loading the same model
+        if isModelLoaded && currentModelFilename == modelFilename {
+            print("🔍 LLMService: Model \(modelFilename) already loaded, skipping reload")
             return
         }
+        
+        print("🔍 LLMService: Loading new model: \(modelFilename) (previous: \(currentModelFilename ?? "none"))")
+        
+        // Always reload the model to ensure clean state and prevent caching issues
+        // The previous optimization was causing responses to be cached between model switches
         
         // Try to find the model file in the app sandbox first (Documents/Models)
         var url: URL?
@@ -126,6 +132,10 @@ final class LLMService: @unchecked Sendable {
         // Clear previous model to free memory
         unloadModel()
         
+        // IMPROVEMENT: Reset conversation count when switching models
+        conversationCount = 0
+        print("🔍 LLMService: Reset conversation count for new model")
+        
         self.modelPath = modelUrl.path
         self.currentModelFilename = modelFilename
         
@@ -146,24 +156,49 @@ final class LLMService: @unchecked Sendable {
     private func unloadModel() {
         print("LLMService: Unloading model and cleaning up resources")
         
+        // Safely free context first
         if let context = llamaContext {
-            // Free llama.cpp context
+            print("LLMService: Freeing context...")
             llm_bridge_free_context(context)
             llamaContext = nil
             print("LLMService: Context freed")
         }
         
+        // Then safely free model
         if let model = llamaModel {
-            // Free llama.cpp model
+            print("LLMService: Freeing model...")
             llm_bridge_free_model(model)
             llamaModel = nil
             print("LLMService: Model freed")
         }
         
+        // Clear all state
         isModelLoaded = false
         modelPath = nil
         currentModelFilename = nil
         print("LLMService: Model unload completed")
+    }
+    
+    /// Force unload the current model (public method for external control)
+    func forceUnloadModel() async throws {
+        print("LLMService: Force unloading model and clearing all state")
+        
+        // Prevent double-unload crashes
+        guard isModelLoaded || llamaModel != nil || llamaContext != nil else {
+            print("LLMService: No model to unload - already clean")
+            return
+        }
+        
+        // IMPROVEMENT: More comprehensive state clearing
+        conversationCount = 0
+        isChatOperationInProgress = false
+        isModelOperationInProgress = false
+        lastOperationTime = Date()
+        
+        // Force unload the model
+        unloadModel()
+        
+        print("LLMService: Force unload completed - all state cleared")
     }
     
     private func loadModelWithLlamaCpp() async throws {
@@ -255,6 +290,7 @@ final class LLMService: @unchecked Sendable {
         
         // Increment conversation counter
         conversationCount += 1
+        print("🔍 LLMService: Starting conversation #\(conversationCount) with model \(currentModelFilename ?? "unknown")")
         
         // Validate input text
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
@@ -273,11 +309,24 @@ final class LLMService: @unchecked Sendable {
             processedText = truncatedText
         }
         
-        // Reset context if we've had too many conversations
+        // IMPROVEMENT: Only reset context if we've had too many conversations with THIS model
         if conversationCount >= maxConversationsBeforeReset {
-            print("🔄 DEBUG: Resetting LLM context after \(conversationCount) conversations")
-            clearState()
-            try await loadSelectedModel()
+            print("🔄 DEBUG: Resetting LLM context after \(conversationCount) conversations with model \(currentModelFilename ?? "unknown")")
+            
+            // Only unload and reload the context, not the entire model
+            if let context = llamaContext {
+                llm_bridge_free_context(context)
+                llamaContext = nil
+            }
+            
+            // Recreate context
+            if let model = llamaModel {
+                llamaContext = llm_bridge_create_context(model)
+                guard llamaContext != nil else {
+                    throw NSError(domain: "LLMService", code: 5, userInfo: [NSLocalizedDescriptionKey: "Failed to recreate context"])
+                }
+            }
+            
             conversationCount = 0
         } else {
             // Only load model if we haven't already loaded it
@@ -388,6 +437,16 @@ final class LLMService: @unchecked Sendable {
     }
     
     private func buildPrompt(userText: String, history: [ChatMessage]?) -> String {
+        print("🔍 LLMService: buildPrompt called with history count: \(history?.count ?? 0)")
+        if let history = history, !history.isEmpty {
+            print("🔍 LLMService: Building prompt with \(history.count) history messages for model \(currentModelFilename ?? "unknown")")
+            for (index, message) in history.enumerated() {
+                print("  Message \(index): \(message.isUser ? "User" : "Assistant") - \(String(message.content.prefix(50)))")
+            }
+        } else {
+            print("🔍 LLMService: Building fresh prompt (no history) for model \(currentModelFilename ?? "unknown")")
+        }
+        
         let systemPrompt = LanguageService.shared.getSystemPrompt()
         var fullPrompt = "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n\(systemPrompt)<|eot_id|>"
 
@@ -407,16 +466,29 @@ final class LLMService: @unchecked Sendable {
     
     /// Clear any potential state to ensure fresh calls
     func clearState() {
-
+        print("LLMService: clearState() - clearing all state variables")
+        
+        // Clear conversation state
         conversationCount = 0
+        
+        // Clear operation flags
+        isChatOperationInProgress = false
+        isModelOperationInProgress = false
+        
+        // Reset operation timing
+        lastOperationTime = Date()
+        
+        // Force unload model
         unloadModel()
+        
+        print("LLMService: clearState() completed - all state cleared")
     }
 
     private func getErrorMessage(for error: Error) -> String {
         if let nsError = error as NSError? {
             switch nsError.code {
             case 7:
-                return "Model loading timed out. Please try a smaller model like TinyLlama."
+                return "Model loading timed out. Please try a smaller model."
             case 6:
                 return "Input too long. Please use shorter text."
             case 9:
@@ -432,7 +504,3 @@ final class LLMService: @unchecked Sendable {
         return error.localizedDescription
     }
 }
-
-
-
-

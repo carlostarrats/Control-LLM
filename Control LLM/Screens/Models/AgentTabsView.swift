@@ -157,9 +157,15 @@ struct AgentRow: View {
                         .lineLimit(2)
                     
                     HStack {
-                        Text("Model: \(agent.model.name)")
-                            .font(.caption)
-                            .foregroundColor(.blue)
+                        if let model = agent.model {
+                            Text("Model: \(model.name)")
+                                .font(.caption)
+                                .foregroundColor(.blue)
+                        } else {
+                            Text("No Model Assigned")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                        }
                     }
                 }
                 

@@ -4,7 +4,7 @@ struct LanguageView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var selectedLanguage: String = LanguageService.shared.selectedLanguage
     
-    // Languages supported by Llama 3.2
+    // Supported languages
     private let languages = [
         "English",
         "Spanish", 

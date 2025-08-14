@@ -30,7 +30,7 @@ struct FluidParticle {
 // Generate fluid particles along ring path - KEEPING EXACTLY THE SAME
 float2 getRingPosition(float angle, float radius, float time) {
     // Add some organic variation to the ring path - SLOWED DOWN to match previous 2s period
-    float radiusVariation = sin(angle * 3.0 + time * 0.25) * 5.0 + 
+    float radiusVariation = sin(angle * 3.0 + time * 0.25) * 5.0 +
                            sin(angle * 7.0 + time * 0.15) * 3.0;
     float finalRadius = radius + radiusVariation;
     
@@ -71,7 +71,7 @@ float simulateFluidParticle(float2 p, float time, float ringRadius) {
             particleDensity = (1.0 - normalizedDist) * (1.0 - normalizedDist);
             
             // Add some internal structure to the fluid - SLOWED DOWN
-            float internalStructure = sin(p.x * 0.1 + time * 0.4) * 
+            float internalStructure = sin(p.x * 0.1 + time * 0.4) *
                                    sin(p.y * 0.1 + time * 0.3) * 0.3;
             particleDensity += internalStructure;
         }
@@ -123,7 +123,7 @@ float createFluidLayers(float2 p, float time, float ringRadius) {
     float preferredRadius = ringRadius;
     float ringAttraction = exp(-pow(distToCenter - preferredRadius, 2.0) / 2000.0);
     
-    float turbulence = sin(p.x * 0.02 + time * 0.45) * 
+    float turbulence = sin(p.x * 0.02 + time * 0.45) *
                      sin(p.y * 0.02 + time * 0.35) * 0.2;
     
     // Apply ring attraction to turbulence so it only appears in ring area
@@ -136,7 +136,7 @@ fragment float4 fragmentShader(float2 texCoord [[stage_in]],
                                constant float* uniforms [[buffer(0)]]) {
     float time = uniforms[0];
     float ringRadius = uniforms[1];
-    float isActivated = uniforms[3]; // 0.0 = deactivated, 1.0 = activated
+    float activationProgress = uniforms[3]; // 0.0 = deactivated, 1.0 = activated (SMOOTH)
     
     // Apply speed multiplier: 1.5x for both deactivated and activated
     float animationSpeed = 1.5;
@@ -159,15 +159,13 @@ fragment float4 fragmentShader(float2 texCoord [[stage_in]],
     // Apply sharp boundaries for defined fluid shapes - KEEPING EXACTLY THE SAME
     float sharpBoundary = smoothstep(0.1, 0.3, fluidDensity);
     
-    // Two-state system: just change brightness, keep same fluid simulation
-    float3 color;
-    if (isActivated > 0.5) {
-        // ACTIVATED MODE: Normal brightness (original behavior)
-        color = float3(sharpBoundary * 0.9 + 0.1);
-    } else {
-        // DEACTIVATED MODE: Same fluid simulation but much darker
-        color = float3(sharpBoundary * 0.3 + 0.05); // Much darker version
-    }
+    // SMOOTH INTERPOLATION: Mix between dark and bright based on activationProgress
+    float deactivatedBrightness = 0.38; // Dark version (27% brighter than original)
+    float activatedBrightness = 0.9;   // Bright version (like your current activated state)
+    
+    // Smoothly interpolate between the two brightness levels
+    float brightness = mix(deactivatedBrightness, activatedBrightness, activationProgress);
+    float3 color = float3(sharpBoundary * brightness + 0.05);
     
     // Create overlapping, transparent layers - KEEPING EXACTLY THE SAME
     float alpha = smoothstep(0.1, 0.3, fluidDensity);
