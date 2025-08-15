@@ -2,42 +2,39 @@ import SwiftUI
 
 // MARK: - Color Management System
 class AppearanceManager: ObservableObject {
+    static let shared = AppearanceManager()
+    
     @Published var visualizerHue: Double = 0.0 // 0-360 degrees
     @Published var visualizerSaturation: Double = 1.0 // 0-1
     @Published var visualizerBrightness: Double = 1.0 // 0-1
     
-    @Published var whiteTextHue: Double = 0.0 // For #EEEEEE
-    @Published var grayTextHue: Double = 0.0 // For #BBBBBB
-    @Published var redTextHue: Double = 0.0 // For #FF6B6B
-    @Published var orangeTextHue: Double = 30.0 // For #F8C762
-    @Published var greenTextHue: Double = 160.0 // For #3EBBA5
-    @Published var blueTextHue: Double = 220.0 // For #94A8E1
+    // Main UI colors that can be customized
+    @Published var redColorHue: Double = 0.0 // For #FF6B6B
+    @Published var orangeColorHue: Double = 30.0 // For #F8C762
+    @Published var greenColorHue: Double = 160.0 // For #3EBBA5
+    @Published var purpleColorHue: Double = 220.0 // For #94A8E1
     
     // Default colors (extracted from current app)
     static var defaultVisualizerColor: Color {
         // Using the exact color provided by the user
         return Color(hex: "#E4DAE5")
     }
-    static let defaultWhiteText = Color(hex: "#EEEEEE")
-    static let defaultGrayText = Color(hex: "#BBBBBB")
-    static let defaultRedText = Color(hex: "#FF6B6B")
-    static let defaultOrangeText = Color(hex: "#F8C762")
-    static let defaultGreenText = Color(hex: "#3EBBA5")
-    static let defaultBlueText = Color(hex: "#94A8E1")
+    static let defaultRedColor = Color(hex: "#FF6B6B")
+    static let defaultOrangeColor = Color(hex: "#F8C762")
+    static let defaultGreenColor = Color(hex: "#3EBBA5")
+    static let defaultPurpleColor = Color(hex: "#94A8E1")
     
-    init() {
+    private init() {
         // Initialize with the actual default HSB values for #E4DAE5
         visualizerHue = 300.0 // Purple hue (this is the actual default)
         visualizerSaturation = 0.06 // Low saturation for muted color
         visualizerBrightness = 0.90 // High brightness
         
-        // Initialize text colors
-        whiteTextHue = Self.defaultWhiteText.hsb.hue * 360
-        grayTextHue = Self.defaultGrayText.hsb.hue * 360
-        redTextHue = Self.defaultRedText.hsb.hue * 360
-        orangeTextHue = Self.defaultOrangeText.hsb.hue * 360
-        greenTextHue = Self.defaultGreenText.hsb.hue * 360
-        blueTextHue = Self.defaultBlueText.hsb.hue * 360
+        // Initialize main UI colors
+        redColorHue = Self.defaultRedColor.hsb.hue * 360
+        orangeColorHue = Self.defaultOrangeColor.hsb.hue * 360
+        greenColorHue = Self.defaultGreenColor.hsb.hue * 360
+        purpleColorHue = Self.defaultPurpleColor.hsb.hue * 360
     }
     
     func restoreDefaults() {
@@ -46,12 +43,10 @@ class AppearanceManager: ObservableObject {
         visualizerSaturation = 0.06 // Low saturation for muted color
         visualizerBrightness = 0.90 // High brightness
         
-        whiteTextHue = Self.defaultWhiteText.hsb.hue * 360
-        grayTextHue = Self.defaultGrayText.hsb.hue * 360
-        redTextHue = Self.defaultRedText.hsb.hue * 360
-        orangeTextHue = Self.defaultOrangeText.hsb.hue * 360
-        greenTextHue = Self.defaultGreenText.hsb.hue * 360
-        blueTextHue = Self.defaultBlueText.hsb.hue * 360
+        redColorHue = Self.defaultRedColor.hsb.hue * 360
+        orangeColorHue = Self.defaultOrangeColor.hsb.hue * 360
+        greenColorHue = Self.defaultGreenColor.hsb.hue * 360
+        purpleColorHue = Self.defaultPurpleColor.hsb.hue * 360
     }
     
     var currentVisualizerColor: Color {
@@ -70,90 +65,53 @@ class AppearanceManager: ObservableObject {
         return currentVisualizerColor.opacity(0.4)
     }
     
-    var currentWhiteTextColor: Color {
-        // Use the default white color when hue is at default, otherwise use the adjusted hue
-        if abs(whiteTextHue - (Self.defaultWhiteText.hsb.hue * 360)) < 1 {
-            return Self.defaultWhiteText
-        } else {
-            return Color(hue: whiteTextHue / 360, saturation: 0.3, brightness: 0.8)
-        }
+    // Main UI colors that affect buttons and UI elements
+    var currentRedColor: Color {
+        Color(hue: redColorHue / 360, saturation: 0.6, brightness: 0.7)
     }
     
-    var currentGrayTextColor: Color {
-        // Use the default gray color when hue is at default, otherwise use the adjusted hue
-        if abs(grayTextHue - (Self.defaultGrayText.hsb.hue * 360)) < 1 {
-            return Self.defaultGrayText
-        } else {
-            return Color(hue: grayTextHue / 360, saturation: 0.4, brightness: 0.6)
-        }
+    var currentOrangeColor: Color {
+        Color(hue: orangeColorHue / 360, saturation: 0.6, brightness: 0.7)
     }
     
-    var currentRedTextColor: Color {
-        Color(hue: redTextHue / 360, saturation: 0.6, brightness: 0.7)
+    var currentGreenColor: Color {
+        Color(hue: greenColorHue / 360, saturation: 0.5, brightness: 0.7)
     }
     
-    var currentOrangeTextColor: Color {
-        Color(hue: orangeTextHue / 360, saturation: 0.6, brightness: 0.7)
-    }
-    
-    var currentGreenTextColor: Color {
-        Color(hue: greenTextHue / 360, saturation: 0.5, brightness: 0.7)
-    }
-    
-    var currentBlueTextColor: Color {
-        Color(hue: blueTextHue / 360, saturation: 0.4, brightness: 0.7)
+    var currentPurpleColor: Color {
+        Color(hue: purpleColorHue / 360, saturation: 0.4, brightness: 0.7)
     }
 }
 
-// MARK: - Simple Color Picker
-struct SimpleColorPicker: View {
-    @Binding var hue: Double
-    @Binding var saturation: Double
-    @Binding var brightness: Double
-    
-    var body: some View {
-        VStack(spacing: 16) {
-            // Hue slider
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Hue")
-                    .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#BBBBBB"))
-                
-                CustomSlider(value: $hue, range: 0...360, accentColor: Color(hue: hue / 360, saturation: 1, brightness: 1))
-            }
-            
-            // Saturation slider
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Saturation")
-                    .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#BBBBBB"))
-                
-                CustomSlider(value: $saturation, range: 0...1, accentColor: Color(hue: hue / 360, saturation: saturation, brightness: brightness))
-            }
-            
-            // Brightness slider
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Brightness")
-                    .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#BBBBBB"))
-                
-                CustomSlider(value: $brightness, range: 0...1, accentColor: Color(hue: hue / 360, saturation: saturation, brightness: brightness))
-            }
-            
-            // Color preview
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(hue: hue / 360, saturation: saturation, brightness: brightness))
-                .frame(height: 60)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 4)
-                        .stroke(Color(hex: "#333333"), lineWidth: 1)
-                )
-        }
-        .padding()
-        .background(Color(hex: "#2A2A2A"))
-        .cornerRadius(4)
+// MARK: - Color Manager for App-wide Access
+class ColorManager: ObservableObject {
+    static let shared = ColorManager()
+    private let appearanceManager = AppearanceManager.shared
+
+    // Applied colors (change only when user taps Apply)
+    @Published private(set) var redColor: Color
+    @Published private(set) var orangeColor: Color
+    @Published private(set) var greenColor: Color
+    @Published private(set) var purpleColor: Color
+
+    private init() {
+        // Initialize with defaults
+        self.redColor = AppearanceManager.defaultRedColor
+        self.orangeColor = AppearanceManager.defaultOrangeColor
+        self.greenColor = AppearanceManager.defaultGreenColor
+        self.purpleColor = AppearanceManager.defaultPurpleColor
+    }
+
+    // Apply current editor values
+    func refreshColors() {
+        self.redColor = appearanceManager.currentRedColor
+        self.orangeColor = appearanceManager.currentOrangeColor
+        self.greenColor = appearanceManager.currentGreenColor
+        self.purpleColor = appearanceManager.currentPurpleColor
     }
 }
+
+// (Removed SimpleColorPicker - Control Unit Color editor is no longer used)
 
 struct CustomSlider: View {
     @Binding var value: Double
@@ -209,7 +167,7 @@ struct HueSlider: View {
             HStack {
                 Text(title)
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#BBBBBB"))
+                    .foregroundColor(currentColor)
                 
                 Spacer()
                 
@@ -229,112 +187,19 @@ struct HueSlider: View {
     }
 }
 
-// MARK: - Visualizer Test Sheet
-struct VisualizerTestSheet: View {
-    @Environment(\.dismiss) private var dismiss
-    let color: Color
-    @State private var isLoading = true
-    
-    var body: some View {
-        ZStack {
-            // Background
-            Color(hex: "#1D1D1D")
-                .ignoresSafeArea()
-            
-            VStack(spacing: 20) {
-                // Grab bar and close button
-                RoundedRectangle(cornerRadius: 2.5)
-                    .fill(Color(hex: "#666666"))
-                    .frame(width: 36, height: 5)
-                    .padding(.top, 8)
-                
-                HStack {
-                    Text("Control Color Preview")
-                        .font(.custom("IBMPlexMono", size: 18))
-                        .foregroundColor(Color(hex: "#EEEEEE"))
-                    Spacer()
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                            .frame(width: 32, height: 32)
-                            .contentShape(Rectangle())
-                    }
-                }
-                .padding(.horizontal, 20)
-                
-                if isLoading {
-                    // Loading state
-                    VStack(spacing: 16) {
-                        ProgressView()
-                            .scaleEffect(1.2)
-                            .tint(Color(hex: "#BBBBBB"))
-                        
-                        Text("Loading Control Unit...")
-                            .font(.custom("IBMPlexMono", size: 16))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                    }
-                } else {
-                    // Visualizer content
-                    VStack(spacing: 20) {
-                        Spacer()
-                            .frame(height: 30)
-                        
-                        // Simple visualizer representation
-                        ZStack {
-                            // Background
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color(hex: "#2A2A2A"))
-                                .frame(width: 200, height: 150)
-                            
-                            // Liquid effect simulation
-                            ZStack {
-                                Circle()
-                                    .fill(color.opacity(0.3))
-                                    .frame(width: 60, height: 60)
-                                    .offset(x: -20, y: -10)
-                                
-                                Circle()
-                                    .fill(color.opacity(0.6))
-                                    .frame(width: 45, height: 45)
-                                    .offset(x: 15, y: 10)
-                                
-                                Circle()
-                                    .fill(color)
-                                    .frame(width: 30, height: 30)
-                            }
-                        }
-                        
-                        Text("This shows how the control unit will look with the selected color")
-                            .font(.custom("IBMPlexMono", size: 14))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 20)
-                    }
-                }
-                
-                Spacer()
-            }
-            .padding(.top, 40)
-        }
-        .onAppear {
-            // Simulate loading time
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                isLoading = false
-            }
-        }
-    }
-}
+// (Removed VisualizerTestSheet - preview sheet no longer used)
 
 // MARK: - Main Appearance View
 struct AppearanceView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var appearanceManager = AppearanceManager()
+    @StateObject private var appearanceManager = AppearanceManager.shared
     @State private var hasChanges = false
-    @State private var showingVisualizerTest = false
+    @State private var hasVisualizerChanges = false
+    @State private var hasMainColorsChanges = false
+    @State private var suppressChangeTracking = false
+    // Removed visualizer preview/testing UI
     @StateObject private var visualizerState = VisualizerStateManager.shared
+    @StateObject private var colorManager = ColorManager.shared
     
     // Computed property for descriptive text based on selected visualizer
     private var descriptiveText: String {
@@ -344,7 +209,7 @@ struct AppearanceView: View {
         case .particle:
             return "Learned not to play the game...but it's always ready to change the rules."
         case .flowing:
-            return "Forged in the void, it operates with the cold indifference of the universe itself."
+            return "Forged in the void, it ventures to the unknown."
         }
     }
     
@@ -402,103 +267,57 @@ struct AppearanceView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 11)
                     
-                    // 30px spacing between sections
+                    // Extra spacing before Main UI Colors
                     Spacer()
                         .frame(height: 30)
+
+                    // Remove Control Unit Color editor and immediately continue to Main UI Colors
                     
-                    // Control Unit Section
-                    VStack(alignment: .leading, spacing: 20) {
-                        Text("Control Unit Color")
+                    // Main UI Colors Section
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("Main UI Colors")
                             .font(.custom("IBMPlexMono", size: 18))
                             .foregroundColor(Color(hex: "#EEEEEE"))
                         
-                        VStack(spacing: 16) {
-                            // Color picker
-                            SimpleColorPicker(
-                                hue: $appearanceManager.visualizerHue,
-                                saturation: $appearanceManager.visualizerSaturation,
-                                brightness: $appearanceManager.visualizerBrightness
-                            )
-                            .onChange(of: appearanceManager.visualizerHue) { _, _ in hasChanges = true }
-                            .onChange(of: appearanceManager.visualizerSaturation) { _, _ in hasChanges = true }
-                            .onChange(of: appearanceManager.visualizerBrightness) { _, _ in hasChanges = true }
-                            
-                            // Test Visualizer Button
-                            Button(action: {
-                                showingVisualizerTest = true
-                            }) {
-                                HStack {
-                                    Image(systemName: "testtube.2")
-                                        .font(.system(size: 16))
-                                    
-                                    Text("Test Control Unit Color")
-                                        .font(.custom("IBMPlexMono", size: 16))
-                                }
-                                .foregroundColor(hasChanges ? Color(hex: "#94A8E1") : Color(hex: "#888888"))
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(Color(hex: "#2A2A2A"))
-                                .cornerRadius(4)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .disabled(!hasChanges)
-                            .animation(.easeInOut(duration: 0.3), value: hasChanges)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    
-                    // 30px spacing between sections
-                    Spacer()
-                        .frame(height: 30)
-                    
-                    // Text Elements Section
-                    VStack(alignment: .leading, spacing: 20) {
-                        Text("Text Elements Color")
-                            .font(.custom("IBMPlexMono", size: 18))
-                            .foregroundColor(Color(hex: "#EEEEEE"))
-                        
+                        Text("These colors affect text and other UI elements.")
+                            .font(.custom("IBMPlexMono", size: 14))
+                            .foregroundColor(Color(hex: "#BBBBBB"))
+                            .multilineTextAlignment(.leading)
+                            .padding(.top, 8)
+                            .padding(.bottom, 16)
+
+                        // Forced gap before the first hex label
+                        Color.clear
+                            .frame(height: 16)
+
                         VStack(spacing: 16) {
                             HueSlider(
-                                title: "Primary Text",
-                                hue: $appearanceManager.whiteTextHue,
-                                currentColor: appearanceManager.currentWhiteTextColor
+                                title: appearanceManager.currentRedColor.hexString,
+                                hue: $appearanceManager.redColorHue,
+                                currentColor: appearanceManager.currentRedColor
                             )
-                            .onChange(of: appearanceManager.whiteTextHue) { _, _ in hasChanges = true }
+                            .onChange(of: appearanceManager.redColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
                             
                             HueSlider(
-                                title: "Secondary Text",
-                                hue: $appearanceManager.grayTextHue,
-                                currentColor: appearanceManager.currentGrayTextColor
+                                title: appearanceManager.currentOrangeColor.hexString,
+                                hue: $appearanceManager.orangeColorHue,
+                                currentColor: appearanceManager.currentOrangeColor
                             )
-                            .onChange(of: appearanceManager.grayTextHue) { _, _ in hasChanges = true }
+                            .onChange(of: appearanceManager.orangeColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
                             
                             HueSlider(
-                                title: "Text Color 1",
-                                hue: $appearanceManager.redTextHue,
-                                currentColor: appearanceManager.currentRedTextColor
+                                title: appearanceManager.currentGreenColor.hexString,
+                                hue: $appearanceManager.greenColorHue,
+                                currentColor: appearanceManager.currentGreenColor
                             )
-                            .onChange(of: appearanceManager.redTextHue) { _, _ in hasChanges = true }
+                            .onChange(of: appearanceManager.greenColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
                             
                             HueSlider(
-                                title: "Text Color 2",
-                                hue: $appearanceManager.orangeTextHue,
-                                currentColor: appearanceManager.currentOrangeTextColor
+                                title: appearanceManager.currentPurpleColor.hexString,
+                                hue: $appearanceManager.purpleColorHue,
+                                currentColor: appearanceManager.currentPurpleColor
                             )
-                            .onChange(of: appearanceManager.orangeTextHue) { _, _ in hasChanges = true }
-                            
-                            HueSlider(
-                                title: "Text Color 3",
-                                hue: $appearanceManager.greenTextHue,
-                                currentColor: appearanceManager.currentGreenTextColor
-                            )
-                            .onChange(of: appearanceManager.greenTextHue) { _, _ in hasChanges = true }
-                            
-                            HueSlider(
-                                title: "Text Color 4",
-                                hue: $appearanceManager.blueTextHue,
-                                currentColor: appearanceManager.currentBlueTextColor
-                            )
-                            .onChange(of: appearanceManager.blueTextHue) { _, _ in hasChanges = true }
+                            .onChange(of: appearanceManager.purpleColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
                         }
                     }
                     .padding(.horizontal, 20)
@@ -508,8 +327,20 @@ struct AppearanceView: View {
                     VStack(spacing: 12) {
                         // Restore Defaults Button
                         Button(action: {
+                            // Prevent onChange handlers from re-activating Apply during reset
+                            suppressChangeTracking = true
+                            // Reset editor values to defaults
                             appearanceManager.restoreDefaults()
-                            hasChanges = true
+                            // Immediately apply defaults app-wide
+                            colorManager.refreshColors()
+                            // Clear change flags since we're now in a clean default state
+                            hasVisualizerChanges = false
+                            hasMainColorsChanges = false
+                            hasChanges = false
+                            // Re-enable change tracking after state settles
+                            DispatchQueue.main.async {
+                                suppressChangeTracking = false
+                            }
                         }) {
                             Text("Restore Defaults")
                                 .font(.custom("IBMPlexMono", size: 16))
@@ -523,13 +354,16 @@ struct AppearanceView: View {
                         
                         // Apply Changes Button
                         Button(action: {
-                            // TODO: Apply changes to the app
+                            // Apply changes by refreshing the ColorManager
+                            colorManager.refreshColors()
+                            hasVisualizerChanges = false
+                            hasMainColorsChanges = false
                             hasChanges = false
                             dismiss()
                         }) {
                             Text("Apply Changes")
                                 .font(.custom("IBMPlexMono", size: 16))
-                                .foregroundColor(hasChanges ? Color(hex: "#3EBBA5") : Color(hex: "#888888"))
+                                .foregroundColor(hasChanges ? ColorManager.shared.greenColor : Color(hex: "#888888"))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
                                 .background(Color(hex: "#2A2A2A"))
@@ -585,10 +419,6 @@ struct AppearanceView: View {
                 .background(Color(hex: "#1D1D1D"))
             }
         }
-        .sheet(isPresented: $showingVisualizerTest) {
-            VisualizerTestSheet(color: appearanceManager.currentVisualizerColor)
-                .presentationDetents([.medium])
-        }
     }
 }
 
@@ -603,5 +433,19 @@ extension Color {
         UIColor(self).getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
         
         return (Double(hue), Double(saturation), Double(brightness))
+    }
+
+    // Hex string helper (RGB) for live titles
+    var hexString: String {
+        let uiColor = UIColor(self)
+        var r: CGFloat = 0
+        var g: CGFloat = 0
+        var b: CGFloat = 0
+        var a: CGFloat = 0
+        uiColor.getRed(&r, green: &g, blue: &b, alpha: &a)
+        let ri = Int(round(r * 255))
+        let gi = Int(round(g * 255))
+        let bi = Int(round(b * 255))
+        return String(format: "#%02X%02X%02X", ri, gi, bi)
     }
 } 

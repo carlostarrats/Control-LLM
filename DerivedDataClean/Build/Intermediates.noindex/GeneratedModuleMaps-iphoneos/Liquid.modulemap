@@ -1,4 +1,0 @@
-module Liquid {
-header "Liquid-Swift.h"
-export *
-}

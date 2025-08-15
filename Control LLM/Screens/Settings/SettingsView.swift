@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var showingAppearance = false
     @State private var showingVoice = false
     @State private var showingLanguage = false
+    @State private var currentLanguage: String = LanguageService.shared.selectedLanguage
 
     @State private var showingHistory = false
     @State private var showingFAQ = false
@@ -52,7 +53,7 @@ struct SettingsView: View {
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .padding(.top, 40)
                             
-                            Text("Made by Control.Design")
+                            Text(NSLocalizedString("Made by Control.Design", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 14))
                                 .foregroundColor(Color(hex: "#666666"))
                                 .frame(maxWidth: .infinity, alignment: .center)
@@ -64,14 +65,7 @@ struct SettingsView: View {
                 
                 Spacer()
                 
-                // Privacy notice text
-                Text("This app stores all data on your device only — nothing is saved or shared, and no account exists. To remove all data, delete the app.")
-                    .font(.custom("IBMPlexMono", size: 12))
-                    .foregroundColor(Color(hex: "#666666"))
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 40)
+                // Privacy notice text removed
             }
             .safeAreaInset(edge: .top) {
                 // iOS standard header overlay
@@ -90,7 +84,7 @@ struct SettingsView: View {
                                 .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                             
-                            Text("Settings")
+                            Text(NSLocalizedString("Settings", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 20))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                         }
@@ -164,6 +158,7 @@ struct SettingsView: View {
                     }
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .languageDidChange)) { _ in }
     }
     
     private var settingsItems: [SettingsItem] {
@@ -172,7 +167,7 @@ struct SettingsView: View {
             // Agents removed
             SettingsItem(title: "Appearance", symbol: "paintbrush.pointed", action: { showingAppearance = true }),
             SettingsItem(title: "Voice", symbol: "bubble.left", action: { showingVoice = true }),
-            SettingsItem(title: "Language", symbol: "globe", action: { showingLanguage = true }),
+            SettingsItem(title: NSLocalizedString("Language", comment: ""), symbol: "globe", action: { showingLanguage = true }),
 
             SettingsItem(title: "Chat History", symbol: "list.bullet", action: { showingHistory = true }),
             SettingsItem(title: "FAQs", symbol: "info.circle", action: { showingFAQ = true }),
@@ -189,61 +184,62 @@ struct SettingsItem: Identifiable {
 }
 
 struct SettingsItemView: View {
-    let item: SettingsItem
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            Button(action: item.action) {
-                HStack {
-                    Image(systemName: item.symbol)
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
-                        .frame(width: 20)
-                    
-                    VStack(alignment: .leading, spacing: 2) {
-                        // Show language with current selection on same line
-                        if item.title == "Language" {
-                            HStack(spacing: 4) {
-                                Text(item.title)
-                                    .font(.custom("IBMPlexMono", size: 16))
-                                    .foregroundColor(Color(hex: "#EEEEEE"))
-                                
-                                Text(":")
-                                    .font(.custom("IBMPlexMono", size: 16))
-                                    .foregroundColor(Color(hex: "#EEEEEE"))
-                                
-                                Text(LanguageService.shared.selectedLanguage)
-                                    .font(.custom("IBMPlexMono", size: 16))
-                                    .foregroundColor(Color(hex: "#666666"))
-                            }
+	let item: SettingsItem
+	@ObservedObject private var languageService = LanguageService.shared
+	
+	var body: some View {
+		VStack(spacing: 0) {
+			Button(action: item.action) {
+				HStack {
+					Image(systemName: item.symbol)
+						.font(.system(size: 16, weight: .medium))
+						.foregroundColor(Color(hex: "#BBBBBB"))
+						.frame(width: 20)
+					
+					VStack(alignment: .leading, spacing: 2) {
+						// Show language with current selection on same line
+						if item.title == "Language" {
+							HStack(spacing: 4) {
+								Text(NSLocalizedString(item.title, comment: ""))
+									.font(.custom("IBMPlexMono", size: 16))
+									.foregroundColor(Color(hex: "#EEEEEE"))
+								
+								Text(":")
+									.font(.custom("IBMPlexMono", size: 16))
+									.foregroundColor(Color(hex: "#EEEEEE"))
+								
+								Text(languageService.selectedLanguage)
+									.font(.custom("IBMPlexMono", size: 16))
+									.foregroundColor(Color(hex: "#EEEEEE"))
+							}
 
-                        } else {
-                            Text(item.title)
-                                .font(.custom("IBMPlexMono", size: 16))
-                                .foregroundColor(Color(hex: "#EEEEEE"))
-                                .multilineTextAlignment(.leading)
-                        }
-                    }
-                    
-                    Spacer()
-                    
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
-                }
-                .padding(.horizontal, 4)
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .frame(maxWidth: .infinity)
-            
-            // Horizontal line under each item
-            Rectangle()
-                .fill(Color(hex: "#333333"))
-                .frame(height: 1)
-        }
-        .frame(maxWidth: .infinity)
-    }
+						} else {
+							Text(NSLocalizedString(item.title, comment: ""))
+								.font(.custom("IBMPlexMono", size: 16))
+								.foregroundColor(Color(hex: "#EEEEEE"))
+								.multilineTextAlignment(.leading)
+						}
+					}
+					
+					Spacer()
+					
+					Image(systemName: "chevron.right")
+						.font(.system(size: 12))
+						.foregroundColor(Color(hex: "#BBBBBB"))
+				}
+				.padding(.horizontal, 4)
+				.padding(.vertical, 12)
+				.frame(maxWidth: .infinity, alignment: .leading)
+			}
+			.frame(maxWidth: .infinity)
+			
+			// Horizontal line under each item
+			Rectangle()
+				.fill(Color(hex: "#333333"))
+				.frame(height: 1)
+		}
+		.frame(maxWidth: .infinity)
+	}
 }
 
 struct ToastView: View {
@@ -269,7 +265,7 @@ struct ToastView: View {
             .padding(.horizontal, 24)
             .padding(.vertical, 20)
             .background(
-                Color(hex: "#FF6B6B")
+                ColorManager.shared.redColor
                     .opacity(0.9)
             )
             .cornerRadius(4)

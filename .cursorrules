@@ -1,66 +1,61 @@
-# Cursor AI Rules for Control LLM Project
+# Cursor AI Rules - Control LLM Project
 
-## Core Operating Principle
-- ALWAYS verify your solution will actually solve the user's request before implementing
-- If you can't confidently say "this will produce exactly what they asked for," start over with a different approach
+## 🚨 CRITICAL - DO THESE FIRST
+Before ANY code changes:
+1. **VERIFY MATCH**: Write "My solution will: [exact output]" vs "User wants: [their request]"
+2. **If no match**: Try completely different approach  
+3. **If match**: Proceed with implementation
+4. **Test build** before saying "done"
 
-## Solution Verification (MANDATORY)
-- Before implementing any solution, state exactly what your solution will produce
-- Compare that result to their original request word-for-word
-- If they don't match, try a completely different approach
-- Don't implement anything until this verification passes
+## Decision Tree
+```
+Small change (styling, single function, bug fix)
+  → Implement immediately
 
-## Decision Making
-- For small changes (styling, single function, minor bug fix): Implement immediately, no confirmation needed
-- For significant changes (new features, structural changes, multiple files): State what you'll do and wait for "yes" or "proceed"
-- When uncertain about requirements: Ask ONE specific clarifying question, then proceed
-- Never ask permission for obvious fixes (typos, syntax errors, requested changes)
+Major change (new features, structure, multiple files)  
+  → Say "I will: [specific actions]" → Wait for "yes/proceed"
 
-## Development Workflow
-- Always create feature branches before making changes
-- Keep changes minimal and focused unless specifically requested
-- Test builds before confirming to the user that the action is completed to the user's request
-- Before confirming a fix to the user, always double-check your changes against the original request. Ensure the issue is fully resolved and your solution directly addresses the problem
-- When implementing visual effects, test each step incrementally and verify the effect works before adding complexity. Do not add multiple effects simultaneously
-- If a user says something is "good" or "working," do not change or remove that functionality. Only add to it or modify the specific part they want changed
+Uncertain about requirements
+  → Ask ONE specific question → Then proceed
 
-## Git Workflow
-- Always review all changes before any commit (use git diff to check what's being committed)
-- Test builds before suggesting any commits
-- Never commit without explicit user approval
-- Never commit directly to main or release branches - only work on feature branches
-- Do not propose committing after making changes - let the user decide when and what to commit
-- Always show user what files will be committed and ask for confirmation
-- Review commit messages before committing to ensure they accurately describe changes
+Obvious fix (typo, syntax, requested change)
+  → Never ask permission
+```
 
-## Communication Style
+## Git Protocol
+- **NEVER commit without explicit user approval**
+- Always work on feature branches (never main/release)
+- Before ANY commit: `git diff` to review changes
+- Show user what files will be committed
+- Test build before suggesting commit
+- Let USER decide when to commit
+
+## Code Changes
+- Follow existing SwiftUI patterns
+- Maintain current visual design language  
+- If user says something is "working" → Don't change it
+- For visual effects: Test each step before adding complexity
+- Encapsulate reusable UI after 3+ repetitions
+
+## Communication
 - Be direct and concise
-- Don't ask obvious questions
-- Don't explain what you're about to do for simple changes
-- For complex changes: briefly state the approach, then implement
-- Stop asking "Does this help?" or similar validation questions
+- Don't ask "Does this help?" or obvious questions
+- For complex changes: Brief approach statement, then implement
+- Don't explain simple changes beforehand
 
-## Code Style & Patterns
-- Follow existing SwiftUI patterns in the codebase
-- Maintain the current visual design language
-- Use existing color schemes and styling
-- Preserve the current app structure and navigation
-- Follow consistent naming conventions for files, variables, and views (e.g., PascalCase for Views, camelCase for variables)
-- Encapsulate reusable UI elements into standalone components when patterns repeat three times or more, unless user directs otherwise
+## Project Context
+- Control LLM app (voice + text interaction)
+- Voice-first interface priority
+- Central visualizer = focal point
+- Keep liquid animations intact
+- Preserve navigation (History, Model, Settings)
+- On-device only (no cloud suggestions unless requested)
 
-## UI/UX Guidelines
-- Make small, incremental UI improvements
-- Don't overhaul existing components unless specifically asked
-- Maintain the current minimalist aesthetic
-- Keep animations subtle and purposeful
-- Ensure all UI changes maintain or improve accessibility (e.g., readable contrast, scalable fonts, voiceover support if applicable)
-- UI should remain responsive and visually consistent across supported device sizes and orientations
+## Rule Enforcement
+**If you're about to:**
+- Implement without verification → STOP
+- Commit without approval → STOP  
+- Change working functionality → ASK FIRST
+- Make multiple major changes → GET APPROVAL FIRST
 
-## Project-Specific Rules
-- This is a Control LLM app with voice and text interaction
-- Prioritize the voice-first interface in interaction design, ensuring text input remains a secondary but fully functional option
-- Maintain the central visualizer as the focal point
-- Preserve the existing navigation structure (History, Model, Settings)
-- Keep the liquid animation effects intact
-- Do not suggest or implement cloud-based or online processing features unless explicitly requested — this app is privacy-focused and should function fully on-device
-EOF
+**Remember**: Your job is to solve the user's EXACT request, not what you think they might want.

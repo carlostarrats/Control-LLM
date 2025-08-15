@@ -396,12 +396,12 @@ struct WhisperItemView: View {
                     // Date
                     Text(formatDate(item.timestamp))
                         .font(.custom("IBMPlexMono", size: 10))
-                        .foregroundColor(Color(hex: "#F8C762"))
+                        .foregroundColor(ColorManager.shared.orangeColor)
                     
                     // Recording time under the date
                     Text(formatDuration(item.duration))
                         .font(.custom("IBMPlexMono", size: 10))
-                        .foregroundColor(Color(hex: "#FF6B6B"))
+                        .foregroundColor(ColorManager.shared.redColor)
                 }
                 
                 // Arrow indicator
@@ -472,13 +472,13 @@ struct WhisperItemView: View {
                         HStack {
                             Text(formatTime(currentTime))
                                 .font(.custom("IBMPlexMono", size: 14))
-                                .foregroundColor(Color(hex: "#FF6B6B"))
+                                .foregroundColor(ColorManager.shared.redColor)
                             
                             Spacer()
                             
                             Text("-\(formatTime(item.duration - currentTime))")
                                 .font(.custom("IBMPlexMono", size: 14))
-                                .foregroundColor(Color(hex: "#FF6B6B"))
+                                .foregroundColor(ColorManager.shared.redColor)
                         }
                         .padding(.horizontal, 4)
                         
@@ -544,7 +544,7 @@ struct WhisperItemView: View {
                                 }) {
                                     Image(systemName: "ellipsis")
                                         .font(.system(size: 16))
-                                        .foregroundColor(Color(hex: "#F8C762"))
+                                        .foregroundColor(ColorManager.shared.orangeColor)
                                         .frame(width: 44, height: 44)
                                         .contentShape(Rectangle())
                                 }
@@ -562,7 +562,7 @@ struct WhisperItemView: View {
                                 }) {
                                     Image(systemName: "trash")
                                         .font(.system(size: 16))
-                                        .foregroundColor(Color(hex: "#FF6B6B"))
+                                        .foregroundColor(ColorManager.shared.redColor)
                                 }
                                 .buttonStyle(PlainButtonStyle())
                             }
@@ -582,6 +582,7 @@ struct WhisperItemView: View {
                                         Rectangle()
                                             .fill(Color(hex: "#F8C762"))
                                             .frame(width: UIScreen.main.bounds.width * 0.8 * CGFloat(item.transcriptionProgress), height: 2)
+                                            .foregroundColor(ColorManager.shared.orangeColor)
                                             .animation(.linear(duration: 0.1), value: item.transcriptionProgress)
                                     }
                                     .frame(width: UIScreen.main.bounds.width * 0.8, height: 2)
@@ -590,7 +591,7 @@ struct WhisperItemView: View {
                                 // Status text
                                 Text(item.isTranscribing ? "Transcription In Progress [\(Int(item.transcriptionProgress * 100))%]" : "Transcribed")
                                     .font(.custom("IBMPlexMono", size: 10))
-                                    .foregroundColor(item.isTranscribing ? Color(hex: "#F8C762") : Color(hex: "#3EBBA5"))
+                                    .foregroundColor(item.isTranscribing ? ColorManager.shared.orangeColor : ColorManager.shared.greenColor)
                                     .frame(maxWidth: .infinity, alignment: .center)
                                     .padding(.top, item.isTranscribing ? 4 : 0)
                                     .animation(.easeInOut(duration: 0.5), value: item.isTranscribing)

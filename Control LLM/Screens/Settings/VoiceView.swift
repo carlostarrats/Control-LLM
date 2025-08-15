@@ -47,7 +47,7 @@ struct VoiceView: View {
                                 .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                             
-                            Text("Voice")
+                            Text(NSLocalizedString("Voice", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 20))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                         }
@@ -71,7 +71,7 @@ struct VoiceView: View {
 
                     // Sub copy under headline
                     HStack {
-                        Text("iOS System Voices")
+                        Text(NSLocalizedString("iOS System Voices", comment: ""))
                             .font(.custom("IBMPlexMono", size: 12))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                         Spacer()

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SettingsModelsView: View {
+    @EnvironmentObject var colorManager: ColorManager
     @Environment(\.dismiss) private var dismiss
     @StateObject private var modelManager = ModelManager.shared
     @State private var selectedModelsToDownload: Set<String> = []
@@ -24,9 +25,9 @@ struct SettingsModelsView: View {
                     
                     // INSTALLED section
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("INSTALLED")
+                        Text(NSLocalizedString("INSTALLED", comment: ""))
                             .font(.custom("IBMPlexMono", size: 12))
-                            .foregroundColor(Color(hex: "#F8C762"))
+                            .foregroundColor(colorManager.orangeColor)
                             .padding(.horizontal, 24)
                         
                         VStack(spacing: 0) {
@@ -55,16 +56,16 @@ struct SettingsModelsView: View {
                 
                 // Available Downloads section
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("AVAILABLE DOWNLOADS")
+                        Text(NSLocalizedString("AVAILABLE DOWNLOADS", comment: ""))
                             .font(.custom("IBMPlexMono", size: 12))
-                            .foregroundColor(Color(hex: "#F8C762"))
+                            .foregroundColor(colorManager.orangeColor)
                             .padding(.horizontal, 24)
                         
                         VStack(spacing: 0) {
                             if availableDownloadModels.isEmpty {
                                 // Show "Already Installed" when no downloads available
                                 HStack {
-                                    Text("All Available Installed")
+                                    Text(NSLocalizedString("All Available Installed", comment: ""))
                                         .font(.custom("IBMPlexMono", size: 16))
                                         .foregroundColor(Color(hex: "#666666"))
                                         .multilineTextAlignment(.leading)
@@ -125,11 +126,11 @@ struct SettingsModelsView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "checklist")
                             .font(.system(size: 16))
-                            .foregroundColor(Color(hex: "#FF6B6B"))
+                            .foregroundColor(colorManager.redColor)
                         
-                        Text("Manage Unused Models")
+                        Text(NSLocalizedString("Manage Unused Models", comment: ""))
                             .font(.custom("IBMPlexMono", size: 16))
-                            .foregroundColor(Color(hex: "#FF6B6B"))
+                            .foregroundColor(colorManager.redColor)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -154,7 +155,7 @@ struct SettingsModelsView: View {
                                 .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                             
-                            Text("Models")
+                            Text(NSLocalizedString("Models", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 20))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                         }
@@ -272,7 +273,7 @@ struct InstalledLLMModelView: View {
                         HStack {
                             Text(model.size)
                                 .font(.custom("IBMPlexMono", size: 10))
-                                .foregroundColor(Color(hex: "#FF6B6B"))
+                                .foregroundColor(ColorManager.shared.redColor)
                             
                             Text("•")
                                 .font(.custom("IBMPlexMono", size: 10))
@@ -329,6 +330,7 @@ struct AvailableModelView: View {
     let downloadProgress: Double
     let onToggle: () -> Void
     let onDownload: () -> Void
+    @EnvironmentObject var colorManager: ColorManager
     
     var body: some View {
         VStack(spacing: 0) {
@@ -343,7 +345,7 @@ struct AvailableModelView: View {
                         
                         Text(model.size)
                             .font(.custom("IBMPlexMono", size: 10))
-                            .foregroundColor(Color(hex: "#FF6B6B"))
+                            .foregroundColor(colorManager.redColor)
                             .multilineTextAlignment(.leading)
                     }
                     
@@ -353,7 +355,7 @@ struct AvailableModelView: View {
                     Button(action: onDownload) {
                         Image(systemName: isDownloading ? "stop.square" : "arrow.down.square")
                             .font(.system(size: 20))
-                            .foregroundColor(isDownloading ? Color(hex: "#FF6B6B") : Color(hex: "#BBBBBB"))
+                            .foregroundColor(isDownloading ? colorManager.redColor : Color(hex: "#BBBBBB"))
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
@@ -381,7 +383,7 @@ struct AvailableModelView: View {
                     // Progress text
                     Text("Installing [\(Int(downloadProgress * 100))%]")
                         .font(.custom("IBMPlexMono", size: 10))
-                        .foregroundColor(Color(hex: "#F8C762"))
+                        .foregroundColor(colorManager.orangeColor)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.top, 4)
                         .padding(.bottom, 12)
@@ -421,7 +423,7 @@ struct UnusedModelsSheet: View {
                     // Description
                     Text(unusedModels.isEmpty ? "No Unused Models" : "Delete your unused models.")
                         .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(unusedModels.isEmpty ? Color(hex: "#FF6B6B") : Color(hex: "#EEEEEE"))
+                        .foregroundColor(unusedModels.isEmpty ? ColorManager.shared.redColor : Color(hex: "#EEEEEE"))
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 20)
@@ -459,7 +461,7 @@ struct UnusedModelsSheet: View {
                         }) {
                             Text(selectedModels.count <= 1 ? "Delete Model" : "Delete Models")
                                 .font(.custom("IBMPlexMono", size: 16))
-                                .foregroundColor(Color(hex: "#FF6B6B"))
+                                .foregroundColor(ColorManager.shared.redColor)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
                                 .background(Color(hex: "#2A2A2A"))

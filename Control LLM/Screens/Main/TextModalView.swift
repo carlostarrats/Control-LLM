@@ -13,7 +13,7 @@ struct TextModalView: View {
         print("🔍 TextModalView init")
         self.viewModel = viewModel
         self._isPresented = isPresented
-        self.messageHistory = messageHistory
+        self.messageHistory = messageHistory ?? []
     }
 
     // UI state
@@ -24,6 +24,7 @@ struct TextModalView: View {
     @State private var showingDocumentPicker = false
     @State private var showDateHeader = false
     var messageHistory: [ChatMessage]?
+    @EnvironmentObject var colorManager: ColorManager
 
     // MARK: body -------------------------------------------------------------
     var body: some View {
@@ -140,11 +141,11 @@ struct TextModalView: View {
     private var messageList: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(spacing: 24) {
+                 LazyVStack(spacing: 24) {
                     if !viewModel.messages.isEmpty && showDateHeader { 
                         DateHeaderView(firstMessageTime: viewModel.messages.first?.timestamp) 
                     }
-                    ForEach(viewModel.messages) { MessageBubble(message: $0).id($0.id) }
+                     ForEach(viewModel.messages) { MessageBubble(message: $0).id($0.id) }
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 20)
@@ -167,16 +168,17 @@ struct TextModalView: View {
     private var inputBar: some View {
         VStack {
             HStack(alignment: .bottom, spacing: 12) {
-                // File picker button
-                Button { showingDocumentPicker = true } label: {
+                // Plus button
+                Button(action: {
+                    showingDocumentPicker = true
+                }) {
                     Image(systemName: "plus")
-                        .font(.system(size: 16, weight: .medium)) // Consistent sizing
-                        .foregroundColor(Color(hex: "#3EBBA5"))
-                        .frame(width: 44, height: 44)
-                        .background(Color(hex: "#141414")) // New color
-                        .cornerRadius(4)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(colorManager.greenColor)
+                        .frame(width: 32, height: 32)
+                        .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PlainButtonStyle())
                 .fileImporter(
                     isPresented: $showingDocumentPicker,
                     allowedContentTypes: [.text, .plainText, .data],
@@ -193,18 +195,16 @@ struct TextModalView: View {
                 }
 
                 // Text field
-                TextField("", text: $messageText, axis: .vertical)
+                TextField("Type your message...", text: $messageText, axis: .vertical)
                     .font(.custom("IBMPlexMono", size: 16))
-                    .foregroundColor(Color(hex: "#94A8E1"))
+                    .foregroundColor(colorManager.purpleColor)
                     .padding(.horizontal, 16)
-                    .padding(.trailing, trailingPadding)
                     .padding(.vertical, 12)
-                    .background(Color(hex: "#141414")) // New color
+                    .background(Color(hex: "#2A2A2A"))
                     .cornerRadius(4)
-                    .accentColor(.white)
-                    .focused($isTextFieldFocused)
-                    .onSubmit {
-                        // DO NOTHING to allow return key for new lines
+                    .tint(Color(hex: "#EEEEEE"))
+                    .onTapGesture {
+                        isTextFieldFocused = true
                     }
                     .overlay(placeholderOverlay.allowsHitTesting(false), alignment: .leading) // Fix placeholder tap issue
                     .overlay(sendButtonOverlay, alignment: .bottomTrailing) // Anchor to bottom-right
@@ -250,7 +250,7 @@ struct TextModalView: View {
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(Color(hex: "#1D1D1D"))
                     .frame(width: 32, height: 32)
-                    .background(Color(hex: "#94A8E1"))
+                    .background(colorManager.purpleColor)
                     .cornerRadius(4)
             }
             .buttonStyle(.plain)
@@ -402,6 +402,8 @@ struct TextModalView: View {
                 print("🔍 TextModalView: Setting message content to: '\(viewModel.llm.transcript)'")
                 // Mutate the last assistant bubble in place (no array replacement)
                 viewModel.messages[idx].content = viewModel.llm.transcript
+                // Auto-save after first full exchange
+                viewModel.autoSaveIfNeeded()
                 print("🔍 TextModalView: Message updated successfully")
             } else {
                 print("🔍 TextModalView: Creating new assistant message")
@@ -414,6 +416,8 @@ struct TextModalView: View {
                     messageType: .text
                 )
                 viewModel.messages.append(bot)
+                // Auto-save after first full exchange
+                viewModel.autoSaveIfNeeded()
                 print("🔍 TextModalView: New message created and added")
             }
         } else {
@@ -495,9 +499,10 @@ struct TextModalView: View {
 struct MessageBubble: View {
     let message: ChatMessage
     @State private var isVisible = false
+    @EnvironmentObject var colorManager: ColorManager
 
     var body: some View {
-        HStack {
+        HStack(spacing: 0) {
             if message.isUser { Spacer() }
             VStack(alignment: message.isUser ? .trailing : .leading, spacing: (message.isUser && !message.content.isEmpty) ? 4 : 0) {
                 if message.messageType == .file {
@@ -508,22 +513,24 @@ struct MessageBubble: View {
                         ThinkingAnimationView()
                     } else {
                         if message.isUser {
-                            // User messages show normally
+                            // User messages: dark bubble, purple text
                             Text(message.content)
-                                .font(.custom("IBMPlexMono", size: 16))
-                                .lineLimit(nil)
+                                .font(.custom("IBMPlexMono", size: 14))
+                                .foregroundColor(colorManager.purpleColor)
                                 .multilineTextAlignment(.leading)
-                                .padding(.horizontal, 16).padding(.vertical, 10)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
                                 .background(Color(hex: "#2A2A2A"))
                                 .cornerRadius(4)
-                                .foregroundColor(Color(hex: "#94A8E1"))
                         } else {
-                            // LLM messages without background
+                            // Assistant messages: no bubble, plain text
                             Text(message.content)
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .lineLimit(nil)
                                 .multilineTextAlignment(.leading)
                                 .foregroundColor(Color(hex: "#EEEEEE"))
+                                // Align with header keyboard icon (content inset is already 20pt)
+                                .padding(.leading, 2)
                         }
                     }
                 }
@@ -584,7 +591,7 @@ struct DateHeaderView: View {
             Spacer()
             Text(formattedDateAndTime())
                 .font(.custom("IBMPlexMono", size: 12))
-                .foregroundColor(Color(hex: "#F8C762"))
+                .foregroundColor(ColorManager.shared.orangeColor)
             Spacer()
         }
         .padding(.top, 20).padding(.bottom, 10)

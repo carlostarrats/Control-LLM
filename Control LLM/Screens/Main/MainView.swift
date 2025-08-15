@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
+    @EnvironmentObject var colorManager: ColorManager
     
     init() {
         NSLog("🔍 MainView init")
@@ -132,7 +133,7 @@ struct MainView: View {
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(Color(hex: "#1D1D1D"))
                                     .frame(width: 48, height: 48) // Fixed square size
-                                    .background(Color(hex: "#F8C762"))
+                                    .background(colorManager.orangeColor)
                                     .cornerRadius(4, corners: [.topLeft, .bottomLeft]) // Only left corners
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -145,7 +146,7 @@ struct MainView: View {
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(Color(hex: "#1D1D1D"))
                                     .frame(width: 48, height: 48) // Fixed square size
-                                    .background(Color(hex: "#94A8E1"))
+                                    .background(colorManager.purpleColor)
                                     .cornerRadius(0) // No corners
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -158,7 +159,7 @@ struct MainView: View {
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(Color(hex: "#1D1D1D"))
                                     .frame(width: 48, height: 48) // Fixed square size
-                                    .background(Color(hex: "#3EBBA5"))
+                                    .background(colorManager.greenColor)
                                     .cornerRadius(4, corners: [.topRight, .bottomRight]) // Only right corners
                             }
                             .buttonStyle(PlainButtonStyle())

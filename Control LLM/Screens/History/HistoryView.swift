@@ -123,7 +123,7 @@ struct HistoryEntryView: View {
             HStack {
                 Text(entry.date)
                     .font(.custom("IBMPlexMono", size: 12))
-                    .foregroundColor(Color(hex: "#F8C762"))
+                    .foregroundColor(ColorManager.shared.orangeColor)
                 Spacer()
             }
             
@@ -179,7 +179,7 @@ struct ChatSummaryView: View {
                             // Timestamp
                             Text(chat.timestamp)
                                 .font(.custom("IBMPlexMono", size: 10))
-                                .foregroundColor(Color(hex: "#FF6B6B"))
+                                .foregroundColor(ColorManager.shared.redColor)
                                 .padding(.horizontal, 0)
                         }
                         
@@ -223,22 +223,22 @@ struct ExpandedSummaryView: View {
     var body: some View {
         // Expanded summary content (no separate vertical line needed)
         VStack(spacing: 16) { // 16px between summary text and button (doubled from 8px)
-            Text(summary.content)
+                Text(summary.content)
                 .font(.custom("IBMPlexMono", size: 14))
-                .foregroundColor(Color(hex: "#F8C762"))
+                .foregroundColor(ColorManager.shared.orangeColor)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             // Continue Chat button
-            Button(action: onContinueChat) {
+                Button(action: onContinueChat) {
                 HStack(spacing: 6) {
                     Image(systemName: "sparkles")
                         .font(.system(size: 16))
-                        .foregroundColor(Color(hex: "#94A8E1"))
+                            .foregroundColor(ColorManager.shared.purpleColor)
                     
                     Text(summary.buttonText)
                         .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(Color(hex: "#94A8E1"))
+                            .foregroundColor(ColorManager.shared.purpleColor)
                 }
             }
             .buttonStyle(PlainButtonStyle())

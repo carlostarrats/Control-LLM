@@ -72,7 +72,7 @@ struct UISettingsTab: View {
                     viewModel.resetToDefaults()
                 }
                 .frame(maxWidth: .infinity)
-                .foregroundColor(Color(hex: "#F8C762"))
+                .foregroundColor(ColorManager.shared.orangeColor)
             }
         }
     }

@@ -9,7 +9,7 @@ struct FAQView: View {
                 .ignoresSafeArea()
 
             ScrollView {
-                VStack(spacing: 8) {
+                VStack(spacing: 20) {
                     VStack(spacing: 0) {
                         ForEach(faqItems, id: \.question) { item in
                             FAQItemView(item: item)
@@ -33,7 +33,7 @@ struct FAQView: View {
                                 .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
 
-                            Text("FAQs")
+                            Text(NSLocalizedString("FAQs", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 20))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                         }
@@ -63,20 +63,16 @@ struct FAQView: View {
     private var faqItems: [FAQItem] {
         [
             FAQItem(
-                question: "How does voice work?",
-                answer: "Voice input is only on the main screen. Speak, then press the sparkle to process. The reply is spoken and saved to chat."
+                question: "How It Works",
+                answer: "Voice input is only available on the main screen. Speak, then press the sparkle button to allow the LLM to process your input. The reply is both spoken and saved in chat."
             ),
             FAQItem(
-                question: "Is chat text-only?",
-                answer: "Yes. The chat window is text-only and shows the full conversation history."
+                question: "Voice Recorder (Whisper)",
+                answer: "Allows saving recordings and transcription on device with the ability to share."
             ),
             FAQItem(
-                question: "Are my chats private?",
-                answer: "All data stays on-device. Nothing is uploaded or shared. Delete the app to remove all data."
-            ),
-            FAQItem(
-                question: "Which voices are available?",
-                answer: "The Voice settings list the iOS system voices installed on your device. If a picked voice isn't available, a default voice is used."
+                question: "Privacy",
+                answer: "This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app."
             )
         ]
     }
@@ -105,10 +101,6 @@ struct FAQItemView: View {
             }
             .padding(.horizontal, 4)
             .padding(.vertical, 12)
-
-            Rectangle()
-                .fill(Color(hex: "#333333"))
-                .frame(height: 1)
         }
     }
 }
