@@ -64,6 +64,8 @@ struct Control_LLMApp: App {
             MainView()
                 .environmentObject(ColorManager.shared)
                 .onAppear {
+                    // Refresh colors on appear to apply saved settings
+                    ColorManager.shared.refreshColors()
                     print("🔍 MainView appeared!")
                 }
         }

@@ -232,6 +232,7 @@ struct AppearanceView: View {
                         HStack(spacing: 0) {
                             ForEach(VisualizerType.allCases, id: \.self) { tab in
                                 Button(action: {
+                                    FeedbackService.shared.playSound(.tabSwitch)
                                     withAnimation(.easeInOut(duration: 0.3)) {
                                         visualizerState.selectedVisualizerType = tab
                                     }

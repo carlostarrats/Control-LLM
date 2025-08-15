@@ -127,7 +127,6 @@ struct MainView: View {
                         HStack(spacing: 0) { // No spacing between buttons
                             // Group of three buttons on the left
                             Button(action: {
-                                FeedbackService.shared.playSound(.tabSwitch)
                                 FeedbackService.shared.playHaptic(.light)
                                 showingHistoryView = true
                             }) {
@@ -142,7 +141,6 @@ struct MainView: View {
                             .contentShape(Rectangle()) // Ensure full area is tappable
 
                             Button(action: {
-                                FeedbackService.shared.playSound(.tabSwitch)
                                 FeedbackService.shared.playHaptic(.light)
                                 showingWhisperView = true
                             }) {
@@ -157,7 +155,6 @@ struct MainView: View {
                             .contentShape(Rectangle()) // Ensure full area is tappable
                             
                             Button(action: {
-                                FeedbackService.shared.playSound(.tabSwitch)
                                 FeedbackService.shared.playHaptic(.light)
                                 showingSettingsView = true
                             }) {
@@ -290,8 +287,8 @@ struct MainView: View {
 
     private func handleBlobTap() {
         if !viewModel.isActivated && !isChatMode {
-            // Start voice detection flow instead of immediate activation
-            viewModel.voiceDetected()
+            // Trigger "control" activation sequence
+            activateControlSequence()
         }
     }
 
