@@ -409,8 +409,15 @@ struct CentralVisualizerView: View {
                 y: isAnimating ? cos(animationPhase * 0.6) * 1 : 0)
         .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 0.4) * 0.004 : 1.0, anchor: .center)
         .contentShape(Rectangle()) // Make the entire frame tappable
-        .onTapGesture {
-            onTap?()
+        .onTapGesture(coordinateSpace: .global) { location in
+            // Constrain taps to the middle area of the screen (roughly middle 60%)
+            let screenHeight = UIScreen.main.bounds.height
+            let centerStart = screenHeight * 0.2   // 20% from top of screen
+            let centerEnd = screenHeight * 0.8     // 80% from top of screen
+            
+            if location.y >= centerStart && location.y <= centerEnd {
+                onTap?()
+            }
         }
         .shadow(color: isAnimating ? applyHueShift(to: Color(hex: "#FF00D0").opacity(0.6)) : Color.clear,
                 radius: isAnimating ? 20 + sin(animationPhase * 0.3) * 10 : 0)

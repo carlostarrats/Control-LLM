@@ -39,35 +39,47 @@ struct ParticleVisualizerView: View {
     }
     
     var body: some View {
-        TimelineView(.animation) { timeline in
-            ZStack {
-                // Generate particles on sphere surface using spherical coordinates
-                ForEach(0..<particleCount, id: \.self) { index in
-                    SphereParticle(
-                        index: index,
-                        totalParticles: particleCount,
-                        sphereRadius: sphereRadius,
-                        particleSize: particleSize,
-                        motionPhase: motionPhase[index % motionPhase.count],
-                        isActivated: effectiveSpeakingState,
-                        activationPlaneX: activationPlaneX,
-                        cachedWaveTime: cachedWaveTime // Pass cached time
-                    )
+        ZStack {
+            TimelineView(.animation) { timeline in
+                ZStack {
+                    // Generate particles on sphere surface using spherical coordinates
+                    ForEach(0..<particleCount, id: \.self) { index in
+                        SphereParticle(
+                            index: index,
+                            totalParticles: particleCount,
+                            sphereRadius: sphereRadius,
+                            particleSize: particleSize,
+                            motionPhase: motionPhase[index % motionPhase.count],
+                            isActivated: effectiveSpeakingState,
+                            activationPlaneX: activationPlaneX,
+                            cachedWaveTime: cachedWaveTime // Pass cached time
+                        )
+                    }
+                }
+                .onChange(of: timeline.date) { _, newDate in
+                    updateActivationPlane(currentTime: newDate)
+                }
+                .onChange(of: effectiveSpeakingState) { _, newState in
+                    if !newState {
+                        // When deactivating, reset the plane immediately
+                        activationPlaneX = -300
+                        lastUpdateTime = nil
+                    }
+                    // Remove the wave timer start/stop from here
                 }
             }
-            .onChange(of: timeline.date) { _, newDate in
-                updateActivationPlane(currentTime: newDate)
-            }
-            .onChange(of: effectiveSpeakingState) { _, newState in
-                if !newState {
-                    // When deactivating, reset the plane immediately
-                    activationPlaneX = -300
-                    lastUpdateTime = nil
+            
+            // Transparent background layer to capture all taps - placed on top
+            Rectangle()
+                .fill(Color.clear)
+                .frame(width: 400, height: 400)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    onTap?()
                 }
-                // Remove the wave timer start/stop from here
-            }
         }
-        .frame(width: 300, height: 300)
+        .frame(width: 400, height: 400) // FIXED: Same size as other visualizers for consistent tap area
+        .coordinateSpace(name: "visualizer")
         .onAppear {
             // Ensure the plane is reset when the view first appears
             activationPlaneX = -300
@@ -78,9 +90,6 @@ struct ParticleVisualizerView: View {
         .onDisappear {
             stopMotionTimer()
             stopWaveTimer()
-        }
-        .onTapGesture {
-            onTap?()
         }
         .animation(.easeInOut(duration: 0.6), value: effectiveSpeakingState)
     }
@@ -273,10 +282,11 @@ struct SphereParticle: View {
                 .fill(activationEffect.isActivated ? Color(red: 0.8, green: 0.8, blue: 0.8) : particleColor)
                 .frame(width: depthAdjustedSize, height: depthAdjustedSize)
                 .position(
-                    x: 150 + position.x,
-                    y: 150 + position.y + activationEffect.waveOffset
+                    x: 200 + position.x,  // FIXED: Center in 400x400 frame (was 150 for 300x300)
+                    y: 200 + position.y + activationEffect.waveOffset  // FIXED: Center in 400x400 frame (was 150 for 300x300)
                 )
                 .opacity(depthOpacity) // Opacity based on Z-depth for 3D effect
+                .allowsHitTesting(false) // FIXED: Make particles non-interactive so background can capture taps
         }
     }
     

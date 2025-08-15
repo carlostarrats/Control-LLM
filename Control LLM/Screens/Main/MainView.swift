@@ -287,8 +287,11 @@ struct MainView: View {
 
     private func handleBlobTap() {
         if !viewModel.isActivated && !isChatMode {
-            // Trigger "control" activation sequence
+            // Toggle ON: Trigger "control" activation sequence
             activateControlSequence()
+        } else if viewModel.isActivated && !isChatMode {
+            // Toggle OFF: Deactivate immediately
+            deactivateControlSequence()
         }
     }
 
@@ -307,24 +310,25 @@ struct MainView: View {
             saturationLevel = 0.12
             brightnessLevel = 1.0
         }
+        
+        // REMOVED: No more automatic timer - stays activated until manually toggled off
+    }
 
-        // Return to normal state after 3 seconds with delayed text fade-in
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            print("🔥 CONTROL SEQUENCE COMPLETE - Returning to normal state")
+    private func deactivateControlSequence() {
+        print("🔥 CONTROL DEACTIVATED - Starting deactivation sequence")
 
-            // First, start the visualizer transition
+        // Start deactivation sequence
+        withAnimation(.easeOut(duration: 0.8)) {
+            viewModel.isActivated = false
+            blobColorOpacity = 1.0 // Restore blob colors
+            brightnessLevel = 0.3
+        }
+        
+        // Restore text and manual input after a short delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             withAnimation(.easeInOut(duration: 0.8)) {
-                viewModel.isActivated = false
-                blobColorOpacity = 1.0 // Restore blob colors
-                brightnessLevel = 0.3
-            }
-            
-            // Then, after a delay, start the text fade-in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                withAnimation(.easeInOut(duration: 0.8)) {
-                    textOpacity = 1.0 // Restore text
-                    manualInputOpacity = 1.0 // Restore manual input
-                }
+                textOpacity = 1.0 // Restore text
+                manualInputOpacity = 1.0 // Restore manual input
             }
         }
     }

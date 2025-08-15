@@ -26,8 +26,15 @@ struct FlowingLiquidView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
-        .onTapGesture {
-            onTap?()
+        .onTapGesture(coordinateSpace: .global) { location in
+            // Constrain taps to the middle area of the screen (roughly middle 60%)
+            let screenHeight = UIScreen.main.bounds.height
+            let centerStart = screenHeight * 0.2   // 20% from top of screen
+            let centerEnd = screenHeight * 0.8     // 80% from top of screen
+            
+            if location.y >= centerStart && location.y <= centerEnd {
+                onTap?()
+            }
         }
         .onAppear {
             // Initialize based on current speaking state
