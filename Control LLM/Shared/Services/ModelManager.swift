@@ -33,24 +33,24 @@ struct LLMModelInfo {
         
         // Parse display information from filename (case-insensitive)
         let lowercaseFilename = filename.lowercased()
-        if lowercaseFilename.contains("deepseek-r1-distill-qwen-1.5b") {
-            self.name = "DeepSeek R1 Distill"
-            self.displayName = "DeepSeek-R1-Distill-Qwen-1.5B-Q5_K_M"
-            self.description = "DeepSeek's distilled 1.5B parameter model"
-            self.provider = "DeepSeek"
-            self.size = "0.9 GB"
-        } else if lowercaseFilename.contains("gemma-2-2b-it") {
+        if lowercaseFilename.contains("gemma-2-2b-it-q4_k_m") || lowercaseFilename.contains("gemma-2-2b-it") {
             self.name = "Gemma 2 2B IT"
-            self.displayName = "gemma-2-2b-it-Q5_K_M"
-            self.description = "Google's efficient 2B parameter instruction-tuned model"
+            self.displayName = "Gemma-2-2B-It-Q4_K_M"
+            self.description = "Google's 2B instruction-tuned model (Q4_K_M)"
             self.provider = "Google"
-            self.size = "1.2 GB"
-        } else if lowercaseFilename.contains("qwen2.5-1.5b-instruct") {
-            self.name = "Qwen 2.5 1.5B"
-            self.displayName = "qwen2.5-1.5b-instruct-q5_k_m"
-            self.description = "Alibaba's 1.5B parameter instruction model"
+            self.size = "1.7 GB"
+        } else if lowercaseFilename.contains("phi-3.5-mini-instruct-q4_k_m") || lowercaseFilename.contains("phi-3.5-mini-instruct") {
+            self.name = "Phi-3.5 Mini Instruct"
+            self.displayName = "Phi-3.5-Mini-Instruct-Q4_K_M"
+            self.description = "Microsoft Phi-3.5 Mini Instruct (Q4_K_M)"
+            self.provider = "Microsoft"
+            self.size = "2.4 GB"
+        } else if lowercaseFilename.contains("qwen2.5-1.5b-instruct-q5_k_m") || lowercaseFilename.contains("qwen2.5-1.5b-instruct") {
+            self.name = "Qwen2.5 1.5B Instruct"
+            self.displayName = "Qwen2.5-1.5B-Instruct-Q5_K_M"
+            self.description = "Alibaba Qwen2.5 1.5B Instruct (Q5_K_M)"
             self.provider = "Alibaba"
-            self.size = "0.9 GB"
+            self.size = "1.3 GB"
         } else {
             // Fallback for unknown models
             self.name = filename.replacingOccurrences(of: "-", with: " ").capitalized
@@ -60,14 +60,10 @@ struct LLMModelInfo {
             self.size = "Unknown"
         }
         
-        // Check if model file exists in bundle resources, bundle root, or app Documents/Models
+        // Check if model file exists in bundle root or app Documents/Models
         var found = false
         if let allModelUrls = Bundle.main.urls(forResourcesWithExtension: "gguf", subdirectory: nil) {
             found = allModelUrls.contains { $0.lastPathComponent == "\(filename).gguf" }
-        }
-        if !found {
-            let rootUrl = Bundle.main.bundleURL.appendingPathComponent("\(filename).gguf")
-            found = FileManager.default.fileExists(atPath: rootUrl.path)
         }
         if !found {
             if let docsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
@@ -95,59 +91,21 @@ final class ModelManager: ObservableObject {
     }
     
     private func loadAvailableModels() {
-        var discovered: Set<String> = []
-        let fm = FileManager.default
+        print("ModelManager: Loading available models from bundle...")
+        var discovered = Set<String>()
         
-        // 1) Ensure Documents/Models exists and scan it for .gguf
-        if let docsDir = fm.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let modelsDir = docsDir.appendingPathComponent("Models", isDirectory: true)
-            if !fm.fileExists(atPath: modelsDir.path) {
-                try? fm.createDirectory(at: modelsDir, withIntermediateDirectories: true)
-            }
-            if let urls = try? fm.contentsOfDirectory(at: modelsDir, includingPropertiesForKeys: nil) {
-                for u in urls where u.pathExtension.lowercased() == "gguf" {
-                    let filename = u.deletingPathExtension().lastPathComponent
-                    // Explicitly exclude any Llama models
-                    if !filename.lowercased().contains("llama") {
-                        discovered.insert(filename)
-                    }
-                }
-            }
-        }
-        
-        // 2) Scan bundle resources for .gguf
+        // Look for .gguf files in the bundle root (models are copied there during build)
         if let bundleUrls = Bundle.main.urls(forResourcesWithExtension: "gguf", subdirectory: nil) {
-            for u in bundleUrls {
-                let filename = u.deletingPathExtension().lastPathComponent
+            for url in bundleUrls {
+                let filename = url.deletingPathExtension().lastPathComponent
                 // Explicitly exclude any Llama models
                 if !filename.lowercased().contains("llama") {
                     discovered.insert(filename)
+                    print("ModelManager: Found model: \(filename)")
                 }
             }
-        }
-        
-        // 3) If still empty, opportunistically copy known models from Downloads → Documents/Models
-        if discovered.isEmpty {
-            if let downloads = try? fm.url(for: .downloadsDirectory, in: .userDomainMask, appropriateFor: nil, create: false) {
-                let candidates = [
-                    "gemma-2-2b-it-Q5_K_M.gguf",
-                    "DeepSeek-R1-Distill-Qwen-1.5B-Q5_K_M.gguf",
-                    "qwen2.5-1.5b-instruct-q5_k_m.gguf"
-                ]
-                if let docsDir = fm.urls(for: .documentDirectory, in: .userDomainMask).first {
-                    let modelsDir = docsDir.appendingPathComponent("Models", isDirectory: true)
-                    for name in candidates {
-                        let src = downloads.appendingPathComponent(name)
-                        if fm.fileExists(atPath: src.path) {
-                            let dst = modelsDir.appendingPathComponent(name)
-                            if !fm.fileExists(atPath: dst.path) {
-                                try? fm.copyItem(at: src, to: dst)
-                            }
-                            discovered.insert(dst.deletingPathExtension().lastPathComponent)
-                        }
-                    }
-                }
-            }
+        } else {
+            print("ModelManager: No .gguf files found in bundle root")
         }
         
         // Build model infos for discovered filenames and sort
@@ -158,6 +116,7 @@ final class ModelManager: ObservableObject {
         availableModels = infos
         
         print("ModelManager: Loaded \(availableModels.count) available models")
+        print("ModelManager: Available models: \(availableModels.map { $0.filename })")
     }
     
     private func loadSelectedModel() {
@@ -168,40 +127,38 @@ final class ModelManager: ObservableObject {
             // Default to Gemma if available, otherwise first available model
             if let gemmaModel = availableModels.first(where: { $0.filename.lowercased().contains("gemma-2-2b-it") }) {
                 selectedModel = gemmaModel
+                print("ModelManager: Defaulting to Gemma model: \(gemmaModel.filename)")
             } else if let firstModel = availableModels.first {
                 selectedModel = firstModel
+                print("ModelManager: Defaulting to first available model: \(firstModel.filename)")
             }
             saveSelectedModel()
         }
     }
     
     func selectModel(_ model: LLMModelInfo) {
+        print("🔍 ModelManager: selectModel called for: \(model.displayName)")
+        print("   Previous model: \(selectedModel?.displayName ?? "none")")
+        
         selectedModel = model
         saveSelectedModel()
-        print("ModelManager: Selected model \(model.displayName)")
+        print("✅ ModelManager: Selected model \(model.displayName)")
 
         // Notify that the model has changed
+        print("🔍 ModelManager: Posting modelDidChange notification...")
         NotificationCenter.default.post(name: .modelDidChange, object: model)
+        print("✅ ModelManager: modelDidChange notification posted")
 
-        // Preload only for small models to avoid memory spikes
-        if shouldPreload(filename: model.filename) {
-            Task.detached(priority: .utility) {
-                do {
-                    try await LLMService.shared.loadSelectedModel()
-                    print("ModelManager: Preloaded model \(model.filename)")
-                } catch {
-                    print("ModelManager: Preload failed for \(model.filename): \(error.localizedDescription)")
-                }
-            }
-        }
+        // REMOVED: Automatic preloading to prevent double model loading/unloading
+        // ChatViewModel will handle the model loading when it receives the notification
+        print("🔍 ModelManager: Skipping preload - ChatViewModel will handle model loading")
     }
 
     private func shouldPreload(filename: String) -> Bool {
         let f = filename.lowercased()
         if f.contains("gemma-2-2b-it") { return true }
-        if f.contains("deepseek-r1-distill-qwen-1.5b") { return true }
+        if f.contains("phi-3.5-mini-instruct") { return true }
         if f.contains("qwen2.5-1.5b-instruct") { return true }
-        // Preload small models for better performance
         return false
     }
     

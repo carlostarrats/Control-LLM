@@ -132,7 +132,7 @@ struct MainView: View {
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(Color(hex: "#1D1D1D"))
                                     .frame(width: 48, height: 48) // Fixed square size
-                                    .background(Color(hex: "#FF6B6B"))
+                                    .background(Color(hex: "#F8C762"))
                                     .cornerRadius(4, corners: [.topLeft, .bottomLeft]) // Only left corners
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -158,7 +158,7 @@ struct MainView: View {
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(Color(hex: "#1D1D1D"))
                                     .frame(width: 48, height: 48) // Fixed square size
-                                    .background(Color(hex: "#F8C762"))
+                                    .background(Color(hex: "#3EBBA5"))
                                     .cornerRadius(4, corners: [.topRight, .bottomRight]) // Only right corners
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -186,16 +186,26 @@ struct MainView: View {
                         .padding(.horizontal, 20)
                         .opacity(shouldShowNavButtons ? 1.0 : 0.0) // Use computed property for stable visibility
                         
-                        // X button (always present, fade in when voice detected)
+                        // Process button (always present, fade in when voice detected)
                         Button(action: {
                             viewModel.processVoiceMessage()
                         }) {
-                            Image(systemName: "paperplane") // Paper airplane symbol
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(Color(hex: "#1D1D1D"))
-                                .frame(width: 48, height: 48) // Fixed square size
-                                .background(Color(hex: "#3EBBA5"))
-                                .cornerRadius(4)
+                            ZStack {
+                                // Outer circle with stroke
+                                Circle()
+                                    .stroke(Color(hex: "#666666"), lineWidth: 2)
+                                    .frame(width: 60, height: 60)
+                                
+                                // Inner filled circle
+                                Circle()
+                                    .fill(Color(hex: "#666666"))
+                                    .frame(width: 52, height: 52)
+                                
+                                // Sparkle icon centered
+                                Image(systemName: "sparkles")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(Color(hex: "#1D1D1D"))
+                            }
                         }
                         .buttonStyle(PlainButtonStyle())
                         .contentShape(Rectangle()) // Ensure full area is tappable
@@ -206,31 +216,6 @@ struct MainView: View {
                     }
                 }
             }
-        }
-        .sheet(isPresented: $showingTextModal) {
-            TextModalView(viewModel: viewModel, isPresented: $showingTextModal, messageHistory: viewModel.messages)
-                .onDisappear {
-                    showingTextModal = false
-                    viewModel.deactivateVoiceInputMode()
-                }
-        }
-        .sheet(isPresented: $showingHistoryView) {
-            HistoryView(
-                showingTextModal: $showingTextModal,
-                mainViewModel: viewModel
-            )
-        }
-        .sheet(isPresented: $showingWhisperView) {
-            WhisperView(
-                showingTextModal: $showingTextModal,
-                mainViewModel: viewModel
-            )
-        }
-        .sheet(isPresented: $showingSettingsView) {
-            SettingsView(
-                showingTextModal: $showingTextModal,
-                mainViewModel: viewModel
-            )
         }
         .onChange(of: viewModel.isActivated) { _, isActivated in
             if isActivated {

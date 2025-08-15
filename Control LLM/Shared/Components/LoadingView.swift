@@ -8,16 +8,28 @@ struct LoadingView: View {
     }
     
     var body: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .scaleEffect(1.2)
+        ZStack {
+            // Background gradient - matches main app design
+            LinearGradient(
+                colors: [
+                    Color(hex: "#1D1D1D"),  // Lighter color at top
+                    Color(hex: "#141414")   // Darker color at bottom
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
             
-            Text(message)
-                .font(.body)
-                .foregroundColor(.secondary)
+            VStack(spacing: 16) {
+                ProgressView()
+                    .scaleEffect(1.2)
+                    .tint(Color(hex: "#EEEEEE"))
+                
+                Text(message)
+                    .font(.custom("IBMPlexMono-Regular", size: 16))
+                    .foregroundColor(Color(hex: "#EEEEEE"))
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
     }
 }
 

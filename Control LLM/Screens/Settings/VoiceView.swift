@@ -1,8 +1,9 @@
 import SwiftUI
+import AVFoundation
 
 struct VoiceView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedVoice: String = "Tom" // Default selection
+    @ObservedObject private var tts = TTSService.shared
     
     var body: some View {
         ZStack {
@@ -13,14 +14,14 @@ struct VoiceView: View {
             // Scrollable content
             ScrollView {
                 VStack(spacing: 8) {
-                    // Voice personas list
+                    // Installed iOS voices
                     VStack(spacing: 0) {
-                        ForEach(voicePersonas, id: \.name) { persona in
-                            VoicePersonaView(
-                                persona: persona,
-                                isSelected: selectedVoice == persona.name,
+                        ForEach(TTSService.shared.availableVoices(), id: \.identifier) { voice in
+                            VoiceRowView(
+                                voice: voice,
+                                isSelected: tts.selectedVoiceIdentifier == voice.identifier,
                                 onSelect: {
-                                    selectedVoice = persona.name
+                                    tts.setSelectedVoice(identifier: voice.identifier)
                                 }
                             )
                         }
@@ -66,7 +67,17 @@ struct VoiceView: View {
                         .buttonStyle(PlainButtonStyle())
                         .padding(.trailing, 20)
                     }
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 8)
+
+                    // Sub copy under headline
+                    HStack {
+                        Text("iOS System Voices")
+                            .font(.custom("IBMPlexMono", size: 12))
+                            .foregroundColor(Color(hex: "#BBBBBB"))
+                        Spacer()
+                    }
+                    .padding(.leading, 20)
+                    .padding(.bottom, 12)
                 }
                 .background(
                     Color(hex: "#1D1D1D")
@@ -75,22 +86,10 @@ struct VoiceView: View {
         }
     }
     
-    private var voicePersonas: [VoicePersona] {
-        [
-            VoicePersona(name: "Tom"),
-            VoicePersona(name: "Frank"),
-            VoicePersona(name: "Mary")
-        ]
-    }
 }
 
-struct VoicePersona: Identifiable {
-    let id = UUID()
-    let name: String
-}
-
-struct VoicePersonaView: View {
-    let persona: VoicePersona
+struct VoiceRowView: View {
+    let voice: AVSpeechSynthesisVoice
     let isSelected: Bool
     let onSelect: () -> Void
     
@@ -98,10 +97,15 @@ struct VoicePersonaView: View {
         VStack(spacing: 0) {
             Button(action: onSelect) {
                 HStack {
-                    Text(persona.name)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(voice.name)
                         .font(.custom("IBMPlexMono", size: 16))
                         .foregroundColor(Color(hex: "#EEEEEE"))
                         .multilineTextAlignment(.leading)
+                        Text(voice.language)
+                            .font(.custom("IBMPlexMono", size: 10))
+                            .foregroundColor(Color(hex: "#666666"))
+                    }
                     
                     Spacer()
                     

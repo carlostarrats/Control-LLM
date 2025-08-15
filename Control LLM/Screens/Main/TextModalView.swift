@@ -7,7 +7,7 @@ import UniformTypeIdentifiers
 struct TextModalView: View {
     // View-models
     @ObservedObject var viewModel: MainViewModel          // your existing VM
-    @StateObject private var llm = ChatViewModel()        // NEW: streams reply
+    // REMOVED: @StateObject private var llm = ChatViewModel()        // NEW: streams reply
     
     init(viewModel: MainViewModel, isPresented: Binding<Bool>, messageHistory: [ChatMessage]? = nil) {
         print("🔍 TextModalView init")
@@ -46,8 +46,27 @@ struct TextModalView: View {
         .onAppear {
             checkIfShouldShowDateHeader()
             if let history = messageHistory {
-                llm.messageHistory = history
+                viewModel.llm.messageHistory = history
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("modelDidChange"))) { _ in
+            print("🔍 TextModalView: Model change notification received, resetting state...")
+            // Reset only internal polling state when model changes
+            isPolling = false
+            pollCount = 0
+            lastTranscriptLength = 0
+            lastSentMessage = ""
+            isDuplicateMessage = false
+            
+            // IMPORTANT: Don't clear lastRenderedTranscript here - this preserves the displayed content
+            // The transcript will be updated when the new model responds
+            
+            // Clear any empty thinking messages (placeholder messages)
+            viewModel.messages.removeAll { message in
+                !message.isUser && message.content.isEmpty
+            }
+            
+            print("🔍 TextModalView: State reset completed - displayed messages preserved")
         }
     }
     
@@ -147,25 +166,36 @@ struct TextModalView: View {
     // MARK: input bar --------------------------------------------------------
     private var inputBar: some View {
         VStack {
-            HStack(spacing: 12) {
+            HStack(alignment: .bottom, spacing: 12) {
                 // File picker button
                 Button { showingDocumentPicker = true } label: {
                     Image(systemName: "plus")
                         .font(.system(size: 16, weight: .medium)) // Consistent sizing
-                        .foregroundColor(Color(hex: "#BBBBBB"))
+                        .foregroundColor(Color(hex: "#3EBBA5"))
                         .frame(width: 44, height: 44)
                         .background(Color(hex: "#141414")) // New color
                         .cornerRadius(4)
                 }
                 .buttonStyle(.plain)
-                .sheet(isPresented: $showingDocumentPicker) {
-                    DocumentPicker { url in handleFileUpload(url) }
+                .fileImporter(
+                    isPresented: $showingDocumentPicker,
+                    allowedContentTypes: [.text, .plainText, .data],
+                    allowsMultipleSelection: false
+                ) { result in
+                    switch result {
+                    case .success(let urls):
+                        if let url = urls.first {
+                            handleFileUpload(url)
+                        }
+                    case .failure(let error):
+                        print("File import failed: \(error.localizedDescription)")
+                    }
                 }
 
                 // Text field
                 TextField("", text: $messageText, axis: .vertical)
                     .font(.custom("IBMPlexMono", size: 16))
-                    .foregroundColor(Color(hex: "#EEEEEE"))
+                    .foregroundColor(Color(hex: "#94A8E1"))
                     .padding(.horizontal, 16)
                     .padding(.trailing, trailingPadding)
                     .padding(.vertical, 12)
@@ -177,7 +207,7 @@ struct TextModalView: View {
                         // DO NOTHING to allow return key for new lines
                     }
                     .overlay(placeholderOverlay.allowsHitTesting(false), alignment: .leading) // Fix placeholder tap issue
-                    .overlay(sendButtonOverlay, alignment: .trailing) // Center vertically
+                    .overlay(sendButtonOverlay, alignment: .bottomTrailing) // Anchor to bottom-right
                     .animation(.easeInOut(duration: 0.05), value: isTextFieldFocused)
             }
             .padding(.horizontal, 20)
@@ -212,53 +242,77 @@ struct TextModalView: View {
             Button(action: {
                 print("Send button pressed!")
                 NSLog("Send button pressed!")
-                sendMessage()
+                Task {
+                    await sendMessage()
+                }
             }) {
                 Image(systemName: "arrow.up")
                     .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(Color(hex: "#141414"))
+                    .foregroundColor(Color(hex: "#1D1D1D"))
                     .frame(width: 32, height: 32)
-                    .background(Color(hex: "#BBBBBB"))
+                    .background(Color(hex: "#94A8E1"))
                     .cornerRadius(4)
             }
             .buttonStyle(.plain)
             .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             .padding(.trailing, 8)
+            .padding(.bottom, 6) // keep anchored but visually centered for single-line height
         }
     }
 
     // MARK: - BUTTON ACTION --------------------------------------------------
-    private func sendMessage() {
+    private func sendMessage() async {
         let text = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return }
+        guard !text.isEmpty else { 
+            print("🔍 TextModalView: sendMessage called but text is empty")
+            return 
+        }
 
-        print("sendMessage called with text: '\(text)'")
-        NSLog("sendMessage called with text: '\(text)'")
+        print("🔍 TextModalView: sendMessage called with text: '\(text)'")
+        NSLog("🔍 TextModalView: sendMessage called with text: '\(text)'")
 
         // Stop any existing polling before starting new message
         isPolling = false
         pollCount = 0
-
+        
         // Check if this is the same message as last time
         isDuplicateMessage = text == lastSentMessage
         lastSentMessage = text
-
+        
+        print("🔍 TextModalView: isDuplicateMessage: \(isDuplicateMessage)")
+        
+        // Allow re-sending if this is a duplicate but we're in a new context (e.g., after model switch)
+        // Check if the transcript has changed or if we're in a new model context
+        let isNewContext = viewModel.llm.transcript.isEmpty || 
+                          viewModel.llm.lastLoadedModel != lastLoadedModelForDuplicateCheck
+        lastLoadedModelForDuplicateCheck = viewModel.llm.lastLoadedModel
+        
+        if isDuplicateMessage && isNewContext {
+            print("🔍 TextModalView: Duplicate message detected, but allowing re-send in new context")
+            isDuplicateMessage = false
+        } else if isDuplicateMessage {
+            print("🔍 TextModalView: Duplicate message detected, ignoring")
+            return
+        }
+        
         // Clear any existing thinking messages (empty assistant messages)
         viewModel.messages.removeAll { message in
             !message.isUser && message.content.isEmpty
         }
         
+        // Force UI refresh by updating lastRenderedTranscript
+        lastRenderedTranscript = ""
+        
         // Reset animation state for new message
         isPolling = false
         pollCount = 0
         isDuplicateMessage = false
-        
-        // Force UI refresh by updating lastRenderedTranscript
-        lastRenderedTranscript = ""
 
+        print("🔍 TextModalView: About to call viewModel.sendTextMessage")
         // 1) user bubble
         viewModel.sendTextMessage(text)
 
+        print("🔍 TextModalView: About to create placeholder message")
         // 2) placeholder assistant bubble (slight delay so it appears after user bubble)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             let placeholder = ChatMessage(
@@ -268,23 +322,27 @@ struct TextModalView: View {
                 messageType: .text
             )
             viewModel.messages.append(placeholder)
-            print("Added empty placeholder message (delayed)")
+            print("🔍 TextModalView: Added empty placeholder message (delayed)")
         }
 
+        print("🔍 TextModalView: About to clear messageText")
         // 3) clear field + ask model
         DispatchQueue.main.async {
             self.messageText = ""
         }
-        print("🔍 About to call llm.send(text) with text: '\(text)'")
-        llm.send(text)
-
+        print("🔍 TextModalView: About to call viewModel.llm.send with history count: \(viewModel.llm.messageHistory?.count ?? 0)")
+        try? await viewModel.llm.send(text)
+        
+        print("🔍 TextModalView: About to start polling")
         // 4) start polling the stream immediately for real-time word streaming
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            print("Starting monitorAssistantStream")
+            print("🔍 TextModalView: Starting monitorAssistantStream")
             isPolling = true
             pollCount = 0
             monitorAssistantStream()
         }
+        
+        print("🔍 TextModalView: sendMessage completed successfully")
     }
 
     // MARK: - STREAM POLLER --------------------------------------------------
@@ -295,73 +353,74 @@ struct TextModalView: View {
     @State private var lastTranscriptLength = 0
     @State private var lastSentMessage = ""
     @State private var isDuplicateMessage = false
+    @State private var lastLoadedModelForDuplicateCheck: String? = nil
+
     private let maxPollCount = 300 // 30 seconds max (300 * 0.1s)
 
     private func monitorAssistantStream() {
-        DispatchQueue.main.async {
-            print("monitorAssistantStream - transcript: '\(llm.transcript)', lastRendered: '\(lastRenderedTranscript)', pollCount: \(pollCount)")
-            
-            // Stop polling if we've exceeded max attempts
-            if pollCount >= maxPollCount {
-                print("Stopping poll - exceeded max attempts")
-                isPolling = false
-                pollCount = 0
-                return
-            }
-            
-            // Check if transcript has changed
-            let currentTranscriptLength = llm.transcript.count
-            let transcriptChanged = llm.transcript != lastRenderedTranscript
-            
-            // Update only when transcript changed to avoid array churn
-            guard transcriptChanged else {
-                // If this is a duplicate message, wait a bit longer but not too long
-                if isDuplicateMessage && pollCount > 30 { // 3 seconds for duplicates
-                    print("Stopping poll - duplicate message with no transcript change for 3 seconds")
-                    isPolling = false
-                    pollCount = 0
-                    isDuplicateMessage = false
-                    // Trigger auto-save when response is complete
-                    viewModel.autoSaveIfNeeded()
-                    return
-                }
-                
-                // If transcript hasn't changed for a while, stop polling
-                if pollCount > 50 { // 5 seconds of no change
-                    print("Stopping poll - no transcript change for 5 seconds")
-                    isPolling = false
-                    pollCount = 0
-                    // Trigger auto-save when response is complete
-                    viewModel.autoSaveIfNeeded()
-                    return
-                }
-                self.scheduleNextPoll()
-                return
-            }
-            
-            lastRenderedTranscript = llm.transcript
+        guard isPolling else { return }
+        
+        let currentTranscriptLength = viewModel.llm.transcript.count
+        let currentTranscript = viewModel.llm.transcript
+        
+        print("🔍 TextModalView: Polling transcript - length: \(currentTranscriptLength), content: '\(currentTranscript)'")
+        
+        // Check if we should stop polling
+        if pollCount > 50 { // Increased patience for first response
+            print("🔍 TextModalView: Max polls reached, stopping")
+            isPolling = false
+            return
+        }
+        
+        // Check if transcript has changed
+        if currentTranscriptLength == lastTranscriptLength && currentTranscript == lastRenderedTranscript {
+            // No change - continue polling
+            self.scheduleNextPoll()
+            return
+        }
+        
+        // Check if transcript is empty but we have a previous response
+        if currentTranscript.isEmpty && !lastRenderedTranscript.isEmpty {
+            print("🔍 TextModalView: Transcript is empty but we have previous content, continuing to poll")
+            self.scheduleNextPoll()
+            return
+        }
+        
+        print("🔍 TextModalView: Transcript changed! Updating UI...")
+        print("🔍 TextModalView: Previous transcript: '\(lastRenderedTranscript)'")
+        print("🔍 TextModalView: New transcript: '\(viewModel.llm.transcript)'")
+        
+        // Only update if we have actual content
+        if !currentTranscript.isEmpty {
+            lastRenderedTranscript = currentTranscript
             lastTranscriptLength = currentTranscriptLength
             pollCount = 0 // Reset counter when transcript changes
 
             if let idx = viewModel.messages.lastIndex(where: { !$0.isUser }),
                idx < viewModel.messages.count {
-                print("Updating existing assistant message at index \(idx)")
+                print("🔍 TextModalView: Updating existing assistant message at index \(idx)")
+                print("🔍 TextModalView: Setting message content to: '\(viewModel.llm.transcript)'")
                 // Mutate the last assistant bubble in place (no array replacement)
-                viewModel.messages[idx].content = llm.transcript
+                viewModel.messages[idx].content = viewModel.llm.transcript
+                print("🔍 TextModalView: Message updated successfully")
             } else {
-                print("Creating new assistant message")
+                print("🔍 TextModalView: Creating new assistant message")
+                print("🔍 TextModalView: New message content: '\(viewModel.llm.transcript)'")
                 // Create initial assistant bubble
                 let bot = ChatMessage(
-                    content: llm.transcript,
+                    content: viewModel.llm.transcript,
                     isUser: false,
                     timestamp: Date(),
                     messageType: .text
                 )
                 viewModel.messages.append(bot)
+                print("🔍 TextModalView: New message created and added")
             }
-
-            self.scheduleNextPoll()
+        } else {
+            print("🔍 TextModalView: Transcript is empty, continuing to poll for content")
         }
+
+        self.scheduleNextPoll()
     }
 
     private func scheduleNextPoll() {
@@ -408,7 +467,7 @@ struct TextModalView: View {
                 }
                 
                 // Send the file content to LLM for processing
-                llm.send("Please analyze this file content and provide a summary: \(formattedContent)")
+                try? await viewModel.llm.send("Please analyze this file content and provide a summary: \(formattedContent)")
                 
                 // Start monitoring the stream
                 await MainActor.run {
@@ -457,7 +516,7 @@ struct MessageBubble: View {
                                 .padding(.horizontal, 16).padding(.vertical, 10)
                                 .background(Color(hex: "#2A2A2A"))
                                 .cornerRadius(4)
-                                .foregroundColor(Color(hex: "#EEEEEE"))
+                                .foregroundColor(Color(hex: "#94A8E1"))
                         } else {
                             // LLM messages without background
                             Text(message.content)
@@ -525,7 +584,7 @@ struct DateHeaderView: View {
             Spacer()
             Text(formattedDateAndTime())
                 .font(.custom("IBMPlexMono", size: 12))
-                .foregroundColor(Color(hex: "#BBBBBB"))
+                .foregroundColor(Color(hex: "#F8C762"))
             Spacer()
         }
         .padding(.top, 20).padding(.bottom, 10)
@@ -540,7 +599,7 @@ struct DateHeaderView: View {
         
         if let time = firstMessageTime {
             let formatter = DateFormatter()
-            formatter.dateFormat = "HH:mm"
+            formatter.dateFormat = "hh:mm a"
             let timeText = formatter.string(from: time)
             return "\(dateText) \(timeText)"
         } else {
@@ -552,13 +611,13 @@ struct DateHeaderView: View {
     private static func smart(_ date: Date) -> String {
         let cal = Calendar.current
         let now = Date()
-        if cal.isDate(date, inSameDayAs: now) { return "Today" }
-        if cal.isDate(date, inSameDayAs: cal.date(byAdding: .day, value: -1, to: now)!) { return "Yesterday" }
+        if cal.isDate(date, inSameDayAs: now) { return "TODAY" }
+        if cal.isDate(date, inSameDayAs: cal.date(byAdding: .day, value: -1, to: now)!) { return "YESTERDAY" }
 
         let weekAgo = cal.date(byAdding: .day, value: -7, to: now)!
         let fmt = DateFormatter()
         if date > weekAgo { fmt.dateFormat = "EEEE, MMM d" } else { fmt.dateFormat = "MMM d, yyyy" }
-        return fmt.string(from: date)
+        return fmt.string(from: date).uppercased()
     }
 }
 
@@ -586,25 +645,6 @@ struct FileMessageView: View {
         .padding(.horizontal, 16).padding(.vertical, 10)
         .background(message.isUser ? Color(hex: "#EEEEEE") : Color(hex: "#2A2A2A"))
         .cornerRadius(4)
-    }
-}
-
-// MARK: - Document picker ----------------------------------------------------
-
-struct DocumentPicker: UIViewControllerRepresentable {
-    let onPick: (URL) -> Void
-    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
-        let picker = UIDocumentPickerViewController(forOpeningContentTypes:
-            [.text, .plainText, .pdf, .image, .audio, .movie], asCopy: true)
-        picker.delegate = context.coordinator; picker.allowsMultipleSelection = false; return picker
-    }
-    func updateUIViewController(_: UIDocumentPickerViewController, context: Context) {}
-    func makeCoordinator() -> Coordinator { Coordinator(self) }
-    class Coordinator: NSObject, UIDocumentPickerDelegate {
-        let parent: DocumentPicker; init(_ p: DocumentPicker) { parent = p }
-        func documentPicker(_: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-            if let url = urls.first { parent.onPick(url) }
-        }
     }
 }
 

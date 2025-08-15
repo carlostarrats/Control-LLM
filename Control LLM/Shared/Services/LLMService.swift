@@ -36,169 +36,137 @@ final class LLMService: @unchecked Sendable {
             isModelOperationInProgress = false 
         }
         
-        guard let modelFilename = await ModelManager.shared.getSelectedModelFilename() else {
+        guard let modelFilename = ModelManager.shared.getSelectedModelFilename() else {
             throw NSError(domain: "LLMService",
                           code: 1,
                           userInfo: [NSLocalizedDescriptionKey: "No model selected"])
         }
         
-        // IMPROVEMENT: Check if we're already loading the same model
-        if isModelLoaded && currentModelFilename == modelFilename {
-            print("🔍 LLMService: Model \(modelFilename) already loaded, skipping reload")
-            return
-        }
+        // REMOVED: The optimization that was preventing model reloading
+        // This was causing the caching issue where switching models didn't actually change the LLM
         
-        print("🔍 LLMService: Loading new model: \(modelFilename) (previous: \(currentModelFilename ?? "none"))")
+        print("🔍 LLMService: Loading model: \(modelFilename) (previous: \(currentModelFilename ?? "none"))")
         
         // Always reload the model to ensure clean state and prevent caching issues
         // The previous optimization was causing responses to be cached between model switches
         
-        // Try to find the model file in the app sandbox first (Documents/Models)
-        var url: URL?
-        var docsModelsDir: URL?
-        let fm = FileManager.default
-        if let docsDir = fm.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let modelsDir = docsDir.appendingPathComponent("Models", isDirectory: true)
-            docsModelsDir = modelsDir
-            let expected = modelsDir.appendingPathComponent("\(modelFilename).gguf")
-            if fm.fileExists(atPath: expected.path) {
-                url = expected
-            } else if let contents = try? fm.contentsOfDirectory(at: modelsDir, includingPropertiesForKeys: nil) {
-                // Case-insensitive match on base name, tolerate dashed/underscored variants
-                let target = modelFilename.replacingOccurrences(of: "_", with: "-").lowercased()
-                if let match = contents.first(where: { file in
-                    guard file.pathExtension.lowercased() == "gguf" else { return false }
-                    let base = file.deletingPathExtension().lastPathComponent
-                        .replacingOccurrences(of: "_", with: "-").lowercased()
-                    return base == target
-                }) {
-                    url = match
-                    self.currentModelFilename = match.deletingPathExtension().lastPathComponent
-                } else if let only = contents.first(where: { $0.pathExtension.lowercased() == "gguf" }) {
-                    // If a single gguf exists, use it
-                    url = only
-                    self.currentModelFilename = only.deletingPathExtension().lastPathComponent
-                }
-            }
+        // Look for the model file in the bundle root (models are copied there during build)
+        guard let modelURL = Bundle.main.url(forResource: modelFilename, withExtension: "gguf", subdirectory: nil) else {
+            print("❌ LLMService: Model file not found in bundle root: \(modelFilename).gguf")
+            throw NSError(domain: "LLMService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Model file not found in bundle root"])
         }
         
-        // Then try to find the model file anywhere in the bundle resources (only if not already found)
-        if url == nil {
-            if let allModelUrls = Bundle.main.urls(forResourcesWithExtension: "gguf", subdirectory: nil) {
-                if let match = allModelUrls.first(where: { $0.lastPathComponent == "\(modelFilename).gguf" }) {
-                    url = match
-                }
-            }
-        }
-
-        // Fallback 1: look directly at the bundle root path
-        if url == nil {
-            let rootUrl = Bundle.main.bundleURL.appendingPathComponent("\(modelFilename).gguf")
-            if FileManager.default.fileExists(atPath: rootUrl.path) {
-                url = rootUrl
-            }
-        }
-
-        // Fallback 2: copy from known repo location into app sandbox (Documents/Models) and use that path
-        if url == nil {
-            let repoPath = "/Users/carlostarrats/Desktop/Control LLM/Control LLM/Screens/Models/\(modelFilename).gguf"
-            if fm.fileExists(atPath: repoPath) {
-                // Ensure app Documents/Models exists
-                if let docsDir = fm.urls(for: .documentDirectory, in: .userDomainMask).first {
-                    let modelsDir = docsDir.appendingPathComponent("Models", isDirectory: true)
-                    if !fm.fileExists(atPath: modelsDir.path) {
-                        try? fm.createDirectory(at: modelsDir, withIntermediateDirectories: true)
-                    }
-                    let destUrl = modelsDir.appendingPathComponent("\(modelFilename).gguf")
-                    if !fm.fileExists(atPath: destUrl.path) {
-                        _ = try? fm.removeItem(at: destUrl)
-                        do { try fm.copyItem(at: URL(fileURLWithPath: repoPath), to: destUrl) } catch {}
-                    }
-                    if fm.fileExists(atPath: destUrl.path) { url = destUrl }
-                }
-            }
-        }
-        
-        guard let modelUrl = url else {
-            let docsList: String = {
-                guard let dir = docsModelsDir, let items = try? fm.contentsOfDirectory(atPath: dir.path) else { return "<empty>" }
-                let ggufs = items.filter { $0.lowercased().hasSuffix(".gguf") }
-                return ggufs.isEmpty ? "<empty>" : ggufs.joined(separator: ", ")
-            }()
-            let msg = "Model \(modelFilename).gguf not found. Looked in Documents/Models (\(docsModelsDir?.path ?? "?")) with files: [\(docsList)], and in app bundle."
-            throw NSError(domain: "LLMService", code: 1, userInfo: [NSLocalizedDescriptionKey: msg])
-        }
-
         // Clear previous model to free memory
+        print("🔍 LLMService: Clearing previous model before loading new one...")
         unloadModel()
         
         // IMPROVEMENT: Reset conversation count when switching models
         conversationCount = 0
         print("🔍 LLMService: Reset conversation count for new model")
         
-        self.modelPath = modelUrl.path
+        self.modelPath = modelURL.path
         self.currentModelFilename = modelFilename
+        print("🔍 LLMService: Set currentModelFilename to: \(currentModelFilename ?? "nil")")
         
         // Load the model using llama.cpp with a timeout to avoid UI stalls
         do {
+            print("🔍 LLMService: Starting llama.cpp model loading...")
             try await withTimeout(seconds: 30) { [self] in
                 try await self.loadModelWithLlamaCpp()
             }
         } catch {
             let reason = (error as NSError).localizedDescription
-            print("LLMService: loadModelWithLlamaCpp failed: \(reason)")
+            print("❌ LLMService: loadModelWithLlamaCpp failed: \(reason)")
             throw error
         }
         
-        print("LLMService: Successfully loaded model \(modelFilename)")
+        print("✅ LLMService: Successfully loaded model \(modelFilename)")
+        print("🔍 LLMService: Final state after loading:")
+        print("     - currentModelFilename: \(currentModelFilename ?? "nil")")
+        print("     - isModelLoaded: \(isModelLoaded)")
+        print("     - modelPath: \(modelPath ?? "nil")")
     }
     
     private func unloadModel() {
-        print("LLMService: Unloading model and cleaning up resources")
+        print("🔍 LLMService: Unloading model and cleaning up resources")
+        
+        // Safety check: prevent double-free
+        guard llamaModel != nil || llamaContext != nil else {
+            print("🔍 LLMService: No model resources to free - already clean")
+            return
+        }
         
         // Safely free context first
         if let context = llamaContext {
-            print("LLMService: Freeing context...")
+            print("🔍 LLMService: Freeing context...")
             llm_bridge_free_context(context)
             llamaContext = nil
-            print("LLMService: Context freed")
+            print("🔍 LLMService: Context freed")
         }
         
         // Then safely free model
         if let model = llamaModel {
-            print("LLMService: Freeing model...")
+            print("🔍 LLMService: Freeing model...")
             llm_bridge_free_model(model)
             llamaModel = nil
-            print("LLMService: Model freed")
+            print("🔍 LLMService: Model freed")
         }
         
         // Clear all state
         isModelLoaded = false
         modelPath = nil
         currentModelFilename = nil
-        print("LLMService: Model unload completed")
+        print("🔍 LLMService: Model unload completed")
     }
     
     /// Force unload the current model (public method for external control)
     func forceUnloadModel() async throws {
-        print("LLMService: Force unloading model and clearing all state")
+        print("🔍 LLMService: Force unloading model and clearing all state")
+        
+        // Safety check: prevent concurrent unloads
+        guard !isModelOperationInProgress else {
+            print("🔍 LLMService: Model operation already in progress, skipping unload")
+            return
+        }
+        
+        isModelOperationInProgress = true
+        defer { isModelOperationInProgress = false }
+        
+        print("   Current state before unload:")
+        print("     - isModelLoaded: \(isModelLoaded)")
+        print("     - currentModelFilename: \(currentModelFilename ?? "nil")")
+        print("     - llamaModel: \(llamaModel != nil ? "exists" : "nil")")
+        print("     - llamaContext: \(llamaContext != nil ? "exists" : "nil")")
+        print("     - conversationCount: \(conversationCount)")
+        
+        // Wait for any ongoing chat operations to complete
+        if isChatOperationInProgress {
+            print("⚠️ WARNING: Chat operation in progress, waiting for completion...")
+            // Give it a moment to complete
+            try await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+        }
         
         // Prevent double-unload crashes
         guard isModelLoaded || llamaModel != nil || llamaContext != nil else {
-            print("LLMService: No model to unload - already clean")
+            print("🔍 LLMService: No model to unload - already clean")
             return
         }
         
         // IMPROVEMENT: More comprehensive state clearing
         conversationCount = 0
         isChatOperationInProgress = false
-        isModelOperationInProgress = false
         lastOperationTime = Date()
         
         // Force unload the model
         unloadModel()
         
-        print("LLMService: Force unload completed - all state cleared")
+        print("🔍 LLMService: Force unload completed - all state cleared")
+        print("   State after unload:")
+        print("     - isModelLoaded: \(isModelLoaded)")
+        print("     - currentModelFilename: \(currentModelFilename ?? "nil")")
+        print("     - llamaModel: \(llamaModel != nil ? "exists" : "nil")")
+        print("     - llamaContext: \(llamaContext != nil ? "exists" : "nil")")
+        print("     - conversationCount: \(conversationCount)")
     }
     
     private func loadModelWithLlamaCpp() async throws {
@@ -209,7 +177,7 @@ final class LLMService: @unchecked Sendable {
         print("LLMService: Loading model from path: \(modelPath)")
         
         // Run heavy C calls off the main thread
-        try await Task.detached(priority: .userInitiated) {
+        try await Task.detached(priority: .userInitiated) { [self] in
             self.llamaModel = nil
             modelPath.withCString { cString in
                 self.llamaModel = llm_bridge_load_model(cString)
@@ -345,94 +313,70 @@ final class LLMService: @unchecked Sendable {
             // Build the prompt using the new helper
             let prompt = buildPrompt(userText: processedText, history: history)
             
+            print("🔍 LLMService: Final prompt length: \(prompt.count) characters")
+            print("🔍 LLMService: Final prompt preview: \(String(prompt.prefix(200)))...")
+            
             // Safety check for extremely long prompts
-            let maxPromptLength = 3000
+            let maxPromptLength = 4096 // Increased to handle larger contexts
             if prompt.count > maxPromptLength {
-                throw NSError(domain: "LLMService", 
+                throw NSError(domain: "LLMService",
                              code: 6, 
                              userInfo: [NSLocalizedDescriptionKey: "Prompt too long (\(prompt.count) characters). Please shorten your message."])
             }
             
-            // Use llama.cpp to generate response
-            let response = try await Task.detached(priority: .userInitiated) {
-                try await self.generateResponseWithLlamaCpp(context: context, prompt: prompt, onToken: onToken)
-            }.value
+            // Use the new streaming implementation
+            try await streamResponseWithLlamaCpp(context: context, prompt: prompt, onToken: onToken)
             
         } catch {
             throw error
         }
     }
-    
-    private func generateResponseWithLlamaCpp(context: UnsafeMutableRawPointer, prompt: String, onToken: @escaping (String) async -> Void) async throws -> String {
-        
-        // Convert prompt to C string
-        let promptCString = prompt.cString(using: .utf8)!
-        
-        // Use async/await with proper completion handling and timeout
+
+    private func streamResponseWithLlamaCpp(context: UnsafeMutableRawPointer, prompt: String, onToken: @escaping (String) async -> Void) async throws {
+        // Ensure the model name is valid and available
+        guard let modelName = currentModelFilename, !modelName.isEmpty else {
+            throw NSError(domain: "LLMService", code: 12, userInfo: [NSLocalizedDescriptionKey: "Model name not available for streaming."])
+        }
+
+        // Use async/await with proper completion handling
         return try await withCheckedThrowingContinuation { continuation in
-            // Run blocking llama.cpp call off the main thread to avoid UI freeze.
-            // Avoid capturing a non-Sendable raw pointer by passing its bitPattern instead.
-            let ctxBits = UInt(bitPattern: context)
-            
-            // Track completion state to prevent race conditions
+            // Track completion state to prevent multiple continuations
             var hasCompleted = false
-            
-            // Add timeout to prevent getting stuck
+
+            // Capture Swift strings for safe use inside the background block
+            let promptToSend = prompt
+            let modelNameToSend = modelName
+
+            // Timeout for the entire streaming operation
             let timeoutTask = Task {
-                try await Task.sleep(nanoseconds: 30_000_000_000) // 30 second timeout
-                
+                try await Task.sleep(nanoseconds: 60_000_000_000) // 60 seconds
                 if !hasCompleted {
                     hasCompleted = true
-                    continuation.resume(throwing: NSError(domain: "LLMService", code: 4, userInfo: [NSLocalizedDescriptionKey: "LLM generation timed out"]))
+                    print("❌ LLMService: Streaming generation timed out.")
+                    continuation.resume(throwing: NSError(domain: "LLMService", code: 14, userInfo: [NSLocalizedDescriptionKey: "Streaming generation timed out."]))
                 }
             }
-            
-            DispatchQueue.global(qos: .userInitiated).async { [ctxBits] in
-                 guard let ctxPtr = UnsafeMutableRawPointer(bitPattern: ctxBits) else {
-                      if !hasCompleted {
-                          hasCompleted = true
-                          timeoutTask.cancel()
-                          continuation.resume(throwing: NSError(domain: "LLMService", code: 3, userInfo: [NSLocalizedDescriptionKey: "Invalid context pointer - conversion failed"]))
-                      }
-                     return
-                  }
 
-                 if !self.isModelLoaded {
-                      if !hasCompleted {
-                          hasCompleted = true
-                          timeoutTask.cancel()
-                          continuation.resume(throwing: NSError(domain: "LLMService", code: 9, userInfo: [NSLocalizedDescriptionKey: "Model was unloaded during generation"]))
-                      }
-                     return
-                 }
-                 
-                 // Use reliable non-streaming generation (streaming has issues)
-                 let outputBuffer = UnsafeMutablePointer<CChar>.allocate(capacity: 4096)
-                 defer { outputBuffer.deallocate() }
-                 
-                 let result = llm_bridge_generate_text(ctxPtr, promptCString, outputBuffer, 4096)
-                 if result > 0 {
-                     let response = String(cString: outputBuffer)
-                     
-                     // Send response as token
-                     Task { @MainActor in
-                         await onToken(response)
-                     }
-                     
-                     if !hasCompleted {
-                         hasCompleted = true
-                         timeoutTask.cancel()
-                         continuation.resume(returning: response)
-                     }
-                 } else {
-                     if !hasCompleted {
-                         hasCompleted = true
-                         timeoutTask.cancel()
-                         continuation.resume(throwing: NSError(domain: "LLMService", code: 3, userInfo: [NSLocalizedDescriptionKey: "LLM generation failed"]))
-                      }
-                 }
-                 
-              }
+            // Call the C++ bridge function from a background thread
+            DispatchQueue.global(qos: .userInitiated).async {
+                modelNameToSend.withCString { modelNameCString in
+                    promptToSend.withCString { promptCString in
+                        llm_bridge_generate_stream_block(context, modelNameCString, promptCString, { piece in
+                            if let piece = piece {
+                                if let text = String(cString: piece, encoding: .utf8) {
+                                    Task { await onToken(text) }
+                                }
+                            } else {
+                                if !hasCompleted {
+                                    hasCompleted = true
+                                    timeoutTask.cancel()
+                                    continuation.resume(returning: ())
+                                }
+                            }
+                        }, 512)
+                    }
+                }
+            }
         }
     }
     
@@ -448,21 +392,57 @@ final class LLMService: @unchecked Sendable {
         }
         
         let systemPrompt = LanguageService.shared.getSystemPrompt()
-        var fullPrompt = "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n\(systemPrompt)<|eot_id|>"
+        let modelFilename = currentModelFilename?.lowercased() ?? ""
+        
+        print("🔍 LLMService: Building prompt for model: \(currentModelFilename ?? "unknown") using chat template")
+        return buildPromptUsingChatTemplate(userText: userText, history: history, systemPrompt: systemPrompt)
+    }
+    
+    private func buildPromptUsingChatTemplate(userText: String, history: [ChatMessage]?, systemPrompt: String) -> String {
+        let bufferLen = 32768
+        var buf = [Int8](repeating: 0, count: bufferLen)
 
-        if let history = history {
-            for message in history {
-                if message.isUser {
-                    fullPrompt += "<|start_header_id|>user<|end_header_id|>\n\n\(message.content)<|eot_id|>"
-                } else {
-                    fullPrompt += "<|start_header_id|>assistant<|end_header_id|>\n\n\(message.content)<|eot_id|>"
-                }
+        // Roles and contents for system + history + current user
+        let roleStrings: [String] = {
+            var arr: [String] = ["system"]
+            if let history = history {
+                for m in history { arr.append(m.isUser ? "user" : "assistant") }
+            }
+            arr.append("user")
+            return arr
+        }()
+        let contentStrings: [String] = {
+            var arr: [String] = [systemPrompt]
+            if let history = history {
+                for m in history { arr.append(m.content) }
+            }
+            arr.append(userText)
+            return arr
+        }()
+
+        var cRolePtrs: [UnsafePointer<CChar>?] = roleStrings.map { s in s.withCString { UnsafePointer(strdup($0)) } }
+        var cContentPtrs: [UnsafePointer<CChar>?] = contentStrings.map { s in s.withCString { UnsafePointer(strdup($0)) } }
+
+        let written: Int = cRolePtrs.withUnsafeBufferPointer { rbuf in
+            cContentPtrs.withUnsafeBufferPointer { cbuf in
+                Int(llm_bridge_apply_chat_template_messages(rbuf.baseAddress, cbuf.baseAddress, Int32(contentStrings.count), true, &buf, Int32(bufferLen)))
             }
         }
 
-        fullPrompt += "<|start_header_id|>user<|end_header_id|>\n\n\(userText)<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
-        return fullPrompt
+        // Free duplicated C strings
+        for p in cRolePtrs { if let p = p { free(UnsafeMutablePointer(mutating: p)) } }
+        for p in cContentPtrs { if let p = p { free(UnsafeMutablePointer(mutating: p)) } }
+
+        if written > 0, let prompt = String(validatingUTF8: buf) {
+            print("🔍 LLMService: Applied model chat template (\(written) bytes)")
+            return prompt
+        } else {
+            print("❌ LLMService: Chat template application failed; returning user text only")
+            return userText
+        }
     }
+    
+    // Removed model-specific manual prompt builders. All models use chat template.
     
     /// Clear any potential state to ensure fresh calls
     func clearState() {
@@ -478,8 +458,10 @@ final class LLMService: @unchecked Sendable {
         // Reset operation timing
         lastOperationTime = Date()
         
-        // Force unload model
-        unloadModel()
+        // Force unload model synchronously
+        Task {
+            try? await forceUnloadModel()
+        }
         
         print("LLMService: clearState() completed - all state cleared")
     }
