@@ -4,8 +4,9 @@ import MetalKit
 struct FlowingLiquidView: View {
     @Binding var isSpeaking: Bool
     @State private var animationTime: Double = 0
-    @State private var activationProgress: Float = 0.0  // NEW: smooth interpolation value
+    @State private var localActivationProgress: Float = 0.0  // LOCAL activation state for TARS only
     @State private var animationTimer: Timer?
+    @State private var continuousAnimationTimer: Timer?  // For continuous motion
     
     var onTap: (() -> Void)?
     
@@ -20,9 +21,13 @@ struct FlowingLiquidView: View {
                 ringRadius: ringRadius,
                 ringThickness: ringThickness,
                 animationTime: animationTime,
-                activationProgress: activationProgress  // Pass smooth value instead of binary
+                activationProgress: localActivationProgress
             )
             .frame(width: 400, height: 400) // KEEPING ORIGINAL SIZE - DON'T TOUCH RING
+            
+            // SwiftUI ripple effect overlay when activated
+            DistortionRippleEffect(isActive: isSpeaking)
+                .allowsHitTesting(false)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
@@ -33,40 +38,65 @@ struct FlowingLiquidView: View {
             let centerEnd = screenHeight * 0.8     // 80% from top of screen
             
             if location.y >= centerStart && location.y <= centerEnd {
+                // Toggle TARS local activation state
+                let newTarget: Float = localActivationProgress > 0.5 ? 0.0 : 1.0
+                print("🎯 TARS tapped - toggling from \(localActivationProgress) to \(newTarget)")
+                
+                // Start animation to reach new target
+                startAnimation(target: newTarget)
+                
+                // Call the original onTap if it exists
                 onTap?()
             }
         }
+        .onChange(of: localActivationProgress) { _, _ in
+            // Force view update when activation progress changes
+        }
         .onAppear {
-            // Initialize based on current speaking state
-            activationProgress = isSpeaking ? 1.0 : 0.0
-            startAnimation()
+            // Always start in deactivated state
+            localActivationProgress = 0.0
+            print("🎯 TARS onAppear - Starting with localActivationProgress: \(localActivationProgress), isSpeaking: \(isSpeaking)")
+            
+            // Start continuous animation timer for motion
+            startContinuousAnimation()
         }
         .onDisappear {
             animationTimer?.invalidate()
             animationTimer = nil
+            continuousAnimationTimer?.invalidate()
+            continuousAnimationTimer = nil
         }
         .onChange(of: isSpeaking) { _, newValue in
-            // No need to do anything here - the animation loop handles the transition
-            print("isSpeaking changed to: \(newValue)")
+            // TARS only responds to local taps, not global state changes
+            print("🎯 TARS ignoring global isSpeaking change to: \(newValue)")
         }
     }
     
-    private func startAnimation() {
-        animationTimer?.invalidate()
+    private func startContinuousAnimation() {
+        // Start continuous animation timer for motion
+        continuousAnimationTimer = Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { _ in
+            // Update animation time continuously for motion
+            self.animationTime += 1.0/60.0
+        }
+    }
+    
+    private func startAnimation(target: Float) {
+        // Only start timer if it's not already running
+        guard animationTimer == nil else { return }
         
         animationTimer = Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { timer in
-            // Update animation time
-            self.animationTime += 1.0/60.0
+            // Only interpolate if there's a meaningful difference
+            let difference = target - self.localActivationProgress
             
-            // Calculate target based on current speaking state
-            let target: Float = self.isSpeaking ? 1.0 : 0.0
-            
-            // Smoothly interpolate towards target
-            let difference = target - self.activationProgress
             if abs(difference) > 0.001 {
                 // Smooth interpolation - adjust 0.08 for different transition speeds
-                self.activationProgress += difference * 0.08
-                print("Smooth transition: \(self.activationProgress) -> \(target)")
+                self.localActivationProgress += difference * 0.08
+                print("🔄 TARS Timer - target: \(target), current: \(self.localActivationProgress), difference: \(difference)")
+            } else if abs(difference) <= 0.001 {
+                // Stop the timer when we reach the target
+                timer.invalidate()
+                self.animationTimer = nil
+                print("🛑 TARS Timer - Reached target, stopping timer")
             }
         }
     }
@@ -76,7 +106,7 @@ struct FlowingRingShaderView: UIViewRepresentable {
     let ringRadius: CGFloat
     let ringThickness: CGFloat
     let animationTime: Double
-    let activationProgress: Float  // Changed from Bool to Float
+    let activationProgress: Float
     
     func makeUIView(context: Context) -> MTKView {
         let mtkView = MTKView()
@@ -100,7 +130,8 @@ struct FlowingRingShaderView: UIViewRepresentable {
         context.coordinator.animationTime = Float(animationTime)
         context.coordinator.ringRadius = Float(ringRadius)
         context.coordinator.ringThickness = Float(ringThickness)
-        context.coordinator.activationProgress = activationProgress  // Pass smooth value
+        context.coordinator.activationProgress = activationProgress
+        print("🎨 Metal View Update - activationProgress: \(activationProgress)")
         uiView.setNeedsDisplay()
     }
     
@@ -119,7 +150,8 @@ struct FlowingRingShaderView: UIViewRepresentable {
         var animationTime: Float = 0
         var ringRadius: Float = 140
         var ringThickness: Float = 35
-        var activationProgress: Float = 0.0  // Changed from isActivated
+        var activationProgress: Float = 0.0
+
         
         init(_ parent: FlowingRingShaderView) {
             self.parent = parent
@@ -187,8 +219,8 @@ struct FlowingRingShaderView: UIViewRepresentable {
             let uniforms = uniformBuffer.contents().assumingMemoryBound(to: Float.self)
             uniforms[0] = animationTime
             uniforms[1] = ringRadius
-            uniforms[2] = ringThickness
-            uniforms[3] = activationProgress  // Pass smooth interpolation value
+            uniforms[2] = activationProgress  // This is what the shader expects
+            uniforms[3] = ringThickness       // This is unused by the shader
             
             renderEncoder.setRenderPipelineState(pipelineState)
             renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)

@@ -60,6 +60,8 @@ float simulateFluidParticle(float2 p, float time, float ringRadius) {
                               cos(time * 0.3 + float(i) * 1.2) * 15.0);
         particlePos += offset;
         
+
+        
         // Calculate distance to this particle
         float distToParticle = length(p - particlePos);
         
@@ -136,7 +138,8 @@ fragment float4 fragmentShader(float2 texCoord [[stage_in]],
                                constant float* uniforms [[buffer(0)]]) {
     float time = uniforms[0];
     float ringRadius = uniforms[1];
-    float activationProgress = uniforms[3]; // 0.0 = deactivated, 1.0 = activated (SMOOTH)
+    float activationProgress = uniforms[2]; // 0.0 = deactivated, 1.0 = activated
+
     
     // Apply speed multiplier: 1.5x for both deactivated and activated
     float animationSpeed = 1.5;
@@ -146,7 +149,7 @@ fragment float4 fragmentShader(float2 texCoord [[stage_in]],
     float2 p = (texCoord - 0.5) * 400.0;
     
     // Generate fluid simulation along ring path - KEEPING EXACTLY THE SAME
-    float fluidDensity = createFluidLayers(p, adjustedTime, ringRadius);
+            float fluidDensity = createFluidLayers(p, adjustedTime, ringRadius);
     
     // Apply minimum density threshold to reduce gaps
     fluidDensity = max(fluidDensity, 0.05);
@@ -160,10 +163,9 @@ fragment float4 fragmentShader(float2 texCoord [[stage_in]],
     float sharpBoundary = smoothstep(0.1, 0.3, fluidDensity);
     
     // SMOOTH INTERPOLATION: Mix between dark and bright based on activationProgress
-    float deactivatedBrightness = 0.38; // Dark version (27% brighter than original)
-    float activatedBrightness = 0.9;   // Bright version (like your current activated state)
+    float deactivatedBrightness = 0.38; // Dark when not speaking
+    float activatedBrightness = 0.9;    // Bright when speaking
     
-    // Smoothly interpolate between the two brightness levels
     float brightness = mix(deactivatedBrightness, activatedBrightness, activationProgress);
     float3 color = float3(sharpBoundary * brightness + 0.05);
     
