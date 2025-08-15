@@ -312,10 +312,10 @@ struct InstalledLLMModelView: View {
             return "General conversations, writing, and everyday tasks | English-focused"
         }
         if key.contains("phi") {
-            return "General tasks with stronger code and math capabilities | 22 languages"
+            return "General tasks with stronger code and math capabilities | 23 languages"
         }
         if key.contains("qwen") {
-            return "General tasks with broader technical abilities and language support | 29 languages"
+            return "General tasks with broader technical abilities and language support | 30 languages"
         }
         return nil
     }

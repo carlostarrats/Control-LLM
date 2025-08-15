@@ -92,7 +92,7 @@ struct FAQItemView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(item.question)
                     .font(.custom("IBMPlexMono", size: 16))
-                    .foregroundColor(Color(hex: "#EEEEEE"))
+                    .foregroundColor(ColorManager.shared.redColor)
 
                 Text(item.answer)
                     .font(.custom("IBMPlexMono", size: 14))
