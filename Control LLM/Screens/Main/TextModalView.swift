@@ -318,6 +318,9 @@ struct TextModalView: View {
                     .background(Color(hex: "#2A2A2A"))
                     .cornerRadius(4)
                     .tint(Color(hex: "#EEEEEE"))
+                    .onChange(of: messageText) { _, _ in
+                        FeedbackService.shared.playSound(.keyPress)
+                    }
                     .onTapGesture {
                         isTextFieldFocused = true
                     }
@@ -382,6 +385,9 @@ struct TextModalView: View {
             print("🔍 TextModalView: sendMessage called but text is empty")
             return 
         }
+
+        // Play sound for sending a message
+        FeedbackService.shared.playSound(.messageSent)
 
         // Donate user's action to Shortcuts
         ShortcutsIntegrationHelper.shared.donateMessageSent(message: text)
@@ -487,6 +493,7 @@ struct TextModalView: View {
         if pollCount > 50 { // Increased patience for first response
             print("🔍 TextModalView: Max polls reached, stopping")
             isPolling = false
+            FeedbackService.shared.playHaptic(.light)
             return
         }
         

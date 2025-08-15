@@ -34,7 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		585365A62E5E69B30008E4A1 /* thinking_animation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = "thinking_animation.json"; path = "thinking_animation.json"; sourceTree = "<group>"; };
+		585365A62E5E69B30008E4A1 /* thinking_animation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = thinking_animation.json; sourceTree = "<group>"; };
 		588A2AD62E452B9500F3091C /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		58CD8B0E2E369FEE006A68FD /* IBMPlexMono-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexMono-Bold.otf"; sourceTree = "<group>"; };
 		58CD8B0F2E369FEE006A68FD /* IBMPlexMono-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexMono-Medium.otf"; sourceTree = "<group>"; };
@@ -252,7 +252,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				585365A52E5E69B30008E4A1 /* thinking_animation.json in Resources */,
 				58CD8B112E369FEE006A68FD /* IBMPlexMono-Regular.otf in Resources */,
 				58CD8B122E369FEE006A68FD /* IBMPlexMono-Bold.otf in Resources */,
 				58CD8B132E369FEE006A68FD /* IBMPlexMono-Medium.otf in Resources */,
@@ -473,6 +472,7 @@
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 				);
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
@@ -517,6 +517,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",

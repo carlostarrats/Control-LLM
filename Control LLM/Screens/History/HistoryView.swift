@@ -230,7 +230,10 @@ struct ExpandedSummaryView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             // Continue Chat button
-                Button(action: onContinueChat) {
+                Button(action: {
+                    FeedbackService.shared.playHaptic(.light)
+                    onContinueChat()
+                }) {
                 HStack(spacing: 6) {
                     Image(systemName: "sparkles")
                         .font(.system(size: 16))

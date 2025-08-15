@@ -127,6 +127,8 @@ struct MainView: View {
                         HStack(spacing: 0) { // No spacing between buttons
                             // Group of three buttons on the left
                             Button(action: {
+                                FeedbackService.shared.playSound(.tabSwitch)
+                                FeedbackService.shared.playHaptic(.light)
                                 showingHistoryView = true
                             }) {
                                 Image(systemName: "list.bullet")
@@ -140,6 +142,8 @@ struct MainView: View {
                             .contentShape(Rectangle()) // Ensure full area is tappable
 
                             Button(action: {
+                                FeedbackService.shared.playSound(.tabSwitch)
+                                FeedbackService.shared.playHaptic(.light)
                                 showingWhisperView = true
                             }) {
                                 Image(systemName: "waveform")
@@ -153,6 +157,8 @@ struct MainView: View {
                             .contentShape(Rectangle()) // Ensure full area is tappable
                             
                             Button(action: {
+                                FeedbackService.shared.playSound(.tabSwitch)
+                                FeedbackService.shared.playHaptic(.light)
                                 showingSettingsView = true
                             }) {
                                 Image(systemName: "gearshape")
@@ -169,6 +175,7 @@ struct MainView: View {
 
                             // Control Button on the right
                             Button(action: {
+                                FeedbackService.shared.playHaptic(.light)
                                 showingTextModal = true
                             }) {
                                 Image(systemName: "keyboard")
@@ -189,6 +196,7 @@ struct MainView: View {
                         
                         // Process button (always present, fade in when voice detected)
                         Button(action: {
+                            FeedbackService.shared.playHaptic(.light)
                             viewModel.processVoiceMessage()
                         }) {
                             ZStack {
