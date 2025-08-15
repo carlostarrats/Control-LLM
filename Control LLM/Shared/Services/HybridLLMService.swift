@@ -88,6 +88,9 @@ final class HybridLLMService: ObservableObject {
         guard isModelLoaded else {
             throw HybridLLMError.modelNotLoaded
         }
+
+        // Donate the user's prompt to Shortcuts
+        ShortcutsIntegrationHelper.shared.donateMessageSent(message: userText)
         
         print("🔍 HybridLLMService: Generating response with \(currentEngine.description)")
         

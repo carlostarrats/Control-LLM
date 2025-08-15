@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		582A7FDF2E4E65D80050D30B /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 582A7FDE2E4E65D80050D30B /* Lottie */; };
 		588A2AD72E452B9700F3091C /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588A2AD62E452B9500F3091C /* ChatViewModel.swift */; };
 		58CD8A9D2E368C20006A68FD /* Liquid in Frameworks */ = {isa = PBXBuildFile; productRef = 58CD8A9C2E368C20006A68FD /* Liquid */; };
 		58CD8B112E369FEE006A68FD /* IBMPlexMono-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 58CD8B102E369FEE006A68FD /* IBMPlexMono-Regular.otf */; };
@@ -33,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		585365A62E5E69B30008E4A1 /* thinking_animation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = "thinking_animation.json"; path = "thinking_animation.json"; sourceTree = "<group>"; };
 		588A2AD62E452B9500F3091C /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		58CD8B0E2E369FEE006A68FD /* IBMPlexMono-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexMono-Bold.otf"; sourceTree = "<group>"; };
 		58CD8B0F2E369FEE006A68FD /* IBMPlexMono-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IBMPlexMono-Medium.otf"; sourceTree = "<group>"; };
@@ -68,6 +70,7 @@
 			files = (
 				58CD8A9D2E368C20006A68FD /* Liquid in Frameworks */,
 				LLAMA_XCFRAMEWORK_IN_FRAMEWORKS /* llama.xcframework in Frameworks */,
+				582A7FDF2E4E65D80050D30B /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,6 +101,7 @@
 		58E7B4B32E347AF100713E9B = {
 			isa = PBXGroup;
 			children = (
+				585365A62E5E69B30008E4A1 /* thinking_animation.json */,
 				588A2AD62E452B9500F3091C /* ChatViewModel.swift */,
 				58CD8B0E2E369FEE006A68FD /* IBMPlexMono-Bold.otf */,
 				58CD8B0F2E369FEE006A68FD /* IBMPlexMono-Medium.otf */,
@@ -142,6 +146,7 @@
 			name = "Control LLM";
 			packageProductDependencies = (
 				58CD8A9C2E368C20006A68FD /* Liquid */,
+				582A7FDE2E4E65D80050D30B /* Lottie */,
 			);
 			productName = "Control LLM";
 			productReference = 58E7B4BC2E347AF100713E9B /* Control LLM.app */;
@@ -228,6 +233,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				58CD8A9A2E368AB7006A68FD /* XCRemoteSwiftPackageReference "liquid" */,
+				582A7FDD2E4E65A90050D30B /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 58E7B4BD2E347AF100713E9B /* Products */;
@@ -246,6 +252,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				585365A52E5E69B30008E4A1 /* thinking_animation.json in Resources */,
 				58CD8B112E369FEE006A68FD /* IBMPlexMono-Regular.otf in Resources */,
 				58CD8B122E369FEE006A68FD /* IBMPlexMono-Bold.otf in Resources */,
 				58CD8B132E369FEE006A68FD /* IBMPlexMono-Medium.otf in Resources */,
@@ -463,6 +470,9 @@
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 				);
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
@@ -507,6 +517,9 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
@@ -651,6 +664,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		582A7FDD2E4E65A90050D30B /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
 		58CD8A9A2E368AB7006A68FD /* XCRemoteSwiftPackageReference "liquid" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/maustinstar/liquid";
@@ -662,6 +683,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		582A7FDE2E4E65D80050D30B /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 582A7FDD2E4E65A90050D30B /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
 		58CD8A9C2E368C20006A68FD /* Liquid */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 58CD8A9A2E368AB7006A68FD /* XCRemoteSwiftPackageReference "liquid" */;

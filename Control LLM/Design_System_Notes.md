@@ -12,38 +12,43 @@
 
 ## Color Palette
 
-### Background Colors
-- **Primary Background Gradient:**
-  - Top: `#141414` (Dark gray)
-  - Bottom: `#1D1D1D` (Lighter dark gray)
-  - Used in: MainView background
+### Primary Brand Colors
+- **App Red:** `ColorManager.shared.redColor` (Dynamic red color for brand elements)
+  - Used in: FAQ headlines, language codes in voice sheet, accent elements
+- **Primary Background:** `#1D1D1D` (Dark gray)
+  - Used in: Main backgrounds, sheet backgrounds
 
-- **Modal Background:**
-  - `#141414` (Dark gray)
-  - Used in: TextModalView background
+### Background Colors
+- **Primary Background:** `#1D1D1D` (Dark gray)
+  - Used in: MainView, Settings, all sheet backgrounds
+- **Secondary Background:** `#141414` (Darker gray)
+  - Used in: Alternative backgrounds, modal backgrounds
 
 ### Text Colors
-- **Primary Text:**
-  - `#BBBBBB` (Light gray)
-  - Used in: Navigation buttons, manual input text, dashed lines
+- **Primary Text:** `#EEEEEE` (Light gray)
+  - Used in: Main text, labels, selected language text, chat input cursor
+- **Secondary Text:** `#BBBBBB` (Medium gray)
+  - Used in: Subcopy text, descriptive text, secondary information, navigation elements
+- **Tertiary Text:** `#666666` (Dark gray)
+  - Used in: Disabled text, less prominent information, inactive elements
+- **Brand Accent Text:** `ColorManager.shared.redColor` (Dynamic red)
+  - Used in: FAQ headlines, language codes in voice sheet, important emphasis text
 
-- **Secondary Text:**
-  - `#EEEEEE` (Light gray)
-  - Used in: Text input field, send button icon
+### Dynamic UI Colors
+- **Orange Color:** `ColorManager.shared.orangeColor` (Default: `#F8C762`)
+  - Used in: Active states, transcription indicators, success messages, interactive elements
+- **Green Color:** `ColorManager.shared.greenColor` (Default: `#3EBBA5`)
+  - Used in: Success states, completed actions, positive feedback, apply buttons
+- **Purple Color:** `ColorManager.shared.purpleColor` (Default: `#94A8E1`)
+  - Used in: User message backgrounds, accent elements, visual indicators
 
 ### UI Element Colors
-- **Divider:**
-  - `#EEEEEE` with 0.6 opacity
-  - Used in: TextModalView divider
-
-- **Message Bubbles:**
-  - User messages: `#EEEEEE` (light gray background)
-  - Assistant messages: `Color.gray.opacity(0.2)` (semi-transparent gray)
-
-- **History Page Elements:**
-  - Selected chat background: `#333333` (dark gray)
-  - Vertical lines: `#BBBBBB` (1px width)
-  - Date separator lines: `#BBBBBB` (2px height)
+- **Accent Elements:** `ColorManager.shared.redColor`
+  - Used in: FAQ headlines, language codes, important UI elements
+- **Interactive Elements:** `#EEEEEE`
+  - Used in: Buttons, active states, input fields
+- **Dividers & Borders:** `#BBBBBB`
+  - Used in: Separator lines, borders, visual dividers
 
 ## Typography
 
@@ -58,86 +63,134 @@
 ### Font Sizes
 
 #### Text Elements
-- **Navigation Buttons:** 16pt, Medium weight, Monospaced design
-- **Manual Input Text:** 16pt, Medium weight, Monospaced design
-- **Manual Input Icon:** 14pt, Medium weight
-- **Date Headers:** 12pt, IBMPlexMono
-- **Message Content:** 16pt, IBMPlexMono
-- **Message Timestamps:** 12pt, IBMPlexMono
-- **Text Input Field:** 16pt, IBMPlexMono
+- **Main Headlines:** 20pt, IBMPlexMono
+- **Section Headlines:** 16pt, IBMPlexMono
+- **Body Text:** 16pt, IBMPlexMono
+- **Subcopy Text:** 14pt, IBMPlexMono
+- **Captions:** 12pt, IBMPlexMono
+- **Small Text:** 10pt, IBMPlexMono (for language codes, etc.)
 
-#### System UI Elements (TO BE UPDATED)
-- **Headlines:** Should use IBMPlexMono, 18pt
-- **Body Text:** Should use IBMPlexMono, 16pt
-- **Captions:** Should use IBMPlexMono, 12pt
-- **Subheadlines:** Should use IBMPlexMono, 16pt
-- **Titles:** Should use IBMPlexMono, 20pt
-- **Large Titles:** Should use IBMPlexMono, 24pt
-
-#### Error/Loading Views (TO BE UPDATED)
-- **Error Icon:** Should use IBMPlexMono, 50pt
-- **Error Title:** Should use IBMPlexMono, 18pt
-- **Error Message:** Should use IBMPlexMono, 16pt
-- **Loading Text:** Should use IBMPlexMono, 16pt
+#### Specific UI Elements
+- **FAQ Headlines:** 16pt, IBMPlexMono, Red color
+- **Settings Headlines:** 20pt, IBMPlexMono
+- **Language Labels:** 16pt, IBMPlexMono
+- **Voice Names:** 16pt, IBMPlexMono
+- **Language Codes:** 10pt, IBMPlexMono, Red color
+- **Chat Input:** 16pt, IBMPlexMono, Cursor color: `#EEEEEE`
 
 ### Font Weights
-- **Medium:** Used for most UI text elements
-- **Regular:** Used for body text and general content
+- **Regular:** Used for most UI text elements
+- **Medium:** Used for emphasis and important text
+- **Bold:** Used sparingly for strong emphasis
 
 ### Font Designs
 - **All text:** IBMPlexMono monospace font for consistency
+- **No fallback fonts:** Always specify IBMPlexMono explicitly
+
+### Font Color Usage
+- **Primary Text (`#EEEEEE`):** Main content, labels, active elements, selected states
+- **Secondary Text (`#BBBBBB`):** Subcopy, descriptions, secondary information, navigation
+- **Tertiary Text (`#666666`):** Disabled states, inactive elements, subtle information
+- **Brand Red (`ColorManager.shared.redColor`):** Headlines, emphasis, important UI elements, language codes
+- **Orange (`ColorManager.shared.orangeColor`):** Active states, transcription indicators, success messages
+- **Green (`ColorManager.shared.greenColor`):** Success states, completed actions, positive feedback
+- **Purple (`ColorManager.shared.purpleColor`):** User message backgrounds, accent elements, visual indicators
+- **Interactive Elements:** Use `#EEEEEE` for active states and `#BBBBBB` for inactive states
 
 ## Spacing & Layout
 
-### Line Spacing
-- **Navigation & Manual Input:** 8px line spacing (24px total - 16px font = 8px spacing)
+### Standard Spacing
+- **Section Spacing:** 20px between major sections
+- **Element Spacing:** 16px between related elements
+- **Compact Spacing:** 8px between closely related elements
+- **Header Spacing:** 8px below headers, 12px above content
 
-### Padding
-- **Navigation Buttons:** 12px horizontal, 8px vertical
-- **Manual Input Button:** 12px horizontal, 8px vertical
-- **Text Input Field:** 16px horizontal, 12px vertical
-- **Message Bubbles:** 16px horizontal, 10px vertical
+### Padding Standards
+- **Sheet Content:** 20px horizontal padding
+- **Section Content:** 16px horizontal padding
+- **Element Padding:** 8px-16px depending on context
+- **Button Padding:** 12px horizontal, 8px vertical
 
-### Tracking (Letter Spacing)
-- **Navigation & Manual Input:** 0 (no additional letter spacing)
+### Layout Principles
+- **Flexible Layouts:** Use flexible spacing methods instead of hard-coded values
+- **Responsive Design:** Adapt to different screen sizes
+- **Consistent Margins:** Maintain consistent spacing patterns
+
+## UI Treatments
+
+### Sheets & Modals
+- **Grabber:** Always include grabber at top of sheets
+- **Close Button:** X button positioned top-right
+- **Header Alignment:** Left-aligned headers for consistency
+- **Background:** `#1D1D1D` with proper safe area handling
+
+### Buttons & Interactive Elements
+- **Action Buttons:** Always visible but disabled until changes are made
+- **Button States:** Clear visual feedback for enabled/disabled states
+- **Touch Targets:** Minimum 44pt touch targets
+
+### Visual Elements
+- **Language Codes:** Red color (`ColorManager.shared.redColor`) for emphasis
+- **FAQ Headlines:** Red color for visual hierarchy
+- **Descriptive Text:** Centered alignment with proper spacing
+- **Icons:** System SF Symbols with consistent sizing
+
+## iOS Shortcuts Integration
+
+### Design Principles
+- **No Visible UI:** Pure background functionality
+- **Auto-Discovery:** Actions appear automatically in Shortcuts app
+- **Seamless Integration:** No additional setup required
+
+### Implementation Details
+- **App Intents Framework:** Modern iOS 16+ integration
+- **Background Execution:** Full background processing support
+- **Error Handling:** User-friendly error messages for Shortcuts
+- **Response Formatting:** Optimized for automation workflows
 
 ## Usage Patterns
 
 ### Main Screen (MainView)
-- Background: Dark gradient (`#141414` to `#1D1D1D`)
-- Text: Light gray (`#BBBBBB
-`)
-- Font: 16pt monospaced for navigation, 14pt for icons
-
-### Text Modal (TextModalView)
-- Background: Dark (`#141414`)
-- Text: Light gray (`#BBBBBB` for headers, `#EEEEEE` for input)
+- Background: `#1D1D1D`
+- Text: `#EEEEEE` for primary, `#BBBBBB` for secondary
 - Font: IBMPlexMono for all text elements
 
-### History Page (HistoryView)
-- Background: Dark gradient (`#1D1D1D` to `#141414`)
-- Text: Light gray (`#BBBBBB`)
-- Font: IBMPlexMono for all text elements
-- Spacing: 40px between years, 20px between year and dates, 10px between chat groups
-- Chat summaries: Max 2 lines, horizontal padding 4px, vertical padding 8px
-- Vertical lines: 1px width, 10px left of centered content
-- Date separator lines: 2px height
+### Settings Screens
+- Background: `#1D1D1D`
+- Headers: 20pt IBMPlexMono
+- Subcopy: 14pt IBMPlexMono with 12px bottom padding
+- Section spacing: 20px between major sections
 
-### Navigation & Settings Screens
-- Use IBMPlexMono for all text elements
-- Follow iOS design guidelines for form elements
+### FAQ Screen
+- Headlines: 16pt IBMPlexMono in red color
+- Body text: 14pt IBMPlexMono
+- Section spacing: 20px between groupings
+- Background: `#1D1D1D`
+
+### Voice & Language Screens
+- Language codes: 10pt IBMPlexMono in red color
+- Full language names: Expanded abbreviations for clarity
+- Consistent spacing with other settings screens
 
 ## Consistency Guidelines
 
-1. **Text Colors:** Use `#BBBBBB` for primary text, `#EEEEEE` for interactive elements
-2. **Backgrounds:** Use `#141414` for dark backgrounds
-3. **Fonts:** Use IBMPlexMono for ALL text elements
-4. **Sizes:** 16pt for primary text, 12pt for secondary text, 14pt for icons
-5. **Weights:** Medium weight for most text, Regular for body text
+1. **Colors:** Use `ColorManager.shared.redColor` for brand elements, `#EEEEEE` for primary text
+2. **Backgrounds:** Use `#1D1D1D` for main backgrounds
+3. **Fonts:** Use IBMPlexMono for ALL text elements without exception
+4. **Spacing:** Use 20px for major sections, 16px for elements, 8px for compact spacing
+5. **Alignment:** Left-align headers, center descriptive text appropriately
 
 ## Notes
 - The visualizer uses its own color system with hue shifting and should be excluded from this design system
-- All colors are defined using hex values for consistency
+- All colors are defined using hex values or ColorManager for consistency
 - Font sizes are specified in points (pt) for clarity
 - The app uses a dark theme exclusively
-- **IMPORTANT:** All text should use IBMPlexMono font for consistency across the app 
+- **IMPORTANT:** All text must use IBMPlexMono font for consistency across the app
+- iOS Shortcuts integration is purely functional with no visible UI elements
+- Language codes and FAQ headlines use the app's red color for emphasis
+
+## Visualizer Color System (Separate from Main Design System)
+- **Primary Visualizer Colors:** `#FF00D0` (Magenta), `#D20001` (Red), `#8B0000` (Dark Red)
+- **Background Colors:** `#5D0C14` (Dark Red-Brown)
+- **Hue Shifting:** Dynamic color changes based on user interaction
+- **Note:** These colors are managed separately and not part of the main UI color system 

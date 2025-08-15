@@ -73,6 +73,10 @@ struct FAQView: View {
             FAQItem(
                 question: "Privacy",
                 answer: "This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app."
+            ),
+            FAQItem(
+                question: "iOS Shortcuts Integration",
+                answer: "Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device."
             )
         ]
     }

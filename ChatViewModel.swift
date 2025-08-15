@@ -58,7 +58,7 @@ class ChatViewModel: ObservableObject {
             // Force unload and reload the model
             do {
                 print("🔍 ChatViewModel: Force unloading previous model")
-                try await LLMService.shared.forceUnloadModel()
+                try await HybridLLMService.shared.forceUnloadModel()
                 
                 print("🔍 ChatViewModel: Loading new model")
                 try await self.ensureModel()
@@ -75,61 +75,38 @@ class ChatViewModel: ObservableObject {
     
     func send(_ userText: String) async throws {
         print("🔍 ChatViewModel: send started — \(userText)")
-        
-        // Check if this is a duplicate message to the same model
-        let currentModel = lastLoadedModel ?? "unknown"
+
+        // Prevent duplicate submissions
         let isDuplicate = userText == lastSentMessage && lastLoadedModel != nil
-        
         if isDuplicate {
-            print("🔍 ChatViewModel: Duplicate message detected for model \(currentModel), ignoring")
+            print("🔍 ChatViewModel: Duplicate message detected, ignoring")
             return
         }
-        
         lastSentMessage = userText
-        
+
         Task { [weak self] in
             guard let self = self else { return }
             
             do {
                 await MainActor.run {
                     self.isProcessing = true
-                    // Start a fresh transcript for this request
                     self.transcript = ""
                 }
                 
-                // Check if model has changed and force reload if needed
-                let currentModel = ModelManager.shared.getSelectedModelFilename()
-                let modelSwitched = self.lastLoadedModel != currentModel
+                // Ensure the correct model is loaded via the hybrid service
+                try await HybridLLMService.shared.loadSelectedModel()
+
+                let historyToSend = buildSafeHistory(from: messageHistory ?? [])
                 
-                if modelSwitched {
-                    print("🔍 ChatViewModel: Model switch detected during send: \(self.lastLoadedModel ?? "nil") -> \(currentModel ?? "nil")")
-                    
-                    // Don't switch models during an active chat operation - this can cause crashes
-                    print("⚠️ WARNING: Model switch detected during active chat operation. Completing current operation first.")
-                    
-                    // Continue with the current model for this message
-                    print("🔍 ChatViewModel: Continuing with current model to avoid crash")
-                }
-                
-                // Use any loaded conversation context from history, with safeguards
-                let historyToSend: [ChatMessage] = buildSafeHistory(from: messageHistory ?? [])
-                
-                // Use the correct LLMService method signature
-                try await LLMService.shared.chat(
-                    user: userText,
-                    history: historyToSend,
-                    onToken: { [weak self] partialResponse in
-                        print("🔍 ChatViewModel: onToken called with response length: \(partialResponse.count)")
-                        print("🔍 ChatViewModel: Response content: '\(partialResponse)'")
-                        
-                        // Update transcript immediately for non-streaming responses
-                        Task { @MainActor in
-                            print("🔍 ChatViewModel: Appending to transcript: '\(partialResponse)'")
-                            self?.transcript += partialResponse
-                            print("🔍 ChatViewModel: Transcript append successful")
-                        }
+                // Use the HybridLLMService to generate the response
+                try await HybridLLMService.shared.generateResponse(
+                    userText: userText,
+                    history: historyToSend
+                ) { [weak self] partialResponse in
+                    Task { @MainActor in
+                        self?.transcript += partialResponse
                     }
-                )
+                }
                 
                 await MainActor.run {
                     self.isProcessing = false
@@ -184,22 +161,23 @@ class ChatViewModel: ObservableObject {
     
     func ensureModel() async throws {
         print("🔍 ChatViewModel: ensureModel called")
-        
-        // Check if we need to load a model
-        if !modelLoaded || lastLoadedModel == nil {
-            print("🔍 ChatViewModel: Model not loaded, loading selected model")
-            try await LLMService.shared.loadSelectedModel()
-            
-            // Get the new model filename
-            let newModel = ModelManager.shared.getSelectedModelFilename()
-            await MainActor.run {
-                self.lastLoadedModel = newModel
-                self.modelLoaded = true
-            }
-            
-            print("🔍 ChatViewModel: Model loaded successfully: \(newModel ?? "unknown")")
+
+        // Use the HybridLLMService to manage model state
+        if !(await HybridLLMService.shared.isModelLoaded) {
+            print("🔍 ChatViewModel: Model not loaded, loading selected model via Hybrid Service")
+            try await HybridLLMService.shared.loadSelectedModel()
         } else {
-            print("🔍 ChatViewModel: Model already loaded: \(lastLoadedModel ?? "unknown")")
+            let engineInfo = await HybridLLMService.shared.getCurrentEngineInfo()
+            print("🔍 ChatViewModel: Model already loaded: \(engineInfo)")
+        }
+        
+        // Sync local state for UI purposes by fetching async properties first
+        let isLoaded = await HybridLLMService.shared.isModelLoaded
+        let filename = await HybridLLMService.shared.currentModelFilename
+        
+        await MainActor.run {
+            self.modelLoaded = isLoaded
+            self.lastLoadedModel = filename
         }
     }
 }
