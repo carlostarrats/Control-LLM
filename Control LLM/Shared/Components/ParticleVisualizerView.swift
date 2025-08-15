@@ -29,6 +29,9 @@ struct ParticleVisualizerView: View {
     @State private var cachedWaveTime: Double = 0
     @State private var waveTimeUpdateTimer: Timer?
     
+    // Smooth sine wave amplitude interpolation
+    @State private var sineWaveAmplitude: Double = 0.0 // 0.0 = no movement, 1.0 = full movement
+    
     init(isSpeaking: Binding<Bool>, onTap: (() -> Void)? = nil) {
         self._isSpeaking = isSpeaking
         self.onTap = onTap
@@ -52,7 +55,8 @@ struct ParticleVisualizerView: View {
                             motionPhase: motionPhase[index % motionPhase.count],
                             isActivated: effectiveSpeakingState,
                             activationPlaneX: activationPlaneX,
-                            cachedWaveTime: cachedWaveTime // Pass cached time
+                            cachedWaveTime: cachedWaveTime, // Pass cached time
+                            sineWaveAmplitude: sineWaveAmplitude // Pass amplitude for smooth transitions
                         )
                     }
                 }
@@ -60,12 +64,18 @@ struct ParticleVisualizerView: View {
                     updateActivationPlane(currentTime: newDate)
                 }
                 .onChange(of: effectiveSpeakingState) { _, newState in
+                    // Smoothly interpolate sine wave amplitude
+                    withAnimation(.easeInOut(duration: 0.6)) {
+                        sineWaveAmplitude = newState ? 1.0 : 0.0
+                    }
+                    
                     if !newState {
-                        // When deactivating, reset the plane immediately
-                        activationPlaneX = -300
+                        // When deactivating, smoothly reset the plane
+                        withAnimation(.easeInOut(duration: 0.6)) {
+                            activationPlaneX = -300
+                        }
                         lastUpdateTime = nil
                     }
-                    // Remove the wave timer start/stop from here
                 }
             }
             
@@ -90,6 +100,9 @@ struct ParticleVisualizerView: View {
             lastUpdateTime = nil
             startMotionTimer()
             startWaveTimer() // Always start wave timer
+            
+            // Initialize sine wave amplitude based on current state
+            sineWaveAmplitude = effectiveSpeakingState ? 1.0 : 0.0
         }
         .onDisappear {
             stopMotionTimer()
@@ -153,23 +166,8 @@ struct ParticleVisualizerView: View {
     }
     
     private func updateMotion() {
-        // Gradually increment phases for smooth, continuous motion without twisting
-        let newPhases = motionPhase.enumerated().map { index, currentPhase in
-            // Add a small increment that varies per particle for organic movement
-            let increment = 0.1 + Double(index % 7) * 0.02 // Good visible motion, slightly slower than original
-            var newPhase = currentPhase + increment
-            
-            // Keep phase within 0 to 2π range
-            if newPhase > 2 * .pi {
-                newPhase -= 2 * .pi
-            }
-            
-            return newPhase
-        }
-        
-        withAnimation(.easeInOut(duration: 4.0)) { // Smooth animation that matches the feel
-            motionPhase = newPhases
-        }
+        // No motion phase updates - particles stay in fixed positions
+        // Only the sine wave vibration will provide movement
     }
 }
 
@@ -182,13 +180,14 @@ struct SphereParticle: View {
     let isActivated: Bool
     let activationPlaneX: CGFloat
     let cachedWaveTime: Double // OPTIMIZATION: Receive cached time instead of calling Date()
+    let sineWaveAmplitude: Double // Smooth amplitude interpolation for transitions
     
     // Store random offsets as state to avoid recomputation
     @State private var randomPhiOffset: Double
     @State private var randomThetaOffset: Double
     @State private var depthVariance: Double
     
-    init(index: Int, totalParticles: Int, sphereRadius: CGFloat, particleSize: CGFloat, motionPhase: Double, isActivated: Bool, activationPlaneX: CGFloat, cachedWaveTime: Double) {
+    init(index: Int, totalParticles: Int, sphereRadius: CGFloat, particleSize: CGFloat, motionPhase: Double, isActivated: Bool, activationPlaneX: CGFloat, cachedWaveTime: Double, sineWaveAmplitude: Double) {
         self.index = index
         self.totalParticles = totalParticles
         self.sphereRadius = sphereRadius
@@ -197,6 +196,7 @@ struct SphereParticle: View {
         self.isActivated = isActivated
         self.activationPlaneX = activationPlaneX
         self.cachedWaveTime = cachedWaveTime
+        self.sineWaveAmplitude = sineWaveAmplitude
         
         // Initialize random offsets once
         self._randomPhiOffset = State(initialValue: Double.random(in: -0.05...0.05))
@@ -228,39 +228,34 @@ struct SphereParticle: View {
     
     // OPTIMIZATION: Simplified activation calculation with cached time
     private var activationEffect: (waveOffset: CGFloat, isActivated: Bool) {
-        // Only apply wave effect when activated
-        guard isActivated else {
-            return (waveOffset: 0, isActivated: false)
-        }
+        // Always calculate sine wave motion with different intensities for each state
+        let deactivatedAmplitude: CGFloat = 1.6   // Deactivated state amplitude
+        let activatedAmplitude: CGFloat = 4.0     // Activated state amplitude
         
-        // Calculate distance from activation plane
-        let distanceFromPlane = abs(position.x - activationPlaneX)
-        let activationWidth: CGFloat = 300 // Increased to cover entire sphere width
+        // Use consistent base frequency to prevent position snapping
+        let baseFrequency: Double = 10.0  // Keep frequency constant to prevent snapping
         
-        if distanceFromPlane > activationWidth {
-            // No activation effect
-            return (waveOffset: 0, isActivated: false)
-        }
+        // Interpolate only the amplitude, keep frequency consistent
+        let currentAmplitude = deactivatedAmplitude + (activatedAmplitude - deactivatedAmplitude) * CGFloat(sineWaveAmplitude)
         
-        // Calculate activation intensity (0 to 1)
-        let intensity = 1.0 - (distanceFromPlane / activationWidth)
+        // Each particle has its own independent wave phase based on its index
+        // This creates chaotic, independent vibration instead of synchronized movement
+        let wavePhase = cachedWaveTime * baseFrequency + Double(index) * 0.5
+        let waveOffset = currentAmplitude * CGFloat(sin(wavePhase))
         
-        // Create sine wave motion using cached time
-        let waveAmplitude: CGFloat = 2.0   // Very subtle movement
-        let waveFrequency: Double = 12.0 // Cycles per second
-        
-        // Calculate wave offset based on cached time and particle position
-        let wavePhase = cachedWaveTime * waveFrequency + Double(index) * 0.1
-        let waveOffset = waveAmplitude * CGFloat(sin(wavePhase)) * intensity
-        
-        return (waveOffset: waveOffset, isActivated: true)
+        return (waveOffset: waveOffset, isActivated: isActivated)
     }
     
     // Apply edge density bias to 3D points
     private var shouldShowParticle: Bool {
         let distanceFromViewCenter = sqrt(position.x * position.x + position.y * position.y)
         let edgeBias = distanceFromViewCenter / sphereRadius
-        let probability = pow(edgeBias, 1.5) // Edge density bias
+        
+        // Modified edge bias: allow more center particles while maintaining edge density
+        // Add a base probability so center particles (distance ≈ 0) can still appear
+        let baseProbability = 0.3 // 30% chance for center particles
+        let edgeProbability = pow(edgeBias, 1.2) // Slightly reduced edge bias
+        let probability = baseProbability + edgeProbability * 0.7 // Combine base + edge
         
         // Use a deterministic random based on index to avoid flickering
         let seed = Double(index) + motionPhase
