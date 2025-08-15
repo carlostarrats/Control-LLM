@@ -232,10 +232,10 @@ struct AppearanceView: View {
                         HStack(spacing: 0) {
                             ForEach(VisualizerType.allCases, id: \.self) { tab in
                                 Button(action: {
+                                    // Change visual state immediately for instant feedback
+                                    visualizerState.selectedVisualizerType = tab
+                                    // Play sound after state change for immediate response
                                     FeedbackService.shared.playSound(.tabSwitch)
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        visualizerState.selectedVisualizerType = tab
-                                    }
                                 }) {
                                     HStack(spacing: 6) {
                                         Image(systemName: tab.icon)

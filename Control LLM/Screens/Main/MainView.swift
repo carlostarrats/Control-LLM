@@ -117,6 +117,7 @@ struct MainView: View {
                 .opacity(blobColorOpacity)
                 .animation(.easeInOut(duration: 0.8), value: blobColorOpacity)
 
+
                 // Bottom navigation buttons with voice interaction flow
                 VStack {
                     Spacer()
@@ -334,6 +335,7 @@ struct MainView: View {
     }
 }
 
+// Removed OrganicRippleEffect and RippleLayer - now using Metal shader approach
 
 
 struct NavigationButton: View {
@@ -425,6 +427,8 @@ struct DashedLineAboveText: View {
         return size.width
     }
 }
+
+
 
 
 

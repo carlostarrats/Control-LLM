@@ -98,6 +98,10 @@ struct CentralVisualizerView: View {
                 .fill(applyHueShift(to: Color(hex: "#2D0000")))
                 .frame(width: 80 + sin(animationPhase * 1.8) * 15,
                        height: 80 + cos(animationPhase * 2.2) * 12)
+            
+            // Ripple effect overlay when activated
+            DistortionRippleEffect(isActive: isSpeaking)
+                .allowsHitTesting(false)
                 .scaleEffect(1.0 + sin(animationPhase * 2.5) * 0.3)
                 .offset(x: sin(animationPhase * 2.0) * 8, y: cos(animationPhase * 2.0) * 6)
                 .opacity(0.9)

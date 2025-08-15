@@ -77,6 +77,10 @@ struct ParticleVisualizerView: View {
                 .onTapGesture {
                     onTap?()
                 }
+            
+            // Ripple effect overlay when activated
+            DistortionRippleEffect(isActive: effectiveSpeakingState)
+                .allowsHitTesting(false)
         }
         .frame(width: 400, height: 400) // FIXED: Same size as other visualizers for consistent tap area
         .coordinateSpace(name: "visualizer")
@@ -231,7 +235,7 @@ struct SphereParticle: View {
         
         // Calculate distance from activation plane
         let distanceFromPlane = abs(position.x - activationPlaneX)
-        let activationWidth: CGFloat = 60 // Width of activation effect
+        let activationWidth: CGFloat = 300 // Increased to cover entire sphere width
         
         if distanceFromPlane > activationWidth {
             // No activation effect
@@ -242,7 +246,7 @@ struct SphereParticle: View {
         let intensity = 1.0 - (distanceFromPlane / activationWidth)
         
         // Create sine wave motion using cached time
-        let waveAmplitude: CGFloat = 20.0
+        let waveAmplitude: CGFloat = 2.0   // Very subtle movement
         let waveFrequency: Double = 12.0 // Cycles per second
         
         // Calculate wave offset based on cached time and particle position

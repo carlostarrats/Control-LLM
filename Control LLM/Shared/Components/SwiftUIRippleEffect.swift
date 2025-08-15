@@ -60,7 +60,7 @@ struct DistortionRippleEffect: View {
                         )
                     )
                     .scaleEffect(rippleScale)
-                    .opacity(rippleOpacity)
+                    .opacity(rippleOpacity * 0.75)  // Reduced to 75% opacity
                     .blendMode(.screen)
                     .blur(radius: 3)
                 
@@ -82,7 +82,7 @@ struct DistortionRippleEffect: View {
                         )
                     )
                     .scaleEffect(rippleScale * 0.65)  // Slightly smaller than main
-                    .opacity(rippleOpacity * 0.7)     // Slightly more visible
+                    .opacity(rippleOpacity * 0.25)    // Reduced to 25% for very subtle effect
                     .blendMode(.softLight)            // Different blend mode for dimensionality
                     .blur(radius: 2.0)               // Slightly more blur
                     .offset(
