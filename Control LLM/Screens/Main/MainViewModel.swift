@@ -280,23 +280,10 @@ class MainViewModel: ObservableObject {
         }
     }
     
+    // Voice input is now handled by VoiceIntegrationService
+    // This method is kept for backward compatibility but should not be used
     private func processVoiceInput(_ text: String) {
-        let userMessage = ChatMessage(content: text, isUser: true, timestamp: Date())
-        messages.append(userMessage)
-        
-        // TODO: Implement actual LLM integration
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            let response = ChatMessage(
-                content: "Voice message received: \(text). This is a placeholder response.",
-                isUser: false,
-                timestamp: Date()
-            )
-            self.messages.append(response)
-            self.lastMessage = response.content
-            
-            // Donate chained message intent after response
-            self.donateChainedMessageIntentIfNeeded()
-        }
+        print("⚠️ MainViewModel: processVoiceInput called - this should not happen with new voice integration")
     }
 
     private func donateChainedMessageIntentIfNeeded() {
@@ -328,6 +315,7 @@ class MainViewModel: ObservableObject {
 enum MessageType: Codable {
     case text
     case file
+    case voice
 }
 
 struct ChatMessage: Identifiable, Codable, Equatable {

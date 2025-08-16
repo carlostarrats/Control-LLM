@@ -35,6 +35,16 @@ int llm_bridge_apply_chat_template(const char* system_msg, const char* user_msg,
 // Returns number of bytes written to out_buf, or negative required size if buffer too small, or 0 on failure.
 int llm_bridge_apply_chat_template_messages(const char* const* roles, const char* const* contents, int n_messages, bool add_assistant_start, char* out_buf, int out_buf_len);
 
+// Voice processing functions for Gemma-3N native capabilities
+// Process audio data with the loaded model for voice recognition
+int llm_bridge_process_audio_voice_recognition(const float* audio_data, int audio_length, char* output_text, int max_output_length);
+
+// Generate speech synthesis using the loaded model
+int llm_bridge_generate_speech_synthesis(const char* text, float* audio_output, int max_audio_length, int* actual_audio_length);
+
+// Check if the current model supports voice processing
+bool llm_bridge_model_supports_voice(void* model);
+
 #ifdef __cplusplus
 }
 #endif

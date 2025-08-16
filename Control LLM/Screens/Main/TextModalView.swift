@@ -138,6 +138,8 @@ struct TextModalView: View {
     @State private var showDateHeader = false
     var messageHistory: [ChatMessage]?
     @EnvironmentObject var colorManager: ColorManager
+    
+
 
     // MARK: body -------------------------------------------------------------
     var body: some View {
@@ -182,6 +184,8 @@ struct TextModalView: View {
             
             print("🔍 TextModalView: State reset completed - displayed messages preserved")
         }
+
+
     }
     
     // MARK: - Date header logic ----------------------------------------------
@@ -265,16 +269,28 @@ struct TextModalView: View {
                 .padding(.bottom, 24)
             }
             .safeAreaPadding(.bottom, 70)
-            .onChange(of: viewModel.messages) { _, _ in
-                // Update date header when messages change
-                checkIfShouldShowDateHeader()
-                
-                if let last = viewModel.messages.last {
-                    withAnimation(.spring()) {
-                        proxy.scrollTo(last.id, anchor: .bottom)
-                    }
+                    .onChange(of: viewModel.messages) { _, _ in
+            // Update date header when messages change
+            checkIfShouldShowDateHeader()
+            
+            if let last = viewModel.messages.last {
+                withAnimation(.spring()) {
+                    proxy.scrollTo(last.id, anchor: .bottom)
                 }
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("voiceInputReceived"))) { notification in
+            handleVoiceInput(notification)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("voiceResponseToken"))) { notification in
+            handleVoiceResponseToken(notification)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("voiceResponseComplete"))) { notification in
+            handleVoiceResponseComplete(notification)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("voiceResponseError"))) { notification in
+            handleVoiceResponseError(notification)
+        }
         }
     }
 
@@ -468,7 +484,9 @@ struct TextModalView: View {
         
         print("🔍 TextModalView: sendMessage completed successfully")
     }
+    
 
+    
     // MARK: - STREAM POLLER --------------------------------------------------
     // MARK: - STREAM POLLER --------------------------------------------------
     @State private var lastRenderedTranscript = ""
@@ -478,6 +496,9 @@ struct TextModalView: View {
     @State private var lastSentMessage = ""
     @State private var isDuplicateMessage = false
     @State private var lastLoadedModelForDuplicateCheck: String? = nil
+    
+    // Voice integration state
+    @State private var currentVoiceResponsePlaceholder: ChatMessage? = nil
 
     private let maxPollCount = 300 // 30 seconds max (300 * 0.1s)
 
@@ -560,6 +581,142 @@ struct TextModalView: View {
             monitorAssistantStream()
         }
     }
+    
+    // MARK: - VOICE INTEGRATION ----------------------------------------------
+    
+    /// Handle voice input received from VoiceIntegrationService
+    private func handleVoiceInput(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let voiceText = userInfo["text"] as? String else {
+            print("❌ TextModalView: Invalid voice input notification")
+            return
+        }
+        
+        print("🎤 TextModalView: Received voice input: '\(voiceText)'")
+        
+        // Add voice input to conversation history as user message
+        let voiceMessage = ChatMessage(
+            content: voiceText,
+            isUser: true,
+            timestamp: Date(),
+            messageType: .voice
+        )
+        viewModel.messages.append(voiceMessage)
+        
+        // Also add to LLM message history for context
+        if viewModel.llm.messageHistory == nil {
+            viewModel.llm.messageHistory = []
+        }
+        viewModel.llm.messageHistory?.append(voiceMessage)
+        
+        // Create placeholder for AI response
+        let placeholderMessage = ChatMessage(
+            content: "",
+            isUser: false,
+            timestamp: Date(),
+            messageType: .text
+        )
+        viewModel.messages.append(placeholderMessage)
+        
+        // Store reference to placeholder for updating
+        currentVoiceResponsePlaceholder = placeholderMessage
+        
+        // Auto-save the conversation after adding voice input
+        viewModel.autoSaveIfNeeded()
+        
+        print("🎤 TextModalView: Added voice message and placeholder to conversation")
+    }
+    
+    /// Handle individual tokens from voice response
+    private func handleVoiceResponseToken(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let token = userInfo["token"] as? String,
+              let placeholder = currentVoiceResponsePlaceholder else {
+            print("❌ TextModalView: Missing placeholder for voice response token")
+            return
+        }
+        
+        // Update placeholder message with accumulated response
+        if let index = viewModel.messages.firstIndex(where: { $0.id == placeholder.id }) {
+            viewModel.messages[index].content += token
+            print("🎤 TextModalView: Updated voice response with token: '\(token)'")
+        } else {
+            print("❌ TextModalView: Could not find placeholder message to update")
+        }
+    }
+    
+    /// Handle completed voice response
+    private func handleVoiceResponseComplete(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let response = userInfo["response"] as? String else {
+            print("❌ TextModalView: Invalid voice response complete notification")
+            return
+        }
+        
+        print("✅ TextModalView: Voice response complete: '\(response)'")
+        
+        // Ensure the response is properly displayed using the stored placeholder
+        if let placeholder = currentVoiceResponsePlaceholder {
+            if let index = viewModel.messages.firstIndex(where: { $0.id == placeholder.id }) {
+                viewModel.messages[index].content = response
+                
+                // Also add the complete response to LLM message history for context
+                if let responseMessage = viewModel.messages[safe: index] {
+                    if viewModel.llm.messageHistory == nil {
+                        viewModel.llm.messageHistory = []
+                    }
+                    viewModel.llm.messageHistory?.append(responseMessage)
+                    
+                    // Update the lastMessage for proper conversation flow
+                    viewModel.lastMessage = responseMessage.content
+                    
+                    // Trigger auto-save and other conversation maintenance
+                    viewModel.autoSaveIfNeeded()
+                }
+                
+                print("✅ TextModalView: Updated placeholder with complete response")
+            }
+        }
+        
+        // Clear placeholder reference
+        currentVoiceResponsePlaceholder = nil
+        
+        // Auto-save the conversation after completing voice response
+        viewModel.autoSaveIfNeeded()
+    }
+    
+    /// Handle voice response errors
+    private func handleVoiceResponseError(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let error = userInfo["error"] as? String else {
+            return
+        }
+        
+        print("❌ TextModalView: Voice response error: \(error)")
+        
+        // Remove placeholder message on error
+        if let placeholder = currentVoiceResponsePlaceholder {
+            viewModel.messages.removeAll { $0.id == placeholder.id }
+            currentVoiceResponsePlaceholder = nil
+        }
+        
+        // Show error message to user
+        let errorMessage = ChatMessage(
+            content: "Voice processing failed: \(error)",
+            isUser: false,
+            timestamp: Date(),
+            messageType: .text
+        )
+        viewModel.messages.append(errorMessage)
+        
+        // Auto-save after error to preserve the error message
+        viewModel.autoSaveIfNeeded()
+        
+        // Clear any voice mode state
+        let voiceIntegration = VoiceIntegrationService.shared
+        voiceIntegration.isVoiceModeActive = false
+        voiceIntegration.isProcessingVoice = false
+    }
 
 
     // MARK: - File upload helper --------------------------------------------
@@ -632,6 +789,26 @@ struct MessageBubble: View {
             VStack(alignment: message.isUser ? .trailing : .leading, spacing: (message.isUser && !message.content.isEmpty) ? 4 : 0) {
                 if message.messageType == .file {
                     FileMessageView(message: message)
+                } else if message.messageType == .voice {
+                    // Voice messages: show with microphone icon and voice indicator
+                    HStack(spacing: 8) {
+                        Image(systemName: "mic.fill")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(message.isUser ? colorManager.purpleColor : Color(hex: "#00D4FF"))
+                        
+                        Text(message.content)
+                            .font(.custom("IBMPlexMono", size: 14))
+                            .foregroundColor(message.isUser ? colorManager.purpleColor : Color(hex: "#EEEEEE"))
+                            .multilineTextAlignment(.leading)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .background(message.isUser ? Color(hex: "#2A2A2A") : Color(hex: "#1A1A1A"))
+                            .cornerRadius(4)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke(message.isUser ? Color.clear : Color(hex: "#00D4FF").opacity(0.3), lineWidth: 1)
+                            )
+                    }
                 } else {
                     if message.isUser {
                         // User messages: dark bubble, purple text
@@ -759,6 +936,14 @@ struct FileMessageView: View {
         .padding(.horizontal, 16).padding(.vertical, 10)
         .background(message.isUser ? Color(hex: "#EEEEEE") : Color(hex: "#2A2A2A"))
         .cornerRadius(4)
+    }
+}
+
+// MARK: - ARRAY SAFETY --------------------------------------------------
+
+private extension Array {
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 }
 

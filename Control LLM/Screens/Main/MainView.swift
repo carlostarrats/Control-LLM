@@ -288,12 +288,26 @@ struct MainView: View {
 
     private func handleBlobTap() {
         if !viewModel.isActivated && !isChatMode {
-            // Toggle ON: Trigger "control" activation sequence
+            // Toggle ON: Start voice mode and control activation
+            print("🎤 Starting voice mode and control activation")
             activateControlSequence()
+            startVoiceMode()
         } else if viewModel.isActivated && !isChatMode {
-            // Toggle OFF: Deactivate immediately
+            // Toggle OFF: Stop voice mode and deactivate
+            print("🔇 Stopping voice mode and deactivating control")
+            stopVoiceMode()
             deactivateControlSequence()
         }
+    }
+    
+    private func startVoiceMode() {
+        // Start voice mode using the existing VoiceIntegrationService
+        VoiceIntegrationService.shared.startVoiceMode()
+    }
+    
+    private func stopVoiceMode() {
+        // Stop voice mode
+        VoiceIntegrationService.shared.stopVoiceMode()
     }
 
     private func activateControlSequence() {

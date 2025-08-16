@@ -444,6 +444,8 @@
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Vendor/llama/xcframework/llama.xcframework";
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Vendor/llama/include";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app uses the microphone to capture your voice for speech recognition.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "This app uses speech recognition to convert your voice to text for chat interactions.";
 				INFOPLIST_KEY_UIAppFonts = "IBMPlexMono-Regular.otf IBMPlexMono-Medium.otf IBMPlexMono-Bold.otf";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -456,6 +458,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
@@ -509,6 +512,8 @@
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Vendor/llama/xcframework/llama.xcframework";
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Vendor/llama/include";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app uses the microphone to capture your voice for speech recognition.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "This app uses speech recognition to convert your voice to text for chat interactions.";
 				INFOPLIST_KEY_UIAppFonts = "IBMPlexMono-Regular.otf IBMPlexMono-Medium.otf IBMPlexMono-Bold.otf";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -521,6 +526,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",

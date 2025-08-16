@@ -1,11 +1,14 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 class VoiceIntegrationService: ObservableObject {
     static let shared = VoiceIntegrationService()
     
     // MARK: - Services
     private let voiceService = VoiceService.shared
+    private let voiceChatService = VoiceChatService.shared
+    private let gemma3NVoiceService = Gemma3NVoiceService.shared
     private let languageService = LanguageService.shared
     private let modelManager = ModelManager.shared
     
@@ -13,6 +16,7 @@ class VoiceIntegrationService: ObservableObject {
     @Published var isVoiceModeActive = false
     @Published var currentTranscription = ""
     @Published var isProcessingVoice = false
+    @Published var errorMessage: String?
     
     // MARK: - Callbacks
     var onVoiceInputComplete: ((String) -> Void)?
@@ -20,6 +24,7 @@ class VoiceIntegrationService: ObservableObject {
     
     private init() {
         setupVoiceServiceCallbacks()
+        setupVoiceChatServiceCallbacks()
     }
     
     // MARK: - Setup
@@ -31,6 +36,12 @@ class VoiceIntegrationService: ObservableObject {
         
         voiceService.onSpeechComplete = { [weak self] in
             self?.handleSpeechComplete()
+        }
+    }
+    
+    private func setupVoiceChatServiceCallbacks() {
+        voiceChatService.onTranscriptionComplete = { [weak self] transcribedText in
+            self?.handleTranscriptionComplete(transcribedText)
         }
     }
     
@@ -52,12 +63,24 @@ class VoiceIntegrationService: ObservableObject {
             return
         }
         
+        // Validate model exists and is accessible
+        guard !selectedModel.filename.isEmpty else {
+            print("❌ VoiceIntegrationService: Invalid model selection")
+            return
+        }
+        
+        // Ensure clean state before starting
+        if isVoiceModeActive {
+            print("⚠️ VoiceIntegrationService: Voice mode already active, stopping first")
+            stopVoiceMode()
+        }
+        
         // Check if current model supports voice
         if isModelVoiceCapable(selectedModel) {
             print("🎤 VoiceIntegrationService: Starting voice mode for \(selectedModel.displayName)")
             startVoiceInput()
         } else {
-            print("❌ VoiceIntegrationService: Model \(selectedModel.displayName) doesn't support voice")
+            print("🎤 VoiceIntegrationService: Model \(selectedModel.displayName) doesn't support voice, using iOS wrapper")
             // For text-only models, we'll use iOS speech wrapper
             startIOSVoiceWrapper()
         }
@@ -67,7 +90,15 @@ class VoiceIntegrationService: ObservableObject {
     func stopVoiceMode() {
         print("🔇 VoiceIntegrationService: Stopping voice mode")
         
-        voiceService.stopListening()
+        // Stop both voice services
+        voiceChatService.stopListening()
+        gemma3NVoiceService.stopListening()
+        
+        // Clear callbacks to prevent memory leaks
+        voiceChatService.onTranscriptionComplete = nil
+        gemma3NVoiceService.onTranscriptionComplete = nil
+        gemma3NVoiceService.onSpeechComplete = nil
+        
         isVoiceModeActive = false
         isProcessingVoice = false
         currentTranscription = ""
@@ -75,8 +106,9 @@ class VoiceIntegrationService: ObservableObject {
     
     /// Check if the current model supports voice natively
     func isModelVoiceCapable(_ model: LLMModelInfo) -> Bool {
-        // Currently only Gemma 3N supports voice natively
-        return model.filename.lowercased().contains("gemma-3n-e4b-it")
+        // Check if the model is Gemma-3N which supports native voice
+        let filename = model.filename.lowercased()
+        return filename.contains("gemma-3n") || filename.contains("gemma3n")
     }
     
     /// Get the current model's voice capabilities
@@ -86,9 +118,34 @@ class VoiceIntegrationService: ObservableObject {
         }
         
         if isModelVoiceCapable(selectedModel) {
-            return "Native voice support"
+            return "Gemma-3N Native Voice"
         } else {
-            return "iOS speech wrapper"
+            return "iOS Speech Wrapper"
+        }
+    }
+    
+    /// Get the current voice service status
+    func getCurrentVoiceServiceStatus() -> String {
+        guard let selectedModel = modelManager.selectedModel else {
+            return "No model loaded"
+        }
+        
+        if isModelVoiceCapable(selectedModel) {
+            if gemma3NVoiceService.isListening {
+                return "Gemma-3N Listening..."
+            } else if gemma3NVoiceService.isTranscribing {
+                return "Gemma-3N Processing..."
+            } else {
+                return "Gemma-3N Ready"
+            }
+        } else {
+            if voiceChatService.isListening {
+                return "iOS Listening..."
+            } else if voiceChatService.isTranscribing {
+                return "iOS Processing..."
+            } else {
+                return "iOS Ready"
+            }
         }
     }
     
@@ -96,26 +153,59 @@ class VoiceIntegrationService: ObservableObject {
     
     private func startVoiceInput() {
         // For models with native voice support (like Gemma 3N)
-        // This would integrate with the model's built-in voice capabilities
-        print("🎤 VoiceIntegrationService: Using native voice capabilities")
+        // Use the model's built-in voice capabilities
+        print("🎤 VoiceIntegrationService: Using Gemma-3N native voice capabilities")
         
-        // TODO: Implement native voice integration for Gemma 3N
-        // For now, fall back to iOS wrapper
-        startIOSVoiceWrapper()
+        // Set up callbacks for native voice processing
+        gemma3NVoiceService.onTranscriptionComplete = { [weak self] transcribedText in
+            self?.handleTranscriptionComplete(transcribedText)
+        }
+        
+        gemma3NVoiceService.onSpeechComplete = { [weak self] in
+            self?.handleSpeechComplete()
+        }
+        
+        // Start native voice input
+        Task {
+            do {
+                try await gemma3NVoiceService.startListening()
+                isVoiceModeActive = true
+                print("🎤 VoiceIntegrationService: Started Gemma-3N native voice input")
+            } catch {
+                print("❌ VoiceIntegrationService: Failed to start native voice input: \(error)")
+                isVoiceModeActive = false
+                // Fall back to iOS wrapper if native fails
+                print("🔄 VoiceIntegrationService: Falling back to iOS voice wrapper")
+                startIOSVoiceWrapper()
+            }
+        }
     }
     
     private func startIOSVoiceWrapper() {
         // For text-only models, use iOS speech recognition + TTS wrapper
-        print("🎤 VoiceIntegrationService: Using iOS speech wrapper")
+        print("🎤 VoiceIntegrationService: Using iOS voice wrapper")
         
-        // Set language for speech recognition
-        let languageCode = voiceService.getSpeechRecognitionLanguage(for: languageService.selectedLanguage)
+        // Set up the callback for when transcription completes
+        voiceChatService.onTranscriptionComplete = { [weak self] transcribedText in
+            self?.handleTranscriptionComplete(transcribedText)
+        }
         
-        // Start listening
-        voiceService.startListening()
-        isVoiceModeActive = true
-        
-        print("🎤 VoiceIntegrationService: Started iOS voice wrapper with language: \(languageCode)")
+        // Start voice chat service for LLM integration
+        Task {
+            do {
+                try await voiceChatService.startListening()
+                isVoiceModeActive = true
+                print("🎤 VoiceIntegrationService: Started iOS voice wrapper with LLM integration")
+            } catch {
+                print("❌ VoiceIntegrationService: Failed to start iOS voice wrapper: \(error)")
+                isVoiceModeActive = false
+                
+                // If both native and iOS wrapper fail, notify user
+                DispatchQueue.main.async {
+                    self.errorMessage = "Voice input failed. Please check microphone permissions and try again."
+                }
+            }
+        }
     }
     
     private func handleTranscriptionComplete(_ transcribedText: String) {
@@ -130,20 +220,74 @@ class VoiceIntegrationService: ObservableObject {
             
             // Process with LLM and get response
             self.processVoiceInputWithLLM(transcribedText)
+            
+            // Stop listening after transcription is complete
+            // Stop both services to ensure clean state
+            self.voiceChatService.stopListening()
+            self.gemma3NVoiceService.stopListening()
         }
     }
     
     private func processVoiceInputWithLLM(_ inputText: String) {
-        // TODO: Integrate with existing LLM processing
-        // This should use the same path as text input but with voice output
-        
         print("🤖 VoiceIntegrationService: Processing with LLM: \(inputText)")
         
-        // For now, simulate a response
-        let simulatedResponse = "This is a simulated response to: \(inputText)"
+        // Post notification to add voice input to chat UI
+        NotificationCenter.default.post(
+            name: NSNotification.Name("voiceInputReceived"),
+            object: nil,
+            userInfo: ["text": inputText]
+        )
         
-        // Speak the response
-        speakResponse(simulatedResponse)
+        // Process with LLM using existing service
+        Task {
+            do {
+                var responseText = ""
+                
+                // Process with LLM - this will automatically add to conversation history
+                try await HybridLLMService.shared.generateResponse(
+                    userText: inputText,
+                    history: nil, // Let the LLM service use its own history management
+                    onToken: { token in
+                        responseText += token
+                        
+                        // Post notification to update response
+                        DispatchQueue.main.async {
+                            NotificationCenter.default.post(
+                                name: NSNotification.Name("voiceResponseToken"),
+                                object: nil,
+                                userInfo: ["token": token, "inputText": inputText]
+                            )
+                        }
+                    }
+                )
+                
+                // Post notification that response is complete
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(
+                        name: NSNotification.Name("voiceResponseComplete"),
+                        object: nil,
+                        userInfo: ["response": responseText, "inputText": inputText]
+                    )
+                }
+                
+                // Speak the complete response
+                await MainActor.run {
+                    self.speakResponse(responseText)
+                }
+                
+            } catch {
+                print("❌ VoiceIntegrationService: LLM processing failed: \(error)")
+                
+                // Post notification about the error
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(
+                        name: NSNotification.Name("voiceResponseError"),
+                        object: nil,
+                        userInfo: ["error": error.localizedDescription, "inputText": inputText]
+                    )
+                }
+            }
+        }
     }
     
     private func speakResponse(_ responseText: String) {
@@ -151,10 +295,22 @@ class VoiceIntegrationService: ObservableObject {
         
         print("🗣️ VoiceIntegrationService: Speaking response: \(responseText)")
         
-        // Get language code for TTS
-        let languageCode = voiceService.getSpeechRecognitionLanguage(for: languageService.selectedLanguage)
-        // Speak the response
-        voiceService.speak(responseText, language: languageCode)
+        // Check if current model supports native voice
+        guard let selectedModel = modelManager.selectedModel else {
+            print("❌ VoiceIntegrationService: No model selected for speech")
+            return
+        }
+        
+        if isModelVoiceCapable(selectedModel) {
+            // Use Gemma-3N's native speech synthesis
+            print("🗣️ VoiceIntegrationService: Using Gemma-3N native TTS")
+            gemma3NVoiceService.speak(responseText)
+        } else {
+            // Use iOS TTS for other models
+            print("🗣️ VoiceIntegrationService: Using iOS TTS wrapper")
+            let languageCode = voiceService.getSpeechRecognitionLanguage(for: languageService.selectedLanguage)
+            voiceService.speak(responseText, language: languageCode)
+        }
     }
     
     private func handleSpeechComplete() {
@@ -168,6 +324,8 @@ class VoiceIntegrationService: ObservableObject {
             self.onVoiceResponseComplete?()
         }
     }
+    
+
 }
 
 // MARK: - Model Voice Capability Extensions
