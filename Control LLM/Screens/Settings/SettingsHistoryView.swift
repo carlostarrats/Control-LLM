@@ -122,7 +122,7 @@ struct DeleteHistorySheet: View {
                 VStack(spacing: 8) {
                                     // Content
                 VStack(spacing: 8) {
-                                            Text("This action can't be undone.")
+                                            Text(NSLocalizedString("This action can't be undone.", comment: ""))
                             .font(.custom("IBMPlexMono", size: 16))
                             .foregroundColor(Color(hex: "#EEEEEE"))
                             .multilineTextAlignment(.leading)
@@ -139,7 +139,7 @@ struct DeleteHistorySheet: View {
                                 dismiss()
                             }
                         }) {
-                            Text("Delete All History")
+                            Text(NSLocalizedString("Delete All History", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .foregroundColor(ColorManager.shared.redColor)
                                 .frame(maxWidth: .infinity)
@@ -152,7 +152,7 @@ struct DeleteHistorySheet: View {
                         Button(action: {
                             dismiss()
                         }) {
-                            Text("Cancel")
+                            Text(NSLocalizedString("Cancel", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                                 .frame(maxWidth: .infinity)
@@ -181,7 +181,7 @@ struct DeleteHistorySheet: View {
                     
                     // Header
                     HStack {
-                        Text("Delete All History")
+                        Text(NSLocalizedString("Delete All History", comment: ""))
                             .font(.custom("IBMPlexMono", size: 20))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                             .padding(.leading, 20)

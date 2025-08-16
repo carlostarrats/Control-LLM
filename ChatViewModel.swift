@@ -119,7 +119,9 @@ class ChatViewModel: ObservableObject {
                 await MainActor.run {
                     print("❌ ChatViewModel: Error in send: \(error)")
                     self.isProcessing = false
-                    self.transcript = "Error: \(error.localizedDescription)"
+                    // Don't show "Could not connect to server" for local LLMs
+                    // Just clear the transcript and let the UI handle the error gracefully
+                    self.transcript = ""
                 }
             }
         }

@@ -230,9 +230,11 @@ struct WhisperView: View {
                             .font(.system(size: 16))
                             .foregroundColor(Color(hex: "#EEEEEE"))
                         
-                        Text("All Audio")
+                        Text(NSLocalizedString("All Audio", comment: ""))
                             .font(.custom("IBMPlexMono", size: 16))
                             .foregroundColor(Color(hex: "#EEEEEE"))
+                            .multilineTextAlignment(.leading)
+                            .lineLimit(2)
                         
                         Spacer()
                     }
@@ -297,7 +299,7 @@ struct WhisperView: View {
                                 .animation(nil, value: true)
                                 .padding(.trailing, 8)
                             
-                            Text("Whisper")
+                            Text(NSLocalizedString("Whisper", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 20))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                         }
@@ -701,7 +703,7 @@ struct WhisperItemView: View {
                                             .fill(Color(hex: "#F8C762"))
                                             .frame(width: UIScreen.main.bounds.width * 0.8 * CGFloat(item.transcriptionProgress), height: 2)
                                             .foregroundColor(ColorManager.shared.orangeColor)
-                                            .animation(.linear(duration: 0.1), value: item.transcriptionProgress)
+                                            .animation(.easeInOut(duration: 0.3), value: item.transcriptionProgress)
                                     }
                                     .frame(width: UIScreen.main.bounds.width * 0.8, height: 2)
                                 }
@@ -773,10 +775,16 @@ struct WhisperItemView: View {
     private func startPlayback() {
         guard let audioURL = item.audioFileURL else { return }
         
-        // Use the passed audio service for playback
-        audioRecorderService.startPlayback(url: audioURL)
+        // Check if we're resuming from pause or starting fresh
+        if audioRecorderService.isPlaying == false && audioRecorderService.currentPlaybackTime > 0 {
+            // Resume from where we left off
+            audioRecorderService.resumePlayback()
+        } else {
+            // Start fresh playback
+            audioRecorderService.startPlayback(url: audioURL)
+        }
+        
         isPlaying = true
-        currentTime = 0
         
         // Start local timer to sync with service
         startLocalPlaybackTimer()
@@ -797,7 +805,7 @@ struct WhisperItemView: View {
     
     private func startLocalPlaybackTimer() {
         stopLocalPlaybackTimer()
-        playbackTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+        playbackTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
             Task { @MainActor in
                 self.currentTime = self.audioRecorderService.currentPlaybackTime
                 // Sync playing state with service
@@ -852,9 +860,9 @@ struct AudioLevelMeter: View {
                 if isOutput {
                     // AUTO button for OUTPUT
                     Button(action: {}) {
-                        Text("AUTO")
-                            .font(.custom("IBMPlexMono", size: 6))
-                            .foregroundColor(Color(hex: "#141414"))
+                        Text(NSLocalizedString("AUTO", comment: ""))
+                            .font(.custom("IBMPlexMono", size: 10))
+                            .foregroundColor(Color(hex: "#BBBBBB"))
                             .padding(.horizontal, 4)
                             .padding(.vertical, 1)
                             .background(Color(hex: "#BBBBBB"))
@@ -876,13 +884,13 @@ struct AudioLevelMeter: View {
                 
                 // Peak and RMS readings
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("Peak \(formatLevel(peakLevel))")
-                        .font(.custom("IBMPlexMono", size: 6))
+                    Text(NSLocalizedString("Peak", comment: "") + " \(formatLevel(peakLevel))")
+                        .font(.custom("IBMPlexMono", size: 10))
                         .foregroundColor(Color(hex: "#BBBBBB"))
                         .frame(width: 45, alignment: .leading)
                     
-                    Text("RMS \(formatLevel(rmsLevel))")
-                        .font(.custom("IBMPlexMono", size: 6))
+                    Text(NSLocalizedString("RMS", comment: "") + " \(formatLevel(rmsLevel))")
+                        .font(.custom("IBMPlexMono", size: 10))
                         .foregroundColor(Color(hex: "#BBBBBB"))
                         .frame(width: 45, alignment: .leading)
                 }
@@ -909,8 +917,8 @@ struct AudioLevelMeter: View {
                 // dB scale
                 VStack(alignment: .trailing, spacing: 0) {
                     ForEach([0, -6, -12, -24, -40, -60], id: \.self) { db in
-                        Text("\(db)dB")
-                            .font(.custom("IBMPlexMono", size: 4))
+                        Text("\(db)" + NSLocalizedString("dB", comment: ""))
+                            .font(.custom("IBMPlexMono", size: 10))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                             .frame(height: 20, alignment: .trailing)
                     }
@@ -1011,7 +1019,7 @@ struct WhisperOptionsView: View {
                     
                     // Header
                     HStack {
-                        Text("Whisper Options")
+                        Text(NSLocalizedString("Whisper Options", comment: ""))
                             .font(.custom("IBMPlexMono", size: 20))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                             .padding(.leading, 20)
@@ -1114,14 +1122,8 @@ struct WhisperOptionsView: View {
             }
         }
         
-        // Simulate progress for better UX
-        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            if self.item.transcriptionProgress < 0.9 {
-                self.item.transcriptionProgress += 0.01
-            } else {
-                timer.invalidate()
-            }
-        }
+        // Start smooth progress animation
+        startSmoothProgressAnimation()
     }
     
     private func downloadAudio() {
@@ -1130,15 +1132,15 @@ struct WhisperOptionsView: View {
             return
         }
         
-        let activityViewController = transcriptionService.shareFile(url: audioURL)
-        
-        // Present the share sheet
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first {
-            window.rootViewController?.present(activityViewController, animated: true)
+        // Use Files app picker instead of share sheet
+        transcriptionService.saveFileToFilesApp(url: audioURL) { success in
+            if success {
+                FeedbackService.shared.playHaptic(.light)
+            } else {
+                FeedbackService.shared.playHaptic(.heavy)
+            }
         }
         
-        FeedbackService.shared.playHaptic(.light)
         dismiss()
     }
     
@@ -1148,15 +1150,15 @@ struct WhisperOptionsView: View {
             return
         }
         
-        let activityViewController = transcriptionService.shareFile(url: transcriptionURL)
-        
-        // Present the share sheet
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first {
-            window.rootViewController?.present(activityViewController, animated: true)
+        // Use Files app picker instead of share sheet
+        transcriptionService.saveFileToFilesApp(url: transcriptionURL) { success in
+            if success {
+                FeedbackService.shared.playHaptic(.light)
+            } else {
+                FeedbackService.shared.playHaptic(.heavy)
+            }
         }
         
-        FeedbackService.shared.playHaptic(.light)
         dismiss()
     }
     
@@ -1173,6 +1175,21 @@ struct WhisperOptionsView: View {
         FeedbackService.shared.playHaptic(.light)
         dismiss()
         onItemUpdated()
+    }
+    
+    private func startSmoothProgressAnimation() {
+        // Reset progress
+        item.transcriptionProgress = 0.0
+        
+        // Animate progress smoothly over a realistic duration
+        // Transcription typically takes 2-5 seconds for short audio
+        let animationDuration: TimeInterval = 3.0
+        
+        withAnimation(.easeInOut(duration: animationDuration)) {
+            item.transcriptionProgress = 0.9 // Animate to 90%
+        }
+        
+        // The remaining 10% will be set when transcription actually completes
     }
 }
 
@@ -1238,7 +1255,7 @@ struct DeleteWhisperItemSheet: View {
                 VStack(spacing: 8) {
                                     // Content
                 VStack(spacing: 8) {
-                                            Text("This action can't be undone.")
+                                            Text(NSLocalizedString("This action can't be undone.", comment: ""))
                             .font(.custom("IBMPlexMono", size: 16))
                             .foregroundColor(Color(hex: "#EEEEEE"))
                             .multilineTextAlignment(.leading)
@@ -1253,7 +1270,7 @@ struct DeleteWhisperItemSheet: View {
                             onDelete()
                             dismiss()
                         }) {
-                            Text("Delete Audio")
+                            Text(NSLocalizedString("Delete Audio", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .foregroundColor(Color(hex: "#FF6B6B"))
                                 .frame(maxWidth: .infinity)
@@ -1266,7 +1283,7 @@ struct DeleteWhisperItemSheet: View {
                         Button(action: {
                             dismiss()
                         }) {
-                            Text("Cancel")
+                            Text(NSLocalizedString("Cancel", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                                 .frame(maxWidth: .infinity)
@@ -1295,7 +1312,7 @@ struct DeleteWhisperItemSheet: View {
                     
                     // Header
                     HStack {
-                        Text("Delete Audio")
+                        Text(NSLocalizedString("Delete Audio", comment: ""))
                             .font(.custom("IBMPlexMono", size: 20))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                             .padding(.leading, 20)

@@ -7,8 +7,8 @@ struct SettingsTabsView: View {
         VStack {
             // Tab selector
             Picker("Settings Type", selection: $viewModel.selectedTab) {
-                Text("UI").tag(0)
-                Text("Dev").tag(1)
+                Text(NSLocalizedString("UI", comment: "")).tag(0)
+                Text(NSLocalizedString("Dev", comment: "")).tag(1)
             }
             .pickerStyle(.segmented)
             .padding()
@@ -38,9 +38,9 @@ struct UISettingsTab: View {
                 Toggle("Notifications", isOn: $viewModel.appSettings.enableNotifications)
                 
                 Picker("Language", selection: $viewModel.appSettings.language) {
-                    Text("English").tag("English")
-                    Text("Spanish").tag("Spanish")
-                    Text("French").tag("French")
+                    Text(NSLocalizedString("English", comment: "")).tag("English")
+                    Text(NSLocalizedString("Spanish", comment: "")).tag("Spanish")
+                    Text(NSLocalizedString("French", comment: "")).tag("French")
                 }
                 
                 Stepper("Max History Items: \(viewModel.appSettings.maxHistoryItems)", 
@@ -85,21 +85,27 @@ struct DeveloperSettingsTab: View {
         Form {
             Section("App Information") {
                 HStack {
-                    Text("Version")
+                    Text(NSLocalizedString("Version", comment: ""))
+                        .font(.custom("IBMPlexMono", size: 12))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
                     Spacer()
                     Text(viewModel.developerInfo.appVersion)
                         .foregroundColor(.secondary)
                 }
                 
                 HStack {
-                    Text("Build")
+                    Text(NSLocalizedString("Build", comment: ""))
+                        .font(.custom("IBMPlexMono", size: 12))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
                     Spacer()
                     Text(viewModel.developerInfo.buildNumber)
                         .foregroundColor(.secondary)
                 }
                 
                 HStack {
-                    Text("Last Updated")
+                    Text(NSLocalizedString("Last Updated", comment: ""))
+                        .font(.custom("IBMPlexMono", size: 12))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
                     Spacer()
                     Text(viewModel.developerInfo.lastUpdated, style: .date)
                         .foregroundColor(.secondary)
@@ -108,7 +114,7 @@ struct DeveloperSettingsTab: View {
             
             Section("API Configuration") {
                 HStack {
-                    Text("API Endpoint")
+                    Text(NSLocalizedString("API Endpoint", comment: ""))
                     Spacer()
                     Text(viewModel.developerInfo.apiEndpoint)
                         .foregroundColor(.secondary)
@@ -118,10 +124,10 @@ struct DeveloperSettingsTab: View {
                 Toggle("Debug Mode", isOn: $viewModel.developerInfo.debugMode)
                 
                 Picker("Log Level", selection: $viewModel.developerInfo.logLevel) {
-                    Text("Debug").tag("Debug")
-                    Text("Info").tag("Info")
-                    Text("Warning").tag("Warning")
-                    Text("Error").tag("Error")
+                    Text(NSLocalizedString("Debug", comment: "")).tag("Debug")
+                    Text(NSLocalizedString("Info", comment: "")).tag("Info")
+                    Text(NSLocalizedString("Warning", comment: "")).tag("Warning")
+                    Text(NSLocalizedString("Error", comment: "")).tag("Error")
                 }
             }
             
@@ -146,11 +152,11 @@ struct DeveloperSettingsTab: View {
             
             Section("About") {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Control LLM")
+                    Text(NSLocalizedString("Control LLM", comment: ""))
                         .font(.headline)
-                    Text("A voice-first AI assistant with custom UI and MVVM architecture.")
-                        .font(.body)
-                        .foregroundColor(.secondary)
+                    Text(NSLocalizedString("A voice-first AI assistant with custom UI and MVVM architecture.", comment: ""))
+                        .font(.custom("IBMPlexMono", size: 12))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
                 }
                 .padding(.vertical, 4)
             }

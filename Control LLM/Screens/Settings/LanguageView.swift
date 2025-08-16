@@ -142,7 +142,7 @@ struct LanguageView: View {
         }
         
         // Check if it's Gemma 3N specifically
-        if selectedModel.filename.lowercased().contains("gemma-3n-e4b-it") {
+        if selectedModel.filename.lowercased().contains("gemma-3n-e4b-it-q4_k_m") || selectedModel.filename.lowercased().contains("gemma-3n-e4b-it") || selectedModel.filename.lowercased().contains("gemma-3n") {
             return Set(gemma3NLanguages)
         }
         
@@ -201,7 +201,7 @@ struct LanguageView: View {
                                 .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                             
-                            Text("Language")
+                            Text(NSLocalizedString("Language", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 20))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                         }
@@ -225,12 +225,12 @@ struct LanguageView: View {
 
                     // Sub copy under headline
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Voice language options depend on your selected LLM. Text language automatically follows your iOS system language.")
+                        Text(NSLocalizedString("Voice language options depend on your selected LLM. Text language automatically follows your iOS system language.", comment: ""))
                             .font(.custom("IBMPlexMono", size: 12))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                             .multilineTextAlignment(.leading)
                         
-                        Text("To access more voices, select a different LLM in Model Settings. To change text language, update the language in your IOS Settings.")
+                        Text(NSLocalizedString("To access more voices, select a different LLM in Model Settings. To change text language, update the language in your iOS Settings.", comment: ""))
                             .font(.custom("IBMPlexMono", size: 12))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                             .multilineTextAlignment(.leading)

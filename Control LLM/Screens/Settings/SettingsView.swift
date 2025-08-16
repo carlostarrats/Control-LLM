@@ -47,7 +47,7 @@ struct SettingsView: View {
                         
                         // Footer section
                         VStack(spacing: 4) {
-                            Text("V 1.0")
+                            Text(NSLocalizedString("V 1.0", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 14))
                                 .foregroundColor(Color(hex: "#666666"))
                                 .frame(maxWidth: .infinity, alignment: .center)
@@ -204,7 +204,7 @@ struct SettingsItemView: View {
 									.font(.custom("IBMPlexMono", size: 16))
 									.foregroundColor(Color(hex: "#EEEEEE"))
 								
-								Text(":")
+								Text(NSLocalizedString(":", comment: ""))
 									.font(.custom("IBMPlexMono", size: 16))
 									.foregroundColor(Color(hex: "#EEEEEE"))
 								

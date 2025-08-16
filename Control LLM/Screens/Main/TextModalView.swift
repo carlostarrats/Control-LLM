@@ -165,7 +165,7 @@ struct TextModalView: View {
                 viewModel.llm.messageHistory = history
             }
         }
-                        .onReceive(NotificationCenter.default.publisher(for: .modelDidChange)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .modelDidChange)) { _ in
             print("🔍 TextModalView: Model change notification received, resetting state...")
             // Reset only internal polling state when model changes
             isPolling = false
@@ -184,8 +184,12 @@ struct TextModalView: View {
             
             print("🔍 TextModalView: State reset completed - displayed messages preserved")
         }
-
-
+        // Add tap gesture to dismiss keyboard when tapping outside
+        .onTapGesture {
+            if isTextFieldFocused {
+                isTextFieldFocused = false
+            }
+        }
     }
     
     // MARK: - Date header logic ----------------------------------------------
@@ -231,7 +235,7 @@ struct TextModalView: View {
                     Image(systemName: "keyboard")
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(Color(hex: "#BBBBBB"))
-                    Text("Control")
+                    Text(NSLocalizedString("Control", comment: ""))
                         .font(.custom("IBMPlexMono", size: 20))
                         .foregroundColor(Color(hex: "#BBBBBB"))
                 }
@@ -300,7 +304,10 @@ struct TextModalView: View {
             HStack(alignment: .bottom, spacing: 12) {
                 // Plus button
                 Button(action: {
-                    showingDocumentPicker = true
+                    // Use a slight delay to ensure smooth animation
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        showingDocumentPicker = true
+                    }
                 }) {
                     Image(systemName: "plus")
                         .font(.system(size: 16, weight: .medium))
@@ -325,7 +332,7 @@ struct TextModalView: View {
                 }
 
                 // Text field
-                TextField("Type your message...", text: $messageText, axis: .vertical)
+                TextField(NSLocalizedString("Ask Anything…", comment: ""), text: $messageText, axis: .vertical)
                     .font(.custom("IBMPlexMono", size: 16))
                     .foregroundColor(colorManager.purpleColor)
                     .padding(.leading, 16)
@@ -334,11 +341,10 @@ struct TextModalView: View {
                     .background(Color(hex: "#2A2A2A"))
                     .cornerRadius(4)
                     .tint(Color(hex: "#EEEEEE"))
+                    .focused($isTextFieldFocused)
                     .onChange(of: messageText) { _, _ in
+                        // Enable typing sounds by playing key press sound
                         FeedbackService.shared.playSound(.keyPress)
-                    }
-                    .onTapGesture {
-                        isTextFieldFocused = true
                     }
                     .overlay(placeholderOverlay.allowsHitTesting(false), alignment: .leading) // Fix placeholder tap issue
                     .overlay(sendButtonOverlay, alignment: .bottomTrailing) // Anchor to bottom-right
@@ -360,7 +366,7 @@ struct TextModalView: View {
     @ViewBuilder private var placeholderOverlay: some View {
         if messageText.isEmpty {
             HStack {
-                Text("Ask Anything…")
+                Text(NSLocalizedString("Ask Anything…", comment: ""))
                     .font(.custom("IBMPlexMono", size: 16))
                     .foregroundColor(Color(hex: "#666666"))
                 Spacer()
@@ -376,6 +382,8 @@ struct TextModalView: View {
             Button(action: {
                 print("Send button pressed!")
                 NSLog("Send button pressed!")
+                // Use light haptic like main page buttons
+                FeedbackService.shared.playHaptic(.light)
                 Task {
                     await sendMessage()
                 }

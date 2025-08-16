@@ -10,10 +10,12 @@ struct CentralVisualizerView: View {
     var saturationLevel: Double = 1.0 // 1.0 = full saturation, 0.0 = black and white
     var brightnessLevel: Double = 1.0 // 1.0 = full brightness, 0.0 = black
 
-    var onTap: (() -> Void)?
-    
     // MARK: - Voice Integration
     @StateObject private var voiceIntegration = VoiceIntegrationService.shared
+    
+    // MARK: - Listening States
+    @State private var isListening = false
+    @State private var isProcessing = false
     
 
     
@@ -56,6 +58,13 @@ struct CentralVisualizerView: View {
 
     var body: some View {
         ZStack {
+            // Tap gesture for listening control
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    handleVisualizerTap()
+                }
+            
             // Deep background wave layer - creates depth with Liquid
             Liquid(samples:50, period: 3.0)
                 .frame(width: 400, height: 400)
@@ -418,35 +427,7 @@ struct CentralVisualizerView: View {
                 y: isAnimating ? cos(animationPhase * 0.6) * 1 : 0)
         .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 0.4) * 0.004 : 1.0, anchor: .center)
         .contentShape(Rectangle()) // Make the entire frame tappable
-        .onTapGesture(coordinateSpace: .global) { location in
-            // Constrain taps to the middle area of the screen (roughly middle 60%)
-            let screenHeight = UIScreen.main.bounds.height
-            let centerStart = screenHeight * 0.2   // 20% from top of screen
-            let centerEnd = screenHeight * 0.8     // 80% from top of screen
-            
-            if location.y >= centerStart && location.y <= centerEnd {
-                // Light haptic feedback for visualizer tap
-                FeedbackService.shared.playHaptic(.light)
-                
-                // Toggle voice mode for Mycroft
-                if !voiceIntegration.isVoiceModeActive {
-                    // Activating - start voice mode
-                    print("🎤 Mycroft: Starting voice mode")
-                    voiceIntegration.startVoiceMode()
-                    
-                    // Visual feedback - pulse the visualizer
-                    withAnimation(.easeInOut(duration: 0.3).repeatCount(3, autoreverses: true)) {
-                        // Add a visual pulse effect
-                    }
-                } else {
-                    // Deactivating - stop voice mode
-                    print("🔇 Mycroft: Stopping voice mode")
-                    voiceIntegration.stopVoiceMode()
-                }
-                
-                onTap?()
-            }
-        }
+
         .shadow(color: isAnimating ? applyHueShift(to: Color(hex: "#FF00D0").opacity(0.6)) : Color.clear,
                 radius: isAnimating ? 20 + sin(animationPhase * 0.3) * 10 : 0)
         .animation(
@@ -477,6 +458,21 @@ struct CentralVisualizerView: View {
                 stopSpeechAnimation()
             }
         }
+        .onChange(of: isListening) { _, newValue in
+            if newValue {
+                startListeningAnimation()
+            } else {
+                stopListeningAnimation()
+            }
+        }
+        .onAppear {
+            setupVoiceCallbacks()
+            setupNotificationObservers()
+        }
+        .onDisappear {
+            cleanupVoiceCallbacks()
+            cleanupNotificationObservers()
+        }
 
     }
     
@@ -494,6 +490,20 @@ struct CentralVisualizerView: View {
         }
     }
     
+    // Function to start listening animation (active state)
+    func startListeningAnimation() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            isAnimating = true
+        }
+    }
+    
+    // Function to stop listening animation (deactive state)
+    func stopListeningAnimation() {
+        withAnimation(.easeOut(duration: 0.4)) {
+            isAnimating = false
+        }
+    }
+    
     // Function to start continuous animation timer
     func startContinuousAnimation() {
         continuousAnimationTimer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in
@@ -505,6 +515,121 @@ struct CentralVisualizerView: View {
     func stopContinuousAnimation() {
         continuousAnimationTimer?.invalidate()
         continuousAnimationTimer = nil
+    }
+    
+    // MARK: - Listening Control
+    
+    private func handleVisualizerTap() {
+        if !isListening && !isProcessing && !isSpeaking {
+            // Start listening
+            startListening()
+        } else if isListening && !isProcessing {
+            // Stop listening and start processing
+            stopListening()
+        }
+    }
+    
+    private func startListening() {
+        print("🎤 CentralVisualizerView: Starting listening")
+        isListening = true
+        isProcessing = false
+        
+        // Start active animation
+        startSpeechAnimation()
+        
+        // Light haptic feedback
+        FeedbackService.shared.playHaptic(.light)
+        
+        // Start voice mode
+        voiceIntegration.startVoiceMode()
+    }
+    
+    private func stopListening() {
+        print("🔇 CentralVisualizerView: Stopping listening")
+        isListening = false
+        isProcessing = true
+        
+        // Stop active animation
+        stopSpeechAnimation()
+        
+        // Light haptic feedback + stop recording sound
+        FeedbackService.shared.playHaptic(.light)
+        FeedbackService.shared.playSound(.endRecord)
+        
+        // Stop voice mode
+        voiceIntegration.stopVoiceMode()
+        
+        // Set up callback for when processing is complete
+        voiceIntegration.onVoiceInputComplete = { transcribedText in
+            DispatchQueue.main.async {
+                self.handleVoiceInputComplete(transcribedText)
+            }
+        }
+    }
+    
+    private func handleVoiceInputComplete(_ transcribedText: String) {
+        print("📝 CentralVisualizerView: Voice input complete, starting LLM response")
+        isProcessing = false
+        
+        // The LLM will now process and respond
+        // We'll wait for the response to start speaking
+    }
+    
+    private func handleVoiceResponseComplete() {
+        print("🔊 CentralVisualizerView: Voice response complete")
+        isSpeaking = false
+        isListening = false
+        isProcessing = false
+        
+        // Return to deactive state
+        stopSpeechAnimation()
+    }
+    
+    // MARK: - Setup and Cleanup
+    
+    private func setupVoiceCallbacks() {
+        voiceIntegration.onVoiceInputComplete = { transcribedText in
+            DispatchQueue.main.async {
+                self.handleVoiceInputComplete(transcribedText)
+            }
+        }
+        
+        voiceIntegration.onVoiceResponseComplete = {
+            DispatchQueue.main.async {
+                self.handleVoiceResponseComplete()
+            }
+        }
+    }
+    
+    private func cleanupVoiceCallbacks() {
+        voiceIntegration.onVoiceInputComplete = nil
+        voiceIntegration.onVoiceResponseComplete = nil
+    }
+    
+    private func setupNotificationObservers() {
+        // Listen for when LLM starts speaking
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name("voiceResponseToken"),
+            object: nil,
+            queue: .main
+        ) { _ in
+            // LLM is responding, set speaking state
+            self.isSpeaking = true
+        }
+        
+        // Listen for when LLM finishes speaking
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name("voiceResponseComplete"),
+            object: nil,
+            queue: .main
+        ) { _ in
+            // LLM response complete, return to deactive state
+            self.handleVoiceResponseComplete()
+        }
+    }
+    
+    private func cleanupNotificationObservers() {
+        NotificationCenter.default.removeObserver(self)
     }
 }
 

@@ -5,7 +5,6 @@ struct VisualizerTabView: View {
     var hueShift: Double = 0.0
     var saturationLevel: Double = 1.0
     var brightnessLevel: Double = 1.0
-    var onTap: (() -> Void)?
     
     // Use the shared VisualizerStateManager instead of local state
     @StateObject private var visualizerState = VisualizerStateManager.shared
@@ -20,8 +19,7 @@ struct VisualizerTabView: View {
                     isSpeaking: $isSpeaking,
                     hueShift: hueShift,
                     saturationLevel: saturationLevel,
-                    brightnessLevel: brightnessLevel,
-                    onTap: onTap
+                    brightnessLevel: brightnessLevel
                 )
                 .transition(.asymmetric(
                     insertion: .opacity.combined(with: .scale(scale: 0.8)),
@@ -30,8 +28,7 @@ struct VisualizerTabView: View {
                 
             case .wopr:
                 ParticleVisualizerView(
-                    isSpeaking: $isSpeaking,
-                    onTap: onTap
+                    isSpeaking: $isSpeaking
                 )
                 .transition(.asymmetric(
                     insertion: .opacity.combined(with: .scale(scale: 0.8)),
@@ -40,8 +37,7 @@ struct VisualizerTabView: View {
                 
             case .tars:
                 FlowingLiquidView(
-                    isSpeaking: $isSpeaking,
-                    onTap: onTap
+                    isSpeaking: $isSpeaking
                 )
                 .transition(.asymmetric(
                     insertion: .opacity.combined(with: .scale(scale: 0.8)),

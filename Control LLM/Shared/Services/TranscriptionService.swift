@@ -151,6 +151,22 @@ class TranscriptionService: ObservableObject {
         return activityViewController
     }
     
+    // MARK: - Files App Integration
+    func saveFileToFilesApp(url: URL, completion: @escaping (Bool) -> Void) {
+        let documentPicker = UIDocumentPickerViewController(forExporting: [url])
+        documentPicker.shouldShowFileExtensions = true
+        
+        // Get the current window scene and present the picker
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.rootViewController?.present(documentPicker, animated: true) {
+                completion(true)
+            }
+        } else {
+            completion(false)
+        }
+    }
+    
     // MARK: - Utility Functions
     func formatFileSize(_ bytes: Int64) -> String {
         return ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)

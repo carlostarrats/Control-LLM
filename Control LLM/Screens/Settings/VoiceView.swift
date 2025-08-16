@@ -133,6 +133,7 @@ private func getRegionName(_ code: String) -> String {
 struct VoiceView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var tts = TTSService.shared
+    @State private var availableVoices: [AVSpeechSynthesisVoice] = []
     
     var body: some View {
         ZStack {
@@ -145,14 +146,31 @@ struct VoiceView: View {
                 VStack(spacing: 8) {
                     // Installed iOS voices
                     VStack(spacing: 0) {
-                        ForEach(TTSService.shared.availableVoices(), id: \.identifier) { voice in
-                            VoiceRowView(
-                                voice: voice,
-                                isSelected: tts.selectedVoiceIdentifier == voice.identifier,
-                                onSelect: {
-                                    tts.setSelectedVoice(identifier: voice.identifier)
-                                }
-                            )
+                        if availableVoices.isEmpty {
+                            // Show message if no voices are available
+                            VStack(spacing: 12) {
+                                Text(NSLocalizedString("No pre-installed voices found", comment: ""))
+                                    .font(.custom("IBMPlexMono", size: 16))
+                                    .foregroundColor(Color(hex: "#666666"))
+                                    .multilineTextAlignment(.center)
+                                
+                                Text(NSLocalizedString("This device may not have the standard iOS voices installed", comment: ""))
+                                    .font(.custom("IBMPlexMono", size: 12))
+                                    .foregroundColor(Color(hex: "#666666"))
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 40)
+                        } else {
+                            ForEach(availableVoices, id: \.identifier) { voice in
+                                VoiceRowView(
+                                    voice: voice,
+                                    isSelected: tts.selectedVoiceIdentifier == voice.identifier,
+                                    onSelect: {
+                                        tts.setSelectedVoice(identifier: voice.identifier)
+                                    }
+                                )
+                            }
                         }
                     }
                     .padding(.horizontal, 20)
@@ -177,7 +195,7 @@ struct VoiceView: View {
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                             
                             Text(NSLocalizedString("Voice", comment: ""))
-                                .font(.custom("IBMPlexMono", size: 20))
+                                .font(.custom("IBMPlexMono", size: 16))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                         }
                         .padding(.leading, 20)
@@ -200,7 +218,7 @@ struct VoiceView: View {
 
                     // Sub copy under headline
                     HStack {
-                        Text(NSLocalizedString("iOS System Voices", comment: ""))
+                        Text(NSLocalizedString("Pre-installed iOS System Voices", comment: ""))
                             .font(.custom("IBMPlexMono", size: 12))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                         Spacer()
@@ -212,6 +230,10 @@ struct VoiceView: View {
                     Color(hex: "#1D1D1D")
                 )
             }
+        }
+        .onAppear {
+            // Use cached voices from TTSService, no need to reload
+            availableVoices = tts.availableVoices
         }
     }
     

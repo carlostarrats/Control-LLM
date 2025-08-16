@@ -7,8 +7,8 @@ struct AgentTabsView: View {
         VStack {
             // Tab selector
             Picker("Content Type", selection: $viewModel.selectedTab) {
-                Text("Models").tag(0)
-                Text("Agents").tag(1)
+                Text(NSLocalizedString("Models", comment: "")).tag(0)
+                Text(NSLocalizedString("Agents", comment: "")).tag(1)
             }
             .pickerStyle(.segmented)
             .padding()
@@ -109,9 +109,9 @@ struct ModelRow: View {
                             .font(.caption)
                             .foregroundColor(.blue)
                         Text("•")
-                        Text("Available")
-                            .font(.caption)
-                            .foregroundColor(.green)
+                        Text(NSLocalizedString("Available", comment: ""))
+                            .font(.custom("IBMPlexMono", size: 10))
+                            .foregroundColor(Color(hex: "#00FF00"))
                     }
                 }
                 
@@ -123,9 +123,9 @@ struct ModelRow: View {
                 }
                 
                 if !model.isAvailable {
-                    Text("Unavailable")
-                        .font(.caption)
-                        .foregroundColor(.red)
+                    Text(NSLocalizedString("Unavailable", comment: ""))
+                        .font(.custom("IBMPlexMono", size: 10))
+                        .foregroundColor(Color(hex: "#FF0000"))
                 }
             }
         }
@@ -147,9 +147,9 @@ struct AgentRow: View {
                         Text(agent.name)
                             .font(.headline)
                         if agent.isActive {
-                            Text("• Active")
-                                .font(.caption)
-                                .foregroundColor(ColorManager.shared.greenColor)
+                            Text("• " + NSLocalizedString("Active", comment: ""))
+                                .font(.custom("IBMPlexMono", size: 10))
+                                .foregroundColor(Color(hex: "#00FF00"))
                         }
                     }
                     
@@ -164,7 +164,7 @@ struct AgentRow: View {
                                 .font(.caption)
                                 .foregroundColor(.blue)
                         } else {
-                            Text("No Model Assigned")
+                            Text(NSLocalizedString("No Model Assigned", comment: ""))
                                 .font(.caption)
                                 .foregroundColor(.orange)
                         }

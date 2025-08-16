@@ -224,9 +224,9 @@ struct AppearanceView: View {
                 VStack(spacing: 8) {
                     // Control Unit Selection Section
                     VStack(alignment: .leading, spacing: 20) {
-                        Text("Control Unit Selection")
-                            .font(.custom("IBMPlexMono", size: 18))
-                            .foregroundColor(Color(hex: "#EEEEEE"))
+                        Text(NSLocalizedString("Control Unit Selection", comment: ""))
+                            .font(.custom("IBMPlexMono", size: 20))
+                            .foregroundColor(Color(hex: "#BBBBBB"))
                         
                         // Visualizer tabs - same styling as other design system elements
                         HStack(spacing: 0) {
@@ -277,12 +277,12 @@ struct AppearanceView: View {
                     
                     // Main UI Colors Section
                     VStack(alignment: .leading, spacing: 0) {
-                        Text("Main UI Colors")
-                            .font(.custom("IBMPlexMono", size: 18))
-                            .foregroundColor(Color(hex: "#EEEEEE"))
+                        Text(NSLocalizedString("Main UI Colors", comment: ""))
+                            .font(.custom("IBMPlexMono", size: 20))
+                            .foregroundColor(Color(hex: "#BBBBBB"))
                         
-                        Text("These colors affect text and other UI elements.")
-                            .font(.custom("IBMPlexMono", size: 14))
+                        Text(NSLocalizedString("These colors affect text and other UI elements.", comment: ""))
+                            .font(.custom("IBMPlexMono", size: 12))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                             .multilineTextAlignment(.leading)
                             .padding(.top, 8)
@@ -345,9 +345,9 @@ struct AppearanceView: View {
                                 suppressChangeTracking = false
                             }
                         }) {
-                            Text("Restore Defaults")
+                            Text(NSLocalizedString("Restore Defaults", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 16))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(Color(hex: "#1D1D1D"))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
                                 .background(Color(hex: "#2A2A2A"))
@@ -365,9 +365,9 @@ struct AppearanceView: View {
                             hasChanges = false
                             dismiss()
                         }) {
-                            Text("Apply Changes")
+                            Text(NSLocalizedString("Apply Changes", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 16))
-                                .foregroundColor(hasChanges ? ColorManager.shared.greenColor : Color(hex: "#888888"))
+                                .foregroundColor(Color(hex: "#1D1D1D"))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
                                 .background(Color(hex: "#2A2A2A"))
@@ -398,7 +398,7 @@ struct AppearanceView: View {
                                 .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                             
-                            Text("Appearance")
+                            Text(NSLocalizedString("Appearance", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 20))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                         }

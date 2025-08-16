@@ -108,8 +108,7 @@ struct MainView: View {
                     isSpeaking: $viewModel.isActivated,
                     hueShift: hueShift,
                     saturationLevel: saturationLevel,
-                    brightnessLevel: brightnessLevel,
-                    onTap: handleBlobTap
+                    brightnessLevel: brightnessLevel
                 )
                 .scaleEffect(blobScale)
                 .accessibilityLabel("Voice recording button")
@@ -286,67 +285,7 @@ struct MainView: View {
         chatModeTimer?.invalidate() // Invalidate the timer
     }
 
-    private func handleBlobTap() {
-        if !viewModel.isActivated && !isChatMode {
-            // Toggle ON: Start voice mode and control activation
-            print("🎤 Starting voice mode and control activation")
-            activateControlSequence()
-            startVoiceMode()
-        } else if viewModel.isActivated && !isChatMode {
-            // Toggle OFF: Stop voice mode and deactivate
-            print("🔇 Stopping voice mode and deactivating control")
-            stopVoiceMode()
-            deactivateControlSequence()
-        }
-    }
-    
-    private func startVoiceMode() {
-        // Start voice mode using the existing VoiceIntegrationService
-        VoiceIntegrationService.shared.startVoiceMode()
-    }
-    
-    private func stopVoiceMode() {
-        // Stop voice mode
-        VoiceIntegrationService.shared.stopVoiceMode()
-    }
 
-    private func activateControlSequence() {
-        print("🔥 CONTROL ACTIVATED - Starting activation sequence")
-
-        // Start activation sequence
-        withAnimation(.easeOut(duration: 0.8)) {
-            viewModel.isActivated = true
-            textOpacity = 0.0 // Fade all text away
-            manualInputOpacity = 0.0 // Fade manual input away
-            blobColorOpacity = 1.0 // Keep blob fully visible
-
-            // Set activated state values (copy of main state but full brightness)
-            hueShift = 0.90
-            saturationLevel = 0.12
-            brightnessLevel = 1.0
-        }
-        
-        // REMOVED: No more automatic timer - stays activated until manually toggled off
-    }
-
-    private func deactivateControlSequence() {
-        print("🔥 CONTROL DEACTIVATED - Starting deactivation sequence")
-
-        // Start deactivation sequence
-        withAnimation(.easeOut(duration: 0.8)) {
-            viewModel.isActivated = false
-            blobColorOpacity = 1.0 // Restore blob colors
-            brightnessLevel = 0.3
-        }
-        
-        // Restore text and manual input after a short delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            withAnimation(.easeInOut(duration: 0.8)) {
-                textOpacity = 1.0 // Restore text
-                manualInputOpacity = 1.0 // Restore manual input
-            }
-        }
-    }
 }
 
 // Removed OrganicRippleEffect and RippleLayer - now using Metal shader approach
