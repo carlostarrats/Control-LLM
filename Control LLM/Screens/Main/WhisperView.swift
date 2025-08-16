@@ -1,4 +1,7 @@
 import SwiftUI
+import AVFoundation
+import Speech
+import UIKit
 
 struct WhisperView: View {
     @Binding var showingTextModal: Bool
@@ -9,33 +12,134 @@ struct WhisperView: View {
     @State private var timer: Timer?
     @State private var recordingStartTime: Date?
     @State private var expandedItemId: String? = nil
-
-    @State private var whisperItems: [WhisperItem] = [
-        WhisperItem(
-            id: "1",
-            title: "Audio Processing Pipeline",
-            content: "Real-time audio analysis and processing for voice input recognition and enhancement. Includes noise reduction, echo cancellation, and spectral analysis.",
-            expandedContent: "Advanced audio processing with multi-band compression, adaptive filtering, and machine learning-based voice activity detection. Optimized for low-latency real-time processing in mobile environments.",
+    
+    // New services
+    @StateObject var audioRecorderService = AudioRecorderService()
+    @StateObject var transcriptionService = TranscriptionService()
+    
+    // MARK: - Lifecycle and Data Management
+    private func loadExistingRecordings() {
+        let audioFiles = audioRecorderService.getAllAudioFiles()
+        whisperItems = audioFiles.compactMap { audioURL in
+            guard let attributes = try? FileManager.default.attributesOfItem(atPath: audioURL.path),
+                  let creationDate = attributes[.creationDate] as? Date,
+                  let fileSize = attributes[.size] as? Int64 else {
+                return nil
+            }
+            
+            // Check if transcription exists
+            let transcriptionURL = transcriptionService.getTranscriptionFileURL(for: audioURL)
+            let hasTranscription = FileManager.default.fileExists(atPath: transcriptionURL.path)
+            
+            return WhisperItem(
+                id: audioURL.lastPathComponent,
+                title: "\(creationDate.formatted(date: .abbreviated, time: .shortened))",
+                content: "Audio recording",
+                expandedContent: "Audio recording captured on \(creationDate.formatted())",
+                timestamp: creationDate,
+                duration: 0, // Will be updated when played
+                transcriptionProgress: 0.0,
+                isTranscribing: false,
+                isTranscribed: hasTranscription,
+                audioFileURL: audioURL,
+                transcriptionText: nil,
+                transcriptionFileURL: hasTranscription ? transcriptionURL : nil,
+                fileSize: ByteCountFormatter.string(fromByteCount: fileSize, countStyle: .file)
+            )
+        }
+    }
+    
+    private func saveRecordingToDisk(audioURL: URL, duration: TimeInterval) {
+        // Create WhisperItem for the new recording
+        let newRecording = WhisperItem(
+            id: audioURL.lastPathComponent,
+            title: "\(Date().formatted(date: .abbreviated, time: .shortened))",
+            content: "Audio recording",
+            expandedContent: "Audio recording captured on \(Date().formatted())",
             timestamp: Date(),
-            duration: 45 // 45 seconds
-        ),
-        WhisperItem(
-            id: "2", 
-            title: "Neural Network Architecture",
-            content: "Deep learning model for natural language understanding and response generation. Transformer-based architecture with attention mechanisms.",
-            expandedContent: "Multi-layer transformer with 175 billion parameters, fine-tuned for conversational AI. Includes context window management, response generation, and safety filtering systems.",
-            timestamp: Calendar.current.date(byAdding: .day, value: -1, to: Date())!,
-            duration: 60 // 1 minute
-        ),
-        WhisperItem(
-            id: "3",
-            title: "Memory Management System",
-            content: "Intelligent memory allocation and conversation history management for maintaining context across sessions.",
-            expandedContent: "Hierarchical memory system with short-term working memory, long-term storage, and semantic indexing. Implements efficient retrieval and context reconstruction algorithms.",
-            timestamp: Calendar.current.date(byAdding: .day, value: -5, to: Date())!,
-            duration: 90 // 1 minute 30 seconds
+            duration: duration,
+            transcriptionProgress: 0.0,
+            isTranscribing: false,
+            isTranscribed: false,
+            audioFileURL: audioURL,
+            transcriptionText: nil,
+            transcriptionFileURL: nil,
+            fileSize: audioRecorderService.getFileSize(url: audioURL)
         )
-    ]
+        
+        // Add to the beginning of the list
+        whisperItems.insert(newRecording, at: 0)
+        
+        // Save to UserDefaults for persistence
+        saveWhisperItemsToUserDefaults()
+    }
+    
+    private func saveWhisperItemsToUserDefaults() {
+        // Convert WhisperItems to a serializable format
+        let serializableItems = whisperItems.map { item in
+            [
+                "id": item.id,
+                "title": item.title,
+                "content": item.content,
+                "expandedContent": item.expandedContent,
+                "timestamp": item.timestamp.timeIntervalSince1970,
+                "duration": item.duration,
+                "audioFileURL": item.audioFileURL?.path ?? "",
+                "transcriptionText": item.transcriptionText ?? "",
+                "transcriptionFileURL": item.transcriptionFileURL?.path ?? "",
+                "fileSize": item.fileSize ?? "",
+                "isTranscribed": item.isTranscribed
+            ]
+        }
+        
+        UserDefaults.standard.set(serializableItems, forKey: "WhisperItems")
+    }
+    
+    private func loadWhisperItemsFromUserDefaults() {
+        guard let serializableItems = UserDefaults.standard.array(forKey: "WhisperItems") as? [[String: Any]] else {
+            return
+        }
+        
+        whisperItems = serializableItems.compactMap { dict in
+            guard let id = dict["id"] as? String,
+                  let title = dict["title"] as? String,
+                  let content = dict["content"] as? String,
+                  let expandedContent = dict["expandedContent"] as? String,
+                  let timestamp = dict["timestamp"] as? TimeInterval,
+                  let duration = dict["duration"] as? TimeInterval else {
+                return nil
+            }
+            
+            let audioFileURL = (dict["audioFileURL"] as? String).flatMap { URL(fileURLWithPath: $0) }
+            let transcriptionText = dict["transcriptionText"] as? String
+            let transcriptionFileURL = (dict["transcriptionFileURL"] as? String).flatMap { URL(fileURLWithPath: $0) }
+            let fileSize = dict["fileSize"] as? String
+            let isTranscribed = dict["isTranscribed"] as? Bool ?? false
+            
+            // Verify the audio file still exists
+            if let audioURL = audioFileURL, !FileManager.default.fileExists(atPath: audioURL.path) {
+                return nil
+            }
+            
+            return WhisperItem(
+                id: id,
+                title: title,
+                content: content,
+                expandedContent: expandedContent,
+                timestamp: Date(timeIntervalSince1970: timestamp),
+                duration: duration,
+                transcriptionProgress: 0.0,
+                isTranscribing: false,
+                isTranscribed: isTranscribed,
+                audioFileURL: audioFileURL,
+                transcriptionText: transcriptionText,
+                transcriptionFileURL: transcriptionFileURL,
+                fileSize: fileSize
+            )
+        }
+    }
+
+    @State private var whisperItems: [WhisperItem] = []
     
     var body: some View {
         ZStack {
@@ -156,8 +260,16 @@ struct WhisperView: View {
                                     // Remove the item from the array
                                     if let index = whisperItems.firstIndex(where: { $0.id == item.id }) {
                                         whisperItems.remove(at: index)
+                                        // Save updated list to UserDefaults
+                                        saveWhisperItemsToUserDefaults()
                                     }
-                                }
+                                },
+                                onItemUpdated: {
+                                    // Save updated item to UserDefaults
+                                    saveWhisperItemsToUserDefaults()
+                                },
+                                audioRecorderService: audioRecorderService,
+                                transcriptionService: transcriptionService
                             )
                         }
                     }
@@ -214,12 +326,21 @@ struct WhisperView: View {
                 )
             }
         }
+        .onAppear {
+            // Load existing recordings from disk and UserDefaults
+            loadExistingRecordings()
+            loadWhisperItemsFromUserDefaults()
+        }
         .onDisappear {
+            // Save current state to UserDefaults
+            saveWhisperItemsToUserDefaults()
+            
             // Stop recording if sheet is dismissed while recording
             if isRecording {
                 timer?.invalidate()
                 timer = nil
                 isRecording = false
+                _ = audioRecorderService.stopRecording()
             }
         }
 
@@ -240,23 +361,17 @@ struct WhisperView: View {
             timer = nil
             isRecording = false
             
-            // Add the new recording to the list
-            let newRecording = WhisperItem(
-                id: UUID().uuidString,
-                title: "Tap to edit title",
-                content: "Voice recording",
-                expandedContent: "This is a new voice recording captured using the Whisper interface.",
-                timestamp: Date(),
-                duration: elapsedTime
-            )
-            
-            // Add to the beginning of the list (most recent first)
-            whisperItems.insert(newRecording, at: 0)
+            // Stop recording using the service
+            if let recordingURL = audioRecorderService.stopRecording() {
+                // Save the recording to disk with persistence
+                saveRecordingToDisk(audioURL: recordingURL, duration: elapsedTime)
+            }
             
             // Reset elapsed time for next recording
             elapsedTime = 0
         } else {
-            // Start recording immediately
+            // Start recording using the service
+            audioRecorderService.startRecording()
             FeedbackService.shared.playSound(.beginRecord)
             isRecording = true
             recordingStartTime = Date()
@@ -316,6 +431,12 @@ struct WhisperItem: Identifiable {
     var transcriptionProgress: Double = 0.0
     var isTranscribing: Bool = false
     var isTranscribed: Bool = false
+    
+    // New properties for enhanced functionality
+    var audioFileURL: URL?
+    var transcriptionText: String?
+    var transcriptionFileURL: URL?
+    var fileSize: String?
 }
 
 struct WhisperItemView: View {
@@ -325,6 +446,9 @@ struct WhisperItemView: View {
     let isExpanded: Bool
     let onExpand: (String) -> Void
     let onDelete: () -> Void
+    let onItemUpdated: () -> Void
+    let audioRecorderService: AudioRecorderService
+    let transcriptionService: TranscriptionService
     @State private var isPlaying = false
     @State private var currentTime: TimeInterval = 0
     @State private var playbackTimer: Timer?
@@ -370,6 +494,7 @@ struct WhisperItemView: View {
                                 .onSubmit {
                                     item.title = editedTitle
                                     isEditingTitle = false
+                                    onItemUpdated()
                                 }
                                 .onAppear {
                                     editedTitle = item.title
@@ -404,6 +529,13 @@ struct WhisperItemView: View {
                     Text(formatDuration(item.duration))
                         .font(.custom("IBMPlexMono", size: 10))
                         .foregroundColor(ColorManager.shared.redColor)
+                    
+                    // File size display
+                    if let fileSize = item.fileSize {
+                        Text(fileSize)
+                            .font(.custom("IBMPlexMono", size: 8))
+                            .foregroundColor(Color(hex: "#888888"))
+                    }
                 }
                 
                 // Arrow indicator
@@ -487,36 +619,25 @@ struct WhisperItemView: View {
                         // Playback controls
                         ZStack {
                             // Centered playback controls group
-                            HStack(spacing: 20) {
+                            HStack(spacing: 40) {
                                 // Rewind 15 seconds
                                 Button(action: {
                                     withAnimation(.easeInOut(duration: 0.3)) {
                                         currentTime = max(0, currentTime - 15)
+                                        audioRecorderService.seekToTime(currentTime)
                                     }
                                 }) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color(hex: "#141414"))
-                                            .frame(width: 70, height: 70)
-                                        
-                                        Image(systemName: "gobackward.15")
-                                            .font(.system(size: 26))
-                                            .foregroundColor(Color(hex: "#BBBBBB"))
-                                    }
+                                    Image(systemName: "gobackward.15")
+                                        .font(.system(size: 26))
+                                        .foregroundColor(Color(hex: "#BBBBBB"))
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 
                                 // Play button
                                 Button(action: togglePlayback) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color(hex: "#141414"))
-                                            .frame(width: 70, height: 70)
-                                        
-                                        Image(systemName: isPlaying ? "pause.fill" : "play.fill")
-                                            .font(.system(size: 51))
-                                            .foregroundColor(Color(hex: "#BBBBBB"))
-                                    }
+                                    Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                                        .font(.system(size: 51))
+                                        .foregroundColor(Color(hex: "#BBBBBB"))
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 
@@ -524,17 +645,12 @@ struct WhisperItemView: View {
                                 Button(action: {
                                     withAnimation(.easeInOut(duration: 0.3)) {
                                         currentTime = min(item.duration, currentTime + 15)
+                                        audioRecorderService.seekToTime(currentTime)
                                     }
                                 }) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color(hex: "#141414"))
-                                            .frame(width: 70, height: 70)
-                                        
-                                        Image(systemName: "goforward.15")
-                                            .font(.system(size: 26))
-                                            .foregroundColor(Color(hex: "#BBBBBB"))
-                                    }
+                                    Image(systemName: "goforward.15")
+                                        .font(.system(size: 26))
+                                        .foregroundColor(Color(hex: "#BBBBBB"))
                                 }
                                 .buttonStyle(PlainButtonStyle())
                             }
@@ -615,6 +731,9 @@ struct WhisperItemView: View {
 
             .onDisappear {
                 stopPlayback()
+                // Clean up transcription timer
+                transcriptionTimer?.invalidate()
+                transcriptionTimer = nil
             }
             .onChange(of: isExpanded) { _, newValue in
                 if !newValue && isPlaying {
@@ -622,12 +741,23 @@ struct WhisperItemView: View {
                 }
             }
             .sheet(isPresented: $showingWhisperOptions) {
-                WhisperOptionsView(item: $item)
+                                        WhisperOptionsView(
+                            item: $item,
+                            audioRecorderService: audioRecorderService,
+                            transcriptionService: transcriptionService,
+                            onItemUpdated: onItemUpdated
+                        )
                     .presentationDetents([.height(250)])
             }
             .sheet(isPresented: $showingDeleteSheet) {
-                DeleteWhisperItemSheet(onDelete: onDelete)
-                    .presentationDetents([.height(250)])
+                DeleteWhisperItemSheet(
+                    item: item,
+                    onDelete: {
+                        deleteAudioFile()
+                        onDelete()
+                    }
+                )
+                .presentationDetents([.height(250)])
             }
 
     }
@@ -641,25 +771,44 @@ struct WhisperItemView: View {
     }
     
     private func startPlayback() {
+        guard let audioURL = item.audioFileURL else { return }
+        
+        // Use the passed audio service for playback
+        audioRecorderService.startPlayback(url: audioURL)
         isPlaying = true
+        currentTime = 0
+        
+        // Start local timer to sync with service
+        startLocalPlaybackTimer()
+    }
+    
+    private func pausePlayback() {
+        audioRecorderService.pausePlayback()
+        isPlaying = false
+        stopLocalPlaybackTimer()
+    }
+    
+    private func stopPlayback() {
+        audioRecorderService.stopPlayback()
+        isPlaying = false
+        currentTime = 0
+        stopLocalPlaybackTimer()
+    }
+    
+    private func startLocalPlaybackTimer() {
+        stopLocalPlaybackTimer()
         playbackTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-            if currentTime < item.duration {
-                currentTime += 0.1
-            } else {
-                stopPlayback()
+            Task { @MainActor in
+                self.currentTime = self.audioRecorderService.currentPlaybackTime
+                // Sync playing state with service
+                if self.audioRecorderService.isPlaying != self.isPlaying {
+                    self.isPlaying = self.audioRecorderService.isPlaying
+                }
             }
         }
     }
     
-    private func pausePlayback() {
-        isPlaying = false
-        playbackTimer?.invalidate()
-        playbackTimer = nil
-    }
-    
-    private func stopPlayback() {
-        isPlaying = false
-        currentTime = 0
+    private func stopLocalPlaybackTimer() {
         playbackTimer?.invalidate()
         playbackTimer = nil
     }
@@ -668,6 +817,18 @@ struct WhisperItemView: View {
         let minutes = Int(timeInterval) / 60
         let seconds = Int(timeInterval) % 60
         return String(format: "%d:%02d", minutes, seconds)
+    }
+    
+    private func deleteAudioFile() {
+        guard let audioURL = item.audioFileURL else { return }
+        
+        // Delete the audio file using the service
+        _ = audioRecorderService.deleteAudioFile(url: audioURL)
+        
+        // Also delete transcription if it exists
+        if let transcriptionURL = item.transcriptionFileURL {
+            _ = transcriptionService.deleteTranscriptionFile(url: transcriptionURL)
+        }
     }
 }
 
@@ -814,6 +975,9 @@ struct AudioLevelMeter: View {
 struct WhisperOptionsView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var item: WhisperItem
+    @ObservedObject var audioRecorderService: AudioRecorderService
+    @ObservedObject var transcriptionService: TranscriptionService
+    let onItemUpdated: () -> Void
     
     var body: some View {
         ZStack {
@@ -881,29 +1045,23 @@ struct WhisperOptionsView: View {
     private var whisperOptionsItems: [WhisperOptionsItem] {
         var items: [WhisperOptionsItem] = [
             WhisperOptionsItem(title: "Audio Download", icon: "square.and.arrow.down", action: {
-                // TODO: Implement audio download
-                FeedbackService.shared.playHaptic(.light)
-                dismiss()
+                downloadAudio()
             }, color: Color(hex: "#BBBBBB"))
         ]
         
         if item.isTranscribed {
             // Show download transcription and delete options
             items.append(WhisperOptionsItem(title: "Transcription Download", icon: "square.and.arrow.down", action: {
-                // TODO: Implement transcription download
-                dismiss()
+                downloadTranscription()
             }, color: Color(hex: "#BBBBBB")))
             items.append(WhisperOptionsItem(title: "Delete Transcription", icon: "trash", action: {
-                item.isTranscribed = false
-                item.transcriptionProgress = 0.0
-                dismiss()
+                deleteTranscription()
             }, color: Color(hex: "#FF6B6B")))
         } else if item.isTranscribing {
-            // Show download transcription option
-            items.append(WhisperOptionsItem(title: "Transcription Download", icon: "square.and.arrow.down", action: {
-                // TODO: Implement transcription download
-                dismiss()
-            }, color: Color(hex: "#BBBBBB")))
+            // Show transcription in progress
+            items.append(WhisperOptionsItem(title: "Transcribing...", icon: "clock", action: {
+                // No action while transcribing
+            }, color: Color(hex: "#FFA500")))
         } else {
             // Show transcribe option
             items.append(WhisperOptionsItem(title: "Transcribe Audio", icon: "sparkles", action: {
@@ -915,22 +1073,106 @@ struct WhisperOptionsView: View {
     }
     
     private func startTranscription() {
+        guard let audioURL = item.audioFileURL else {
+            FeedbackService.shared.playHaptic(.heavy)
+            return
+        }
+        
         item.isTranscribing = true
         item.transcriptionProgress = 0.0
         dismiss()
         
-        // Simulate transcription progress
+        // Start actual transcription
+        audioRecorderService.transcribeAudio(url: audioURL) { transcription in
+            DispatchQueue.main.async {
+                if let transcription = transcription {
+                    self.item.transcriptionText = transcription
+                    self.item.isTranscribing = false
+                    self.item.isTranscribed = true
+                    self.item.transcriptionProgress = 1.0
+                    
+                    // Generate PDF transcription
+                    if let pdfURL = self.transcriptionService.generateTranscriptionPDF(
+                        audioTitle: self.item.title,
+                        transcription: transcription,
+                        timestamp: self.item.timestamp
+                    ) {
+                        self.item.transcriptionFileURL = pdfURL
+                    }
+                    
+                    FeedbackService.shared.playSound(.endRecord)
+                    FeedbackService.shared.playHaptic(.light)
+                    onItemUpdated()
+                } else {
+                    self.item.isTranscribing = false
+                    self.item.transcriptionProgress = 0.0
+                    // Show error feedback
+                    FeedbackService.shared.playHaptic(.heavy)
+                    // Set error message for user feedback
+                    self.item.title = "Transcription Failed - Tap to retry"
+                }
+            }
+        }
+        
+        // Simulate progress for better UX
         Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            if item.transcriptionProgress < 1.0 {
-                item.transcriptionProgress += 0.01
+            if self.item.transcriptionProgress < 0.9 {
+                self.item.transcriptionProgress += 0.01
             } else {
-                item.isTranscribing = false
-                item.isTranscribed = true
-                FeedbackService.shared.playSound(.endRecord) // Sound on completion
-                FeedbackService.shared.playHaptic(.light) // Haptic on completion
                 timer.invalidate()
             }
         }
+    }
+    
+    private func downloadAudio() {
+        guard let audioURL = item.audioFileURL else {
+            FeedbackService.shared.playHaptic(.heavy)
+            return
+        }
+        
+        let activityViewController = transcriptionService.shareFile(url: audioURL)
+        
+        // Present the share sheet
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.rootViewController?.present(activityViewController, animated: true)
+        }
+        
+        FeedbackService.shared.playHaptic(.light)
+        dismiss()
+    }
+    
+    private func downloadTranscription() {
+        guard let transcriptionURL = item.transcriptionFileURL else {
+            FeedbackService.shared.playHaptic(.heavy)
+            return
+        }
+        
+        let activityViewController = transcriptionService.shareFile(url: transcriptionURL)
+        
+        // Present the share sheet
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.rootViewController?.present(activityViewController, animated: true)
+        }
+        
+        FeedbackService.shared.playHaptic(.light)
+        dismiss()
+    }
+    
+    private func deleteTranscription() {
+        if let transcriptionURL = item.transcriptionFileURL {
+            _ = transcriptionService.deleteTranscriptionFile(url: transcriptionURL)
+        }
+        
+        item.isTranscribed = false
+        item.transcriptionProgress = 0.0
+        item.transcriptionText = nil
+        item.transcriptionFileURL = nil
+        
+        FeedbackService.shared.playHaptic(.light)
+        dismiss()
+        onItemUpdated()
     }
 }
 
@@ -982,6 +1224,7 @@ struct WhisperOptionsItemView: View {
 
 struct DeleteWhisperItemSheet: View {
     @Environment(\.dismiss) private var dismiss
+    let item: WhisperItem
     let onDelete: () -> Void
     
     var body: some View {
