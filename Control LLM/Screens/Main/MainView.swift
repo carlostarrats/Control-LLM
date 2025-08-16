@@ -132,9 +132,9 @@ struct MainView: View {
                                 showingHistoryView = true
                             }) {
                                 Image(systemName: "list.bullet")
-                                    .font(.system(size: 16, weight: .medium))
+                                    .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(Color(hex: "#1D1D1D"))
-                                    .frame(width: 48, height: 48) // Fixed square size
+                                    .frame(width: 60, height: 60) // Increased to 60x60
                                     .background(colorManager.orangeColor)
                                     .cornerRadius(4, corners: [.topLeft, .bottomLeft]) // Only left corners
                             }
@@ -146,9 +146,9 @@ struct MainView: View {
                                 showingWhisperView = true
                             }) {
                                 Image(systemName: "waveform")
-                                    .font(.system(size: 16, weight: .medium))
+                                    .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(Color(hex: "#1D1D1D"))
-                                    .frame(width: 48, height: 48) // Fixed square size
+                                    .frame(width: 60, height: 60) // Increased to 60x60
                                     .background(colorManager.purpleColor)
                                     .cornerRadius(0) // No corners
                             }
@@ -160,9 +160,9 @@ struct MainView: View {
                                 showingSettingsView = true
                             }) {
                                 Image(systemName: "gearshape")
-                                    .font(.system(size: 16, weight: .medium))
+                                    .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(Color(hex: "#1D1D1D"))
-                                    .frame(width: 48, height: 48) // Fixed square size
+                                    .frame(width: 60, height: 60) // Increased to 60x60
                                     .background(colorManager.greenColor)
                                     .cornerRadius(4, corners: [.topRight, .bottomRight]) // Only right corners
                             }
@@ -177,9 +177,9 @@ struct MainView: View {
                                 showingTextModal = true
                             }) {
                                 Image(systemName: "keyboard")
-                                    .font(.system(size: 16, weight: .medium))
+                                    .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(Color(hex: "#BBBBBB"))
-                                    .frame(width: 48, height: 48) // Fixed square size
+                                    .frame(width: 60, height: 60) // Increased to 60x60
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 4)
                                             .stroke(Color(hex: "#BBBBBB"), lineWidth: 1)

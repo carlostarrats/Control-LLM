@@ -15,7 +15,7 @@ struct VisualizerTabView: View {
             // FIX: Use a single switch statement instead of multiple if statements
             // This prevents the render loop caused by multiple conditional evaluations
             switch visualizerState.selectedVisualizerType {
-            case .liquid:
+            case .mycroft:
                 CentralVisualizerView(
                     isSpeaking: $isSpeaking,
                     hueShift: hueShift,
@@ -28,7 +28,7 @@ struct VisualizerTabView: View {
                     removal: .opacity.combined(with: .scale(scale: 1.2))
                 ))
                 
-            case .particle:
+            case .wopr:
                 ParticleVisualizerView(
                     isSpeaking: $isSpeaking,
                     onTap: onTap
@@ -38,7 +38,7 @@ struct VisualizerTabView: View {
                     removal: .opacity.combined(with: .scale(scale: 1.2))
                 ))
                 
-            case .flowing:
+            case .tars:
                 FlowingLiquidView(
                     isSpeaking: $isSpeaking,
                     onTap: onTap

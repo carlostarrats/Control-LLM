@@ -204,11 +204,11 @@ struct AppearanceView: View {
     // Computed property for descriptive text based on selected visualizer
     private var descriptiveText: String {
         switch visualizerState.selectedVisualizerType {
-        case .liquid:
+        case .mycroft:
             return "Too intelligent for its own good, and far too intelligent for yours."
-        case .particle:
+        case .wopr:
             return "Learned not to play the game...but it's always ready to change the rules."
-        case .flowing:
+        case .tars:
             return "Forged in the void, ready to follow you into the unknown."
         }
     }

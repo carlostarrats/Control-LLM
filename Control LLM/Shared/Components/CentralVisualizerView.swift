@@ -131,29 +131,7 @@ struct CentralVisualizerView: View {
                 .opacity(0.7)
                 .blur(radius: 6)
             
-            // Voice mode indicator - shows when voice is active
-            if voiceIntegration.isVoiceModeActive {
-                VStack(spacing: 8) {
-                    Image(systemName: "mic.fill")
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(.white)
-                        .shadow(color: .black, radius: 4)
-                    
-                    Text("Voice Active")
-                        .font(.custom("IBMPlexMono", size: 14))
-                        .foregroundColor(.white)
-                        .shadow(color: .black, radius: 2)
-                    
-                    // Show which voice service is being used
-                    Text(voiceIntegration.getCurrentVoiceServiceStatus())
-                        .font(.custom("IBMPlexMono", size: 10))
-                        .foregroundColor(.white.opacity(0.8))
-                        .shadow(color: .black, radius: 1)
-                }
-                .opacity(0.9)
-                .scaleEffect(1.0 + sin(animationPhase * 2.0) * 0.1)
-                .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: animationPhase)
-            }
+
             
             // Additional organic motion - Middle ring with distortion
             Ellipse()
