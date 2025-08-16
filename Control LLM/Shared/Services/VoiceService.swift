@@ -3,6 +3,7 @@ import Speech
 import AVFoundation
 import SwiftUI
 
+@MainActor
 class VoiceService: NSObject, ObservableObject {
     static let shared = VoiceService()
     
@@ -41,7 +42,7 @@ class VoiceService: NSObject, ObservableObject {
         speechRecognizer?.delegate = self
         
         SFSpeechRecognizer.requestAuthorization { [weak self] authStatus in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 switch authStatus {
                 case .authorized:
                     print("✅ VoiceService: Speech recognition authorized")
@@ -72,13 +73,26 @@ class VoiceService: NSObject, ObservableObject {
         transcribedText = ""
         errorMessage = nil
         
-        // Request microphone permission
-        AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
-            DispatchQueue.main.async {
-                if granted {
-                    self?.startSpeechRecognition()
-                } else {
-                    self?.errorMessage = "Microphone access denied"
+        // Request microphone permission using modern API
+        if #available(iOS 17.0, *) {
+            AVAudioApplication.requestRecordPermission { [weak self] granted in
+                Task { @MainActor in
+                    if granted {
+                        self?.startSpeechRecognition()
+                    } else {
+                        self?.errorMessage = "Microphone access denied"
+                    }
+                }
+            }
+        } else {
+            // Fallback for older iOS versions
+            AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
+                Task { @MainActor in
+                    if granted {
+                        self?.startSpeechRecognition()
+                    } else {
+                        self?.errorMessage = "Microphone access denied"
+                    }
                 }
             }
         }
@@ -223,7 +237,7 @@ class VoiceService: NSObject, ObservableObject {
         stopSilenceTimer()
         
         silenceTimer = Timer.scheduledTimer(withTimeInterval: silenceThreshold, repeats: false) { [weak self] _ in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 self?.handleSilenceDetected()
             }
         }
@@ -253,8 +267,8 @@ class VoiceService: NSObject, ObservableObject {
 // MARK: - SFSpeechRecognizerDelegate
 
 extension VoiceService: SFSpeechRecognizerDelegate {
-    func speechRecognizer(_ speechRecognizer: SFSpeechRecognizer, availabilityDidChange available: Bool) {
-        DispatchQueue.main.async {
+    nonisolated func speechRecognizer(_ speechRecognizer: SFSpeechRecognizer, availabilityDidChange available: Bool) {
+        Task { @MainActor in
             if !available {
                 self.errorMessage = "Speech recognition became unavailable"
                 self.stopListening()
@@ -266,14 +280,14 @@ extension VoiceService: SFSpeechRecognizerDelegate {
 // MARK: - AVSpeechSynthesizerDelegate
 
 extension VoiceService: AVSpeechSynthesizerDelegate {
-    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        DispatchQueue.main.async {
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        Task { @MainActor in
             self.onSpeechComplete?()
         }
     }
     
-    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
-        DispatchQueue.main.async {
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        Task { @MainActor in
             self.onSpeechComplete?()
         }
     }

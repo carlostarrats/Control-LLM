@@ -1,6 +1,6 @@
 import Foundation
 import AVFoundation
-import AVFAudio
+@preconcurrency import AVFAudio
 import SwiftUI
 
 // Import the native bridge functions
@@ -22,6 +22,11 @@ class Gemma3NVoiceService: ObservableObject {
     private var audioInputNode: AVAudioInputNode?
     private var audioBuffers: [AVAudioPCMBuffer] = []
     private let maxBufferCount = 50 // Limit memory usage
+    private let audioBufferQueue = DispatchQueue(label: "com.controlllm.audiobuffer", qos: .userInitiated)
+    
+    // MARK: - Task Management
+    private var currentTask: Task<Void, Never>?
+    private var playbackTask: Task<Void, Never>?
     
     // MARK: - Callbacks
     var onTranscriptionComplete: ((String) -> Void)?
@@ -35,13 +40,19 @@ class Gemma3NVoiceService: ObservableObject {
         checkPermissions()
     }
     
+    deinit {
+        print("🧹 Gemma3NVoiceService: Deinitializing")
+        // Note: Cannot call @MainActor methods from deinit
+        // Cleanup will be handled by explicit cleanup calls
+    }
+    
     // MARK: - Permission Management
     
     private func checkPermissions() {
         // Check microphone permission using modern API
         if #available(iOS 17.0, *) {
             AVAudioApplication.requestRecordPermission { [weak self] granted in
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     self?.permissionGranted = granted
                     if !granted {
                         self?.errorMessage = "Microphone access required for voice input"
@@ -51,7 +62,7 @@ class Gemma3NVoiceService: ObservableObject {
         } else {
             // Fallback for older iOS versions
             AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     self?.permissionGranted = granted
                     if !granted {
                         self?.errorMessage = "Microphone access required for voice input"
@@ -98,6 +109,12 @@ class Gemma3NVoiceService: ObservableObject {
         guard isListening else { return }
         
         print("🔇 Gemma3NVoiceService: Stopping native voice input")
+        
+        // Cancel any running tasks
+        currentTask?.cancel()
+        currentTask = nil
+        playbackTask?.cancel()
+        playbackTask = nil
         
         // Stop audio processing
         stopAudioProcessing()
@@ -160,12 +177,25 @@ class Gemma3NVoiceService: ObservableObject {
         audioInputNode?.removeTap(onBus: 0)
         
         // Clear audio buffers to free memory
-        audioBuffers.removeAll()
+        cleanupAudioBuffers()
         
         // Deactivate audio session
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         
         print("🔇 Gemma3NVoiceService: Audio processing stopped")
+    }
+    
+    private func cleanupAudioBuffers() {
+        // Use serial queue to prevent race conditions
+        audioBufferQueue.sync {
+            // Ensure all audio buffers are properly released
+            for buffer in audioBuffers {
+                // Force release of buffer data
+                buffer.frameLength = 0
+            }
+            audioBuffers.removeAll()
+            print("🧹 Gemma3NVoiceService: Audio buffers cleaned up")
+        }
     }
     
     // MARK: - Audio Processing
@@ -174,73 +204,88 @@ class Gemma3NVoiceService: ObservableObject {
         // Store audio buffer for processing with Gemma-3N
         // In a real implementation, this would send audio data to the model
         
-        // Add buffer to collection (with memory management)
-        if audioBuffers.count < maxBufferCount {
-            audioBuffers.append(buffer)
-        } else {
-            // Remove oldest buffer to maintain memory limit
-            audioBuffers.removeFirst()
-            audioBuffers.append(buffer)
+        // Use serial queue to prevent race conditions
+        audioBufferQueue.async {
+            Task { @MainActor in
+                // Add buffer to collection (with memory management)
+                if self.audioBuffers.count < self.maxBufferCount {
+                    self.audioBuffers.append(buffer)
+                } else {
+                    // Remove oldest buffer to maintain memory limit
+                    self.audioBuffers.removeFirst()
+                    self.audioBuffers.append(buffer)
+                }
+                
+                // Log buffer collection for debugging (only in debug builds)
+                #if DEBUG
+                print("🎤 Gemma3NVoiceService: Collected audio buffer, total: \(self.audioBuffers.count)")
+                #endif
+                
+                // Trigger processing when we have enough buffers or when we reach max capacity
+                if self.audioBuffers.count >= self.maxBufferCount {
+                    print("🎤 Gemma3NVoiceService: Buffer limit reached, triggering processing")
+                    self.processAudioWithGemma3N()
+                } else if self.audioBuffers.count >= 10 {
+                    // Also process when we have a reasonable amount of audio (10+ buffers)
+                    // This ensures shorter voice inputs get processed
+                    print("🎤 Gemma3NVoiceService: Sufficient audio collected (\(self.audioBuffers.count) buffers), triggering processing")
+                    self.processAudioWithGemma3N()
+                }
+            }
         }
-        
-        // Log buffer collection for debugging (only in debug builds)
-        #if DEBUG
-        print("🎤 Gemma3NVoiceService: Collected audio buffer, total: \(audioBuffers.count)")
-        #endif
     }
     
 
     
     private func processAudioWithGemma3N() {
         // Process collected audio buffers with Gemma-3N's native voice recognition
-        print("🤖 Gemma3NVoiceService: Processing \(audioBuffers.count) audio buffers with Gemma-3N")
-        
-        guard !audioBuffers.isEmpty else {
-            print("❌ Gemma3NVoiceService: No audio buffers to process")
-            DispatchQueue.main.async {
+        Task { @MainActor in
+            print("🤖 Gemma3NVoiceService: Processing \(self.audioBuffers.count) audio buffers with Gemma-3N")
+            
+            guard !self.audioBuffers.isEmpty else {
+                print("❌ Gemma3NVoiceService: No audio buffers to process")
                 self.isTranscribing = false
-                self.audioBuffers.removeAll()
+                self.cleanupAudioBuffers()
+                return
             }
-            return
-        }
-        
-        // Use the new audio conversion function
-        let audioData = convertAudioBuffersToFloatArray()
-        
-        guard !audioData.isEmpty else {
-            print("❌ Gemma3NVoiceService: No audio data to process")
-            DispatchQueue.main.async {
+            
+            // Use the new audio conversion function
+            let audioData = self.convertAudioBuffersToFloatArray()
+            
+            guard !audioData.isEmpty else {
+                print("❌ Gemma3NVoiceService: No audio data to process")
                 self.isTranscribing = false
-                self.audioBuffers.removeAll()
+                self.cleanupAudioBuffers()
+                return
             }
-            return
-        }
         
-        print("🎤 Gemma3NVoiceService: Sending \(audioData.count) audio samples to Gemma-3N")
-        
-        // Process audio with Gemma-3N's native voice recognition
-        Task {
-            do {
-                let transcription = try await processAudioWithNativeVoice(audioData)
-                
-                await MainActor.run {
-                    self.transcribedText = transcription
-                    self.isTranscribing = false
+            print("🎤 Gemma3NVoiceService: Sending \(audioData.count) audio samples to Gemma-3N")
+            
+            // Process audio with Gemma-3N's native voice recognition
+            // Since we're already on MainActor, we can assign directly
+            self.currentTask = Task {
+                do {
+                    let transcription = try await self.processAudioWithNativeVoice(audioData)
                     
-                    // Clear audio buffers after processing
-                    self.audioBuffers.removeAll()
+                    await MainActor.run {
+                        self.transcribedText = transcription
+                        self.isTranscribing = false
+                        
+                        // Clear audio buffers after processing
+                        self.cleanupAudioBuffers()
+                        
+                        // Notify that transcription is complete
+                        self.onTranscriptionComplete?(transcription)
+                    }
                     
-                    // Notify that transcription is complete
-                    self.onTranscriptionComplete?(transcription)
-                }
-                
-            } catch {
-                print("❌ Gemma3NVoiceService: Voice recognition failed: \(error)")
-                
-                await MainActor.run {
-                    self.errorMessage = "Voice recognition failed: \(error.localizedDescription)"
-                    self.isTranscribing = false
-                    self.audioBuffers.removeAll()
+                } catch {
+                    print("❌ Gemma3NVoiceService: Voice recognition failed: \(error)")
+                    
+                    await MainActor.run {
+                        self.errorMessage = "Voice recognition failed: \(error.localizedDescription)"
+                        self.isTranscribing = false
+                        self.cleanupAudioBuffers()
+                    }
                 }
             }
         }
@@ -250,32 +295,35 @@ class Gemma3NVoiceService: ObservableObject {
     private func convertAudioBuffersToFloatArray() -> [Float] {
         var audioData: [Float] = []
         
-        for buffer in audioBuffers {
-            guard let channelData = buffer.floatChannelData else { continue }
-            
-            // Get the first channel (mono) or mix all channels
-            let channelCount = Int(buffer.format.channelCount)
-            let frameCount = Int(buffer.frameLength)
-            
-            if channelCount == 1 {
-                // Mono audio - copy directly
-                for i in 0..<frameCount {
-                    audioData.append(channelData[0][i])
-                }
-            } else {
-                // Multi-channel audio - mix to mono
-                for i in 0..<frameCount {
-                    var sample: Float = 0
-                    for channel in 0..<channelCount {
-                        sample += channelData[channel][i]
+        // Use serial queue to prevent race conditions
+        audioBufferQueue.sync {
+            for buffer in audioBuffers {
+                guard let channelData = buffer.floatChannelData else { continue }
+                
+                // Get the first channel (mono) or mix all channels
+                let channelCount = Int(buffer.format.channelCount)
+                let frameCount = Int(buffer.frameLength)
+                
+                if channelCount == 1 {
+                    // Mono audio - copy directly
+                    for i in 0..<frameCount {
+                        audioData.append(channelData[0][i])
                     }
-                    sample /= Float(channelCount) // Average the channels
-                    audioData.append(sample)
+                } else {
+                    // Multi-channel audio - mix to mono
+                    for i in 0..<frameCount {
+                        var sample: Float = 0
+                        for channel in 0..<channelCount {
+                            sample += channelData[channel][i]
+                        }
+                        sample /= Float(channelCount) // Average the channels
+                        audioData.append(sample)
+                    }
                 }
             }
         }
         
-        print("🎤 Gemma3NVoiceService: Converted \(audioBuffers.count) buffers to \(audioData.count) float samples")
+        print("🎤 Gemma3NVoiceService: Converted \(audioData.count) float samples from audio buffers")
         return audioData
     }
     
@@ -317,48 +365,7 @@ class Gemma3NVoiceService: ObservableObject {
         return transcription
     }
     
-    // MARK: - Speech Synthesis
-    
-    /// Speak text using Gemma-3N's native speech synthesis
-    func speak(_ text: String) {
-        guard !text.isEmpty else { return }
-        
-        print("🗣️ Gemma3NVoiceService: Speaking with Gemma-3N native TTS: \(text)")
-        
-        // In a real implementation, this would:
-        // 1. Send text to Gemma-3N model
-        // 2. Model generates audio using its native speech synthesis
-        // 3. Play the generated audio
-        
-        // For now, simulate the process
-        simulateGemma3NSpeech(text)
-    }
-    
-    private func simulateGemma3NSpeech(_ text: String) {
-        // Use Gemma-3N's native speech synthesis to generate actual speech
-        print("🤖 Gemma3NVoiceService: Gemma-3N generating speech for: \(text)")
-        
-        Task {
-            do {
-                let audioData = try await generateSpeechWithNativeVoice(text)
-                
-                // Play the generated audio
-                await playGeneratedAudio(audioData)
-                
-                await MainActor.run {
-                    print("✅ Gemma3NVoiceService: Gemma-3N speech generation complete")
-                    self.onSpeechComplete?()
-                }
-                
-            } catch {
-                print("❌ Gemma3NVoiceService: Speech synthesis failed: \(error)")
-                
-                await MainActor.run {
-                    self.errorMessage = "Speech synthesis failed: \(error.localizedDescription)"
-                }
-            }
-        }
-    }
+
     
     private func generateSpeechWithNativeVoice(_ text: String) async throws -> [Float] {
         // Call the native llama.cpp bridge to generate speech with Gemma-3N
@@ -453,7 +460,7 @@ class Gemma3NVoiceService: ObservableObject {
             playbackEngine.prepare()
             try playbackEngine.start()
             
-            // Schedule the audio buffer for playback
+            // Schedule the audio buffer for playback with completion handler
             playerNode.scheduleBuffer(audioBuffer, at: nil, options: [], completionHandler: {
                 print("✅ Gemma3NVoiceService: Audio buffer playback completed")
                 
@@ -461,7 +468,7 @@ class Gemma3NVoiceService: ObservableObject {
                 playbackEngine.stop()
                 
                 // Notify speech completion
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     self.onSpeechComplete?()
                 }
             })
@@ -494,15 +501,62 @@ class Gemma3NVoiceService: ObservableObject {
         }
     }
     
+    // MARK: - Speech Synthesis
+    
+    /// Speak the given text using Gemma-3N's native speech synthesis
+    func speak(_ text: String) {
+        guard !text.isEmpty else { return }
+        
+        print("🗣️ Gemma3NVoiceService: Starting native speech synthesis for: '\(text)'")
+        
+        // Cancel any existing playback task
+        playbackTask?.cancel()
+        playbackTask = nil
+        
+        // Start speech synthesis in background
+        playbackTask = Task {
+            do {
+                // Generate speech using native voice synthesis
+                let audioData = try await generateSpeechWithNativeVoice(text)
+                
+                // Play the generated audio
+                await playGeneratedAudio(audioData)
+                
+            } catch {
+                print("❌ Gemma3NVoiceService: Speech synthesis failed: \(error)")
+                
+                // Notify completion even on error
+                await MainActor.run {
+                    self.onSpeechComplete?()
+                }
+            }
+        }
+    }
+    
     // MARK: - Cleanup
     
     func cleanup() {
+        // Cancel all running tasks
+        currentTask?.cancel()
+        currentTask = nil
+        playbackTask?.cancel()
+        playbackTask = nil
+        
         stopListening()
         transcribedText = ""
         errorMessage = nil
-        audioBuffers.removeAll()
         onTranscriptionComplete = nil
         onSpeechComplete = nil
+        
+        // Force cleanup of audio resources
+        audioEngine?.stop()
+        audioEngine = nil
+        audioInputNode = nil
+        
+        // Final cleanup of audio buffers
+        cleanupAudioBuffers()
+        
+        print("🧹 Gemma3NVoiceService: Cleanup completed")
     }
 }
 

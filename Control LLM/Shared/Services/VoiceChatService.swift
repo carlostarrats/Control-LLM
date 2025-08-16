@@ -18,15 +18,24 @@ final class VoiceChatService: ObservableObject {
     private var recognitionTask: SFSpeechRecognitionTask?
     private let audioEngine = AVAudioEngine()
     
+    // MARK: - Task Management
+    private var currentTask: Task<Void, Never>?
+    
     private init() {
         checkPermissions()
+    }
+    
+    deinit {
+        print("🧹 VoiceChatService: Deinitializing")
+        // Note: Cannot call @MainActor methods from deinit
+        // Cleanup will be handled by explicit cleanup calls
     }
     
     // MARK: - Permissions
     
     func checkPermissions() {
         SFSpeechRecognizer.requestAuthorization { [weak self] status in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 self?.permissionGranted = status == .authorized
                 if status != .authorized {
                     self?.errorMessage = "Speech recognition permission not granted"
@@ -35,7 +44,7 @@ final class VoiceChatService: ObservableObject {
         }
         
         AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 if !granted {
                     self?.errorMessage = "Microphone permission not granted"
                 }
@@ -86,7 +95,7 @@ final class VoiceChatService: ObservableObject {
             guard let self = self else { return }
             
             if let error = error {
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     self.errorMessage = error.localizedDescription
                     self.stopListening()
                 }
@@ -94,16 +103,29 @@ final class VoiceChatService: ObservableObject {
             }
             
             if let result = result {
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     self.transcribedText = result.bestTranscription.formattedString
                 }
                 
                 if result.isFinal {
-                    DispatchQueue.main.async {
+                    Task { @MainActor in
                         // Call the callback with the final transcription
                         self.onTranscriptionComplete?(self.transcribedText)
                         self.stopListening()
                     }
+                }
+            }
+        }
+        
+        // Assign the recognition task to currentTask for proper management
+        currentTask = Task {
+            // Wait for recognition to complete or be cancelled
+            while isListening {
+                do {
+                    try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second
+                } catch {
+                    // Task was cancelled, break out of the loop
+                    break
                 }
             }
         }
@@ -114,6 +136,10 @@ final class VoiceChatService: ObservableObject {
     
     func stopListening() {
         guard isListening else { return }
+        
+        // Cancel any running tasks
+        currentTask?.cancel()
+        currentTask = nil
         
         // Stop audio engine
         audioEngine.stop()
@@ -151,6 +177,10 @@ final class VoiceChatService: ObservableObject {
     // MARK: - Cleanup
     
     func cleanup() {
+        // Cancel any running tasks
+        currentTask?.cancel()
+        currentTask = nil
+        
         stopListening()
         transcribedText = ""
         errorMessage = nil
