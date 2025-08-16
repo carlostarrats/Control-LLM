@@ -278,8 +278,14 @@ struct SphereParticle: View {
     var body: some View {
         if shouldShowParticle {
             Circle()
-                .fill(activationEffect.isActivated ? Color(red: 0.8, green: 0.8, blue: 0.8) : particleColor)
+                .fill(activationEffect.isActivated ? Color(red: 0.98, green: 0.98, blue: 0.98) : particleColor)
                 .frame(width: depthAdjustedSize, height: depthAdjustedSize)
+                .shadow(
+                    color: activationEffect.isActivated ? Color.white.opacity(0.6) : Color.clear,
+                    radius: activationEffect.isActivated ? 3.0 : 0.0,
+                    x: 0,
+                    y: 0
+                )
                 .position(
                     x: 200 + position.x,  // FIXED: Center in 400x400 frame (was 150 for 300x300)
                     y: 200 + position.y + activationEffect.waveOffset  // FIXED: Center in 400x400 frame (was 150 for 300x300)
@@ -294,7 +300,7 @@ struct SphereParticle: View {
         if isActivated {
             return Color(red: 0.933, green: 0.933, blue: 0.933) // #eeeeee
         } else {
-            return Color(red: 0.6, green: 0.6, blue: 0.6) // #999999
+            return Color(red: 0.533, green: 0.533, blue: 0.533) // #888888
         }
     }
 }
