@@ -201,10 +201,22 @@ struct SettingsModelsView: View {
     }
     
     private var availableDownloadModels: [Model] {
-        [
-            // These models are now included in the main list
-            // Keeping this empty for future downloadable models
+        // Only show models that are NOT already installed
+        let allDownloadableModels = [
+            Model(
+                name: "Gemma-3N-E4B-It-Q4_K_M.gguf",
+                size: "4.3 GB • Google"
+            )
         ]
+        
+        // Filter out models that are already installed
+        return allDownloadableModels.filter { downloadableModel in
+            !modelManager.availableModels.contains { installedModel in
+                // Remove .gguf extension for comparison
+                let downloadableName = downloadableModel.name.replacingOccurrences(of: ".gguf", with: "")
+                return installedModel.filename == downloadableName
+            }
+        }
     }
     
     private var unusedModelsCount: Int {
@@ -309,6 +321,9 @@ struct InstalledLLMModelView: View {
     // MARK: - Subtitle helper
     private var modelSubtitle: String? {
         let key = (model.displayName + " " + model.name).lowercased()
+        if key.contains("gemma-3n-e4b-it") {
+            return "General conversations, writing, and everyday tasks with better reasoning and accuracy than Gemma 2 | 100+ languages"
+        }
         if key.contains("gemma") {
             return "General conversations, writing, and everyday tasks | English-focused"
         }
@@ -333,6 +348,24 @@ struct AvailableModelView: View {
     let onDownload: () -> Void
     @EnvironmentObject var colorManager: ColorManager
     
+    // MARK: - Subtitle helper for available models
+    private var availableModelSubtitle: String? {
+        let key = (model.name).lowercased()
+        if key.contains("gemma-3n-e4b-it") {
+            return "General conversations, writing, and everyday tasks with better reasoning and accuracy than Gemma 2 | 8 Languages"
+        }
+        if key.contains("gemma") {
+            return "General conversations, writing, and everyday tasks | English-focused"
+        }
+        if key.contains("phi") {
+            return "General tasks with stronger code and math capabilities | 23 languages"
+        }
+        if key.contains("qwen") {
+            return "General tasks with broader technical abilities and language support | 30 languages"
+        }
+        return nil
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             Button(action: onToggle) {
@@ -343,6 +376,15 @@ struct AvailableModelView: View {
                             .foregroundColor(Color(hex: "#EEEEEE"))
                             .multilineTextAlignment(.leading)
                             .lineLimit(2)
+                        
+                        // Subtitle for available models
+                        if let subtitle = availableModelSubtitle {
+                            Text(subtitle)
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .multilineTextAlignment(.leading)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                         
                         Text(model.size)
                             .font(.custom("IBMPlexMono", size: 10))

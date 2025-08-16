@@ -13,6 +13,14 @@ final class TTSService: ObservableObject {
 
     private init() {
         selectedVoiceIdentifier = userDefaults.string(forKey: selectedVoiceKey)
+        
+        // If no voice is selected, automatically select the first available English voice
+        if selectedVoiceIdentifier == nil {
+            if let englishVoice = availableVoices().first(where: { $0.language.starts(with: "en") }) {
+                selectedVoiceIdentifier = englishVoice.identifier
+                userDefaults.set(englishVoice.identifier, forKey: selectedVoiceKey)
+            }
+        }
     }
 
     func availableVoices() -> [AVSpeechSynthesisVoice] {

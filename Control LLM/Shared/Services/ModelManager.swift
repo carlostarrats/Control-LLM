@@ -33,7 +33,13 @@ struct LLMModelInfo {
         
         // Parse display information from filename (case-insensitive)
         let lowercaseFilename = filename.lowercased()
-        if lowercaseFilename.contains("gemma-2-2b-it-q4_k_m") || lowercaseFilename.contains("gemma-2-2b-it") {
+        if lowercaseFilename.contains("gemma-3n-e4b-it-q4_k_m") || lowercaseFilename.contains("gemma-3n-e4b-it") {
+            self.name = "Gemma 3N E4B IT"
+            self.displayName = "Gemma-3N-E4B-It-Q4_K_M"
+            self.description = "General conversations, writing, and everyday tasks with better reasoning and accuracy than Gemma 2 | 8 Languages"
+            self.provider = "Google"
+            self.size = "4.3 GB"
+        } else if lowercaseFilename.contains("gemma-2-2b-it-q4_k_m") || lowercaseFilename.contains("gemma-2-2b-it") {
             self.name = "Gemma 2 2B IT"
             self.displayName = "Gemma-2-2B-It-Q4_K_M"
             self.description = "Google's 2B instruction-tuned model (Q4_K_M)"
@@ -143,6 +149,10 @@ final class ModelManager: ObservableObject {
         selectedModel = model
         saveSelectedModel()
         print("✅ ModelManager: Selected model \(model.displayName)")
+
+        // Reset language to English when switching models
+        LanguageService.shared.resetToEnglish()
+        print("✅ ModelManager: Reset language to English for new model")
 
         // Notify that the model has changed
         print("🔍 ModelManager: Posting modelDidChange notification...")

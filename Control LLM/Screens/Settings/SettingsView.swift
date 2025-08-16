@@ -165,7 +165,7 @@ struct SettingsView: View {
         [
             SettingsItem(title: "Models", symbol: "terminal", action: { showingModels = true }),
             // Agents removed
-            SettingsItem(title: "Appearance", symbol: "paintbrush.pointed", action: { showingAppearance = true }),
+            SettingsItem(title: "Appearance", symbol: "eye", action: { showingAppearance = true }),
             SettingsItem(title: "Voice", symbol: "bubble.left", action: { showingVoice = true }),
             SettingsItem(title: NSLocalizedString("Language", comment: ""), symbol: "globe", action: { showingLanguage = true }),
 
@@ -211,6 +211,10 @@ struct SettingsItemView: View {
 								Text(languageService.selectedLanguage)
 									.font(.custom("IBMPlexMono", size: 16))
 									.foregroundColor(Color(hex: "#EEEEEE"))
+									.lineLimit(1)
+									.truncationMode(.tail)
+								
+								Spacer(minLength: 0)
 							}
 
 						} else {

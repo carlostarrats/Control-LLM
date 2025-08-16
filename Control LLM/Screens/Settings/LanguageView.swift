@@ -2,8 +2,54 @@ import SwiftUI
 
 struct LanguageView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedLanguage: String = LanguageService.shared.selectedLanguage
+    @ObservedObject private var languageService = LanguageService.shared
     @ObservedObject private var modelManager = ModelManager.shared
+    
+    // Get the current selected language from the service
+    private var selectedLanguage: String {
+        languageService.selectedLanguage
+    }
+    
+    // MARK: - Language to flag mapping
+    private let languageFlags: [String: String] = [
+        "English": "🇺🇸",
+        "Spanish": "🇪🇸", 
+        "French": "🇫🇷",
+        "German": "🇩🇪",
+        "Italian": "🇮🇹",
+        "Portuguese": "🇵🇹",
+        "Korean": "🇰🇷",
+        "Japanese": "🇯🇵",
+        "Dutch": "🇳🇱",
+        "Russian": "🇷🇺",
+        "Arabic": "🗣️",
+        "Chinese (Simplified)": "🇨🇳",
+        "Chinese (Traditional)": "🇨🇳",
+        "Czech": "🇨🇿",
+        "Danish": "🇩🇰",
+        "Finnish": "🇫🇮",
+        "Greek": "🇬🇷",
+        "Hebrew": "🇮🇱",
+        "Hindi": "🇮🇳",
+        "Hungarian": "🇭🇺",
+        "Indonesian": "🇮🇩",
+        "Norwegian": "🇳🇴",
+        "Persian (Farsi)": "🇮🇷",
+        "Polish": "🇵🇱",
+        "Portuguese (Brazilian)": "🇧🇷",
+        "Portuguese (European)": "🇵🇹",
+        "Romanian": "🇷🇴",
+        "Swedish": "🇸🇪",
+        "Thai": "🇹🇭",
+        "Turkish": "🇹🇷",
+        "Ukrainian": "🇺🇦",
+        "Vietnamese": "🇻🇳"
+    ]
+    
+    /// Get flag emoji for a language
+    private func getFlag(for language: String) -> String {
+        return languageFlags[language] ?? "🌐"
+    }
     
     // MARK: - Model-specific language support (voice)
     // Enforce default English always included and counts matching spec
@@ -69,11 +115,17 @@ struct LanguageView: View {
     private let gemmaLanguages: [String] = [
         "English"
     ]
+    
+    // Add Gemma 3N specific languages
+    private let gemma3NLanguages: [String] = [
+        "English", "Spanish", "French", "German", "Korean", 
+        "Japanese", "Italian", "Portuguese"
+    ]
 
     // Union of all supported languages across models, with de-duplication preserving order
     private var allLanguages: [String] {
         var seen = Set<String>()
-        let combined = qwenLanguages + phiLanguages + gemmaLanguages
+        let combined = qwenLanguages + phiLanguages + gemmaLanguages + gemma3NLanguages
         var result: [String] = []
         for lang in combined {
             if !seen.contains(lang) {
@@ -85,9 +137,17 @@ struct LanguageView: View {
     }
 
     private var currentSupportedLanguages: Set<String> {
-        guard let provider = modelManager.selectedModel?.provider.lowercased() else {
+        guard let selectedModel = modelManager.selectedModel else {
             return Set(allLanguages)
         }
+        
+        // Check if it's Gemma 3N specifically
+        if selectedModel.filename.lowercased().contains("gemma-3n-e4b-it") {
+            return Set(gemma3NLanguages)
+        }
+        
+        // Use provider-based filtering for other models
+        let provider = selectedModel.provider.lowercased()
         if provider.contains("alibaba") { return Set(qwenLanguages) }
         if provider.contains("microsoft") { return Set(phiLanguages) }
         if provider.contains("google") { return Set(gemmaLanguages) }
@@ -111,11 +171,11 @@ struct LanguageView: View {
                                 language: language,
                                 isSelected: selectedLanguage == language,
                                 isEnabled: isEnabled,
+                                flag: getFlag(for: language),
                                 onSelect: {
                                     guard isEnabled else { return }
-                                    selectedLanguage = language
-                                    // Save via LanguageService (voice-only selection)
-                                    LanguageService.shared.selectedLanguage = language
+                                    // Update language directly via LanguageService
+                                    languageService.selectedLanguage = language
                                 }
                             )
                         }
@@ -192,12 +252,17 @@ struct LanguageItemView: View {
     let language: String
     let isSelected: Bool
     let isEnabled: Bool
+    let flag: String
     let onSelect: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
             Button(action: onSelect) {
                 HStack {
+                    Text(flag)
+                        .font(.system(size: 18))
+                        .padding(.trailing, 8)
+                    
                     Text(language)
                         .font(.custom("IBMPlexMono", size: 16))
                         .foregroundColor(isEnabled ? Color(hex: "#EEEEEE") : Color(hex: "#666666"))

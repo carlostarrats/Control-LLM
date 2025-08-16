@@ -394,7 +394,7 @@ struct AppearanceView: View {
                     // Header
                     HStack {
                         HStack(spacing: 8) {
-                            Image(systemName: "paintbrush.pointed")
+                            Image(systemName: "eye")
                                 .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                             
