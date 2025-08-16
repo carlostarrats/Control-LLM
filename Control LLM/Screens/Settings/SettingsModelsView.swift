@@ -283,6 +283,13 @@ struct InstalledLLMModelView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                         }
 
+                        // New text line for voice capabilities
+                        Text(model.filename.lowercased().contains("gemma-3n-e4b-it") ? "Built-in voice and text processing capabilities." : "Uses device speech recognition for voice interactions.")
+                            .font(.custom("IBMPlexMono", size: 10))
+                            .foregroundColor(ColorManager.shared.orangeColor)
+                            .multilineTextAlignment(.leading)
+                            .fixedSize(horizontal: false, vertical: true)
+
                         HStack {
                             Text(model.size)
                                 .font(.custom("IBMPlexMono", size: 10))
@@ -322,7 +329,7 @@ struct InstalledLLMModelView: View {
     private var modelSubtitle: String? {
         let key = (model.displayName + " " + model.name).lowercased()
         if key.contains("gemma-3n-e4b-it") {
-            return "General conversations, writing, and everyday tasks with better reasoning and accuracy than Gemma 2 | 100+ languages"
+            return "General conversations, writing, and everyday tasks with better reasoning and accuracy than Gemma 2 | 8 languages"
         }
         if key.contains("gemma") {
             return "General conversations, writing, and everyday tasks | English-focused"
@@ -352,7 +359,7 @@ struct AvailableModelView: View {
     private var availableModelSubtitle: String? {
         let key = (model.name).lowercased()
         if key.contains("gemma-3n-e4b-it") {
-            return "General conversations, writing, and everyday tasks with better reasoning and accuracy than Gemma 2 | 8 Languages"
+            return "General conversations, writing, and everyday tasks with better reasoning and accuracy than Gemma 2 | 8 languages"
         }
         if key.contains("gemma") {
             return "General conversations, writing, and everyday tasks | English-focused"

@@ -33,7 +33,7 @@ struct LLMModelInfo: Identifiable {
         if lowercaseFilename.contains("gemma-3n-e4b-it-q4_k_m") || lowercaseFilename.contains("gemma-3n-e4b-it") {
             self.name = "Gemma 3N E4B IT"
             self.displayName = "Gemma-3N-E4B-It-Q4_K_M"
-            self.description = "General conversations, writing, and everyday tasks with better reasoning and accuracy than Gemma 2 | 8 Languages"
+            self.description = "General conversations, writing, and everyday tasks with better reasoning and accuracy than Gemma 2 | 8 languages"
             self.provider = "Google"
             self.size = "4.3 GB"
         } else if lowercaseFilename.contains("gemma-2-2b-it-q4_k_m") || lowercaseFilename.contains("gemma-2-2b-it") {

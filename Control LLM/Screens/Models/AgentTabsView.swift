@@ -30,17 +30,19 @@ struct ModelsTab: View {
     @ObservedObject var viewModel: ModelsViewModel
     
     var body: some View {
-        List {
-            ForEach(viewModel.availableModels) { model in
-                ModelRow(
-                    model: model,
-                    isSelected: viewModel.selectedModel?.id == model.id
-                ) {
-                    viewModel.selectModel(model)
+        ScrollView {
+                LazyVStack(spacing: 8) {
+                    ForEach(viewModel.availableModels) { model in
+                        ModelRow(
+                            model: model,
+                            isSelected: viewModel.selectedModel?.id == model.id
+                        ) {
+                            viewModel.selectModel(model)
+                        }
+                    }
                 }
-            }
+                .padding()
         }
-        .listStyle(.plain)
     }
 }
 
@@ -87,14 +89,14 @@ struct ModelRow: View {
     var body: some View {
         Button(action: onSelect) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Text(model.name)
                             .font(.headline)
                         Text("•")
                         Text(model.provider)
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Color(hex: "#BBBBBB"))
                     }
                     
                     Text(model.description)
