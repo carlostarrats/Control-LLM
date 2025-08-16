@@ -823,10 +823,11 @@ struct MessageBubble: View {
                     } else {
                         // Assistant messages: ZStack for stable transition
                         ZStack(alignment: .topLeading) {
-                            // Animation is always in the layout to reserve space, but hidden when there's text
-                            ThinkingAnimationView()
-                                .offset(x: -31, y: -35)
-                                .opacity(message.content.isEmpty ? 1 : 0)
+                            // Animation is only rendered when content is empty to prevent layout issues
+                            if message.content.isEmpty {
+                                ThinkingAnimationView()
+                                    .offset(x: -31, y: -35)
+                            }
 
                             // Actual text content
                             Text(message.content)
@@ -859,7 +860,7 @@ struct MessageBubble: View {
 
 struct ThinkingAnimationView: View {
     var body: some View {
-        LottieView(name: "thinking_animation", loopMode: .loop)
+                        LottieView(name: "thinkingAnimation", loopMode: .loop)
             .frame(width: 89, height: 89) // 15% smaller
     }
 }

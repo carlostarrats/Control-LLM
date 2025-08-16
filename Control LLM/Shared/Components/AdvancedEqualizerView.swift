@@ -22,8 +22,7 @@ struct AdvancedEqualizerView: View {
         0, 351, 878, 1678, 2883, 5353, 9103
     ]
     
-    // Mel scale frequency labels for bottom axis
-    private let melLabels = ["0Hz", "1kHz", "5kHz", "20kHz"]
+
     
     var body: some View {
         VStack(spacing: 0) {
@@ -70,19 +69,19 @@ struct AdvancedEqualizerView: View {
                 ForEach(0..<7, id: \.self) { index in
                     Group {
                         if index == 0 {
-                            Text("0Hz")
+                            Text("0 Hz")
                                 .font(.system(size: 10, weight: .medium, design: .monospaced))
                                 .foregroundColor(.white)
                         } else if index == 2 {
-                            Text("1kHz")
+                            Text("1000 Hz")
                                 .font(.system(size: 10, weight: .medium, design: .monospaced))
                                 .foregroundColor(.white)
                         } else if index == 4 {
-                            Text("5kHz")
+                            Text("5000 Hz")
                                 .font(.system(size: 10, weight: .medium, design: .monospaced))
                                 .foregroundColor(.white)
                         } else if index == 6 {
-                            Text("20kHz")
+                            Text("20000 Hz")
                                 .font(.system(size: 10, weight: .medium, design: .monospaced))
                                 .foregroundColor(.white)
                         } else {
@@ -137,7 +136,7 @@ struct AdvancedEqualizerView: View {
     private func stopTestAnimation() {
         // Stop test mode
         isTestMode = false
-        audioLevels = Array(repeating: -60.0, count: 8)
+        audioLevels = Array(repeating: -60.0, count: 7)
     }
     
     private func updateAudioLevels() {
@@ -167,7 +166,7 @@ struct AdvancedEqualizerView: View {
     
     private func calculateSpeechResponse(frequency: Double, time: Double, intensity: Double) -> Double {
         // Simulate speech frequency response
-        // Human speech: 85-255 Hz (vowels), 2kHz-8kHz (consonants)
+        // Human speech: 85-255 Hz (vowels), 2000 Hz-8000 Hz (consonants)
         
         let speechPeaks = [150.0, 300.0, 600.0, 1200.0, 2400.0, 4800.0]
         var response = -60.0

@@ -16,3 +16,7 @@ xcuserdata/
 # Xcode build cache
 DerivedDataClean/
 
+# macOS system files
+.DS_Store
+**/.DS_Store
+
