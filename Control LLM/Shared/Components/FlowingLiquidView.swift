@@ -8,6 +8,9 @@ struct FlowingLiquidView: View {
     @State private var animationTimer: Timer?
     @State private var continuousAnimationTimer: Timer?  // For continuous motion
     
+    // MARK: - Voice Integration
+    @StateObject private var voiceIntegration = VoiceIntegrationService.shared
+    
     var onTap: (() -> Void)?
     
     // Ring configuration - KEEPING EXACTLY AS IT WAS
@@ -47,6 +50,17 @@ struct FlowingLiquidView: View {
                 
                 // Start animation to reach new target
                 startAnimation(target: newTarget)
+                
+                // Toggle voice mode for TARS
+                if newTarget > 0.5 {
+                    // Activating - start voice mode
+                    print("🎤 TARS: Starting voice mode")
+                    voiceIntegration.startVoiceMode()
+                } else {
+                    // Deactivating - stop voice mode
+                    print("🔇 TARS: Stopping voice mode")
+                    voiceIntegration.stopVoiceMode()
+                }
                 
                 // Call the original onTap if it exists
                 onTap?()

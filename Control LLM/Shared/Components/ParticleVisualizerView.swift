@@ -5,6 +5,9 @@ struct ParticleVisualizerView: View {
     @Binding var isSpeaking: Bool
     var onTap: (() -> Void)?
     
+    // MARK: - Voice Integration
+    @StateObject private var voiceIntegration = VoiceIntegrationService.shared
+    
     // Particle system parameters
     private let particleCount = 2000
     private let baseSpherRadius: CGFloat = 150
@@ -87,6 +90,18 @@ struct ParticleVisualizerView: View {
                 .onTapGesture {
                     // Light haptic feedback for visualizer tap
                     FeedbackService.shared.playHaptic(.light)
+                    
+                    // Toggle voice mode for WOPR
+                    if !voiceIntegration.isVoiceModeActive {
+                        // Activating - start voice mode
+                        print("🎤 WOPR: Starting voice mode")
+                        voiceIntegration.startVoiceMode()
+                    } else {
+                        // Deactivating - stop voice mode
+                        print("🔇 WOPR: Stopping voice mode")
+                        voiceIntegration.stopVoiceMode()
+                    }
+                    
                     onTap?()
                 }
             

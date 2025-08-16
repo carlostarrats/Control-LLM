@@ -12,6 +12,9 @@ struct CentralVisualizerView: View {
 
     var onTap: (() -> Void)?
     
+    // MARK: - Voice Integration
+    @StateObject private var voiceIntegration = VoiceIntegrationService.shared
+    
 
     
     // Helper function to apply hue shift, saturation, and brightness to a color
@@ -422,6 +425,18 @@ struct CentralVisualizerView: View {
             if location.y >= centerStart && location.y <= centerEnd {
                 // Light haptic feedback for visualizer tap
                 FeedbackService.shared.playHaptic(.light)
+                
+                // Toggle voice mode for Mycroft
+                if !voiceIntegration.isVoiceModeActive {
+                    // Activating - start voice mode
+                    print("🎤 Mycroft: Starting voice mode")
+                    voiceIntegration.startVoiceMode()
+                } else {
+                    // Deactivating - stop voice mode
+                    print("🔇 Mycroft: Stopping voice mode")
+                    voiceIntegration.stopVoiceMode()
+                }
+                
                 onTap?()
             }
         }
