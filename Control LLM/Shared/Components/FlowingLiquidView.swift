@@ -38,6 +38,9 @@ struct FlowingLiquidView: View {
             let centerEnd = screenHeight * 0.8     // 80% from top of screen
             
             if location.y >= centerStart && location.y <= centerEnd {
+                // Light haptic feedback for visualizer tap
+                FeedbackService.shared.playHaptic(.light)
+                
                 // Toggle TARS local activation state
                 let newTarget: Float = localActivationProgress > 0.5 ? 0.0 : 1.0
                 print("🎯 TARS tapped - toggling from \(localActivationProgress) to \(newTarget)")

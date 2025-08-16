@@ -420,6 +420,8 @@ struct CentralVisualizerView: View {
             let centerEnd = screenHeight * 0.8     // 80% from top of screen
             
             if location.y >= centerStart && location.y <= centerEnd {
+                // Light haptic feedback for visualizer tap
+                FeedbackService.shared.playHaptic(.light)
                 onTap?()
             }
         }

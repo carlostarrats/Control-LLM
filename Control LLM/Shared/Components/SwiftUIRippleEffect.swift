@@ -61,7 +61,7 @@ struct DistortionRippleEffect: View {
                     )
                     .scaleEffect(rippleScale)
                     .opacity(rippleOpacity * 0.75)  // Reduced to 75% opacity
-                    .blendMode(.screen)
+                    .blendMode(.multiply)
                     .blur(radius: 3)
                 
                 // Secondary distortion layer - layered greyscale with transparent center (like main layer)
@@ -83,7 +83,7 @@ struct DistortionRippleEffect: View {
                     )
                     .scaleEffect(rippleScale * 0.65)  // Slightly smaller than main
                     .opacity(rippleOpacity * 0.25)    // Reduced to 25% for very subtle effect
-                    .blendMode(.softLight)            // Different blend mode for dimensionality
+                    .blendMode(.multiply)             // Using multiply for better contrast
                     .blur(radius: 2.0)               // Slightly more blur
                     .offset(
                         x: sin(rippleTime * 1.8) * distortionAmount * 6,  // Different timing

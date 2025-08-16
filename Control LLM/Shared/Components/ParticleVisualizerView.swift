@@ -85,6 +85,8 @@ struct ParticleVisualizerView: View {
                 .frame(width: 400, height: 400)
                 .contentShape(Rectangle())
                 .onTapGesture {
+                    // Light haptic feedback for visualizer tap
+                    FeedbackService.shared.playHaptic(.light)
                     onTap?()
                 }
             
