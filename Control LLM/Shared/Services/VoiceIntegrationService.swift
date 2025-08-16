@@ -28,10 +28,16 @@ class VoiceIntegrationService: ObservableObject {
     private init() {
         setupVoiceServiceCallbacks()
         setupVoiceChatServiceCallbacks()
+        setupModelChangeListener()
     }
     
     deinit {
         print("🧹 VoiceIntegrationService: Deinitializing")
+        // Clean up notification observer
+        if let observer = modelChangeObserver {
+            NotificationCenter.default.removeObserver(observer)
+            modelChangeObserver = nil
+        }
         // Note: Cannot call @MainActor methods from deinit
         // Cleanup will be handled by explicit cleanup calls
     }
@@ -51,6 +57,32 @@ class VoiceIntegrationService: ObservableObject {
     private func setupVoiceChatServiceCallbacks() {
         voiceChatService.onTranscriptionComplete = { [weak self] transcribedText in
             self?.handleTranscriptionComplete(transcribedText)
+        }
+    }
+    
+    private var modelChangeObserver: NSObjectProtocol?
+    
+    private func setupModelChangeListener() {
+        // Listen for model changes to update voice routing
+        modelChangeObserver = NotificationCenter.default.addObserver(
+            forName: .modelDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let self = self,
+                  let newModel = notification.object as? LLMModelInfo else { return }
+            
+            print("🎤 VoiceIntegrationService: Model changed to \(newModel.displayName), updating voice routing")
+            
+            // Stop any active voice mode when model changes
+            Task { @MainActor in
+                if self.isVoiceModeActive {
+                    self.stopVoiceMode()
+                }
+                
+                // Clear any error messages
+                self.errorMessage = nil
+            }
         }
     }
     
@@ -126,8 +158,9 @@ class VoiceIntegrationService: ObservableObject {
     /// Check if the current model supports voice natively
     func isModelVoiceCapable(_ model: LLMModelInfo) -> Bool {
         // Check if the model is Gemma-3N which supports native voice
+        // Use the same detection logic as ModelManager for consistency
         let filename = model.filename.lowercased()
-        return filename.contains("gemma-3n-e4b-it") || filename.contains("gemma-3n") || filename.contains("gemma3n")
+        return filename.contains("gemma-3n-e4b-it") || filename.contains("gemma-3n")
     }
     
     /// Get the current model's voice capabilities

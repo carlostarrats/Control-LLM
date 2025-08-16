@@ -1,6 +1,11 @@
 import SwiftUI
 import Foundation
 
+// MARK: - Notification Extensions
+extension Notification.Name {
+    static let modelDidChange = Notification.Name("modelDidChange")
+}
+
 // MARK: - Color Extensions
 extension Color {
     static let customPrimary = Color("PrimaryColor")

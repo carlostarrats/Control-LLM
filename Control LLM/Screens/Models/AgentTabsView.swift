@@ -80,7 +80,7 @@ struct AgentsTab: View {
 }
 
 struct ModelRow: View {
-    let model: AIModel
+    let model: LLMModelInfo
     let isSelected: Bool
     let onSelect: () -> Void
     
@@ -103,13 +103,13 @@ struct ModelRow: View {
                         .lineLimit(2)
                     
                     HStack {
-                        Text("\(model.maxTokens) tokens")
+                        Text(model.size)
                             .font(.caption)
                             .foregroundColor(.blue)
                         Text("•")
-                        Text("$\(String(format: "%.6f", model.costPerToken))/token")
+                        Text("Available")
                             .font(.caption)
-                            .foregroundColor(.blue)
+                            .foregroundColor(.green)
                     }
                 }
                 

@@ -19,16 +19,19 @@ class ChatViewModel: ObservableObject {
     }
     
     deinit {
+        // Clean up notification observer
         if let observer = modelChangeObserver {
             NotificationCenter.default.removeObserver(observer)
+            modelChangeObserver = nil
         }
+        // Clean up timer
         updateTimer?.invalidate()
     }
     
     private func setupModelChangeObserver() {
         // FIXED: Listen for the correct notification name that ModelManager posts
         modelChangeObserver = NotificationCenter.default.addObserver(
-            forName: NSNotification.Name("modelDidChange"),
+            forName: .modelDidChange,
             object: nil,
             queue: .main
         ) { [weak self] _ in

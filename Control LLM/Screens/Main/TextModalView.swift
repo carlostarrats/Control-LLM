@@ -165,7 +165,7 @@ struct TextModalView: View {
                 viewModel.llm.messageHistory = history
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("modelDidChange"))) { _ in
+                        .onReceive(NotificationCenter.default.publisher(for: .modelDidChange)) { _ in
             print("🔍 TextModalView: Model change notification received, resetting state...")
             // Reset only internal polling state when model changes
             isPolling = false

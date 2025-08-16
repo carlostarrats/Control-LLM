@@ -131,8 +131,12 @@ void* llm_bridge_create_context(void* model) {
     }
     
     struct llama_context_params ctx_params = llama_context_default_params();
-    // Conservative memory defaults to avoid stalls
-    ctx_params.n_ctx = 2048; // Increased from 256 - was too small for any meaningful conversation
+    
+    // Use larger context size for better performance with all models
+    // This helps with Gemma 3N and other larger models
+    ctx_params.n_ctx = 4096; // Increased from 2048 for better performance
+    NSLog(@"LlamaCppBridge: Using larger context (4096) for better model performance");
+    
     s_ctx = llama_init_from_model((struct llama_model*)model, ctx_params);
     
     if (!s_ctx) {

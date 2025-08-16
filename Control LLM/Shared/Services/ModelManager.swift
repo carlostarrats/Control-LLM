@@ -1,12 +1,9 @@
 import Foundation
 import SwiftUI
 
-// Notification name for when the selected model changes
-extension Notification.Name {
-    static let modelDidChange = Notification.Name("modelDidChange")
-}
 
-struct LLMModelInfo {
+
+struct LLMModelInfo: Identifiable {
     let id: String
     let name: String
     let filename: String
