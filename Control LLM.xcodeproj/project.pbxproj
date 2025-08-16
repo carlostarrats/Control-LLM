@@ -9,11 +9,12 @@
 /* Begin PBXBuildFile section */
 		582A7FDF2E4E65D80050D30B /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 582A7FDE2E4E65D80050D30B /* Lottie */; };
 		588A2AD72E452B9700F3091C /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588A2AD62E452B9500F3091C /* ChatViewModel.swift */; };
+		58B6D72F2E50FCB000120EAF /* llama.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = LLAMA_XCFRAMEWORK /* llama.xcframework */; };
+		58B6D7302E50FCB000120EAF /* llama.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = LLAMA_XCFRAMEWORK /* llama.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		58CD8A9D2E368C20006A68FD /* Liquid in Frameworks */ = {isa = PBXBuildFile; productRef = 58CD8A9C2E368C20006A68FD /* Liquid */; };
 		58CD8B112E369FEE006A68FD /* IBMPlexMono-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 58CD8B102E369FEE006A68FD /* IBMPlexMono-Regular.otf */; };
 		58CD8B122E369FEE006A68FD /* IBMPlexMono-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 58CD8B0E2E369FEE006A68FD /* IBMPlexMono-Bold.otf */; };
 		58CD8B132E369FEE006A68FD /* IBMPlexMono-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 58CD8B0F2E369FEE006A68FD /* IBMPlexMono-Medium.otf */; };
-		LLAMA_XCFRAMEWORK_IN_FRAMEWORKS /* llama.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = LLAMA_XCFRAMEWORK /* llama.xcframework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,6 +33,20 @@
 			remoteInfo = "Control LLM";
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		58B6D7312E50FCB000120EAF /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				58B6D7302E50FCB000120EAF /* llama.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		588A2AD62E452B9500F3091C /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
@@ -68,8 +83,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				58CD8A9D2E368C20006A68FD /* Liquid in Frameworks */,
-				LLAMA_XCFRAMEWORK_IN_FRAMEWORKS /* llama.xcframework in Frameworks */,
 				582A7FDF2E4E65D80050D30B /* Lottie in Frameworks */,
+				58B6D72F2E50FCB000120EAF /* llama.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -133,6 +148,7 @@
 				58E7B4B82E347AF100713E9B /* Sources */,
 				58E7B4B92E347AF100713E9B /* Frameworks */,
 				58E7B4BA2E347AF100713E9B /* Resources */,
+				58B6D7312E50FCB000120EAF /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -482,6 +498,7 @@
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 				);
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
@@ -528,6 +545,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",

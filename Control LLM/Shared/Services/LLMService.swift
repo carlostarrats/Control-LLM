@@ -14,6 +14,8 @@ final class LLMService: @unchecked Sendable {
     private var isChatOperationInProgress = false   // For chat generation
     private var lastOperationTime: Date = Date()  // Track when operations start
     
+
+    
     /// Load the currently selected model from ModelManager
     func loadSelectedModel() async throws {
         // Safety mechanism: if the flag has been stuck for more than 5 minutes, reset it
@@ -197,36 +199,29 @@ final class LLMService: @unchecked Sendable {
                     print("❌ LLMService: Model file appears too small (\(fileSize) bytes), may be corrupted")
                     throw NSError(domain: "LLMService", code: 14, userInfo: [NSLocalizedDescriptionKey: "Model file appears corrupted or too small"])
                 }
-                print("✅ LLMService: Model file validated - size: \(fileSize) bytes")
             } catch {
                 print("⚠️ LLMService: Could not validate model file attributes: \(error)")
             }
             
             modelPath.withCString { cString in
-                print("🔧 LLMService: Calling llm_bridge_load_model...")
                 self.llamaModel = llm_bridge_load_model(cString)
             }
             
             // CRASH PROTECTION: Validate model pointer
             guard let model = self.llamaModel else {
-                print("❌ LLMService: llm_bridge_load_model returned NULL")
                 throw NSError(domain: "LLMService", code: 4, userInfo: [NSLocalizedDescriptionKey: "Failed to load model - bridge returned NULL"])
             }
             
             // CRASH PROTECTION: Validate model pointer is not a dangling reference
             if model == UnsafeMutableRawPointer(bitPattern: 0x1) || model == UnsafeMutableRawPointer(bitPattern: 0x0) {
-                print("❌ LLMService: llm_bridge_load_model returned invalid pointer: \(model)")
                 throw NSError(domain: "LLMService", code: 15, userInfo: [NSLocalizedDescriptionKey: "Failed to load model - bridge returned invalid pointer"])
             }
-            
-            print("✅ LLMService: Model loaded successfully, creating context...")
             
             // CRASH PROTECTION: Create context with error handling
             self.llamaContext = llm_bridge_create_context(model)
             
             // CRASH PROTECTION: Validate context pointer
             guard let context = self.llamaContext else {
-                print("❌ LLMService: llm_bridge_create_context returned NULL")
                 // Clean up the model if context creation fails
                 llm_bridge_free_model(model)
                 self.llamaModel = nil
@@ -235,7 +230,6 @@ final class LLMService: @unchecked Sendable {
             
             // CRASH PROTECTION: Validate context pointer is not a dangling reference
             if context == UnsafeMutableRawPointer(bitPattern: 0x1) || context == UnsafeMutableRawPointer(bitPattern: 0x0) {
-                print("❌ LLMService: llm_bridge_create_context returned invalid pointer: \(context)")
                 // Clean up both model and context
                 llm_bridge_free_context(context)
                 llm_bridge_free_model(model)
@@ -243,8 +237,6 @@ final class LLMService: @unchecked Sendable {
                 self.llamaContext = nil
                 throw NSError(domain: "LLMService", code: 16, userInfo: [NSLocalizedDescriptionKey: "Failed to create context - bridge returned invalid pointer"])
             }
-            
-            print("✅ LLMService: Context created successfully")
         }.value
         
         self.isModelLoaded = true
@@ -330,8 +322,13 @@ final class LLMService: @unchecked Sendable {
             // Recreate context
             if let model = llamaModel {
                 llamaContext = llm_bridge_create_context(model)
-                guard llamaContext != nil else {
+                guard let context = llamaContext else {
                     throw NSError(domain: "LLMService", code: 21, userInfo: [NSLocalizedDescriptionKey: "Failed to recreate context"])
+                }
+                // CRASH PROTECTION: Validate recreated context pointer
+                if context == UnsafeMutableRawPointer(bitPattern: 0x1) || context == UnsafeMutableRawPointer(bitPattern: 0x0) {
+                    llamaContext = nil
+                    throw NSError(domain: "LLMService", code: 25, userInfo: [NSLocalizedDescriptionKey: "Failed to recreate context - invalid pointer"])
                 }
             }
             
@@ -345,7 +342,7 @@ final class LLMService: @unchecked Sendable {
         
         guard isModelLoaded, let context = llamaContext else {
             throw NSError(domain: "LLMService",
-                          code: 2,
+                          code: 24,
                           userInfo: [NSLocalizedDescriptionKey: "Model not loaded"])
         }
         
@@ -560,12 +557,14 @@ final class LLMService: @unchecked Sendable {
             }
         }
         
-        print("LLMService: clearState() completed - state variables cleared, model unload in progress")
+        print("LLMService: clearState() completed - state variables cleared, model unload initiated")
     }
 
     private func getErrorMessage(for error: Error) -> String {
         if let nsError = error as NSError? {
             switch nsError.code {
+            case 1:
+                return "No model selected. Please select a model first."
             case 2:
                 return "Model file not found in bundle root. Please check your model installation."
             case 3:
@@ -580,6 +579,10 @@ final class LLMService: @unchecked Sendable {
                 return "Model loading timed out. Please try a smaller model."
             case 8:
                 return "No result from timeout operation. Please try again."
+            case 9:
+                return "Operation failed due to internal error. Please try again."
+            case 10:
+                return "Operation was cancelled or interrupted. Please try again."
             case 11:
                 return "Another operation is in progress. Please wait and try again."
             case 12:
@@ -606,6 +609,10 @@ final class LLMService: @unchecked Sendable {
                 return "Another chat operation is in progress. Please wait and try again."
             case 23:
                 return "Empty or whitespace-only input. Please provide some text to process."
+            case 24:
+                return "Model not loaded. Please select and load a model first."
+            case 25:
+                return "Failed to recreate context due to invalid pointer. Please try again."
             default:
                 return error.localizedDescription
             }
