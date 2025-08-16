@@ -178,32 +178,77 @@ final class LLMService: @unchecked Sendable {
         
         // Run heavy C calls off the main thread
         try await Task.detached(priority: .userInitiated) { [self] in
+            // CRASH PROTECTION: Reset pointers before initialization
             self.llamaModel = nil
+            self.llamaContext = nil
+            
+            // CRASH PROTECTION: Validate model path exists
+            let fileManager = FileManager.default
+            guard fileManager.fileExists(atPath: modelPath) else {
+                print("❌ LLMService: Model file does not exist at path: \(modelPath)")
+                throw NSError(domain: "LLMService", code: 13, userInfo: [NSLocalizedDescriptionKey: "Model file not found at specified path"])
+            }
+            
+            // CRASH PROTECTION: Check file size to ensure it's not corrupted
+            do {
+                let attributes = try fileManager.attributesOfItem(atPath: modelPath)
+                let fileSize = attributes[.size] as? Int64 ?? 0
+                if fileSize < 1000000 { // Less than 1MB
+                    print("❌ LLMService: Model file appears too small (\(fileSize) bytes), may be corrupted")
+                    throw NSError(domain: "LLMService", code: 14, userInfo: [NSLocalizedDescriptionKey: "Model file appears corrupted or too small"])
+                }
+                print("✅ LLMService: Model file validated - size: \(fileSize) bytes")
+            } catch {
+                print("⚠️ LLMService: Could not validate model file attributes: \(error)")
+            }
+            
             modelPath.withCString { cString in
+                print("🔧 LLMService: Calling llm_bridge_load_model...")
                 self.llamaModel = llm_bridge_load_model(cString)
             }
             
+            // CRASH PROTECTION: Validate model pointer
             guard let model = self.llamaModel else {
-                print("LLMService: llm_bridge_load_model returned NULL")
+                print("❌ LLMService: llm_bridge_load_model returned NULL")
                 throw NSError(domain: "LLMService", code: 4, userInfo: [NSLocalizedDescriptionKey: "Failed to load model - bridge returned NULL"])
             }
             
-            print("LLMService: Model loaded successfully, creating context...")
+            // CRASH PROTECTION: Validate model pointer is not a dangling reference
+            if model == UnsafeMutableRawPointer(bitPattern: 0x1) || model == UnsafeMutableRawPointer(bitPattern: 0x0) {
+                print("❌ LLMService: llm_bridge_load_model returned invalid pointer: \(model)")
+                throw NSError(domain: "LLMService", code: 15, userInfo: [NSLocalizedDescriptionKey: "Failed to load model - bridge returned invalid pointer"])
+            }
+            
+            print("✅ LLMService: Model loaded successfully, creating context...")
+            
+            // CRASH PROTECTION: Create context with error handling
             self.llamaContext = llm_bridge_create_context(model)
             
-            guard self.llamaContext != nil else {
-                print("LLMService: llm_bridge_create_context returned NULL")
+            // CRASH PROTECTION: Validate context pointer
+            guard let context = self.llamaContext else {
+                print("❌ LLMService: llm_bridge_create_context returned NULL")
                 // Clean up the model if context creation fails
                 llm_bridge_free_model(model)
                 self.llamaModel = nil
                 throw NSError(domain: "LLMService", code: 5, userInfo: [NSLocalizedDescriptionKey: "Failed to create context - bridge returned NULL"])
             }
             
-            print("LLMService: Context created successfully")
+            // CRASH PROTECTION: Validate context pointer is not a dangling reference
+            if context == UnsafeMutableRawPointer(bitPattern: 0x1) || context == UnsafeMutableRawPointer(bitPattern: 0x0) {
+                print("❌ LLMService: llm_bridge_create_context returned invalid pointer: \(context)")
+                // Clean up both model and context
+                llm_bridge_free_context(context)
+                llm_bridge_free_model(model)
+                self.llamaModel = nil
+                self.llamaContext = nil
+                throw NSError(domain: "LLMService", code: 16, userInfo: [NSLocalizedDescriptionKey: "Failed to create context - bridge returned invalid pointer"])
+            }
+            
+            print("✅ LLMService: Context created successfully")
         }.value
         
         self.isModelLoaded = true
-        print("LLMService: Model loaded successfully with llama.cpp")
+        print("✅ LLMService: Model loaded successfully with llama.cpp")
     }
     
     private func withTimeout<T>(seconds: TimeInterval, operation: @escaping () async throws -> T) async throws -> T {
@@ -229,11 +274,6 @@ final class LLMService: @unchecked Sendable {
 
     /// Stream tokens for a user prompt, optionally with chat history
     func chat(user text: String, history: [ChatMessage]? = nil, onToken: @escaping (String) async -> Void) async throws {
-        // Safety check - ensure we're not in the middle of unloading
-        guard !text.isEmpty else {
-            throw NSError(domain: "LLMService", code: 10, userInfo: [NSLocalizedDescriptionKey: "Empty input text"])
-        }
-        
         // Safety mechanism: if the flag has been stuck for more than 5 minutes, reset it
         if isChatOperationInProgress {
             let timeSinceLastOperation = Date().timeIntervalSince(lastOperationTime)
@@ -245,7 +285,7 @@ final class LLMService: @unchecked Sendable {
         
         // Prevent concurrent chat operations
         guard !isChatOperationInProgress else {
-            throw NSError(domain: "LLMService", code: 11, userInfo: [NSLocalizedDescriptionKey: "Another chat operation is in progress"])
+            throw NSError(domain: "LLMService", code: 22, userInfo: [NSLocalizedDescriptionKey: "Another chat operation is in progress"])
         }
         
         isChatOperationInProgress = true
@@ -263,7 +303,7 @@ final class LLMService: @unchecked Sendable {
         // Validate input text
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw NSError(domain: "LLMService",
-                          code: 5,
+                          code: 23,
                           userInfo: [NSLocalizedDescriptionKey: "Empty or whitespace-only input"])
         }
         
@@ -291,7 +331,7 @@ final class LLMService: @unchecked Sendable {
             if let model = llamaModel {
                 llamaContext = llm_bridge_create_context(model)
                 guard llamaContext != nil else {
-                    throw NSError(domain: "LLMService", code: 5, userInfo: [NSLocalizedDescriptionKey: "Failed to recreate context"])
+                    throw NSError(domain: "LLMService", code: 21, userInfo: [NSLocalizedDescriptionKey: "Failed to recreate context"])
                 }
             }
             
@@ -333,9 +373,21 @@ final class LLMService: @unchecked Sendable {
     }
 
     private func streamResponseWithLlamaCpp(context: UnsafeMutableRawPointer, prompt: String, onToken: @escaping (String) async -> Void) async throws {
+        // CRASH PROTECTION: Validate context pointer
+        guard context != UnsafeMutableRawPointer(bitPattern: 0x0) && context != UnsafeMutableRawPointer(bitPattern: 0x1) else {
+            print("❌ LLMService: Invalid context pointer in streamResponseWithLlamaCpp")
+            throw NSError(domain: "LLMService", code: 17, userInfo: [NSLocalizedDescriptionKey: "Invalid context pointer for streaming"])
+        }
+        
         // Ensure the model name is valid and available
         guard let modelName = currentModelFilename, !modelName.isEmpty else {
             throw NSError(domain: "LLMService", code: 12, userInfo: [NSLocalizedDescriptionKey: "Model name not available for streaming."])
+        }
+
+        // CRASH PROTECTION: Validate prompt
+        guard !prompt.isEmpty else {
+            print("❌ LLMService: Empty prompt in streamResponseWithLlamaCpp")
+            throw NSError(domain: "LLMService", code: 18, userInfo: [NSLocalizedDescriptionKey: "Empty prompt for streaming"])
         }
 
         // Use async/await with proper completion handling
@@ -353,14 +405,26 @@ final class LLMService: @unchecked Sendable {
                 if !hasCompleted {
                     hasCompleted = true
                     print("❌ LLMService: Streaming generation timed out.")
-                    continuation.resume(throwing: NSError(domain: "LLMService", code: 14, userInfo: [NSLocalizedDescriptionKey: "Streaming generation timed out."]))
+                    continuation.resume(throwing: NSError(domain: "LLMService", code: 20, userInfo: [NSLocalizedDescriptionKey: "Streaming generation timed out."]))
                 }
             }
 
             // Call the C++ bridge function from a background thread
             DispatchQueue.global(qos: .userInitiated).async {
+                // CRASH PROTECTION: Validate strings before converting to C strings
+                guard !modelNameToSend.isEmpty, !promptToSend.isEmpty else {
+                    print("❌ LLMService: Empty strings before C string conversion")
+                    if !hasCompleted {
+                        hasCompleted = true
+                        timeoutTask.cancel()
+                        continuation.resume(throwing: NSError(domain: "LLMService", code: 19, userInfo: [NSLocalizedDescriptionKey: "Invalid strings for C++ bridge"]))
+                    }
+                    return
+                }
+                
                 modelNameToSend.withCString { modelNameCString in
                     promptToSend.withCString { promptCString in
+                        print("🔧 LLMService: Calling llm_bridge_generate_stream_block...")
                         llm_bridge_generate_stream_block(context, modelNameCString, promptCString, { piece in
                             if let piece = piece {
                                 if let text = String(cString: piece, encoding: .utf8) {
@@ -392,13 +456,18 @@ final class LLMService: @unchecked Sendable {
         }
         
         let systemPrompt = LanguageService.shared.getSystemPrompt()
-        let modelFilename = currentModelFilename?.lowercased() ?? ""
         
         print("🔍 LLMService: Building prompt for model: \(currentModelFilename ?? "unknown") using chat template")
         return buildPromptUsingChatTemplate(userText: userText, history: history, systemPrompt: systemPrompt)
     }
     
     private func buildPromptUsingChatTemplate(userText: String, history: [ChatMessage]?, systemPrompt: String) -> String {
+        // CRASH PROTECTION: Validate inputs
+        guard !userText.isEmpty, !systemPrompt.isEmpty else {
+            print("❌ LLMService: Empty userText or systemPrompt in buildPromptUsingChatTemplate")
+            return userText // Fallback to user text only
+        }
+        
         let bufferLen = 32768
         var buf = [Int8](repeating: 0, count: bufferLen)
 
@@ -420,21 +489,43 @@ final class LLMService: @unchecked Sendable {
             return arr
         }()
 
-        var cRolePtrs: [UnsafePointer<CChar>?] = roleStrings.map { s in s.withCString { UnsafePointer(strdup($0)) } }
-        var cContentPtrs: [UnsafePointer<CChar>?] = contentStrings.map { s in s.withCString { UnsafePointer(strdup($0)) } }
+        // CRASH PROTECTION: Validate arrays before processing
+        guard !roleStrings.isEmpty, !contentStrings.isEmpty, roleStrings.count == contentStrings.count else {
+            print("❌ LLMService: Invalid role/content arrays in buildPromptUsingChatTemplate")
+            return userText // Fallback to user text only
+        }
+
+        let cRolePtrs: [UnsafePointer<CChar>?] = roleStrings.map { s in s.withCString { UnsafePointer(strdup($0)) } }
+        let cContentPtrs: [UnsafePointer<CChar>?] = contentStrings.map { s in s.withCString { UnsafePointer(strdup($0)) } }
+
+        // CRASH PROTECTION: Ensure cleanup happens in all code paths
+        defer {
+            // Free duplicated C strings - this will run even if function throws or returns early
+            for p in cRolePtrs { if let p = p { free(UnsafeMutablePointer(mutating: p)) } }
+            for p in cContentPtrs { if let p = p { free(UnsafeMutablePointer(mutating: p)) } }
+        }
+
+        // CRASH PROTECTION: Validate C string arrays
+        guard cRolePtrs.count == cContentPtrs.count, cRolePtrs.count > 0 else {
+            print("❌ LLMService: C string conversion failed in buildPromptUsingChatTemplate")
+            return userText // Fallback to user text only
+        }
 
         let written: Int = cRolePtrs.withUnsafeBufferPointer { rbuf in
             cContentPtrs.withUnsafeBufferPointer { cbuf in
-                Int(llm_bridge_apply_chat_template_messages(rbuf.baseAddress, cbuf.baseAddress, Int32(contentStrings.count), true, &buf, Int32(bufferLen)))
+                // CRASH PROTECTION: Validate buffer pointers
+                guard rbuf.baseAddress != nil, cbuf.baseAddress != nil else {
+                    print("❌ LLMService: Invalid buffer pointers in buildPromptUsingChatTemplate")
+                    return 0
+                }
+                
+                print("🔧 LLMService: Calling llm_bridge_apply_chat_template_messages...")
+                return Int(llm_bridge_apply_chat_template_messages(rbuf.baseAddress, cbuf.baseAddress, Int32(contentStrings.count), true, &buf, Int32(bufferLen)))
             }
         }
 
-        // Free duplicated C strings
-        for p in cRolePtrs { if let p = p { free(UnsafeMutablePointer(mutating: p)) } }
-        for p in cContentPtrs { if let p = p { free(UnsafeMutablePointer(mutating: p)) } }
-
         if written > 0, let prompt = String(validatingUTF8: buf) {
-            print("🔍 LLMService: Applied model chat template (\(written) bytes)")
+            print("✅ LLMService: Applied model chat template (\(written) bytes)")
             return prompt
         } else {
             print("❌ LLMService: Chat template application failed; returning user text only")
@@ -458,27 +549,63 @@ final class LLMService: @unchecked Sendable {
         // Reset operation timing
         lastOperationTime = Date()
         
-        // Force unload model synchronously
-        Task {
-            try? await forceUnloadModel()
+        // Force unload model asynchronously to prevent race conditions
+        // Note: This is a fire-and-forget operation to avoid blocking the UI
+        Task.detached(priority: .background) {
+            do {
+                try await self.forceUnloadModel()
+                print("LLMService: clearState() - model unloaded successfully")
+            } catch {
+                print("⚠️ LLMService: clearState() - model unload failed: \(error)")
+            }
         }
         
-        print("LLMService: clearState() completed - all state cleared")
+        print("LLMService: clearState() completed - state variables cleared, model unload in progress")
     }
 
     private func getErrorMessage(for error: Error) -> String {
         if let nsError = error as NSError? {
             switch nsError.code {
+            case 2:
+                return "Model file not found in bundle root. Please check your model installation."
+            case 3:
+                return "No model path available. Please select a model first."
+            case 4:
+                return "Failed to load model. Please try again."
+            case 5:
+                return "Failed to create model context. Please try again."
+            case 6:
+                return "Prompt too long. Please shorten your message."
             case 7:
                 return "Model loading timed out. Please try a smaller model."
-            case 6:
-                return "Input too long. Please use shorter text."
-            case 9:
-                return "Model was unloaded. Please try again."
-            case 10:
-                return "Empty input text. Please provide some text to process."
+            case 8:
+                return "No result from timeout operation. Please try again."
             case 11:
                 return "Another operation is in progress. Please wait and try again."
+            case 12:
+                return "Model name not available for streaming. Please try again."
+            case 13:
+                return "Model file not found. Please check your model installation."
+            case 14:
+                return "Model file appears corrupted. Please reinstall the model."
+            case 15:
+                return "Failed to load model due to invalid pointer. Please try again."
+            case 16:
+                return "Failed to create context due to invalid pointer. Please try again."
+            case 17:
+                return "Invalid context pointer for streaming. Please try again."
+            case 18:
+                return "Empty prompt for streaming. Please provide some text."
+            case 19:
+                return "Invalid strings for C++ bridge. Please try again."
+            case 20:
+                return "Streaming generation timed out. Please try again."
+            case 21:
+                return "Failed to recreate context. Please try again."
+            case 22:
+                return "Another chat operation is in progress. Please wait and try again."
+            case 23:
+                return "Empty or whitespace-only input. Please provide some text to process."
             default:
                 return error.localizedDescription
             }
