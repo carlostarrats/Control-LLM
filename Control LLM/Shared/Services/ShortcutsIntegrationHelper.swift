@@ -46,24 +46,12 @@ class ShortcutsIntegrationHelper: NSObject {
         // This should be called whenever messages are sent through the normal app interface
         
         // Example integration points:
-        // - When a message is sent via voice
         // - When a message is sent via text input
         // - When multiple messages are processed
         // - When system prompts are modified
     }
     
-    /// Integrate with existing voice functionality
-    func integrateWithVoiceService() {
-        logger.info("Integrating Shortcuts with existing voice service")
-        
-        // TODO: Hook into your existing voice service to donate intents
-        // This should be called whenever voice interactions occur
-        
-        // Example integration points:
-        // - When voice commands are processed
-        // - When voice responses are generated
-        // - When voice settings are modified
-    }
+    // Voice service integration removed
     
     /// Integrate with existing LLM service
     func integrateWithLLMService() {
@@ -106,8 +94,7 @@ class ShortcutsIntegrationHelper: NSObject {
             return "⛓️ \(response)"
         case .systemPrompt:
             return "⚙️ \(response)"
-        case .voice:
-            return "🎤 \(response)"
+        // Voice response type removed
         case .llm:
             return "🤖 \(response)"
         }
@@ -117,7 +104,7 @@ class ShortcutsIntegrationHelper: NSObject {
         case message
         case chain
         case systemPrompt
-        case voice
+        // Voice case removed
         case llm
     }
     
@@ -165,13 +152,7 @@ extension ShortcutsIntegrationHelper {
         logger.info("Hooks installed for message sending functionality")
     }
     
-    /// Hook into existing voice functionality
-    func hookIntoVoiceFunctionality() {
-        // This method should be called from your existing voice code
-        // to automatically donate intents when users perform voice actions
-        
-        logger.info("Hooks installed for voice functionality")
-    }
+    // Voice functionality hook removed
     
     /// Hook into existing LLM functionality
     func hookIntoLLMFunctionality() {

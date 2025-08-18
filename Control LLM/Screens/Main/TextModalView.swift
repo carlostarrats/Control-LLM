@@ -165,7 +165,7 @@ struct TextModalView: View {
                 viewModel.llm.messageHistory = history
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .modelDidChange)) { _ in
+                        .onReceive(NotificationCenter.default.publisher(for: .modelDidChange)) { _ in
             print("🔍 TextModalView: Model change notification received, resetting state...")
             // Reset only internal polling state when model changes
             isPolling = false
@@ -184,12 +184,8 @@ struct TextModalView: View {
             
             print("🔍 TextModalView: State reset completed - displayed messages preserved")
         }
-        // Add tap gesture to dismiss keyboard when tapping outside
-        .onTapGesture {
-            if isTextFieldFocused {
-                isTextFieldFocused = false
-            }
-        }
+
+
     }
     
     // MARK: - Date header logic ----------------------------------------------
@@ -235,7 +231,7 @@ struct TextModalView: View {
                     Image(systemName: "keyboard")
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(Color(hex: "#BBBBBB"))
-                    Text(NSLocalizedString("Control", comment: ""))
+                    Text("Control")
                         .font(.custom("IBMPlexMono", size: 20))
                         .foregroundColor(Color(hex: "#BBBBBB"))
                 }
@@ -283,18 +279,7 @@ struct TextModalView: View {
                 }
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("voiceInputReceived"))) { notification in
-            handleVoiceInput(notification)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("voiceResponseToken"))) { notification in
-            handleVoiceResponseToken(notification)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("voiceResponseComplete"))) { notification in
-            handleVoiceResponseComplete(notification)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("voiceResponseError"))) { notification in
-            handleVoiceResponseError(notification)
-        }
+        // Voice notification handling removed
         }
     }
 
@@ -304,10 +289,7 @@ struct TextModalView: View {
             HStack(alignment: .bottom, spacing: 12) {
                 // Plus button
                 Button(action: {
-                    // Use a slight delay to ensure smooth animation
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                        showingDocumentPicker = true
-                    }
+                    showingDocumentPicker = true
                 }) {
                     Image(systemName: "plus")
                         .font(.system(size: 16, weight: .medium))
@@ -332,7 +314,7 @@ struct TextModalView: View {
                 }
 
                 // Text field
-                TextField(NSLocalizedString("Ask Anything…", comment: ""), text: $messageText, axis: .vertical)
+                TextField("", text: $messageText, axis: .vertical)
                     .font(.custom("IBMPlexMono", size: 16))
                     .foregroundColor(colorManager.purpleColor)
                     .padding(.leading, 16)
@@ -341,10 +323,11 @@ struct TextModalView: View {
                     .background(Color(hex: "#2A2A2A"))
                     .cornerRadius(4)
                     .tint(Color(hex: "#EEEEEE"))
-                    .focused($isTextFieldFocused)
                     .onChange(of: messageText) { _, _ in
-                        // Enable typing sounds by playing key press sound
                         FeedbackService.shared.playSound(.keyPress)
+                    }
+                    .onTapGesture {
+                        isTextFieldFocused = true
                     }
                     .overlay(placeholderOverlay.allowsHitTesting(false), alignment: .leading) // Fix placeholder tap issue
                     .overlay(sendButtonOverlay, alignment: .bottomTrailing) // Anchor to bottom-right
@@ -366,7 +349,7 @@ struct TextModalView: View {
     @ViewBuilder private var placeholderOverlay: some View {
         if messageText.isEmpty {
             HStack {
-                Text(NSLocalizedString("Ask Anything…", comment: ""))
+                Text("Ask Anything…")
                     .font(.custom("IBMPlexMono", size: 16))
                     .foregroundColor(Color(hex: "#666666"))
                 Spacer()
@@ -382,8 +365,6 @@ struct TextModalView: View {
             Button(action: {
                 print("Send button pressed!")
                 NSLog("Send button pressed!")
-                // Use light haptic like main page buttons
-                FeedbackService.shared.playHaptic(.light)
                 Task {
                     await sendMessage()
                 }
@@ -506,7 +487,7 @@ struct TextModalView: View {
     @State private var lastLoadedModelForDuplicateCheck: String? = nil
     
     // Voice integration state
-    @State private var currentVoiceResponsePlaceholder: ChatMessage? = nil
+    // Voice functionality removed
 
     private let maxPollCount = 300 // 30 seconds max (300 * 0.1s)
 
@@ -590,141 +571,7 @@ struct TextModalView: View {
         }
     }
     
-    // MARK: - VOICE INTEGRATION ----------------------------------------------
-    
-    /// Handle voice input received from VoiceIntegrationService
-    private func handleVoiceInput(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let voiceText = userInfo["text"] as? String else {
-            print("❌ TextModalView: Invalid voice input notification")
-            return
-        }
-        
-        print("🎤 TextModalView: Received voice input: '\(voiceText)'")
-        
-        // Add voice input to conversation history as user message
-        let voiceMessage = ChatMessage(
-            content: voiceText,
-            isUser: true,
-            timestamp: Date(),
-            messageType: .voice
-        )
-        viewModel.messages.append(voiceMessage)
-        
-        // Also add to LLM message history for context
-        if viewModel.llm.messageHistory == nil {
-            viewModel.llm.messageHistory = []
-        }
-        viewModel.llm.messageHistory?.append(voiceMessage)
-        
-        // Create placeholder for AI response
-        let placeholderMessage = ChatMessage(
-            content: "",
-            isUser: false,
-            timestamp: Date(),
-            messageType: .text
-        )
-        viewModel.messages.append(placeholderMessage)
-        
-        // Store reference to placeholder for updating
-        currentVoiceResponsePlaceholder = placeholderMessage
-        
-        // Auto-save the conversation after adding voice input
-        viewModel.autoSaveIfNeeded()
-        
-        print("🎤 TextModalView: Added voice message and placeholder to conversation")
-    }
-    
-    /// Handle individual tokens from voice response
-    private func handleVoiceResponseToken(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let token = userInfo["token"] as? String,
-              let placeholder = currentVoiceResponsePlaceholder else {
-            print("❌ TextModalView: Missing placeholder for voice response token")
-            return
-        }
-        
-        // Update placeholder message with accumulated response
-        if let index = viewModel.messages.firstIndex(where: { $0.id == placeholder.id }) {
-            viewModel.messages[index].content += token
-            print("🎤 TextModalView: Updated voice response with token: '\(token)'")
-        } else {
-            print("❌ TextModalView: Could not find placeholder message to update")
-        }
-    }
-    
-    /// Handle completed voice response
-    private func handleVoiceResponseComplete(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let response = userInfo["response"] as? String else {
-            print("❌ TextModalView: Invalid voice response complete notification")
-            return
-        }
-        
-        print("✅ TextModalView: Voice response complete: '\(response)'")
-        
-        // Ensure the response is properly displayed using the stored placeholder
-        if let placeholder = currentVoiceResponsePlaceholder {
-            if let index = viewModel.messages.firstIndex(where: { $0.id == placeholder.id }) {
-                viewModel.messages[index].content = response
-                
-                // Also add the complete response to LLM message history for context
-                if let responseMessage = viewModel.messages[safe: index] {
-                    if viewModel.llm.messageHistory == nil {
-                        viewModel.llm.messageHistory = []
-                    }
-                    viewModel.llm.messageHistory?.append(responseMessage)
-                    
-                    // Update the lastMessage for proper conversation flow
-                    viewModel.lastMessage = responseMessage.content
-                    
-                    // Trigger auto-save and other conversation maintenance
-                    viewModel.autoSaveIfNeeded()
-                }
-                
-                print("✅ TextModalView: Updated placeholder with complete response")
-            }
-        }
-        
-        // Clear placeholder reference
-        currentVoiceResponsePlaceholder = nil
-        
-        // Auto-save the conversation after completing voice response
-        viewModel.autoSaveIfNeeded()
-    }
-    
-    /// Handle voice response errors
-    private func handleVoiceResponseError(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let error = userInfo["error"] as? String else {
-            return
-        }
-        
-        print("❌ TextModalView: Voice response error: \(error)")
-        
-        // Remove placeholder message on error
-        if let placeholder = currentVoiceResponsePlaceholder {
-            viewModel.messages.removeAll { $0.id == placeholder.id }
-            currentVoiceResponsePlaceholder = nil
-        }
-        
-        // Show error message to user
-        let errorMessage = ChatMessage(
-            content: "Voice processing failed: \(error)",
-            isUser: false,
-            timestamp: Date(),
-            messageType: .text
-        )
-        viewModel.messages.append(errorMessage)
-        
-        // Auto-save after error to preserve the error message
-        viewModel.autoSaveIfNeeded()
-        
-        // Clear any voice mode state
-        let voiceIntegration = VoiceIntegrationService.shared
-        voiceIntegration.isVoiceModeActive = false
-        voiceIntegration.isProcessingVoice = false
-    }
+    // Voice integration functionality removed
 
 
     // MARK: - File upload helper --------------------------------------------
@@ -736,9 +583,7 @@ struct TextModalView: View {
             content: "📎 \(fileName)",
             isUser: true,
             timestamp: Date(),
-            messageType: .file,
-            fileName: fileName,
-            fileURL: url
+            messageType: .file
         )
         viewModel.messages.append(fileMessage)
         
@@ -797,7 +642,7 @@ struct MessageBubble: View {
             VStack(alignment: message.isUser ? .trailing : .leading, spacing: (message.isUser && !message.content.isEmpty) ? 4 : 0) {
                 if message.messageType == .file {
                     FileMessageView(message: message)
-                } else if message.messageType == .voice {
+                } else if message.messageType == .file {
                     // Voice messages: show with microphone icon and voice indicator
                     HStack(spacing: 8) {
                         Image(systemName: "mic.fill")
@@ -931,15 +776,11 @@ struct FileMessageView: View {
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(message.isUser ? .black : Color(hex: "#BBBBBB"))
             VStack(alignment: .leading, spacing: 2) {
-                Text(message.fileName ?? "Unknown File")
+                Text("File Message")
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(message.isUser ? .black : Color(hex: "#EEEEEE"))
                     .lineLimit(1)
-                if let url = message.fileURL {
-                    Text(url.pathExtension.uppercased())
-                        .font(.custom("IBMPlexMono", size: 10))
-                        .foregroundColor(message.isUser ? .black.opacity(0.6) : Color(hex: "#BBBBBB"))
-                }
+                // File extension display removed
             }
         }
         .padding(.horizontal, 16).padding(.vertical, 10)

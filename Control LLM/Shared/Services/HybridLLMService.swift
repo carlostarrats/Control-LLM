@@ -129,7 +129,7 @@ final class HybridLLMService: ObservableObject {
     // MARK: - Prompt Building
     
     private func buildPrompt(userText: String, history: [ChatMessage]?) -> String {
-        let systemPrompt = LanguageService.shared.getSystemPrompt()
+        let systemPrompt = "You are a helpful AI assistant. You provide clear, accurate, and helpful responses to user questions and requests."
         
         // Use a simple, universal format that works well with Ollama
         var fullPrompt = systemPrompt + "\n\n"

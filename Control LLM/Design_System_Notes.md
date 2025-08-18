@@ -14,7 +14,7 @@
 
 ### Primary Brand Colors
 - **App Red:** `ColorManager.shared.redColor` (Dynamic red color for brand elements)
-  - Used in: FAQ headlines, language codes in voice sheet, accent elements
+  - Used in: FAQ headlines, language codes, accent elements
 - **Primary Background:** `#1D1D1D` (Dark gray)
   - Used in: Main backgrounds, sheet backgrounds
 
@@ -32,7 +32,7 @@
 - **Tertiary Text:** `#666666` (Dark gray)
   - Used in: Disabled text, less prominent information, inactive elements
 - **Brand Accent Text:** `ColorManager.shared.redColor` (Dynamic red)
-  - Used in: FAQ headlines, language codes in voice sheet, important emphasis text
+  - Used in: FAQ headlines, language codes, important emphasis text
 
 ### Dynamic UI Colors
 - **Orange Color:** `ColorManager.shared.orangeColor` (Default: `#F8C762`)
@@ -74,7 +74,7 @@
 - **FAQ Headlines:** 16pt, IBMPlexMono, Red color
 - **Settings Headlines:** 20pt, IBMPlexMono
 - **Language Labels:** 16pt, IBMPlexMono
-- **Voice Names:** 16pt, IBMPlexMono
+- **Language Names:** 16pt, IBMPlexMono
 - **Language Codes:** 10pt, IBMPlexMono, Red color
 - **Chat Input:** 16pt, IBMPlexMono, Cursor color: `#EEEEEE`
 
@@ -167,7 +167,7 @@
 - Section spacing: 20px between groupings
 - Background: `#1D1D1D`
 
-### Voice & Language Screens
+### Language Screens
 - Language codes: 10pt IBMPlexMono in red color
 - Full language names: Expanded abbreviations for clarity
 - Consistent spacing with other settings screens

@@ -1,7 +1,7 @@
 "Settings" = "Configuración";
 "Models" = "Modelos";
 "Appearance" = "Apariencia";
-"Voice" = "Voz";
+// Voice localization removed
 "Language" = "Idioma";
 "Chat History" = "Historial de Chat";
 "FAQs" = "FAQs";
@@ -19,84 +19,14 @@
 "Cancel" = "Cancelar";
 "Delete All History" = "Eliminar todo el historial";
 "This action can't be undone." = "Esta acción no se puede deshacer.";
-"iOS System Voices" = "Voces del sistema iOS";
-"How does voice work?" = "¿Cómo funciona la voz?";
-"Voice input is only on the main screen. Speak, then press the sparkle to process. The reply is spoken and saved to chat." = "La entrada de voz solo está en la pantalla principal. Habla y luego presiona el brillo para procesar. La respuesta se habla y se guarda en el chat.";
+// iOS System Voices localization removed
+// Voice work explanation removed
+// Voice input explanation removed
 "Is chat text-only?" = "¿El chat es solo texto?";
 "Yes. The chat window is text-only and shows the full conversation history." = "Sí. La ventana de chat es solo texto y muestra todo el historial de conversación.";
 "Are my chats private?" = "¿Mis chats son privados?";
 "All data stays on-device. Nothing is uploaded or shared. Delete the app to remove all data." = "Todos los datos permanecen en el dispositivo. Nada se sube ni se comparte. Elimina la app para borrar todos los datos.";
-"Which voices are available?" = "¿Qué voces están disponibles?";
-"The Voice settings list the iOS system voices installed on your device. If a picked voice isn't available, a default voice is used." = "La configuración de Voz lista las voces del sistema iOS instaladas en tu dispositivo. Si la voz elegida no está disponible, se usa una voz predeterminada.";
+// Voice availability question removed
+// Voice settings explanation removed
 "PrivacyNotice" = "Esta app almacena todos los datos solo en tu dispositivo: no se guarda ni comparte nada, y no existe una cuenta. Para eliminar todos los datos, borra la app.";
-
-// Main Navigation
-"History" = "Historial";
-"Whisper" = "Susurro";
-"Keyboard" = "Teclado";
-
-// Whisper View
-"All Audio" = "Todo el Audio";
-"Whisper Options" = "Opciones de Susurro";
-"Delete Audio" = "Eliminar Audio";
-"AUTO" = "AUTO";
-"Peak" = "Pico";
-"RMS" = "RMS";
-"dB" = "dB";
-
-// Text Modal
-"Control" = "Control";
-"Ask Anything…" = "Pregunta lo que quieras…";
-
-// Models
-"Agents" = "Agentes";
-"Available" = "Disponible";
-"Unavailable" = "No Disponible";
-"Active" = "Activo";
-"No Model Assigned" = "Sin Modelo Asignado";
-"Installing" = "Instalando";
-
-// Appearance
-"Control Unit Selection" = "Selección de Unidad de Control";
-"Main UI Colors" = "Colores Principales de la UI";
-"These colors affect text and other UI elements." = "Estos colores afectan el texto y otros elementos de la UI.";
-"Restore Defaults" = "Restaurar Predeterminados";
-"Apply Changes" = "Aplicar Cambios";
-
-// Settings Tabs
-"UI" = "UI";
-"Dev" = "Dev";
-"English" = "Inglés";
-"Spanish" = "Español";
-"French" = "Francés";
-"Version" = "Versión";
-"Build" = "Compilación";
-"Last Updated" = "Última Actualización";
-"API Endpoint" = "Punto Final de API";
-"Debug" = "Depuración";
-"Info" = "Información";
-"Warning" = "Advertencia";
-"Error" = "Error";
-"Control LLM" = "Control LLM";
-"A voice-first AI assistant with custom UI and MVVM architecture." = "Un asistente de IA con voz primero con UI personalizada y arquitectura MVVM.";
-
-// Language View
-"Voice language options depend on your selected LLM. Text language automatically follows your iOS system language." = "Las opciones de idioma de voz dependen de tu LLM seleccionado. El idioma del texto sigue automáticamente el idioma del sistema iOS.";
-"To access more voices, select a different LLM in Model Settings. Para cambiar el idioma del texto, actualiza el idioma en tu Configuración de iOS." = "Para acceder a más voces, selecciona un LLM diferente en Configuración de Modelos. Para cambiar el idioma del texto, actualiza el idioma en tu Configuración de iOS.";
-
-// Voice View
-"Pre-installed iOS System Voices" = "Voces del Sistema iOS Pre-instaladas";
-"No pre-installed voices found" = "No se encontraron voces pre-instaladas";
-"This device may not have the standard iOS voices installed" = "Este dispositivo puede no tener las voces estándar de iOS instaladas";
-
-// Audio/Equalizer
-"Hz" = "Hz";
-"0 Hz" = "0 Hz";
-"1000 Hz" = "1000 Hz";
-"5000 Hz" = "5000 Hz";
-"20000 Hz" = "20000 Hz";
-
-// Version and Separators
-"V 1.0" = "V 1.0";
-":" = ":";
 

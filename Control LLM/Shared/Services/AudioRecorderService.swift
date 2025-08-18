@@ -136,19 +136,13 @@ class AudioRecorderService: NSObject, ObservableObject {
             audioPlayer?.play()
             
             isPlaying = true
+            currentPlaybackTime = 0
             startPlaybackTimer()
             
         } catch {
             print("Failed to start playback: \(error)")
             errorMessage = "Failed to start playback: \(error.localizedDescription)"
         }
-    }
-    
-    func resumePlayback() {
-        guard let player = audioPlayer, !isPlaying else { return }
-        player.play()
-        isPlaying = true
-        startPlaybackTimer()
     }
     
     func pausePlayback() {
@@ -172,7 +166,7 @@ class AudioRecorderService: NSObject, ObservableObject {
     }
     
     private func startPlaybackTimer() {
-        playbackTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+        playbackTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             guard let self = self else { return }
             Task { @MainActor in
                 guard let player = self.audioPlayer else { return }

@@ -15,8 +15,8 @@ class SettingsViewModel: ObservableObject {
     private func loadSettings() {
         // Load app settings
         appSettings = AppSettings(
-            enableVoiceCommands: true,
-            autoTranscribe: true,
+            // Voice commands removed
+            // Auto transcribe removed
             saveChatHistory: true,
             maxHistoryItems: 100,
             enableNotifications: true,
@@ -60,8 +60,8 @@ class SettingsViewModel: ObservableObject {
 }
 
 struct AppSettings {
-    var enableVoiceCommands: Bool = true
-    var autoTranscribe: Bool = true
+    // Voice commands removed
+    // Auto transcribe removed
     var saveChatHistory: Bool = true
     var maxHistoryItems: Int = 100
     var enableNotifications: Bool = true

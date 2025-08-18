@@ -69,21 +69,21 @@ struct AdvancedEqualizerView: View {
                 ForEach(0..<7, id: \.self) { index in
                     Group {
                         if index == 0 {
-                            Text(NSLocalizedString("0 Hz", comment: ""))
-                                .font(.custom("IBMPlexMono", size: 8))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                            Text("0 Hz")
+                                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                                .foregroundColor(.white)
                         } else if index == 2 {
-                            Text(NSLocalizedString("1000 Hz", comment: ""))
-                                .font(.custom("IBMPlexMono", size: 8))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                            Text("1000 Hz")
+                                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                                .foregroundColor(.white)
                         } else if index == 4 {
-                            Text(NSLocalizedString("5000 Hz", comment: ""))
-                                .font(.custom("IBMPlexMono", size: 8))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                            Text("5000 Hz")
+                                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                                .foregroundColor(.white)
                         } else if index == 6 {
-                            Text(NSLocalizedString("20000 Hz", comment: ""))
-                                .font(.custom("IBMPlexMono", size: 8))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                            Text("20000 Hz")
+                                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                                .foregroundColor(.white)
                         } else {
                             Text("")
                         }

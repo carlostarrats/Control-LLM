@@ -8,9 +8,8 @@ struct SettingsView: View {
     // Sheet state variables
     @State private var showingModels = false
     @State private var showingAppearance = false
-    @State private var showingVoice = false
-    @State private var showingLanguage = false
-    @State private var currentLanguage: String = LanguageService.shared.selectedLanguage
+    // Voice functionality removed
+
 
     @State private var showingHistory = false
     @State private var showingFAQ = false
@@ -47,7 +46,7 @@ struct SettingsView: View {
                         
                         // Footer section
                         VStack(spacing: 4) {
-                            Text(NSLocalizedString("V 1.0", comment: ""))
+                            Text("V 1.0")
                                 .font(.custom("IBMPlexMono", size: 14))
                                 .foregroundColor(Color(hex: "#666666"))
                                 .frame(maxWidth: .infinity, alignment: .center)
@@ -120,12 +119,8 @@ struct SettingsView: View {
         .sheet(isPresented: $showingAppearance) {
             AppearanceView()
         }
-        .sheet(isPresented: $showingVoice) {
-            VoiceView()
-        }
-        .sheet(isPresented: $showingLanguage) {
-            LanguageView()
-        }
+        // Voice settings sheet removed
+
 
         .sheet(isPresented: $showingHistory) {
             SettingsHistoryView(onHistoryDeleted: {
@@ -158,7 +153,7 @@ struct SettingsView: View {
                     }
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .languageDidChange)) { _ in }
+
     }
     
     private var settingsItems: [SettingsItem] {
@@ -166,8 +161,8 @@ struct SettingsView: View {
             SettingsItem(title: "Models", symbol: "terminal", action: { showingModels = true }),
             // Agents removed
             SettingsItem(title: "Appearance", symbol: "eye", action: { showingAppearance = true }),
-            SettingsItem(title: "Voice", symbol: "bubble.left", action: { showingVoice = true }),
-            SettingsItem(title: NSLocalizedString("Language", comment: ""), symbol: "globe", action: { showingLanguage = true }),
+            // Voice settings removed
+
 
             SettingsItem(title: "Chat History", symbol: "list.bullet", action: { showingHistory = true }),
             SettingsItem(title: "FAQs", symbol: "info.circle", action: { showingFAQ = true }),
@@ -185,7 +180,7 @@ struct SettingsItem: Identifiable {
 
 struct SettingsItemView: View {
 	let item: SettingsItem
-	@ObservedObject private var languageService = LanguageService.shared
+
 	
 	var body: some View {
 		VStack(spacing: 0) {
@@ -196,34 +191,10 @@ struct SettingsItemView: View {
 						.foregroundColor(Color(hex: "#BBBBBB"))
 						.frame(width: 20)
 					
-					VStack(alignment: .leading, spacing: 2) {
-						// Show language with current selection on same line
-						if item.title == "Language" {
-							HStack(spacing: 4) {
-								Text(NSLocalizedString(item.title, comment: ""))
-									.font(.custom("IBMPlexMono", size: 16))
-									.foregroundColor(Color(hex: "#EEEEEE"))
-								
-								Text(NSLocalizedString(":", comment: ""))
-									.font(.custom("IBMPlexMono", size: 16))
-									.foregroundColor(Color(hex: "#EEEEEE"))
-								
-								Text(languageService.selectedLanguage)
-									.font(.custom("IBMPlexMono", size: 16))
-									.foregroundColor(Color(hex: "#EEEEEE"))
-									.lineLimit(1)
-									.truncationMode(.tail)
-								
-								Spacer(minLength: 0)
-							}
-
-						} else {
-							Text(NSLocalizedString(item.title, comment: ""))
-								.font(.custom("IBMPlexMono", size: 16))
-								.foregroundColor(Color(hex: "#EEEEEE"))
-								.multilineTextAlignment(.leading)
-						}
-					}
+					Text(NSLocalizedString(item.title, comment: ""))
+						.font(.custom("IBMPlexMono", size: 16))
+						.foregroundColor(Color(hex: "#EEEEEE"))
+						.multilineTextAlignment(.leading)
 					
 					Spacer()
 					

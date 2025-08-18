@@ -50,7 +50,7 @@ struct HistoryView: View {
                                 .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                             
-                            Text(NSLocalizedString("History", comment: ""))
+                            Text("History")
                                 .font(.custom("IBMPlexMono", size: 20))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                         }
@@ -85,7 +85,7 @@ struct HistoryView: View {
         mainViewModel.loadChatContext(from: chatEntry)
         
         // 2. Activate voice input mode
-        mainViewModel.activateVoiceInputMode()
+        // Voice activation removed
         
         // 3. Dismiss the history sheet smoothly
         dismiss()
@@ -161,9 +161,7 @@ struct ChatSummaryView: View {
                 
                 // Main summary headline (clickable) - full row is tappable
                 Button(action: {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        isExpanded.toggle()
-                    }
+                    isExpanded.toggle()
                 }) {
                     HStack(alignment: .firstTextBaseline) {
                         VStack(alignment: .leading, spacing: 4) {
@@ -205,10 +203,7 @@ struct ChatSummaryView: View {
                         }
                     }
                     .padding(.top, 10) // 10px spacing from main summary to expanded content
-                    .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .scale(scale: 0.95, anchor: .top)),
-                        removal: .opacity.combined(with: .scale(scale: 0.95, anchor: .top))
-                    ))
+
                 }
             }
             .clipped() // Ensure expanded content doesn't overflow

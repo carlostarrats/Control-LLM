@@ -62,14 +62,7 @@ struct FAQView: View {
 
     private var faqItems: [FAQItem] {
         [
-            FAQItem(
-                question: "How It Works",
-                answer: "Voice input is only available on the main screen. Speak, then press the sparkle button to allow the LLM to process your input. The reply is both spoken and saved in chat."
-            ),
-            FAQItem(
-                question: "Voice Recorder (Whisper)",
-                answer: "Allows saving recordings and transcription on device with the ability to share."
-            ),
+            // Voice-related FAQ items removed
             FAQItem(
                 question: "Privacy",
                 answer: "This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app."

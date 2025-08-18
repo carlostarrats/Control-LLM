@@ -2,16 +2,15 @@ import SwiftUI
 import MetalKit
 
 struct FlowingLiquidView: View {
-    @Binding var isSpeaking: Bool
+    // Voice functionality removed
     @State private var animationTime: Double = 0
     @State private var localActivationProgress: Float = 0.0  // LOCAL activation state for TARS only
     @State private var animationTimer: Timer?
     @State private var continuousAnimationTimer: Timer?  // For continuous motion
     
-    // MARK: - Voice Integration
-    @StateObject private var voiceIntegration = VoiceIntegrationService.shared
+    // Voice Integration removed
     
-    var onTap: (() -> Void)?
+
     
     // Ring configuration - KEEPING EXACTLY AS IT WAS
     private let ringRadius: CGFloat = 140
@@ -29,50 +28,19 @@ struct FlowingLiquidView: View {
             .frame(width: 400, height: 400) // KEEPING ORIGINAL SIZE - DON'T TOUCH RING
             
             // SwiftUI ripple effect overlay when activated
-            DistortionRippleEffect(isActive: isSpeaking)
+            // DistortionRippleEffect removed - voice functionality disabled
                 .allowsHitTesting(false)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .contentShape(Rectangle())
-        .onTapGesture(coordinateSpace: .global) { location in
-            // Constrain taps to the middle area of the screen (roughly middle 60%)
-            let screenHeight = UIScreen.main.bounds.height
-            let centerStart = screenHeight * 0.2   // 20% from top of screen
-            let centerEnd = screenHeight * 0.8     // 80% from top of screen
-            
-            if location.y >= centerStart && location.y <= centerEnd {
-                // Light haptic feedback for visualizer tap
-                FeedbackService.shared.playHaptic(.light)
-                
-                // Toggle TARS local activation state
-                let newTarget: Float = localActivationProgress > 0.5 ? 0.0 : 1.0
-                print("🎯 TARS tapped - toggling from \(localActivationProgress) to \(newTarget)")
-                
-                // Start animation to reach new target
-                startAnimation(target: newTarget)
-                
-                // Toggle voice mode for TARS
-                if newTarget > 0.5 {
-                    // Activating - start voice mode
-                    print("🎤 TARS: Starting voice mode")
-                    voiceIntegration.startVoiceMode()
-                } else {
-                    // Deactivating - stop voice mode
-                    print("🔇 TARS: Stopping voice mode")
-                    voiceIntegration.stopVoiceMode()
-                }
-                
-                // Call the original onTap if it exists
-                onTap?()
-            }
-        }
+
+
         .onChange(of: localActivationProgress) { _, _ in
             // Force view update when activation progress changes
         }
         .onAppear {
-            // Always start in deactivated state
+            // Always start in deactivated state and keep it there
             localActivationProgress = 0.0
-            print("🎯 TARS onAppear - Starting with localActivationProgress: \(localActivationProgress), isSpeaking: \(isSpeaking)")
+            print("🎯 TARS onAppear - Starting with localActivationProgress: \(localActivationProgress)")
             
             // Start continuous animation timer for motion
             startContinuousAnimation()
@@ -83,17 +51,14 @@ struct FlowingLiquidView: View {
             continuousAnimationTimer?.invalidate()
             continuousAnimationTimer = nil
         }
-        .onChange(of: isSpeaking) { _, newValue in
-            // TARS only responds to local taps, not global state changes
-            print("🎯 TARS ignoring global isSpeaking change to: \(newValue)")
-        }
+        // Voice state change handling removed
     }
     
     private func startContinuousAnimation() {
-        // Start continuous animation timer for motion
-        continuousAnimationTimer = Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { _ in
+        // Start continuous animation timer for motion - reduced to 30 FPS for less heat
+        continuousAnimationTimer = Timer.scheduledTimer(withTimeInterval: 1.0/30.0, repeats: true) { _ in
             // Update animation time continuously for motion
-            self.animationTime += 1.0/60.0
+            self.animationTime += 1.0/30.0
         }
     }
     
@@ -101,7 +66,7 @@ struct FlowingLiquidView: View {
         // Only start timer if it's not already running
         guard animationTimer == nil else { return }
         
-        animationTimer = Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { timer in
+        animationTimer = Timer.scheduledTimer(withTimeInterval: 1.0/30.0, repeats: true) { timer in
             // Only interpolate if there's a meaningful difference
             let difference = target - self.localActivationProgress
             
@@ -253,7 +218,7 @@ struct FlowingRingShaderView: UIViewRepresentable {
 }
 
 #Preview {
-    FlowingLiquidView(isSpeaking: .constant(false))
+            FlowingLiquidView()
         .frame(width: 300, height: 320)
         .background(Color.black)
 }
