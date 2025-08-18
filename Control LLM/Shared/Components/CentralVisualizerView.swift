@@ -434,6 +434,9 @@ struct CentralVisualizerView: View {
             
             // Start continuous animation timer
             startContinuousAnimation()
+            
+            // Enable animations
+            isAnimating = true
         }
         .onDisappear {
             stopContinuousAnimation()
@@ -447,20 +450,6 @@ struct CentralVisualizerView: View {
         //     }
         // }
 
-    }
-    
-    // Function to start speech animation
-    func startSpeechAnimation() {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            isAnimating = true
-        }
-    }
-    
-    // Function to stop speech animation
-    func stopSpeechAnimation() {
-        withAnimation(.easeOut(duration: 0.4)) {
-            isAnimating = false
-        }
     }
     
     // Function to start continuous animation timer

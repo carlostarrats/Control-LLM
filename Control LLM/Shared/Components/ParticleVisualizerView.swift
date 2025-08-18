@@ -3,22 +3,14 @@ import Combine
 
 struct ParticleVisualizerView: View {
     
-    // MARK: - Voice Integration
-    // Voice integration removed
-    
     // Particle system parameters
     private let particleCount = 400 // Reduced from 2000 for better performance
-    private let baseSpherRadius: CGFloat = 150
     private let particleSize: CGFloat = 4.0 // Slightly larger to compensate for fewer particles
     
-    // Voice activation state removed
     private var sphereRadius: CGFloat = 150 // Keep constant size
      
-    // Activation plane parameters removed for performance
-    
     // Liquid motion parameters
     @State private var motionPhase: [Double]
-    @State private var motionTimer: Timer.TimerPublisher?
     @State private var motionCancellable: Cancellable?
     private let motionPeriod: TimeInterval = 8.0 // Restore original timing for smooth, biological motion
     
@@ -46,7 +38,7 @@ struct ParticleVisualizerView: View {
             
 
         }
-        .frame(width: 400, height: 400) // FIXED: Same size as other visualizers for consistent tap area
+        .frame(width: 400, height: 400) // Fixed size to match other visualizers
         .coordinateSpace(name: "visualizer")
         .onAppear {
             startMotionTimer()

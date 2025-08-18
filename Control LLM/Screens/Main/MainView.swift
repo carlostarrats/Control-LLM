@@ -8,8 +8,6 @@ struct MainView: View {
         NSLog("🔍 MainView init")
     }
     @State private var showingTextModal = false
-    @State private var showingHistoryView = false // Added state for History sheet
-    @State private var showingWhisperView = false // Added state for Whisper sheet
     @State private var showingSettingsView = false // Added state for Settings sheet
     @State private var isChatMode = false
     @State private var blobScale: CGFloat = 1.0
@@ -54,18 +52,6 @@ struct MainView: View {
                     showingTextModal = false
                 }
         }
-        .sheet(isPresented: $showingHistoryView) {
-            HistoryView(
-                showingTextModal: $showingTextModal,
-                mainViewModel: viewModel
-            )
-        }
-        .sheet(isPresented: $showingWhisperView) {
-            WhisperView(
-                showingTextModal: $showingTextModal,
-                mainViewModel: viewModel
-            )
-        }
         .sheet(isPresented: $showingSettingsView) {
             SettingsView(
                 showingTextModal: $showingTextModal,
@@ -95,35 +81,7 @@ struct MainView: View {
                     ZStack {
                         // Navigation buttons (always present, fade out when voice detected)
                         HStack(spacing: 0) { // No spacing between buttons
-                            // Group of three buttons on the left
-                            Button(action: {
-                                FeedbackService.shared.playHaptic(.light)
-                                showingHistoryView = true
-                            }) {
-                                Image(systemName: "list.bullet")
-                                    .font(.system(size: 18, weight: .medium))
-                                    .foregroundColor(Color(hex: "#1D1D1D"))
-                                    .frame(width: 60, height: 60) // Increased to 60x60
-                                    .background(colorManager.orangeColor)
-                                    .cornerRadius(4, corners: [.topLeft, .bottomLeft]) // Only left corners
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .contentShape(Rectangle()) // Ensure full area is tappable
-
-                            Button(action: {
-                                FeedbackService.shared.playHaptic(.light)
-                                showingWhisperView = true
-                            }) {
-                                Image(systemName: "waveform")
-                                    .font(.system(size: 18, weight: .medium))
-                                    .foregroundColor(Color(hex: "#1D1D1D"))
-                                    .frame(width: 60, height: 60) // Increased to 60x60
-                                    .background(colorManager.purpleColor)
-                                    .cornerRadius(0) // No corners
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .contentShape(Rectangle()) // Ensure full area is tappable
-                            
+                            // Settings button on the left
                             Button(action: {
                                 FeedbackService.shared.playHaptic(.light)
                                 showingSettingsView = true
@@ -133,7 +91,7 @@ struct MainView: View {
                                     .foregroundColor(Color(hex: "#1D1D1D"))
                                     .frame(width: 60, height: 60) // Increased to 60x60
                                     .background(colorManager.greenColor)
-                                    .cornerRadius(4, corners: [.topRight, .bottomRight]) // Only right corners
+                                    .cornerRadius(4) // Full corner radius for single button
                             }
                             .buttonStyle(PlainButtonStyle())
                             .contentShape(Rectangle()) // Ensure full area is tappable

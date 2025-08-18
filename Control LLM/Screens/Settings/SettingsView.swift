@@ -8,15 +8,11 @@ struct SettingsView: View {
     // Sheet state variables
     @State private var showingModels = false
     @State private var showingAppearance = false
+    @State private var showingFAQ = false
     // Voice functionality removed
 
 
-    @State private var showingHistory = false
-    @State private var showingFAQ = false
     @State private var showingCredits = false
-    
-    // Toast state
-    @State private var showingToast = false
     
     var body: some View {
         ZStack {
@@ -119,41 +115,14 @@ struct SettingsView: View {
         .sheet(isPresented: $showingAppearance) {
             AppearanceView()
         }
-        // Voice settings sheet removed
-
-
-        .sheet(isPresented: $showingHistory) {
-            SettingsHistoryView(onHistoryDeleted: {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        showingToast = true
-                    }
-                }
-            })
-        }
-        .sheet(isPresented: $showingCredits) {
-            CreditsView()
-        }
         .sheet(isPresented: $showingFAQ) {
             FAQView()
         }
-        .overlay {
-            if showingToast {
-                ToastView(message: "History Deleted")
-                    .transition(.asymmetric(
-                        insertion: AnyTransition.offset(y: 20).combined(with: .opacity),
-                        removal: AnyTransition.offset(y: 20).combined(with: .opacity)
-                    ))
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-                            withAnimation(.easeInOut(duration: 0.4)) {
-                                showingToast = false
-                            }
-                        }
-                    }
-            }
-        }
+        // Voice settings sheet removed
 
+        .sheet(isPresented: $showingCredits) {
+            CreditsView()
+        }
     }
     
     private var settingsItems: [SettingsItem] {
@@ -162,10 +131,7 @@ struct SettingsView: View {
             // Agents removed
             SettingsItem(title: "Appearance", symbol: "eye", action: { showingAppearance = true }),
             // Voice settings removed
-
-
-            SettingsItem(title: "Chat History", symbol: "list.bullet", action: { showingHistory = true }),
-            SettingsItem(title: "FAQs", symbol: "info.circle", action: { showingFAQ = true }),
+            SettingsItem(title: "FAQ", symbol: "questionmark.circle", action: { showingFAQ = true }),
             SettingsItem(title: "Credits", symbol: "text.page", action: { showingCredits = true })
         ]
     }

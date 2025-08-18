@@ -537,8 +537,6 @@ struct TextModalView: View {
                 print("🔍 TextModalView: Setting message content to: '\(viewModel.llm.transcript)'")
                 // Mutate the last assistant bubble in place (no array replacement)
                 viewModel.messages[idx].content = viewModel.llm.transcript
-                // Auto-save after first full exchange
-                viewModel.autoSaveIfNeeded()
                 print("🔍 TextModalView: Message updated successfully")
             } else {
                 print("🔍 TextModalView: Creating new assistant message")
@@ -551,8 +549,6 @@ struct TextModalView: View {
                     messageType: .text
                 )
                 viewModel.messages.append(bot)
-                // Auto-save after first full exchange
-                viewModel.autoSaveIfNeeded()
                 print("🔍 TextModalView: New message created and added")
             }
         } else {

@@ -1,17 +1,16 @@
 //
-//  Unused_AdvancedEqualizerView.swift
+//  UnusedEqualizer.swift
 //  Control LLM
 //
-//  UNUSED COMPONENT - Available for future use
-//  This equalizer was removed from the main screen but kept for reference.
-//  Features: 8-band equalizer with realistic speech simulation, test mode, smooth animations
-//  Usage: Import and use AdvancedEqualizerView(isSpeaking: $isSpeaking) in any view
+//  SAVED FOR FUTURE USE - Equalizer component removed from Whisper
+//  Features: 7-band equalizer with realistic speech simulation, test mode, smooth animations
+//  Usage: Import and use UnusedEqualizerView(isSpeaking: $isSpeaking) in any view
 //
 
 import SwiftUI
 import AVFoundation
 
-struct AdvancedEqualizerView: View {
+struct UnusedEqualizerView: View {
     @Binding var isSpeaking: Bool
     @State private var audioLevels: [Double] = Array(repeating: -60.0, count: 7)
     @State private var animationTimer: Timer?
@@ -21,8 +20,6 @@ struct AdvancedEqualizerView: View {
     private let frequencies = [
         0, 351, 878, 1678, 2883, 5353, 9103
     ]
-    
-
     
     var body: some View {
         VStack(spacing: 0) {
@@ -92,12 +89,6 @@ struct AdvancedEqualizerView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            
-
-            
-
-            
-
         }
         .frame(maxWidth: .infinity)
         .onAppear {
@@ -141,10 +132,10 @@ struct AdvancedEqualizerView: View {
     
     private func updateAudioLevels() {
         guard isSpeaking || isTestMode else {
-                    // Reset to idle state
-        for i in 0..<7 {
-            audioLevels[i] = max(-60.0, audioLevels[i] - 2.0)
-        }
+            // Reset to idle state
+            for i in 0..<7 {
+                audioLevels[i] = max(-60.0, audioLevels[i] - 2.0)
+            }
             return
         }
         
@@ -187,12 +178,12 @@ struct AdvancedEqualizerView: View {
 
 #Preview {
     VStack {
-        Text("Advanced Equalizer Preview")
+        Text("Unused Equalizer Preview")
             .foregroundColor(.white)
             .padding()
         
-        AdvancedEqualizerView(isSpeaking: .constant(true))
+        UnusedEqualizerView(isSpeaking: .constant(true))
             .background(Color.black)
     }
     .background(Color.black)
-} 
+}
