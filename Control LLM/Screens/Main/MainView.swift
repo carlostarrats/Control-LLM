@@ -21,6 +21,8 @@ struct MainView: View {
     @State private var hueShift: Double = 0.90 // 0.90 = current configuration
     @State private var saturationLevel: Double = 0.12 // 0.12 = current configuration
     @State private var brightnessLevel: Double = 0.3 // 0.3 = 30% brightness for non-active state
+    // Page navigation: 0 = Settings, 1 = Home, 2 = Chat
+    @State private var currentPage: Int = 1
     
     var body: some View {
         // REMOVED ALL DEBUG - app is working now
@@ -29,129 +31,41 @@ struct MainView: View {
         let shouldShowNavButtons = true
         
         ZStack {
-            // Background gradient - stays dark
+            // Global background gradient that covers everything
             LinearGradient(
                 colors: [
-                    Color(hex: "#1D1D1D"),  // Lighter color at top
-                    Color(hex: "#141414")   // Darker color at bottom
+                    Color(hex: "#1D1D1D"),
+                    Color(hex: "#141414")
                 ],
                 startPoint: .top,
                 endPoint: .bottom
             )
-            .ignoresSafeArea()
-
-            // Main content
-            ZStack {
-                // Top navigation buttons - NOW EMPTY
-                VStack {
-                    Spacer()
-                }
-        .sheet(isPresented: $showingTextModal) {
-            TextModalView(viewModel: viewModel, isPresented: $showingTextModal, messageHistory: viewModel.messages)
-                .onDisappear {
-                    showingTextModal = false
-                }
-        }
-        .sheet(isPresented: $showingSettingsView) {
-            SettingsView(
-                showingTextModal: $showingTextModal,
-                mainViewModel: viewModel
-            )
-        }
-        // Voice activation code removed for now
-
-                // Central visual design element with tabs - RESTORED ORIGINAL
-                VisualizerTabView(
+            .ignoresSafeArea(.all)
+            
+            TabView(selection: $currentPage) {
+                // Page 0: Settings
+                SettingsPage(currentPage: $currentPage, viewModel: viewModel)
+                    .tag(0)
+                
+                // Page 1: Home
+                HomePage(
+                    shouldShowNavButtons: shouldShowNavButtons,
+                    blobScale: $blobScale,
+                    blobColorOpacity: $blobColorOpacity,
                     hueShift: hueShift,
                     saturationLevel: saturationLevel,
-                    brightnessLevel: brightnessLevel
+                    brightnessLevel: brightnessLevel,
+                    onSettings: { currentPage = 0 },
+                    onChat: { currentPage = 2 }
                 )
-                .scaleEffect(blobScale)
-                .accessibilityLabel("Voice recording button")
-                .accessibilityHint("Double tap to start or stop voice recording")
-                .opacity(blobColorOpacity)
-                .animation(.easeInOut(duration: 0.8), value: blobColorOpacity)
-
-
-                // Bottom navigation buttons with voice interaction flow
-                VStack {
-                    Spacer()
-                    
-                    // ZStack to prevent button movement - both buttons occupy same space
-                    ZStack {
-                        // Navigation buttons (always present, fade out when voice detected)
-                        HStack(spacing: 0) { // No spacing between buttons
-                            // Settings button on the left
-                            Button(action: {
-                                FeedbackService.shared.playHaptic(.light)
-                                showingSettingsView = true
-                            }) {
-                                Image(systemName: "gearshape")
-                                    .font(.system(size: 18, weight: .medium))
-                                    .foregroundColor(Color(hex: "#1D1D1D"))
-                                    .frame(width: 60, height: 60) // Increased to 60x60
-                                    .background(colorManager.greenColor)
-                                    .cornerRadius(4) // Full corner radius for single button
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .contentShape(Rectangle()) // Ensure full area is tappable
-
-                            Spacer() // Pushes keyboard button to the right
-
-                            // Control Button on the right
-                            Button(action: {
-                                FeedbackService.shared.playHaptic(.light)
-                                showingTextModal = true
-                            }) {
-                                Image(systemName: "keyboard")
-                                    .font(.system(size: 18, weight: .medium))
-                                    .foregroundColor(Color(hex: "#BBBBBB"))
-                                    .frame(width: 60, height: 60) // Increased to 60x60
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 4)
-                                            .stroke(Color(hex: "#BBBBBB"), lineWidth: 1)
-                                    )
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .contentShape(Rectangle()) // Ensure full area is tappable
-                        }
-                        .padding(.bottom, 50)
-                        .padding(.horizontal, 20)
-                        .opacity(shouldShowNavButtons ? 1.0 : 0.0) // Use computed property for stable visibility
-                        
-                        // Process button (always present, fade in when voice detected)
-                        Button(action: {
-                            FeedbackService.shared.playHaptic(.light)
-                            // Voice processing removed for now
-                        }) {
-                            ZStack {
-                                // Outer circle with stroke
-                                Circle()
-                                    .stroke(Color(hex: "#666666"), lineWidth: 2)
-                                    .frame(width: 60, height: 60)
-                                
-                                // Inner filled circle
-                                Circle()
-                                    .fill(Color(hex: "#666666"))
-                                    .frame(width: 52, height: 52)
-                                
-                                // Sparkle icon centered
-                                Image(systemName: "sparkles")
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundColor(Color(hex: "#1D1D1D"))
-                            }
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .contentShape(Rectangle()) // Ensure full area is tappable
-                        .padding(.bottom, 50)
-                        .padding(.horizontal, 20)
-                        .opacity(0.0) // Voice detection removed for now
-                        .animation(.easeInOut(duration: 0.8), value: 0.0) // Fixed value for now
-                    }
-                }
+                .tag(1)
+                
+                // Page 2: Chat
+                ChatPage(currentPage: $currentPage, viewModel: viewModel)
+                    .tag(2)
             }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
         }
-        // Voice activation code removed for now
     }
 
     private func activateChatMode() {
@@ -184,8 +98,147 @@ struct MainView: View {
         }
         chatModeTimer?.invalidate() // Invalidate the timer
     }
+}
 
+// MARK: - Settings Page
+struct SettingsPage: View {
+    @Binding var currentPage: Int
+    let viewModel: MainViewModel
+    
+    var body: some View {
+        VStack {
+            SettingsView(
+                showingTextModal: .constant(false),
+                mainViewModel: viewModel
+            )
+        }
+    }
+}
 
+// MARK: - Home Page
+struct HomePage: View {
+    @EnvironmentObject var colorManager: ColorManager
+    let shouldShowNavButtons: Bool
+    @Binding var blobScale: CGFloat
+    @Binding var blobColorOpacity: Double
+    let hueShift: Double
+    let saturationLevel: Double
+    let brightnessLevel: Double
+    let onSettings: () -> Void
+    let onChat: () -> Void
+    
+    var body: some View {
+        // Main content
+        ZStack {
+            // Top navigation buttons - NOW EMPTY
+            VStack {
+                Spacer()
+            }
+
+            // Central visual design element with tabs - RESTORED ORIGINAL
+            VisualizerTabView(
+                hueShift: hueShift,
+                saturationLevel: saturationLevel,
+                brightnessLevel: brightnessLevel
+            )
+            .scaleEffect(blobScale)
+            .accessibilityLabel("Voice recording button")
+            .accessibilityHint("Double tap to start or stop voice recording")
+            .opacity(blobColorOpacity)
+            .animation(.easeInOut(duration: 0.8), value: blobColorOpacity)
+
+            // Bottom navigation buttons with voice interaction flow
+            VStack {
+                Spacer()
+                
+                // ZStack to prevent button movement - both buttons occupy same space
+                ZStack {
+                    // Navigation buttons (always present, fade out when voice detected)
+                    HStack(spacing: 0) { // No spacing between buttons
+                        // Settings button on the left
+                        Button(action: {
+                            FeedbackService.shared.playHaptic(.light)
+                            onSettings()
+                        }) {
+                            Image(systemName: "gearshape")
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundColor(Color(hex: "#1D1D1D"))
+                                .frame(width: 60, height: 60) // Increased to 60x60
+                                .background(colorManager.greenColor)
+                                .cornerRadius(4) // Full corner radius for single button
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .contentShape(Rectangle()) // Ensure full area is tappable
+                    
+                        Spacer() // Pushes keyboard button to the right
+                    
+                        // Control Button on the right
+                        Button(action: {
+                            FeedbackService.shared.playHaptic(.light)
+                            onChat()
+                        }) {
+                            Image(systemName: "keyboard")
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .frame(width: 60, height: 60) // Increased to 60x60
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .stroke(Color(hex: "#BBBBBB"), lineWidth: 1)
+                                )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .contentShape(Rectangle()) // Ensure full area is tappable
+                    }
+                    .padding(.bottom, 50)
+                    .padding(.horizontal, 20)
+                    .opacity(shouldShowNavButtons ? 1.0 : 0.0) // Use computed property for stable visibility
+                    
+                    // Process button (always present, fade in when voice detected)
+                    Button(action: {
+                        FeedbackService.shared.playHaptic(.light)
+                        // Voice processing removed for now
+                    }) {
+                        ZStack {
+                            // Outer circle with stroke
+                            Circle()
+                                .stroke(Color(hex: "#666666"), lineWidth: 2)
+                                .frame(width: 60, height: 60)
+                            
+                            // Inner filled circle
+                            Circle()
+                                .fill(Color(hex: "#666666"))
+                                .frame(width: 52, height: 52)
+                            
+                            // Sparkle icon centered
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(Color(hex: "#1D1D1D"))
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .contentShape(Rectangle()) // Ensure full area is tappable
+                    .padding(.bottom, 50)
+                    .padding(.horizontal, 20)
+                    .opacity(0.0) // Voice detection removed for now
+                    .animation(.easeInOut(duration: 0.8), value: 0.0) // Fixed value for now
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Chat Page
+struct ChatPage: View {
+    @Binding var currentPage: Int
+    let viewModel: MainViewModel
+    
+    var body: some View {
+        TextModalView(
+            viewModel: viewModel,
+            isPresented: .constant(true),
+            messageHistory: viewModel.messages
+        )
+    }
 }
 
 // Removed OrganicRippleEffect and RippleLayer - now using Metal shader approach

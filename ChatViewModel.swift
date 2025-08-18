@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 @Observable
-class ChatViewModel: ObservableObject {
+class ChatViewModel {
     var transcript: String = ""
     var isProcessing: Bool = false
     var modelLoaded: Bool = false

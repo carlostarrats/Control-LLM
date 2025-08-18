@@ -28,6 +28,10 @@ struct SettingsView: View {
             .ignoresSafeArea()
             
             VStack {
+                // Top spacing
+                Spacer()
+                    .frame(height: 40)
+                
                 // Scrollable content
                 ScrollView {
                     VStack(spacing: 8) { // Reduced to 8 to move content up
@@ -62,52 +66,7 @@ struct SettingsView: View {
                 
                 // Privacy notice text removed
             }
-            .safeAreaInset(edge: .top) {
-                // iOS standard header overlay
-                VStack(spacing: 0) {
-                    // Grab bar
-                    RoundedRectangle(cornerRadius: 2.5)
-                        .fill(Color(hex: "#666666"))
-                        .frame(width: 36, height: 5)
-                        .padding(.top, 8)
-                        .padding(.bottom, 20)
-                    
-                    // Header
-                    HStack {
-                        HStack(spacing: 8) {
-                            Image(systemName: "gearshape")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
-                            
-                            Text(NSLocalizedString("Settings", comment: ""))
-                                .font(.custom("IBMPlexMono", size: 20))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
-                        }
-                        .padding(.leading, 20)
-                        
-                        Spacer()
-
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
-                                .frame(width: 32, height: 32)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .padding(.trailing, 20)
-                    }
-                    
-                    // Buffer space below header
-                    Spacer()
-                        .frame(height: 18) // Changed from 16 to 18
-                }
-                .background(
-                    Color(hex: "#1D1D1D")
-                )
-            }
+            // Removed header overlay (grabber, title, close button)
         }
         .sheet(isPresented: $showingModels) {
             SettingsModelsView()

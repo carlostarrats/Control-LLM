@@ -132,10 +132,10 @@ struct TextModalView: View {
     // UI state
     @Binding var isPresented: Bool
     @State private var messageText = ""
-    @State private var selectedDetent: PresentationDetent = .large
     @FocusState private var isTextFieldFocused: Bool
     @State private var showingDocumentPicker = false
     @State private var showDateHeader = false
+    @State private var inputBarHeight: CGFloat = 0
     var messageHistory: [ChatMessage]?
     @EnvironmentObject var colorManager: ColorManager
     
@@ -143,22 +143,21 @@ struct TextModalView: View {
 
     // MARK: body -------------------------------------------------------------
     var body: some View {
-        ZStack {
-            // Background gradient
+        ZStack(alignment: .bottom) {
+            // Full background gradient
             LinearGradient(
                 colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
                 startPoint: .top, endPoint: .bottom
             )
-            .ignoresSafeArea()
-
+            .ignoresSafeArea(.all)
+            
             VStack(spacing: 0) {
-                header
                 messageList
-                inputBar
             }
+
+            inputBar
+            
         }
-        .presentationDetents([.height(100), .medium, .large], selection: $selectedDetent)
-        .presentationDragIndicator(.hidden)
         .onAppear {
             checkIfShouldShowDateHeader()
             if let history = messageHistory {
@@ -251,7 +250,6 @@ struct TextModalView: View {
 
             Spacer().frame(height: 18)
         }
-        .background(Color(hex: "#1D1D1D"))
     }
 
     // MARK: message list -----------------------------------------------------
@@ -265,10 +263,12 @@ struct TextModalView: View {
                      ForEach(viewModel.messages) { MessageBubble(message: $0).id($0.id) }
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 20)
                 .padding(.bottom, 24)
             }
-            .safeAreaPadding(.bottom, 70)
+            .safeAreaInset(edge: .bottom) {
+                Color.clear.frame(height: 80)
+            }
+
                     .onChange(of: viewModel.messages) { _, _ in
             // Update date header when messages change
             checkIfShouldShowDateHeader()
@@ -287,31 +287,35 @@ struct TextModalView: View {
     private var inputBar: some View {
         VStack {
             HStack(alignment: .bottom, spacing: 12) {
-                // Plus button
-                Button(action: {
-                    showingDocumentPicker = true
-                }) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(colorManager.greenColor)
-                        .frame(width: 32, height: 32)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(PlainButtonStyle())
-                .fileImporter(
-                    isPresented: $showingDocumentPicker,
-                    allowedContentTypes: [.text, .plainText, .data],
-                    allowsMultipleSelection: false
-                ) { result in
-                    switch result {
-                    case .success(let urls):
-                        if let url = urls.first {
-                            handleFileUpload(url)
+                // Plus button with full-height background matching input bar
+                ZStack {
+                    Color(hex: "#141414")
+                    Button(action: {
+                        showingDocumentPicker = true
+                    }) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(colorManager.greenColor)
+                            .frame(width: 32, height: 32)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .fileImporter(
+                        isPresented: $showingDocumentPicker,
+                        allowedContentTypes: [.text, .plainText, .data],
+                        allowsMultipleSelection: false
+                    ) { result in
+                        switch result {
+                        case .success(let urls):
+                            if let url = urls.first {
+                                handleFileUpload(url)
+                            }
+                        case .failure(let error):
+                            print("File import failed: \(error.localizedDescription)")
                         }
-                    case .failure(let error):
-                        print("File import failed: \(error.localizedDescription)")
                     }
                 }
+                .frame(width: 44, height: 44)
 
                 // Text field
                 TextField("", text: $messageText, axis: .vertical)
@@ -336,13 +340,30 @@ struct TextModalView: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 16)
         }
-        .background(Color(hex: "#222222"))
+        .frame(maxWidth: .infinity)
+        // Remove full-width bar; keep only plus button and TextField.
+        .background(
+            GeometryReader { proxy in
+                Color.clear
+                    .preference(key: InputBarHeightKey.self, value: proxy.size.height)
+            }
+        )
+        .onPreferenceChange(InputBarHeightKey.self) { height in
+            inputBarHeight = height
+        }
     }
 
     // trailing padding changes when send-button visible
     private var trailingPadding: CGFloat {
         let trimmedText = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmedText.isEmpty ? 16 : 50
+    }
+
+    private struct InputBarHeightKey: PreferenceKey {
+        static var defaultValue: CGFloat = 0
+        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+            value = max(value, nextValue())
+        }
     }
 
     // placeholder
@@ -566,7 +587,7 @@ struct TextModalView: View {
             monitorAssistantStream()
         }
     }
-    
+
     // Voice integration functionality removed
 
 
