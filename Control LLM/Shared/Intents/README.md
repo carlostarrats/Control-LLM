@@ -16,7 +16,7 @@ Control LLM now includes full iOS Shortcuts integration using the modern App Int
 - **Use Cases**: 
   - Quick questions when you're busy
   - Integration with other automation workflows
-  - Voice commands via Siri
+  // Voice commands removed
 
 ### 2. Chain Messages Intent
 - **Purpose**: Send multiple messages with configurable delays between them
@@ -70,10 +70,7 @@ The app automatically donates intents when you perform actions, helping iOS lear
    - Processes the response
    - Adds it to your calendar
 
-### Voice Commands
-- "Hey Siri, send message to Control LLM"
-- "Hey Siri, ask Control LLM about [topic]"
-- "Hey Siri, chain messages in Control LLM"
+// Voice commands section removed
 
 ## Technical Implementation
 

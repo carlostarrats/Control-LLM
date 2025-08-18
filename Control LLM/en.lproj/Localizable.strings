@@ -1,7 +1,7 @@
 "Settings" = "Settings";
 "Models" = "Models";
 "Appearance" = "Appearance";
-"Voice" = "Voice";
+// Voice localization removed
 "Language" = "Language";
 "Chat History" = "Chat History";
 "FAQs" = "FAQs";
@@ -19,84 +19,14 @@
 "Cancel" = "Cancel";
 "Delete All History" = "Delete All History";
 "This action can't be undone." = "This action can't be undone.";
-"iOS System Voices" = "iOS System Voices";
-"How does voice work?" = "How does voice work?";
-"Voice input is only on the main screen. Speak, then press the sparkle to process. The reply is spoken and saved to chat." = "Voice input is only on the main screen. Speak, then press the sparkle to process. The reply is spoken and saved to chat.";
+// iOS System Voices localization removed
+// Voice work explanation removed
+// Voice input explanation removed
 "Is chat text-only?" = "Is chat text-only?";
 "Yes. The chat window is text-only and shows the full conversation history." = "Yes. The chat window is text-only and shows the full conversation history.";
 "Are my chats private?" = "Are my chats private?";
 "All data stays on-device. Nothing is uploaded or shared. Delete the app to remove all data." = "All data stays on-device. Nothing is uploaded or shared. Delete the app to remove all data.";
-"Which voices are available?" = "Which voices are available?";
-"The Voice settings list the iOS system voices installed on your device. If a picked voice isn't available, a default voice is used." = "The Voice settings list the iOS system voices installed on your device. If a picked voice isn't available, a default voice is used.";
+// Voice availability question removed
+// Voice settings explanation removed
 "PrivacyNotice" = "This app stores all data on your device only — nothing is saved or shared, and no account exists. To remove all data, delete the app.";
-
-// Main Navigation
-"History" = "History";
-"Whisper" = "Whisper";
-"Keyboard" = "Keyboard";
-
-// Whisper View
-"All Audio" = "All Audio";
-"Whisper Options" = "Whisper Options";
-"Delete Audio" = "Delete Audio";
-"AUTO" = "AUTO";
-"Peak" = "Peak";
-"RMS" = "RMS";
-"dB" = "dB";
-
-// Text Modal
-"Control" = "Control";
-"Ask Anything…" = "Ask Anything…";
-
-// Models
-"Agents" = "Agents";
-"Available" = "Available";
-"Unavailable" = "Unavailable";
-"Active" = "Active";
-"No Model Assigned" = "No Model Assigned";
-"Installing" = "Installing";
-
-// Appearance
-"Control Unit Selection" = "Control Unit Selection";
-"Main UI Colors" = "Main UI Colors";
-"These colors affect text and other UI elements." = "These colors affect text and other UI elements.";
-"Restore Defaults" = "Restore Defaults";
-"Apply Changes" = "Apply Changes";
-
-// Settings Tabs
-"UI" = "UI";
-"Dev" = "Dev";
-"English" = "English";
-"Spanish" = "Spanish";
-"French" = "French";
-"Version" = "Version";
-"Build" = "Build";
-"Last Updated" = "Last Updated";
-"API Endpoint" = "API Endpoint";
-"Debug" = "Debug";
-"Info" = "Info";
-"Warning" = "Warning";
-"Error" = "Error";
-"Control LLM" = "Control LLM";
-"A voice-first AI assistant with custom UI and MVVM architecture." = "A voice-first AI assistant with custom UI and MVVM architecture.";
-
-// Language View
-"Voice language options depend on your selected LLM. Text language automatically follows your iOS system language." = "Voice language options depend on your selected LLM. Text language automatically follows your iOS system language.";
-"To access more voices, select a different LLM in Model Settings. To change text language, update the language in your iOS Settings." = "To access more voices, select a different LLM in Model Settings. To change text language, update the language in your iOS Settings.";
-
-// Voice View
-"Pre-installed iOS System Voices" = "Pre-installed iOS System Voices";
-"No pre-installed voices found" = "No pre-installed voices found";
-"This device may not have the standard iOS voices installed" = "This device may not have the standard iOS voices installed";
-
-// Audio/Equalizer
-"Hz" = "Hz";
-"0 Hz" = "0 Hz";
-"1000 Hz" = "1000 Hz";
-"5000 Hz" = "5000 Hz";
-"20000 Hz" = "20000 Hz";
-
-// Version and Separators
-"V 1.0" = "V 1.0";
-":" = ":";
 

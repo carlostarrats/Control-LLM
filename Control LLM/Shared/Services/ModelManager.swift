@@ -147,9 +147,7 @@ final class ModelManager: ObservableObject {
         saveSelectedModel()
         print("✅ ModelManager: Selected model \(model.displayName)")
 
-        // Reset language to English when switching models
-        LanguageService.shared.resetToEnglish()
-        print("✅ ModelManager: Reset language to English for new model")
+
 
         // Notify that the model has changed
         print("🔍 ModelManager: Posting modelDidChange notification...")

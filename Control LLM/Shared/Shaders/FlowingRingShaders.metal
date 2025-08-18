@@ -138,8 +138,6 @@ fragment float4 fragmentShader(float2 texCoord [[stage_in]],
                                constant float* uniforms [[buffer(0)]]) {
     float time = uniforms[0];
     float ringRadius = uniforms[1];
-    float activationProgress = uniforms[2]; // 0.0 = deactivated, 1.0 = activated
-
     
     // Apply speed multiplier: 1.5x for both deactivated and activated
     float animationSpeed = 1.5;
@@ -162,11 +160,11 @@ fragment float4 fragmentShader(float2 texCoord [[stage_in]],
     // Apply sharp boundaries for defined fluid shapes - KEEPING EXACTLY THE SAME
     float sharpBoundary = smoothstep(0.1, 0.3, fluidDensity);
     
-    // SMOOTH INTERPOLATION: Mix between dark and bright based on activationProgress
+    // Fixed brightness for deactivated look (no activation)
     float deactivatedBrightness = 0.38; // Dark when not speaking
     float activatedBrightness = 0.9;    // Bright when speaking
     
-    float brightness = mix(deactivatedBrightness, activatedBrightness, activationProgress);
+    float brightness = mix(deactivatedBrightness, activatedBrightness, 0.0); // Hardcoded to 0.0
     float3 color = float3(sharpBoundary * brightness + 0.05);
     
     // Create overlapping, transparent layers - KEEPING EXACTLY THE SAME

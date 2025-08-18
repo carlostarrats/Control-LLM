@@ -44,8 +44,8 @@ Obvious fix (typo, syntax, requested change)
 - Don't explain simple changes beforehand
 
 ## Project Context
-- Control LLM app (voice + text interaction)
-- Voice-first interface priority
+- Control LLM app (text-only interaction)
+- Text-first interface priority
 - Central visualizer = focal point
 - Keep liquid animations intact
 - Preserve navigation (History, Model, Settings)

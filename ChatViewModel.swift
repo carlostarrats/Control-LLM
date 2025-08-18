@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 @Observable
-class ChatViewModel: ObservableObject {
+class ChatViewModel {
     var transcript: String = ""
     var isProcessing: Bool = false
     var modelLoaded: Bool = false
@@ -119,9 +119,7 @@ class ChatViewModel: ObservableObject {
                 await MainActor.run {
                     print("❌ ChatViewModel: Error in send: \(error)")
                     self.isProcessing = false
-                    // Don't show "Could not connect to server" for local LLMs
-                    // Just clear the transcript and let the UI handle the error gracefully
-                    self.transcript = ""
+                    self.transcript = "Error: \(error.localizedDescription)"
                 }
             }
         }

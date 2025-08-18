@@ -201,29 +201,22 @@ struct SettingsModelsView: View {
     }
     
     private var availableDownloadModels: [Model] {
-        // Show all models that are available for download
+        // Only show models that are NOT already installed
         let allDownloadableModels = [
             Model(
                 name: "Gemma-3N-E4B-It-Q4_K_M.gguf",
                 size: "4.3 GB • Google"
-            ),
-            Model(
-                name: "Phi-3.5-Mini-Instruct-Q4_K_M.gguf",
-                size: "2.2 GB • Microsoft"
-            ),
-            Model(
-                name: "Gemma-2-2B-It-Q4_K_M.gguf",
-                size: "1.6 GB • Google"
-            ),
-            Model(
-                name: "Qwen2.5-1.5B-Instruct-Q4_K_M.gguf",
-                size: "1.2 GB • Alibaba"
             )
         ]
         
-        // For now, show all downloadable models since they're in Downloads
-        // TODO: Implement proper filtering when models are actually downloaded
-        return allDownloadableModels
+        // Filter out models that are already installed
+        return allDownloadableModels.filter { downloadableModel in
+            !modelManager.availableModels.contains { installedModel in
+                // Remove .gguf extension for comparison
+                let downloadableName = downloadableModel.name.replacingOccurrences(of: ".gguf", with: "")
+                return installedModel.filename == downloadableName
+            }
+        }
     }
     
     private var unusedModelsCount: Int {
@@ -255,18 +248,6 @@ struct SettingsModelsView: View {
                 timer.invalidate()
             }
         }
-    }
-}
-
-// MARK: - Shared helper functions
-private func getVoiceCapabilitiesText(for modelName: String) -> String {
-    let key = modelName.lowercased()
-    if key.contains("gemma-3n-e4b-it-q4_k_m") || key.contains("gemma-3n-e4b-it") || key.contains("gemma-3n") {
-        return "Built-in voice and text processing capabilities."
-    } else if key.contains("qwen") {
-        return "Built-in voice and text processing capabilities."
-    } else {
-        return "Uses device speech recognition for voice interactions."
     }
 }
 
@@ -302,12 +283,7 @@ struct InstalledLLMModelView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                         }
 
-                        // New text line for voice capabilities
-                        Text(getVoiceCapabilitiesText(for: model.filename))
-                            .font(.custom("IBMPlexMono", size: 10))
-                            .foregroundColor(ColorManager.shared.orangeColor)
-                            .multilineTextAlignment(.leading)
-                            .fixedSize(horizontal: false, vertical: true)
+                        // Voice capabilities text removed
 
                         HStack {
                             Text(model.size)
@@ -347,7 +323,7 @@ struct InstalledLLMModelView: View {
     // MARK: - Subtitle helper
     private var modelSubtitle: String? {
         let key = (model.displayName + " " + model.name).lowercased()
-        if key.contains("gemma-3n-e4b-it-q4_k_m") || key.contains("gemma-3n-e4b-it") || key.contains("gemma-3n") {
+        if key.contains("gemma-3n-e4b-it") {
             return "General conversations, writing, and everyday tasks with better reasoning and accuracy than Gemma 2 | 8 languages"
         }
         if key.contains("gemma") {
@@ -377,7 +353,7 @@ struct AvailableModelView: View {
     // MARK: - Subtitle helper for available models
     private var availableModelSubtitle: String? {
         let key = (model.name).lowercased()
-        if key.contains("gemma-3n-e4b-it-q4_k_m") || key.contains("gemma-3n-e4b-it") || key.contains("gemma-3n") {
+        if key.contains("gemma-3n-e4b-it") {
             return "General conversations, writing, and everyday tasks with better reasoning and accuracy than Gemma 2 | 8 languages"
         }
         if key.contains("gemma") {
@@ -411,13 +387,6 @@ struct AvailableModelView: View {
                                 .multilineTextAlignment(.leading)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
-                        
-                        // Orange text line for voice capabilities (same as installed section)
-                        Text(getVoiceCapabilitiesText(for: model.name))
-                            .font(.custom("IBMPlexMono", size: 10))
-                            .foregroundColor(ColorManager.shared.orangeColor)
-                            .multilineTextAlignment(.leading)
-                            .fixedSize(horizontal: false, vertical: true)
                         
                         Text(model.size)
                             .font(.custom("IBMPlexMono", size: 10))
@@ -457,7 +426,7 @@ struct AvailableModelView: View {
                     .frame(width: UIScreen.main.bounds.width * 0.8, height: 2)
                     
                     // Progress text
-                    Text(NSLocalizedString("Installing", comment: "") + " [\(Int(downloadProgress * 100))%]")
+                    Text("Installing [\(Int(downloadProgress * 100))%]")
                         .font(.custom("IBMPlexMono", size: 10))
                         .foregroundColor(colorManager.orangeColor)
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -550,7 +519,7 @@ struct UnusedModelsSheet: View {
                         Button(action: {
                             dismiss()
                         }) {
-                            Text(NSLocalizedString("Cancel", comment: ""))
+                            Text("Cancel")
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .foregroundColor(Color(hex: "#BBBBBB"))
                                 .frame(maxWidth: .infinity)
@@ -578,7 +547,7 @@ struct UnusedModelsSheet: View {
                     
                     // Header
                     HStack {
-                        Text(NSLocalizedString("Unused Models", comment: ""))
+                        Text("Unused Models")
                             .font(.custom("IBMPlexMono", size: 20))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                             .padding(.leading, 20)

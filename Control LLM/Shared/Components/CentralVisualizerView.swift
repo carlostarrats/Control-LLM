@@ -2,7 +2,7 @@ import SwiftUI
 import Liquid
 
 struct CentralVisualizerView: View {
-    @Binding var isSpeaking: Bool
+    // Voice functionality removed
     @State private var isAnimating = false
     @State private var animationPhase: Double = 0
     @State private var continuousAnimationTimer: Timer?
@@ -10,14 +10,9 @@ struct CentralVisualizerView: View {
     var saturationLevel: Double = 1.0 // 1.0 = full saturation, 0.0 = black and white
     var brightnessLevel: Double = 1.0 // 1.0 = full brightness, 0.0 = black
 
-    // MARK: - Voice Integration
-    @StateObject private var voiceIntegration = VoiceIntegrationService.shared
-    
-    // MARK: - Listening States
-    @State private var isListening = false
-    @State private var isProcessing = false
-    
 
+    
+    // Voice Integration removed
     
     // Helper function to apply hue shift, saturation, and brightness to a color
     private func applyHueShift(to color: Color) -> Color {
@@ -58,13 +53,6 @@ struct CentralVisualizerView: View {
 
     var body: some View {
         ZStack {
-            // Tap gesture for listening control
-            Color.clear
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    handleVisualizerTap()
-                }
-            
             // Deep background wave layer - creates depth with Liquid
             Liquid(samples:50, period: 3.0)
                 .frame(width: 400, height: 400)
@@ -112,7 +100,7 @@ struct CentralVisualizerView: View {
                        height: 80 + cos(animationPhase * 2.2) * 12)
             
             // Ripple effect overlay when activated
-            DistortionRippleEffect(isActive: isSpeaking)
+            // DistortionRippleEffect removed - voice functionality disabled
                 .allowsHitTesting(false)
                 .scaleEffect(1.0 + sin(animationPhase * 2.5) * 0.3)
                 .offset(x: sin(animationPhase * 2.0) * 8, y: cos(animationPhase * 2.0) * 6)
@@ -134,13 +122,13 @@ struct CentralVisualizerView: View {
                     )
                 )
                 .frame(width: 60 + cos(animationPhase * 2.1) * 10,
-                       height: 60 + sin(animationPhase * 1.9) * 8)
+                       height: 60 + sin(animationPhase * 2.1) * 8)
                 .scaleEffect(1.0 + sin(animationPhase * 2.5) * 0.4)
                 .offset(x: cos(animationPhase * 2.3) * 5, y: sin(animationPhase * 2.3) * 4)
                 .opacity(0.7)
                 .blur(radius: 6)
             
-
+            // Voice mode indicator removed - voice functionality disabled
             
             // Additional organic motion - Middle ring with distortion
             Ellipse()
@@ -148,7 +136,7 @@ struct CentralVisualizerView: View {
                 .frame(width: 160 + sin(animationPhase * 2.0) * 20,
                        height: 160 + cos(animationPhase * 1.6) * 16)
                 .scaleEffect(1.0 + sin(animationPhase * 1.8) * 0.12)
-                .offset(x: sin(animationPhase * 1.3) * 8, y: cos(animationPhase * 1.3) * 6)
+                .offset(x: sin(animationPhase * 1.3) * 8, y: sin(animationPhase * 1.3) * 6)
                 .blur(radius: 8)
                 .opacity(0.6)
             
@@ -398,7 +386,7 @@ struct CentralVisualizerView: View {
                     .fill(applyHueShift(to: Color(hex: "#5D0C14").opacity(0.6)))
                     .frame(width: 130 + sin(animationPhase * 1.8) * 13, height: 110 + cos(animationPhase * 2.2) * 8)
                     .blur(radius: 45)
-                    .offset(x: 1 + sin(animationPhase * 0.8) * 11,
+                    .offset(x: 1 + sin(animationPhase * 1.8) * 11,
                             y: 1 + cos(animationPhase * 0.7) * 10)
                     .scaleEffect(1.0 + sin(animationPhase * 0.7) * 0.08, anchor: .center)
             }
@@ -426,7 +414,6 @@ struct CentralVisualizerView: View {
         .offset(x: isAnimating ? sin(animationPhase * 0.6) * 2 : 0,
                 y: isAnimating ? cos(animationPhase * 0.6) * 1 : 0)
         .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 0.4) * 0.004 : 1.0, anchor: .center)
-        .contentShape(Rectangle()) // Make the entire frame tappable
 
         .shadow(color: isAnimating ? applyHueShift(to: Color(hex: "#FF00D0").opacity(0.6)) : Color.clear,
                 radius: isAnimating ? 20 + sin(animationPhase * 0.3) * 10 : 0)
@@ -447,67 +434,28 @@ struct CentralVisualizerView: View {
             
             // Start continuous animation timer
             startContinuousAnimation()
+            
+            // Enable animations
+            isAnimating = true
         }
         .onDisappear {
             stopContinuousAnimation()
         }
-        .onChange(of: isSpeaking) { _, newValue in
-            if newValue {
-                startSpeechAnimation()
-            } else {
-                stopSpeechAnimation()
-            }
-        }
-        .onChange(of: isListening) { _, newValue in
-            if newValue {
-                startListeningAnimation()
-            } else {
-                stopListeningAnimation()
-            }
-        }
-        .onAppear {
-            setupVoiceCallbacks()
-            setupNotificationObservers()
-        }
-        .onDisappear {
-            cleanupVoiceCallbacks()
-            cleanupNotificationObservers()
-        }
+        // Speech animation disabled - keep visualizer in default state
+        // .onChange(of: isSpeaking) { _, newValue in
+        //     if newValue {
+        //         startSpeechAnimation()
+        //     } else {
+        //         stopSpeechAnimation()
+        //     }
+        // }
 
-    }
-    
-    // Function to start speech animation
-    func startSpeechAnimation() {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            isAnimating = true
-        }
-    }
-    
-    // Function to stop speech animation
-    func stopSpeechAnimation() {
-        withAnimation(.easeOut(duration: 0.4)) {
-            isAnimating = false
-        }
-    }
-    
-    // Function to start listening animation (active state)
-    func startListeningAnimation() {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            isAnimating = true
-        }
-    }
-    
-    // Function to stop listening animation (deactive state)
-    func stopListeningAnimation() {
-        withAnimation(.easeOut(duration: 0.4)) {
-            isAnimating = false
-        }
     }
     
     // Function to start continuous animation timer
     func startContinuousAnimation() {
-        continuousAnimationTimer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in
-            animationPhase += 0.04  // Reduced from 0.05 to 0.04 (20% slower)
+        continuousAnimationTimer = Timer.scheduledTimer(withTimeInterval: 1.0/30.0, repeats: true) { _ in
+            animationPhase += 0.08  // Doubled from 0.04 to compensate for 30 FPS
         }
     }
     
@@ -515,121 +463,6 @@ struct CentralVisualizerView: View {
     func stopContinuousAnimation() {
         continuousAnimationTimer?.invalidate()
         continuousAnimationTimer = nil
-    }
-    
-    // MARK: - Listening Control
-    
-    private func handleVisualizerTap() {
-        if !isListening && !isProcessing && !isSpeaking {
-            // Start listening
-            startListening()
-        } else if isListening && !isProcessing {
-            // Stop listening and start processing
-            stopListening()
-        }
-    }
-    
-    private func startListening() {
-        print("🎤 CentralVisualizerView: Starting listening")
-        isListening = true
-        isProcessing = false
-        
-        // Start active animation
-        startSpeechAnimation()
-        
-        // Light haptic feedback
-        FeedbackService.shared.playHaptic(.light)
-        
-        // Start voice mode
-        voiceIntegration.startVoiceMode()
-    }
-    
-    private func stopListening() {
-        print("🔇 CentralVisualizerView: Stopping listening")
-        isListening = false
-        isProcessing = true
-        
-        // Stop active animation
-        stopSpeechAnimation()
-        
-        // Light haptic feedback + stop recording sound
-        FeedbackService.shared.playHaptic(.light)
-        FeedbackService.shared.playSound(.endRecord)
-        
-        // Stop voice mode
-        voiceIntegration.stopVoiceMode()
-        
-        // Set up callback for when processing is complete
-        voiceIntegration.onVoiceInputComplete = { transcribedText in
-            DispatchQueue.main.async {
-                self.handleVoiceInputComplete(transcribedText)
-            }
-        }
-    }
-    
-    private func handleVoiceInputComplete(_ transcribedText: String) {
-        print("📝 CentralVisualizerView: Voice input complete, starting LLM response")
-        isProcessing = false
-        
-        // The LLM will now process and respond
-        // We'll wait for the response to start speaking
-    }
-    
-    private func handleVoiceResponseComplete() {
-        print("🔊 CentralVisualizerView: Voice response complete")
-        isSpeaking = false
-        isListening = false
-        isProcessing = false
-        
-        // Return to deactive state
-        stopSpeechAnimation()
-    }
-    
-    // MARK: - Setup and Cleanup
-    
-    private func setupVoiceCallbacks() {
-        voiceIntegration.onVoiceInputComplete = { transcribedText in
-            DispatchQueue.main.async {
-                self.handleVoiceInputComplete(transcribedText)
-            }
-        }
-        
-        voiceIntegration.onVoiceResponseComplete = {
-            DispatchQueue.main.async {
-                self.handleVoiceResponseComplete()
-            }
-        }
-    }
-    
-    private func cleanupVoiceCallbacks() {
-        voiceIntegration.onVoiceInputComplete = nil
-        voiceIntegration.onVoiceResponseComplete = nil
-    }
-    
-    private func setupNotificationObservers() {
-        // Listen for when LLM starts speaking
-        NotificationCenter.default.addObserver(
-            forName: NSNotification.Name("voiceResponseToken"),
-            object: nil,
-            queue: .main
-        ) { _ in
-            // LLM is responding, set speaking state
-            self.isSpeaking = true
-        }
-        
-        // Listen for when LLM finishes speaking
-        NotificationCenter.default.addObserver(
-            forName: NSNotification.Name("voiceResponseComplete"),
-            object: nil,
-            queue: .main
-        ) { _ in
-            // LLM response complete, return to deactive state
-            self.handleVoiceResponseComplete()
-        }
-    }
-    
-    private func cleanupNotificationObservers() {
-        NotificationCenter.default.removeObserver(self)
     }
 }
 
@@ -645,7 +478,7 @@ struct CentralVisualizerView: View {
             Text("Liquid Blob")
                 .foregroundColor(.white)
                 .font(.headline)
-            CentralVisualizerView(isSpeaking: .constant(false))
+            CentralVisualizerView()
                 .frame(width: 200, height: 200)
                 .background(Color.black)
                 .clipShape(Circle())
@@ -668,7 +501,7 @@ struct AnimationCycleDemo: View {
                 .font(.title2)
                 .padding()
             
-            CentralVisualizerView(isSpeaking: $isSpeaking)
+            CentralVisualizerView()
                 .frame(width: 250, height: 250)
                 .background(Color.black)
                 .clipShape(Circle())

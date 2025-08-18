@@ -3,23 +3,23 @@ import SwiftUI
 
 // MARK: - Visualizer Type Enum
 enum VisualizerType: Int, CaseIterable {
-    case mycroft = 0
-    case wopr = 1
-    case tars = 2
+    case liquid = 0
+    case particle = 1
+    case flowing = 2
     
     var displayName: String {
         switch self {
-        case .mycroft: return "MYCROFT"
-        case .wopr: return "WOPR"
-        case .tars: return "TARS"
+        case .liquid: return "MYCROFT"
+        case .particle: return "WOPR"
+        case .flowing: return "TARS"
         }
     }
     
     var icon: String {
         switch self {
-        case .mycroft: return "cpu.fill"
-        case .wopr: return "cylinder.split.1x2"
-        case .tars: return "atom"
+        case .liquid: return "cpu.fill"
+        case .particle: return "cylinder.split.1x2"
+        case .flowing: return "atom"
         }
     }
 }
@@ -28,7 +28,7 @@ enum VisualizerType: Int, CaseIterable {
 class VisualizerStateManager: ObservableObject {
     static let shared = VisualizerStateManager()
     
-    @Published var selectedVisualizerType: VisualizerType = .mycroft
+    @Published var selectedVisualizerType: VisualizerType = .liquid
     
     private init() {}
 }

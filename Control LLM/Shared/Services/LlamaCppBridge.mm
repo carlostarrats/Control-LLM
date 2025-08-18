@@ -559,85 +559,11 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     NSLog(@"LlamaCppBridge: Streaming generation completed");
 }
 
-// Voice processing functions for Gemma-3N native capabilities
-int llm_bridge_process_audio_voice_recognition(const float* audio_data, int audio_length, char* output_text, int max_output_length) {
-    if (!s_model || !s_ctx || !audio_data || !output_text || max_output_length <= 1) {
-        NSLog(@"LlamaCppBridge: Invalid parameters for voice recognition");
-        return 0;
-    }
-    
-    NSLog(@"LlamaCppBridge: Processing audio for voice recognition, length: %d", audio_length);
-    
-    // For Gemma-3N, we need to convert audio to a format the model can process
-    // This is a simplified implementation - in practice, you'd need to:
-    // 1. Convert audio to the specific format Gemma-3N expects
-    // 2. Use the model's voice recognition capabilities
-    
-    // Create a prompt that tells the model to process audio data
-    std::string audio_prompt = "Process this audio input and transcribe it to text. Audio data length: " + std::to_string(audio_length) + " samples.";
-    
-    // For now, we'll use the model's text generation to simulate voice recognition
-    // In a real implementation, you'd send the actual audio data to the model
-    
-    const char* prompt = audio_prompt.c_str();
-    int result = llm_bridge_generate_text(s_ctx, prompt, output_text, max_output_length);
-    
-    if (result > 0) {
-        NSLog(@"LlamaCppBridge: Voice recognition completed, output: %s", output_text);
-    } else {
-        NSLog(@"LlamaCppBridge: Voice recognition failed");
-    }
-    
-    return result;
-}
+// Voice recognition function removed
 
-int llm_bridge_generate_speech_synthesis(const char* text, float* audio_output, int max_audio_length, int* actual_audio_length) {
-    if (!s_model || !s_ctx || !text || !audio_output || !actual_audio_length || max_audio_length <= 0) {
-        NSLog(@"LlamaCppBridge: Invalid parameters for speech synthesis");
-        return 0;
-    }
-    
-    NSLog(@"LlamaCppBridge: Generating speech synthesis for text: %s", text);
-    
-    // For Gemma-3N, we need to use the model's speech synthesis capabilities
-    // This is a simplified implementation - in practice, you'd need to:
-    // 1. Send text to the model with a speech generation prompt
-    // 2. Receive audio data from the model
-    // 3. Convert the model's output to playable audio format
-    
-    // Create a prompt that tells the model to generate speech
-    std::string speech_prompt = "Generate speech audio for this text: " + std::string(text);
-    
-    // For now, we'll simulate audio generation
-    // In a real implementation, you'd get actual audio data from the model
-    
-    // Simulate generating audio data (placeholder)
-    *actual_audio_length = std::min(max_audio_length, 16000); // 1 second at 16kHz
-    
-    // Generate some dummy audio data (sine wave)
-    for (int i = 0; i < *actual_audio_length; i++) {
-        float frequency = 440.0f; // A4 note
-        float sample_rate = 16000.0f;
-        audio_output[i] = sinf(2.0f * M_PI * frequency * i / sample_rate) * 0.1f;
-    }
-    
-    NSLog(@"LlamaCppBridge: Speech synthesis completed, generated %d audio samples", *actual_audio_length);
-    return 1; // Success
-}
+// Speech synthesis function removed
 
-bool llm_bridge_model_supports_voice(void* model) {
-    if (!model) return false;
-    
-    // Check if the current model is Gemma-3N (which supports voice)
-    // In a real implementation, you'd check the model's capabilities
-    if (s_model && s_model == model) {
-        // For now, assume Gemma-3N supports voice
-        // In practice, you'd check the model's metadata or capabilities
-        return true;
-    }
-    
-    return false;
-}
+// Voice support check function removed
 
 #else
 

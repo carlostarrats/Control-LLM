@@ -452,7 +452,7 @@ final class LLMService: @unchecked Sendable {
             print("🔍 LLMService: Building fresh prompt (no history) for model \(currentModelFilename ?? "unknown")")
         }
         
-        let systemPrompt = LanguageService.shared.getSystemPrompt()
+        let systemPrompt = "You are a helpful AI assistant. You provide clear, accurate, and helpful responses to user questions and requests."
         
         print("🔍 LLMService: Building prompt for model: \(currentModelFilename ?? "unknown") using chat template")
         return buildPromptUsingChatTemplate(userText: userText, history: history, systemPrompt: systemPrompt)
