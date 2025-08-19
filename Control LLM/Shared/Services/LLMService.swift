@@ -16,8 +16,8 @@ final class LLMService: @unchecked Sendable {
     
 
     
-    /// Load the currently selected model from ModelManager
-    func loadSelectedModel() async throws {
+    /// Load a specific model by filename with optimized performance
+    func loadModel(_ modelFilename: String) async throws {
         // Safety mechanism: if the flag has been stuck for more than 5 minutes, reset it
         if isModelOperationInProgress {
             let timeSinceLastOperation = Date().timeIntervalSince(lastOperationTime)
@@ -32,33 +32,24 @@ final class LLMService: @unchecked Sendable {
             throw NSError(domain: "LLMService", code: 11, userInfo: [NSLocalizedDescriptionKey: "Another model operation is in progress"])
         }
         
+        // OPTIMIZATION: Check if we're already loading the same model
+        if currentModelFilename == modelFilename && isModelLoaded {
+            print("🔍 LLMService: Model \(modelFilename) already loaded, skipping reload")
+            return
+        }
+        
         isModelOperationInProgress = true
         lastOperationTime = Date()
         defer { 
             isModelOperationInProgress = false 
         }
         
-        guard let modelFilename = ModelManager.shared.getSelectedModelFilename() else {
-            throw NSError(domain: "LLMService",
-                          code: 1,
-                          userInfo: [NSLocalizedDescriptionKey: "No model selected"])
-        }
+        print("🔍 LLMService: Loading specific model: \(modelFilename) (previous: \(currentModelFilename ?? "none"))")
         
-        // REMOVED: The optimization that was preventing model reloading
-        // This was causing the caching issue where switching models didn't actually change the LLM
+        // OPTIMIZATION: Find model file with priority order for fastest access
+        let modelURL = try await findModelFile(for: modelFilename)
         
-        print("🔍 LLMService: Loading model: \(modelFilename) (previous: \(currentModelFilename ?? "none"))")
-        
-        // Always reload the model to ensure clean state and prevent caching issues
-        // The previous optimization was causing responses to be cached between model switches
-        
-        // Look for the model file in the bundle root (models are copied there during build)
-        guard let modelURL = Bundle.main.url(forResource: modelFilename, withExtension: "gguf", subdirectory: nil) else {
-            print("❌ LLMService: Model file not found in bundle root: \(modelFilename).gguf")
-            throw NSError(domain: "LLMService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Model file not found in bundle root"])
-        }
-        
-        // Clear previous model to free memory
+        // OPTIMIZATION: Clear previous model to free memory before loading new one
         print("🔍 LLMService: Clearing previous model before loading new one...")
         unloadModel()
         
@@ -89,6 +80,49 @@ final class LLMService: @unchecked Sendable {
         print("     - modelPath: \(modelPath ?? "nil")")
     }
     
+    /// Load the currently selected model from ModelManager
+    func loadSelectedModel() async throws {
+        guard let modelFilename = ModelManager.shared.getSelectedModelFilename() else {
+            throw NSError(domain: "LLMService",
+                          code: 1,
+                          userInfo: [NSLocalizedDescriptionKey: "No model selected"])
+        }
+        
+        // Use the optimized loadModel method to avoid code duplication
+        try await loadModel(modelFilename)
+    }
+    
+    /// OPTIMIZATION: Find model file with priority order for fastest access
+    private func findModelFile(for modelFilename: String) async throws -> URL {
+        // Priority 1: Models directory (fastest - bundled with app)
+        if let modelsDir = Bundle.main.url(forResource: "Models", withExtension: nil) {
+            let modelUrl = modelsDir.appendingPathComponent("\(modelFilename).gguf")
+            if FileManager.default.fileExists(atPath: modelUrl.path) {
+                print("🔍 LLMService: Found model in Models directory: \(modelUrl.path)")
+                return modelUrl
+            }
+        }
+        
+        // Priority 2: Bundle root (medium - also bundled)
+        if let rootUrl = Bundle.main.url(forResource: modelFilename, withExtension: "gguf", subdirectory: nil) {
+            print("🔍 LLMService: Found model in bundle root: \(rootUrl.path)")
+            return rootUrl
+        }
+        
+        // Priority 3: Documents/Models (slowest - file system access)
+        if let docsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let modelsDir = docsDir.appendingPathComponent("Models", isDirectory: true)
+            let docUrl = modelsDir.appendingPathComponent("\(modelFilename).gguf")
+            if FileManager.default.fileExists(atPath: docUrl.path) {
+                print("🔍 LLMService: Found model in Documents/Models: \(docUrl.path)")
+                return docUrl
+            }
+        }
+        
+        print("❌ LLMService: Model file not found anywhere: \(modelFilename).gguf")
+        throw NSError(domain: "LLMService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Model file not found in any location"])
+    }
+    
     private func unloadModel() {
         print("🔍 LLMService: Unloading model and cleaning up resources")
         
@@ -98,7 +132,8 @@ final class LLMService: @unchecked Sendable {
             return
         }
         
-        // Safely free context first
+        // CRASH FIX: Sequential cleanup to prevent race conditions and memory access violations
+        // Free context first (it depends on the model)
         if let context = llamaContext {
             print("🔍 LLMService: Freeing context...")
             llm_bridge_free_context(context)
@@ -106,7 +141,7 @@ final class LLMService: @unchecked Sendable {
             print("🔍 LLMService: Context freed")
         }
         
-        // Then safely free model
+        // Then free model
         if let model = llamaModel {
             print("🔍 LLMService: Freeing model...")
             llm_bridge_free_model(model)
@@ -451,6 +486,8 @@ final class LLMService: @unchecked Sendable {
         } else {
             print("🔍 LLMService: Building fresh prompt (no history) for model \(currentModelFilename ?? "unknown")")
         }
+        
+
         
         let systemPrompt = "You are a helpful AI assistant. You provide clear, accurate, and helpful responses to user questions and requests."
         

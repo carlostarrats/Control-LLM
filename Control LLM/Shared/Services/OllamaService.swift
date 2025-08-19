@@ -206,17 +206,7 @@ final class OllamaService: ObservableObject {
     // MARK: - Helper Methods
     
     private func convertToOllamaModelName(_ filename: String) -> String {
-        let lowercased = filename.lowercased()
-        
-        if lowercased.contains("qwen2.5-1.5b") {
-            return "qwen2.5:1.5b"
-        } else if lowercased.contains("gemma-2-2b") {
-            return "gemma2:2b"
-        } else if lowercased.contains("phi-3.5-mini-instruct") {
-            return "phi3:mini"
-        }
-        
-        // Fallback - try to extract model name from filename
+        // Generic conversion - no hardcoded names
         return filename.replacingOccurrences(of: ".gguf", with: "").lowercased()
     }
 }

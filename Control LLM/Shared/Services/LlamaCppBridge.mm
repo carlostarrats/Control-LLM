@@ -19,6 +19,9 @@ static struct llama_model* s_model = NULL;
 static struct llama_context* s_ctx = NULL;
 static bool s_backend_initialized = false;
 
+// CRASH FIX: Add mutex protection for static globals to prevent race conditions
+static pthread_mutex_t s_bridge_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 static inline bool should_skip_token(const struct llama_vocab * vocab, llama_token id) {
     if (!vocab) return false;
     if (llama_vocab_is_control(vocab, id)) return true;
@@ -74,10 +77,32 @@ int llm_bridge_apply_chat_template_messages(const char* const* roles, const char
     if (!s_model || !out_buf || out_buf_len <= 1 || n_messages <= 0 || !roles || !contents) return 0;
     const struct llama_model * model = s_model;
     const char * tmpl = llama_model_chat_template(model, NULL);
+    
     if (!tmpl) {
-        NSLog(@"LlamaCppBridge: No chat template available for model.");
-        return 0;
+        NSLog(@"LlamaCppBridge: No chat template available for model, using fallback template.");
+        // Fallback template for models without built-in templates
+        // Note: This is a reference template, not used in the current implementation
+        
+        // Simple fallback implementation for models without templates
+        int written = 0;
+        for (int i = 0; i < n_messages; ++i) {
+            const char* role = roles[i] ? roles[i] : "";
+            const char* content = contents[i] ? contents[i] : "";
+            
+            if (strcmp(role, "system") == 0) {
+                written += snprintf(out_buf + written, out_buf_len - written, "<|system|>\n%s\n", content);
+            } else if (strcmp(role, "user") == 0) {
+                written += snprintf(out_buf + written, out_buf_len - written, "<|user|>\n%s", content);
+            }
+        }
+        
+        if (add_assistant_start) {
+            written += snprintf(out_buf + written, out_buf_len - written, "<|assistant|>\n");
+        }
+        
+        return written;
     }
+    
     NSLog(@"LlamaCppBridge: Using chat template: %s", tmpl);
 
     // Allocate a temporary vector of llama_chat_message
@@ -95,10 +120,30 @@ int llm_bridge_apply_chat_template_messages(const char* const* roles, const char
 
 void* llm_bridge_load_model(const char* model_path) {
     NSLog(@"LlamaCppBridge: Loading model (real) from %s", model_path);
+    
+    // CRASH FIX: Thread-safe model loading with mutex protection
+    pthread_mutex_lock(&s_bridge_mutex);
+    
+    // CRASH FIX: Free any existing model first to prevent memory leaks
+    if (s_model) {
+        NSLog(@"LlamaCppBridge: Freeing existing model before loading new one");
+        llama_model_free(s_model);
+        s_model = NULL;
+    }
+    
+    // CRASH FIX: Free any existing context
+    if (s_ctx) {
+        NSLog(@"LlamaCppBridge: Freeing existing context before loading new model");
+        llama_free(s_ctx);
+        s_ctx = NULL;
+    }
+    
     if (!s_backend_initialized) {
+        NSLog(@"LlamaCppBridge: Initializing llama backend");
         llama_backend_init();
         llama_log_set(bridge_llama_log_callback, NULL);
         s_backend_initialized = true;
+        NSLog(@"LlamaCppBridge: Backend initialized successfully");
     }
 
     struct llama_model_params model_params = llama_model_default_params();
@@ -106,28 +151,69 @@ void* llm_bridge_load_model(const char* model_path) {
     model_params.use_mmap = true;
     model_params.use_mlock = false;
     model_params.n_gpu_layers = 0; // CPU/Accelerate
+    
+    NSLog(@"LlamaCppBridge: Attempting to load model with params: mmap=%d, mlock=%d, gpu_layers=%d", 
+          model_params.use_mmap, model_params.use_mlock, model_params.n_gpu_layers);
+    
     s_model = llama_model_load_from_file(model_path, model_params);
     
     if (!s_model) {
         NSLog(@"LlamaCppBridge: Failed to load model from %s", model_path);
+        pthread_mutex_unlock(&s_bridge_mutex);
         return NULL;
     }
     
     NSLog(@"LlamaCppBridge: Successfully loaded model from %s", model_path);
-    return (void*)s_model;
+    struct llama_model* result = s_model;
+    pthread_mutex_unlock(&s_bridge_mutex);
+    return (void*)result;
 }
 
 void llm_bridge_free_model(void* model) {
-    if (model) {
+    // CRASH FIX: Thread-safe model freeing with mutex protection
+    pthread_mutex_lock(&s_bridge_mutex);
+    
+    NSLog(@"LlamaCppBridge: Freeing model");
+    
+    // CRASH FIX: Free context first if it exists
+    if (s_ctx) {
+        NSLog(@"LlamaCppBridge: Freeing context before freeing model");
+        llama_free(s_ctx);
+        s_ctx = NULL;
+    }
+    
+    // CRASH FIX: Free model if provided or if s_model exists
+    if (model && model != s_model) {
+        NSLog(@"LlamaCppBridge: Freeing provided model pointer");
         llama_model_free((struct llama_model*)model);
     }
-    s_model = NULL;
+    
+    if (s_model) {
+        NSLog(@"LlamaCppBridge: Freeing static model pointer");
+        llama_model_free(s_model);
+        s_model = NULL;
+    }
+    
+    NSLog(@"LlamaCppBridge: Model freed successfully");
+    pthread_mutex_unlock(&s_bridge_mutex);
 }
 
 void* llm_bridge_create_context(void* model) {
     if (!model) {
         NSLog(@"LlamaCppBridge: Cannot create context - model is NULL");
         return NULL;
+    }
+    
+    // CRASH FIX: Thread-safe context creation with mutex protection
+    pthread_mutex_lock(&s_bridge_mutex);
+    
+    NSLog(@"LlamaCppBridge: Creating context for model");
+    
+    // CRASH FIX: Free any existing context first
+    if (s_ctx) {
+        NSLog(@"LlamaCppBridge: Freeing existing context before creating new one");
+        llama_free(s_ctx);
+        s_ctx = NULL;
     }
     
     struct llama_context_params ctx_params = llama_context_default_params();
@@ -141,18 +227,26 @@ void* llm_bridge_create_context(void* model) {
     
     if (!s_ctx) {
         NSLog(@"LlamaCppBridge: Failed to create context");
+        pthread_mutex_unlock(&s_bridge_mutex);
         return NULL;
     }
     
     NSLog(@"LlamaCppBridge: Successfully created context");
-    return (void*)s_ctx;
+    struct llama_context* result = s_ctx;
+    pthread_mutex_unlock(&s_bridge_mutex);
+    return (void*)result;
 }
 
 void llm_bridge_free_context(void* context) {
+    // CRASH FIX: Thread-safe context freeing with mutex protection
+    pthread_mutex_lock(&s_bridge_mutex);
+    
     if (context) {
         llama_free((struct llama_context*)context);
     }
     s_ctx = NULL;
+    
+    pthread_mutex_unlock(&s_bridge_mutex);
 }
 
 int llm_bridge_generate_text(void* context, const char* prompt, char* output, int max_length) {
@@ -301,10 +395,14 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
         return;
     }
     
+    // CRASH FIX: Add mutex protection for streaming operations
+    pthread_mutex_lock(&s_bridge_mutex);
+    
     struct llama_context * ctx = (struct llama_context *) context;
     struct llama_model   * model = s_model;
     if (!model) {
         NSLog(@"LlamaCppBridge: No model available for streaming generation");
+        pthread_mutex_unlock(&s_bridge_mutex);
         callback(NULL);
         return;
     }
@@ -312,6 +410,15 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     const struct llama_vocab * vocab = llama_model_get_vocab(model);
     if (!vocab) {
         NSLog(@"LlamaCppBridge: No vocabulary available for streaming generation");
+        pthread_mutex_unlock(&s_bridge_mutex);
+        callback(NULL);
+        return;
+    }
+    
+    // CRASH FIX: Verify context is still valid
+    if (!ctx) {
+        NSLog(@"LlamaCppBridge: Context is NULL during streaming generation");
+        pthread_mutex_unlock(&s_bridge_mutex);
         callback(NULL);
         return;
     }
@@ -340,6 +447,7 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
 
     if (n_prompt <= 0) {
         NSLog(@"LlamaCppBridge: Tokenization failed for streaming generation (returned %d tokens)", n_prompt);
+        pthread_mutex_unlock(&s_bridge_mutex);
         callback(NULL);
         return;
     }
@@ -353,6 +461,7 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     }
     if (llama_decode(ctx, batch) != 0) {
         NSLog(@"LlamaCppBridge: Initial decode failed for streaming generation");
+        pthread_mutex_unlock(&s_bridge_mutex);
         callback(NULL);
         return;
     }
@@ -385,12 +494,10 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     }
 
     char piece_buf[256];
-    std::string stream_buf; // accumulate to strip tags across piece boundaries
     
     NSLog(@"LlamaCppBridge: Starting generation loop for %d tokens", max_new_tokens);
     
     int tokens_generated = 0;
-    bool in_think_block = false; // hide content between <think> ... </think>
     for (int t = 0; t < max_new_tokens; ++t) {
         llama_token next_id = llama_sampler_sample(smpl, ctx, -1);
         if (next_id < 0) {
@@ -412,124 +519,55 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
                     nbytes = (int32_t)sizeof(piece_buf) - 1;
                 }
                 
-                stream_buf.append(piece_buf, piece_buf + nbytes);
+                // STREAMING FIX: Emit tokens immediately instead of buffering
+                // Convert piece to string and emit directly
+                std::string piece_str(piece_buf, piece_buf + nbytes);
+                
+                // Remove any special tags from this piece before emitting
+                std::string clean_piece = piece_str;
+                
+                // Remove common special tokens that might appear in pieces
+                const std::string tag_start = "<|";
+                const std::string tag_end = "|>";
+                const std::string think_open = "<think>";
+                const std::string think_close = "</think>";
+                
+                // Remove <|...|> tags
+                size_t pos = 0;
+                while ((pos = clean_piece.find(tag_start)) != std::string::npos) {
+                    size_t end_pos = clean_piece.find(tag_end, pos);
+                    if (end_pos != std::string::npos) {
+                        clean_piece.erase(pos, end_pos + tag_end.length() - pos);
+                    } else {
+                        // Incomplete tag, remove from this point
+                        clean_piece.erase(pos);
+                        break;
+                    }
+                }
+                
+                // Remove <think> tags
+                pos = 0;
+                while ((pos = clean_piece.find(think_open)) != std::string::npos) {
+                    size_t end_pos = clean_piece.find(think_close, pos);
+                    if (end_pos != std::string::npos) {
+                        clean_piece.erase(pos, end_pos + think_close.length() - pos);
+                    } else {
+                        // Incomplete tag, remove from this point
+                        clean_piece.erase(pos);
+                        break;
+                    }
+                }
+                
+                // Emit clean piece immediately if it contains text
+                if (!clean_piece.empty()) {
+                    callback(clean_piece.c_str());
+                }
+                
                 tokens_generated++;
                 
                 if (tokens_generated <= 5) {
-                    NSLog(@"LlamaCppBridge: Token %d: '%.*s'", tokens_generated, nbytes, piece_buf);
+                    NSLog(@"LlamaCppBridge: Token %d: '%.*s' -> '%s'", tokens_generated, nbytes, piece_buf, clean_piece.c_str());
                 }
-
-                // Drain stream_buf: remove <|...|> tags and emit clean text
-                auto drain = [&]() {
-                    const std::string tag_start_ascii = "<|";
-                    const std::string tag_end_ascii   = "|>";
-                    const std::string tag_start_full  = "<\xEF\xBD\x9C"; // '<' + U+FF5C
-                    const std::string tag_end_full    = "\xEF\xBD\x9C>"; // U+FF5C + '>'
-                    const std::string think_open      = "<think>";
-                    const std::string think_close     = "</think>";
-                    for (;;) {
-                        // 0) If inside <think>, consume until we find </think>
-                        if (in_think_block) {
-                            size_t eclose = stream_buf.find(think_close);
-                            if (eclose != std::string::npos) {
-                                // drop everything up to and including </think>
-                                stream_buf.erase(0, eclose + think_close.size());
-                                in_think_block = false;
-                                // continue to process any remaining text
-                                continue;
-                            } else {
-                                // wait for more pieces
-                                break;
-                            }
-                        }
-
-                        // 1) Look for start of <think>
-                        size_t s_think = stream_buf.find(think_open);
-                        if (s_think != std::string::npos) {
-                            // emit any clean text before <think>
-                            if (s_think > 0) {
-                                std::string pre = stream_buf.substr(0, s_think);
-                                if (!pre.empty()) callback(pre.c_str());
-                            }
-                            // enter think mode and remove the opening tag
-                            stream_buf.erase(0, s_think + think_open.size());
-                            in_think_block = true;
-                            // loop back to consume until </think>
-                            continue;
-                        }
-
-                        size_t s_ascii = stream_buf.find(tag_start_ascii);
-                        size_t s_full  = stream_buf.find(tag_start_full);
-                        size_t s;
-                        if (s_ascii == std::string::npos) {
-                            s = s_full;
-                        } else if (s_full == std::string::npos) {
-                            s = s_ascii;
-                        } else {
-                            s = std::min(s_ascii, s_full);
-                        }
-                        if (s != std::string::npos) {
-                            // emit clean prefix before tag
-                            if (s > 0) {
-                                std::string pre = stream_buf.substr(0, s);
-                                if (!pre.empty()) callback(pre.c_str());
-                            }
-                            // if closing not present yet, keep partial
-                            size_t e_ascii = stream_buf.find(tag_end_ascii, s + 2);
-                            size_t e_full  = stream_buf.find(tag_end_full, s + 4);
-                            size_t e;
-                            size_t end_len;
-                            if (e_ascii == std::string::npos && e_full == std::string::npos) {
-                                e = std::string::npos;
-                                end_len = 0;
-                            } else if (e_ascii == std::string::npos) {
-                                e = e_full;
-                                end_len = tag_end_full.size();
-                            } else if (e_full == std::string::npos) {
-                                e = e_ascii;
-                                end_len = tag_end_ascii.size();
-                            } else if (e_ascii < e_full) {
-                                e = e_ascii;
-                                end_len = tag_end_ascii.size();
-                            } else {
-                                e = e_full;
-                                end_len = tag_end_full.size();
-                            }
-                            if (e != std::string::npos) {
-                                // drop entire tag including its end marker
-                                stream_buf.erase(0, e + end_len);
-                                // continue scanning for next tag
-                                continue;
-                            } else {
-                                // keep from tag start
-                                stream_buf.erase(0, s);
-                                break;
-                            }
-                        } else {
-                            // No tag start present: emit up to a safe boundary
-                            size_t len = stream_buf.size();
-                            // Handle partial ASCII tag start
-                            if (len >= 2 && stream_buf[len - 2] == '<' && stream_buf[len - 1] == '|') {
-                                len -= 2; // keep trailing "<|" for next piece
-                            } else if (len >= 1 && stream_buf[len - 1] == '<') {
-                                len -= 1; // keep trailing '<' for next piece
-                            }
-                            // Handle partial fullwidth tag start: "<\xEF" or "<\xEF\xBD"
-                            else if (len >= 2 && stream_buf[len - 2] == '<' && (unsigned char)stream_buf[len - 1] == 0xEF) {
-                                len -= 2;
-                            } else if (len >= 3 && stream_buf[len - 3] == '<' && (unsigned char)stream_buf[len - 2] == 0xEF && (unsigned char)stream_buf[len - 1] == 0xBD) {
-                                len -= 3;
-                            }
-                            if (len > 0) {
-                                std::string out = stream_buf.substr(0, len);
-                                if (!out.empty()) callback(out.c_str());
-                                stream_buf.erase(0, len);
-                            }
-                            break;
-                        }
-                    }
-                };
-                drain();
             }
         }
 
@@ -546,17 +584,13 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     
     llama_sampler_free(smpl);
     
-    // Drain any remaining buffer content before completion
-    if (!stream_buf.empty()) {
-        NSLog(@"LlamaCppBridge: Draining final buffer: '%s'", stream_buf.c_str());
-        callback(stream_buf.c_str());
-        stream_buf.clear();
-    }
+    // No more buffering - all tokens are emitted immediately
     
     // Call completion callback
     callback(NULL);
     
     NSLog(@"LlamaCppBridge: Streaming generation completed");
+    pthread_mutex_unlock(&s_bridge_mutex);
 }
 
 // Voice recognition function removed

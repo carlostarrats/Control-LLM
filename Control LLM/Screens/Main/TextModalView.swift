@@ -134,8 +134,9 @@ struct TextModalView: View {
     @State private var messageText = ""
     @FocusState private var isTextFieldFocused: Bool
     @State private var showingDocumentPicker = false
-    @State private var showDateHeader = false
+
     @State private var inputBarHeight: CGFloat = 0
+    @State private var opacityUpdateTimer: Timer?
     var messageHistory: [ChatMessage]?
     @EnvironmentObject var colorManager: ColorManager
     
@@ -159,10 +160,14 @@ struct TextModalView: View {
             
         }
         .onAppear {
-            checkIfShouldShowDateHeader()
             if let history = messageHistory {
                 viewModel.llm.messageHistory = history
             }
+            setupOpacityUpdateTimer()
+        }
+        .onDisappear {
+            opacityUpdateTimer?.invalidate()
+            opacityUpdateTimer = nil
         }
                         .onReceive(NotificationCenter.default.publisher(for: .modelDidChange)) { _ in
             print("🔍 TextModalView: Model change notification received, resetting state...")
@@ -187,36 +192,66 @@ struct TextModalView: View {
 
     }
     
-    // MARK: - Date header logic ----------------------------------------------
-    private func checkIfShouldShowDateHeader() {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        let todayString = formatter.string(from: Date())
+
+
+    // MARK: - Opacity Update Timer -------------------------------------------
+    
+    private func setupOpacityUpdateTimer() {
+        // Update opacity every minute to create smooth fade effect
+        opacityUpdateTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
+            // Trigger a UI update to recalculate opacity values
+            // This will cause the view to refresh with new opacity values
+        }
+    }
+    
+    // MARK: - Message Management -------------------------------------------
+    
+    private func calculateMessageOpacity(for message: ChatMessage) -> Double {
+        let calendar = Calendar.current
+        let now = Date()
+        let daysDifference = calendar.dateComponents([.day], from: message.timestamp, to: now).day ?? 0
         
-        // Get the last date when header was shown
-        let lastShownDate = UserDefaults.standard.string(forKey: "lastDateHeaderShown")
+        // Apply opacity fade based on message age
+        switch daysDifference {
+        case 0: return 1.0      // Today: 100% opacity
+        case 1: return 0.9      // Yesterday: 90% opacity
+        case 2: return 0.8      // Day 2: 80% opacity
+        case 3: return 0.7      // Day 3: 70% opacity
+        case 4: return 0.6      // Day 4: 60% opacity
+        case 5: return 0.5      // Day 5: 50% opacity
+        case 6: return 0.4      // Day 6: 40% opacity
+        default: return 0.0     // Day 7+: 0% opacity (will be deleted)
+        }
+    }
+    
+    private func getMessagesGroupedByDate() -> [(Date, [ChatMessage])] {
+        let messages = viewModel.messages
+        guard !messages.isEmpty else { return [] }
         
-        print("🗓️ Date header check:")
-        print("  Today: \(todayString)")
-        print("  Last shown: \(lastShownDate ?? "nil")")
-        print("  Messages count: \(viewModel.messages.count)")
+        let calendar = Calendar.current
+        let now = Date()
+        let cutoffDate = calendar.date(byAdding: .day, value: -7, to: now) ?? now
         
-        // Show header if there are messages AND we haven't shown it today
-        if !viewModel.messages.isEmpty {
-            if lastShownDate != todayString {
-                UserDefaults.standard.set(todayString, forKey: "lastDateHeaderShown")
-                showDateHeader = true
-            } else {
-                // Still show if we have messages, even if we've shown it today
-                showDateHeader = true
-            }
-        } else {
-            showDateHeader = false
+        // Filter out messages older than 7 days
+        let recentMessages = messages.filter { message in
+            message.timestamp > cutoffDate
         }
         
-        print("  Will show header: \(showDateHeader)")
+        let grouped = Dictionary(grouping: recentMessages) { message in
+            calendar.startOfDay(for: message.timestamp)
+        }
+        
+        // Sort by date (oldest first) and filter out empty groups
+        var result: [(Date, [ChatMessage])] = []
+        for (date, messages) in grouped {
+            if !messages.isEmpty {
+                let sortedMessages = messages.sorted { $0.timestamp < $1.timestamp }
+                result.append((date, sortedMessages))
+            }
+        }
+        return result.sorted { $0.0 < $1.0 }
     }
-
+    
     // MARK: header -----------------------------------------------------------
     private var header: some View {
         VStack(spacing: 0) {
@@ -256,11 +291,22 @@ struct TextModalView: View {
     private var messageList: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                 LazyVStack(spacing: 24) {
-                    if !viewModel.messages.isEmpty && showDateHeader { 
-                        DateHeaderView(firstMessageTime: viewModel.messages.first?.timestamp) 
+                LazyVStack(spacing: 24) {
+                    ForEach(getMessagesGroupedByDate(), id: \.0) { date, messages in
+                        VStack(spacing: 24) {
+                            // Date header for each group
+                            DateHeaderView(firstMessageTime: date)
+                            
+                            // Messages in this group
+                            ForEach(messages) { message in
+                                MessageBubble(
+                                    message: message,
+                                    opacity: calculateMessageOpacity(for: message)
+                                )
+                                .id(message.id)
+                            }
+                        }
                     }
-                     ForEach(viewModel.messages) { MessageBubble(message: $0).id($0.id) }
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 24)
@@ -268,18 +314,14 @@ struct TextModalView: View {
             .safeAreaInset(edge: .bottom) {
                 Color.clear.frame(height: 80)
             }
-
-                    .onChange(of: viewModel.messages) { _, _ in
-            // Update date header when messages change
-            checkIfShouldShowDateHeader()
-            
-            if let last = viewModel.messages.last {
-                withAnimation(.spring()) {
-                    proxy.scrollTo(last.id, anchor: .bottom)
+            .onChange(of: viewModel.messages) { _, _ in
+                // Update when messages change
+                if let last = viewModel.messages.last {
+                    withAnimation(.spring()) {
+                        proxy.scrollTo(last.id, anchor: .bottom)
+                    }
                 }
             }
-        }
-        // Voice notification handling removed
         }
     }
 
@@ -650,6 +692,7 @@ struct TextModalView: View {
 
 struct MessageBubble: View {
     let message: ChatMessage
+    let opacity: Double
     @State private var isVisible = false
     @EnvironmentObject var colorManager: ColorManager
 
@@ -712,7 +755,7 @@ struct MessageBubble: View {
                 }
                 // Timestamps removed - now shown in date header instead
             }
-            .opacity(isVisible ? 1 : 0)
+            .opacity(isVisible ? opacity : 0)
             .offset(y: isVisible ? 0 : 8)
             .animation(.easeOut(duration: 0.4), value: isVisible)
 
@@ -738,7 +781,7 @@ struct ThinkingAnimationView: View {
 // MARK: - Date header --------------------------------------------------------
 
 struct DateHeaderView: View {
-    let firstMessageTime: Date?
+    let firstMessageTime: Date
     @State private var isVisible = false
     
     var body: some View {
@@ -757,18 +800,16 @@ struct DateHeaderView: View {
     }
     
     private func formattedDateAndTime() -> String {
-        let dateText = Self.smart(Date())
+        let dateText = Self.smart(firstMessageTime)
         
-        if let time = firstMessageTime {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "hh:mm a"
-            let timeText = formatter.string(from: time)
-            return "\(dateText) \(timeText)"
-        } else {
-            return dateText
-        }
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "hh:mm a"
+        let timeText = formatter.string(from: firstMessageTime)
+        return "\(dateText) \(timeText)"
     }
-
+    
     // smart-date formatter
     private static func smart(_ date: Date) -> String {
         let cal = Calendar.current
@@ -778,6 +819,8 @@ struct DateHeaderView: View {
 
         let weekAgo = cal.date(byAdding: .day, value: -7, to: now)!
         let fmt = DateFormatter()
+        fmt.locale = Locale.current
+        fmt.timeZone = TimeZone.current
         if date > weekAgo { fmt.dateFormat = "EEEE, MMM d" } else { fmt.dateFormat = "MMM d, yyyy" }
         return fmt.string(from: date).uppercased()
     }

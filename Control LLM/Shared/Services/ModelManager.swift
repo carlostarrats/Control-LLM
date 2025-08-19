@@ -17,57 +17,120 @@ struct LLMModelInfo: Identifiable {
         self.filename = filename
         self.id = filename
         
-        // Safety check: Reject any Llama models immediately
-        if filename.lowercased().contains("llama") {
-            self.name = "Excluded Model"
-            self.displayName = "Excluded Model"
-            self.description = "This model has been excluded"
-            self.provider = "Excluded"
-            self.size = "Unknown"
-            self.isAvailable = false
-            return
-        }
+
         
-        // Parse display information from filename (case-insensitive)
+        // Detect model info from filename patterns (no hardcoded names)
         let lowercaseFilename = filename.lowercased()
-        if lowercaseFilename.contains("gemma-3n-e4b-it-q4_k_m") || lowercaseFilename.contains("gemma-3n-e4b-it") {
-            self.name = "Gemma 3N E4B IT"
-            self.displayName = "Gemma-3N-E4B-It-Q4_K_M"
-            self.description = "General conversations, writing, and everyday tasks with better reasoning and accuracy than Gemma 2 | 8 languages"
+        
+        // Detect model type and provider with improved accuracy
+        if lowercaseFilename.contains("gemma") {
             self.provider = "Google"
-            self.size = "4.3 GB"
-        } else if lowercaseFilename.contains("gemma-2-2b-it-q4_k_m") || lowercaseFilename.contains("gemma-2-2b-it") {
-            self.name = "Gemma 2 2B IT"
-            self.displayName = "Gemma-2-2B-It-Q4_K_M"
-            self.description = "Google's 2B instruction-tuned model (Q4_K_M)"
-            self.provider = "Google"
-            self.size = "1.7 GB"
-        } else if lowercaseFilename.contains("phi-3.5-mini-instruct-q4_k_m") || lowercaseFilename.contains("phi-3.5-mini-instruct") {
-            self.name = "Phi-3.5 Mini Instruct"
-            self.displayName = "Phi-3.5-Mini-Instruct-Q4_K_M"
-            self.description = "Microsoft Phi-3.5 Mini Instruct (Q4_K_M)"
+            if lowercaseFilename.contains("3n") {
+                self.name = "Gemma 3N E4B IT"
+                self.description = "Advanced reasoning and accuracy for complex conversations | 140+ languages"
+                self.size = "4.3 GB"
+            } else if lowercaseFilename.contains("3-1b") {
+                self.name = "Gemma 3 1B IT"
+                self.description = "Balanced performance for everyday conversations | 140+ languages"
+                self.size = "0.8 GB"
+            } else if lowercaseFilename.contains("3-270m") {
+                self.name = "Gemma 3 270M IT"
+                self.description = "Ultra-fast responses for simple tasks | 140+ languages"
+                self.size = "0.3 GB"
+            } else if lowercaseFilename.contains("2") {
+                self.name = "Gemma 2 Model"
+                self.description = "Google's previous generation language model"
+                self.size = "Unknown"
+            } else {
+                self.name = "Gemma Model"
+                self.description = "Google's Gemma language model"
+                self.size = "Unknown"
+            }
+        } else if lowercaseFilename.contains("phi") {
             self.provider = "Microsoft"
-            self.size = "2.4 GB"
-        } else if lowercaseFilename.contains("qwen2.5-1.5b-instruct-q5_k_m") || lowercaseFilename.contains("qwen2.5-1.5b-instruct") {
-            self.name = "Qwen2.5 1.5B Instruct"
-            self.displayName = "Qwen2.5-1.5B-Instruct-Q5_K_M"
-            self.description = "Alibaba Qwen2.5 1.5B Instruct (Q5_K_M)"
+            if lowercaseFilename.contains("3") {
+                self.name = "Phi-3 Model"
+                self.description = "Advanced reasoning with strong code and math capabilities | 23 languages"
+                self.size = "2.4 GB"
+            } else if lowercaseFilename.contains("2") {
+                self.name = "Phi-2 Model"
+                self.description = "Balanced performance with code and math focus | 23 languages"
+                self.size = "1.3 GB"
+            } else {
+                self.name = "Phi Model"
+                self.description = "Microsoft's Phi language model with code capabilities | 23 languages"
+                self.size = "Unknown"
+            }
+        } else if lowercaseFilename.contains("qwen") {
             self.provider = "Alibaba"
-            self.size = "1.3 GB"
+            if lowercaseFilename.contains("2.5") {
+                self.name = "Qwen2.5 Model"
+                // CRASH FIX: Handle different Qwen 2.5 variants with accurate sizes
+                if lowercaseFilename.contains("0.5b") {
+                    self.description = "Ultra-compact model optimized for mobile | 29+ languages"
+                    self.size = "0.5 GB"
+                } else if lowercaseFilename.contains("1.5b") {
+                    self.description = "General tasks with broader technical abilities | 29+ languages"
+                    self.size = "1.5 GB"
+                } else {
+                    self.description = "Qwen2.5 language model with technical focus | 29+ languages"
+                    self.size = "Unknown"
+                }
+            } else if lowercaseFilename.contains("2") {
+                self.name = "Qwen2 Model"
+                self.description = "Advanced reasoning with broad technical abilities | 30 languages"
+                self.size = "1.3 GB"
+            } else {
+                self.name = "Qwen Model"
+                self.description = "General purpose language model with technical focus | 30 languages"
+                self.size = "Unknown"
+            }
+        } else if lowercaseFilename.contains("llama") {
+            self.provider = "Meta"
+            if lowercaseFilename.contains("3") {
+                self.name = "Llama 3 Model"
+                self.description = "Meta's latest large language model"
+                self.size = "Unknown"
+            } else if lowercaseFilename.contains("2") {
+                self.name = "Llama 2 Model"
+                self.description = "Meta's previous generation language model"
+                self.size = "Unknown"
+            } else {
+                self.name = "Llama Model"
+                self.description = "Meta's open source language model"
+                self.size = "Unknown"
+            }
         } else {
-            // Fallback for unknown models
             self.name = filename.replacingOccurrences(of: "-", with: " ").capitalized
-            self.displayName = self.name
-            self.description = "Custom model"
+            self.description = "Custom or specialized language model"
             self.provider = "Unknown"
             self.size = "Unknown"
         }
         
-        // Check if model file exists in bundle root or app Documents/Models
-        var found = false
-        if let allModelUrls = Bundle.main.urls(forResourcesWithExtension: "gguf", subdirectory: nil) {
-            found = allModelUrls.contains { $0.lastPathComponent == "\(filename).gguf" }
+        // CRASH FIX: Special formatting for Qwen 2.5 models to add space between Qwen and 2.5
+        var displayName = filename.replacingOccurrences(of: "-", with: " ").capitalized
+        if lowercaseFilename.contains("qwen") && lowercaseFilename.contains("2.5") {
+            displayName = displayName.replacingOccurrences(of: "Qwen2.5", with: "Qwen 2.5")
         }
+        self.displayName = displayName
+        
+        // Check if model file exists in Models directory or bundle root
+        var found = false
+        
+        // Check Models directory first
+        if let modelsDir = Bundle.main.url(forResource: "Models", withExtension: nil) {
+            let modelUrl = modelsDir.appendingPathComponent("\(filename).gguf")
+            found = FileManager.default.fileExists(atPath: modelUrl.path)
+        }
+        
+        // Fallback to bundle root
+        if !found {
+            if let allModelUrls = Bundle.main.urls(forResourcesWithExtension: "gguf", subdirectory: nil) {
+                found = allModelUrls.contains { $0.lastPathComponent == "\(filename).gguf" }
+            }
+        }
+        
+        // Also check Documents/Models as final fallback
         if !found {
             if let docsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
                 let modelsDir = docsDir.appendingPathComponent("Models", isDirectory: true)
@@ -75,6 +138,7 @@ struct LLMModelInfo: Identifiable {
                 found = FileManager.default.fileExists(atPath: docUrl.path)
             }
         }
+        
         self.isAvailable = found
     }
 }
@@ -94,27 +158,66 @@ final class ModelManager: ObservableObject {
     }
     
     private func loadAvailableModels() {
-        print("ModelManager: Loading available models from bundle...")
+        print("ModelManager: Loading available models...")
         var discovered = Set<String>()
+        let discoveredQueue = DispatchQueue(label: "discovered.serial")
         
-        // Look for .gguf files in the bundle root (models are copied there during build)
-        if let bundleUrls = Bundle.main.urls(forResourcesWithExtension: "gguf", subdirectory: nil) {
-            for url in bundleUrls {
-                let filename = url.deletingPathExtension().lastPathComponent
-                // Explicitly exclude any Llama models
-                if !filename.lowercased().contains("llama") {
-                    discovered.insert(filename)
-                    print("ModelManager: Found model: \(filename)")
+        // OPTIMIZATION: Use concurrent dispatch for faster model discovery
+        let group = DispatchGroup()
+        let queue = DispatchQueue(label: "model.discovery", attributes: .concurrent)
+        
+        // Look for .gguf files in the Models directory (fastest)
+        if let modelsDir = Bundle.main.url(forResource: "Models", withExtension: nil) {
+            group.enter()
+            queue.async {
+                do {
+                    let modelFiles = try FileManager.default.contentsOfDirectory(at: modelsDir, includingPropertiesForKeys: nil)
+                    for url in modelFiles {
+                        if url.pathExtension == "gguf" {
+                            let filename = url.deletingPathExtension().lastPathComponent
+                            discoveredQueue.sync {
+                                discovered.insert(filename)
+                            }
+                            print("ModelManager: Found model: \(filename)")
+                        }
+                    }
+                } catch {
+                    print("ModelManager: Error reading Models directory: \(error)")
                 }
+                group.leave()
             }
         } else {
-            print("ModelManager: No .gguf files found in bundle root")
+            print("ModelManager: Models directory not found in bundle")
         }
         
-        // Build model infos for discovered filenames and sort
+        // Also check bundle root as fallback
+        group.enter()
+        queue.async {
+            if let bundleUrls = Bundle.main.urls(forResourcesWithExtension: "gguf", subdirectory: nil) {
+                for url in bundleUrls {
+                    let filename = url.deletingPathExtension().lastPathComponent
+                    discoveredQueue.sync {
+                        discovered.insert(filename)
+                    }
+                    print("ModelManager: Found model in bundle root: \(filename)")
+                }
+            }
+            group.leave()
+        }
+        
+        // Wait for discovery to complete
+        group.wait()
+        
+        // OPTIMIZATION: Build model infos with better sorting
         let infos = discovered.map { LLMModelInfo(filename: $0) }
             .filter { $0.isAvailable }
-            .sorted { $0.displayName.lowercased() < $1.displayName.lowercased() }
+            .sorted { model1, model2 in
+                // Sort by provider first, then by name
+                if model1.provider != model2.provider {
+                    return model1.provider < model2.provider
+                }
+                return model1.displayName.lowercased() < model2.displayName.lowercased()
+            }
         
         availableModels = infos
         
@@ -127,14 +230,11 @@ final class ModelManager: ObservableObject {
            let model = availableModels.first(where: { $0.filename == savedModelFilename }) {
             selectedModel = model
         } else {
-            // Default to Gemma if available, otherwise first available model
-            if let gemmaModel = availableModels.first(where: { $0.filename.lowercased().contains("gemma-2-2b-it") }) {
-                selectedModel = gemmaModel
-                print("ModelManager: Defaulting to Gemma model: \(gemmaModel.filename)")
-            } else if let firstModel = availableModels.first {
-                selectedModel = firstModel
-                print("ModelManager: Defaulting to first available model: \(firstModel.filename)")
-            }
+                    // Default to first available model
+        if let firstModel = availableModels.first {
+            selectedModel = firstModel
+            print("ModelManager: Defaulting to first available model: \(firstModel.filename)")
+        }
             saveSelectedModel()
         }
     }
@@ -160,10 +260,7 @@ final class ModelManager: ObservableObject {
     }
 
     private func shouldPreload(filename: String) -> Bool {
-        let f = filename.lowercased()
-        if f.contains("gemma-2-2b-it") { return true }
-        if f.contains("phi-3.5-mini-instruct") { return true }
-        if f.contains("qwen2.5-1.5b-instruct") { return true }
+        // No hardcoded preloading - return false for all models
         return false
     }
     

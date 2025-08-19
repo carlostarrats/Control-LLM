@@ -42,7 +42,7 @@ final class HybridLLMService: ObservableObject {
         // Load model with appropriate service
         switch engine {
         case .llamaCpp:
-            try await llamaCppService.loadSelectedModel()
+            try await llamaCppService.loadModel(modelFilename)
         case .ollama:
             do {
                 try await ollamaService.loadModel(modelFilename)
@@ -117,12 +117,12 @@ final class HybridLLMService: ObservableObject {
     private func determineEngine(for modelFilename: String) -> LLMEngine {
         let lowercased = modelFilename.lowercased()
         
-        // Use Ollama for Qwen if desired; DeepSeek removed
-        if lowercased.contains("qwen") {
-            return .ollama
+        // Use llama.cpp for all GGUF models (which is what we have locally)
+        if lowercased.hasSuffix(".gguf") {
+            return .llamaCpp
         }
         
-        // Use llama.cpp for other models (like Gemma)
+        // Use llama.cpp as default for all models
         return .llamaCpp
     }
     

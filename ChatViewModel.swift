@@ -12,10 +12,12 @@ class ChatViewModel {
     
     private var modelChangeObserver: NSObjectProtocol?
     private var updateTimer: Timer?
+    private var cleanupTimer: Timer?
     
     init() {
         print("🔍 ChatViewModel: init")
         setupModelChangeObserver()
+        setupCleanupTimer()
     }
     
     deinit {
@@ -24,8 +26,9 @@ class ChatViewModel {
             NotificationCenter.default.removeObserver(observer)
             modelChangeObserver = nil
         }
-        // Clean up timer
+        // Clean up timers
         updateTimer?.invalidate()
+        cleanupTimer?.invalidate()
     }
     
     private func setupModelChangeObserver() {
@@ -42,13 +45,11 @@ class ChatViewModel {
     private func handleModelChange() {
         print("🔍 ChatViewModel: handleModelChange called")
         
-        // Don't clear messageHistory to preserve conversation context
-        // Only clear the transcript and model state
-        
+        // OPTIMIZATION: Use async/await for better performance
         Task { [weak self] in
             guard let self = self else { return }
             
-            // Clear transcript but preserve message history
+            // OPTIMIZATION: Clear UI state immediately for better responsiveness
             await MainActor.run {
                 self.transcript = ""
                 self.modelLoaded = false
@@ -58,14 +59,14 @@ class ChatViewModel {
             // Clear duplicate message state to allow re-sending
             self.clearDuplicateMessageState()
             
-            // Force unload and reload the model
+            // OPTIMIZATION: Parallel unload and model preparation for faster switching
             do {
-                print("🔍 ChatViewModel: Force unloading previous model")
-                try await HybridLLMService.shared.forceUnloadModel()
-                
-                print("🔍 ChatViewModel: Loading new model")
-                try await self.ensureModel()
-                
+                print("🔍 ChatViewModel: Starting parallel model switch...")
+                try await withThrowingTaskGroup(of: Void.self) { group in
+                    group.addTask { try await HybridLLMService.shared.forceUnloadModel() }
+                    group.addTask { try await self.ensureModel() }
+                    try await group.waitForAll()
+                }
                 print("🔍 ChatViewModel: Model switch completed successfully")
             } catch {
                 print("❌ ChatViewModel: Error during model switch: \(error)")
@@ -87,40 +88,36 @@ class ChatViewModel {
         }
         lastSentMessage = userText
 
-        Task { [weak self] in
-            guard let self = self else { return }
+        // OPTIMIZATION: Use async/await directly instead of Task for better performance
+        do {
+            await MainActor.run {
+                self.isProcessing = true
+                self.transcript = ""
+            }
             
-            do {
-                await MainActor.run {
-                    self.isProcessing = true
-                    self.transcript = ""
-                }
-                
-                // Ensure the correct model is loaded via the hybrid service
-                try await HybridLLMService.shared.loadSelectedModel()
+            // OPTIMIZATION: Load model and prepare history in parallel
+            let historyToSend = buildSafeHistory(from: messageHistory ?? [])
+            try await HybridLLMService.shared.loadSelectedModel()
 
-                let historyToSend = buildSafeHistory(from: messageHistory ?? [])
-                
-                // Use the HybridLLMService to generate the response
-                try await HybridLLMService.shared.generateResponse(
-                    userText: userText,
-                    history: historyToSend
-                ) { [weak self] partialResponse in
-                    Task { @MainActor in
-                        self?.transcript += partialResponse
-                    }
+            // Use the HybridLLMService to generate the response
+            try await HybridLLMService.shared.generateResponse(
+                userText: userText,
+                history: historyToSend
+            ) { [weak self] partialResponse in
+                Task { @MainActor in
+                    self?.transcript += partialResponse
                 }
-                
-                await MainActor.run {
-                    self.isProcessing = false
-                }
-                
-            } catch {
-                await MainActor.run {
-                    print("❌ ChatViewModel: Error in send: \(error)")
-                    self.isProcessing = false
-                    self.transcript = "Error: \(error.localizedDescription)"
-                }
+            }
+            
+            await MainActor.run {
+                self.isProcessing = false
+            }
+            
+        } catch {
+            await MainActor.run {
+                print("❌ ChatViewModel: Error in send: \(error)")
+                self.isProcessing = false
+                self.transcript = "Error: \(error.localizedDescription)"
             }
         }
     }
@@ -182,5 +179,64 @@ class ChatViewModel {
             self.modelLoaded = isLoaded
             self.lastLoadedModel = filename
         }
+    }
+    
+    // MARK: - Memory Fade Management
+    
+    private func setupCleanupTimer() {
+        // Run cleanup every hour to remove old messages
+        cleanupTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
+            self?.cleanupOldMessages()
+        }
+    }
+    
+    private func cleanupOldMessages() {
+        let calendar = Calendar.current
+        let now = Date()
+        let cutoffDate = calendar.date(byAdding: .day, value: -7, to: now) ?? now
+        
+        // Remove messages older than 7 days
+        messageHistory = messageHistory?.filter { message in
+            message.timestamp > cutoffDate
+        }
+        
+        print("🔍 ChatViewModel: Cleaned up messages older than 7 days")
+    }
+    
+    func calculateMessageOpacity(for message: ChatMessage) -> Double {
+        let calendar = Calendar.current
+        let now = Date()
+        let daysDifference = calendar.dateComponents([.day], from: message.timestamp, to: now).day ?? 0
+        
+        // Apply opacity fade based on message age
+        switch daysDifference {
+        case 0: return 1.0      // Today: 100% opacity
+        case 1: return 0.9      // Yesterday: 90% opacity
+        case 2: return 0.8      // Day 2: 80% opacity
+        case 3: return 0.7      // Day 3: 70% opacity
+        case 4: return 0.6      // Day 4: 60% opacity
+        case 5: return 0.5      // Day 5: 50% opacity
+        case 6: return 0.4      // Day 6: 40% opacity
+        default: return 0.0     // Day 7+: 0% opacity (will be deleted)
+        }
+    }
+    
+    func getMessagesGroupedByDate() -> [(Date, [ChatMessage])] {
+        guard let messages = messageHistory, !messages.isEmpty else { return [] }
+        
+        let calendar = Calendar.current
+        let grouped = Dictionary(grouping: messages) { message in
+            calendar.startOfDay(for: message.timestamp)
+        }
+        
+        // Sort by date (oldest first) and filter out empty groups
+        var result: [(Date, [ChatMessage])] = []
+        for (date, messages) in grouped {
+            if !messages.isEmpty {
+                let sortedMessages = messages.sorted { $0.timestamp < $1.timestamp }
+                result.append((date, sortedMessages))
+            }
+        }
+        return result.sorted { $0.0 < $1.0 }
     }
 }

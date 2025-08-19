@@ -81,27 +81,23 @@ struct SettingsModelsView: View {
                                     .fill(Color(hex: "#333333"))
                                     .frame(height: 1)
                             } else {
-                                ForEach(availableDownloadModels, id: \.name) { model in
-                                    AvailableModelView(
+                                ForEach(availableDownloadModels, id: \.filename) { model in
+                                    AvailableDownloadModelView(
                                         model: model,
-                                        isSelected: false, // No longer using selection
-                                        isDownloading: downloadingModel == model.name,
+                                        isDownloading: downloadingModel == model.filename,
                                         downloadProgress: downloadProgress,
-                                        onToggle: {
-                                            // No longer needed
-                                        },
                                         onDownload: {
-                                            if downloadingModel == model.name {
+                                            if downloadingModel == model.filename {
                                                 // Stop download
                                                 downloadingModel = nil
                                                 downloadProgress = 0.0
                                             } else if downloadingModel == nil {
                                                 // Start download
-                                                downloadingModel = model.name
+                                                downloadingModel = model.filename
                                                 downloadProgress = 0.0
                                                 
                                                 // Simulate download progress
-                                                simulateDownload(for: model.name)
+                                                simulateDownload(for: model.filename)
                                             }
                                         }
                                     )
@@ -200,23 +196,10 @@ struct SettingsModelsView: View {
         }
     }
     
-    private var availableDownloadModels: [Model] {
-        // Only show models that are NOT already installed
-        let allDownloadableModels = [
-            Model(
-                name: "Gemma-3N-E4B-It-Q4_K_M.gguf",
-                size: "4.3 GB • Google"
-            )
-        ]
-        
-        // Filter out models that are already installed
-        return allDownloadableModels.filter { downloadableModel in
-            !modelManager.availableModels.contains { installedModel in
-                // Remove .gguf extension for comparison
-                let downloadableName = downloadableModel.name.replacingOccurrences(of: ".gguf", with: "")
-                return installedModel.filename == downloadableName
-            }
-        }
+    private var availableDownloadModels: [LLMModelInfo] {
+        // For now, show no available downloads since all models are installed
+        // This will be updated when actual download functionality is implemented
+        return []
     }
     
     private var unusedModelsCount: Int {
@@ -237,7 +220,7 @@ struct SettingsModelsView: View {
                     downloadProgress = 0.0
                     
                     // Move model from available to installed
-                    if availableDownloadModels.contains(where: { $0.name == modelName }) {
+                    if availableDownloadModels.contains(where: { $0.filename == modelName }) {
                         // TODO: Actually download and install the model
                         print("Downloaded model: \(modelName)")
                         // Remove from selected (no longer needed since we're not using selection)
@@ -251,10 +234,99 @@ struct SettingsModelsView: View {
     }
 }
 
-struct Model: Identifiable {
-    let id = UUID()
-    let name: String
-    let size: String
+
+
+struct AvailableDownloadModelView: View {
+    let model: LLMModelInfo
+    let isDownloading: Bool
+    let downloadProgress: Double
+    let onDownload: () -> Void
+    @EnvironmentObject var colorManager: ColorManager
+    
+    // MARK: - Subtitle helper for available models
+    private var availableModelSubtitle: String? {
+        // Use the actual model description from ModelManager instead of hardcoded values
+        return model.description
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(model.displayName)
+                        .font(.custom("IBMPlexMono", size: 16))
+                        .foregroundColor(Color(hex: "#EEEEEE"))
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(2)
+                    
+                    // Subtitle for available models
+                    if let subtitle = availableModelSubtitle {
+                        Text(subtitle)
+                            .font(.custom("IBMPlexMono", size: 12))
+                            .foregroundColor(Color(hex: "#BBBBBB"))
+                            .multilineTextAlignment(.leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    
+                    HStack {
+                        Text(model.size)
+                            .font(.custom("IBMPlexMono", size: 10))
+                            .foregroundColor(colorManager.redColor)
+                        
+                        Text("•")
+                            .font(.custom("IBMPlexMono", size: 10))
+                            .foregroundColor(Color(hex: "#666666"))
+                        
+                        Text(model.provider)
+                            .font(.custom("IBMPlexMono", size: 10))
+                            .foregroundColor(Color(hex: "#BBBBBB"))
+                    }
+                }
+                
+                Spacer()
+                
+                // Download button
+                Button(action: onDownload) {
+                    Image(systemName: isDownloading ? "stop.square" : "arrow.down.square")
+                        .font(.system(size: 20))
+                        .foregroundColor(isDownloading ? colorManager.redColor : Color(hex: "#BBBBBB"))
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            .padding(.horizontal, 4)
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
+            // Download progress bar (only show when downloading)
+            if isDownloading {
+                VStack(spacing: 4) {
+                    // Progress bar
+                    ZStack(alignment: .leading) {
+                        Rectangle()
+                            .fill(Color(hex: "#333333"))
+                            .frame(height: 2)
+                        
+                        Rectangle()
+                            .fill(Color(hex: "#F8C762"))
+                            .frame(width: UIScreen.main.bounds.width * 0.8 * CGFloat(downloadProgress), height: 2)
+                    }
+                    .frame(width: UIScreen.main.bounds.width * 0.8, height: 2)
+                    
+                    // Progress text
+                    Text("Installing [\(Int(downloadProgress * 100))%]")
+                        .font(.custom("IBMPlexMono", size: 10))
+                        .foregroundColor(Color(hex: "#BBBBBB"))
+                }
+                .padding(.horizontal, 4)
+                .padding(.bottom, 16)
+            }
+            
+            // Divider
+            Rectangle()
+                .fill(Color(hex: "#333333"))
+                .frame(height: 1)
+        }
+    }
 }
 
 struct InstalledLLMModelView: View {
@@ -322,128 +394,14 @@ struct InstalledLLMModelView: View {
 
     // MARK: - Subtitle helper
     private var modelSubtitle: String? {
-        let key = (model.displayName + " " + model.name).lowercased()
-        if key.contains("gemma-3n-e4b-it") {
-            return "General conversations, writing, and everyday tasks with better reasoning and accuracy than Gemma 2 | 8 languages"
-        }
-        if key.contains("gemma") {
-            return "General conversations, writing, and everyday tasks | English-focused"
-        }
-        if key.contains("phi") {
-            return "General tasks with stronger code and math capabilities | 23 languages"
-        }
-        if key.contains("qwen") {
-            return "General tasks with broader technical abilities and language support | 30 languages"
-        }
-        return nil
+        // Use the actual model description from ModelManager instead of hardcoded values
+        return model.description
     }
 }
 
 
 
-struct AvailableModelView: View {
-    let model: Model
-    let isSelected: Bool
-    let isDownloading: Bool
-    let downloadProgress: Double
-    let onToggle: () -> Void
-    let onDownload: () -> Void
-    @EnvironmentObject var colorManager: ColorManager
-    
-    // MARK: - Subtitle helper for available models
-    private var availableModelSubtitle: String? {
-        let key = (model.name).lowercased()
-        if key.contains("gemma-3n-e4b-it") {
-            return "General conversations, writing, and everyday tasks with better reasoning and accuracy than Gemma 2 | 8 languages"
-        }
-        if key.contains("gemma") {
-            return "General conversations, writing, and everyday tasks | English-focused"
-        }
-        if key.contains("phi") {
-            return "General tasks with stronger code and math capabilities | 23 languages"
-        }
-        if key.contains("qwen") {
-            return "General tasks with broader technical abilities and language support | 30 languages"
-        }
-        return nil
-    }
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            Button(action: onToggle) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text(model.name)
-                            .font(.custom("IBMPlexMono", size: 16))
-                            .foregroundColor(Color(hex: "#EEEEEE"))
-                            .multilineTextAlignment(.leading)
-                            .lineLimit(2)
-                        
-                        // Subtitle for available models
-                        if let subtitle = availableModelSubtitle {
-                            Text(subtitle)
-                                .font(.custom("IBMPlexMono", size: 12))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
-                                .multilineTextAlignment(.leading)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        
-                        Text(model.size)
-                            .font(.custom("IBMPlexMono", size: 10))
-                            .foregroundColor(colorManager.redColor)
-                            .multilineTextAlignment(.leading)
-                    }
-                    
-                    Spacer()
-                    
-                    // Download button
-                    Button(action: onDownload) {
-                        Image(systemName: isDownloading ? "stop.square" : "arrow.down.square")
-                            .font(.system(size: 20))
-                            .foregroundColor(isDownloading ? colorManager.redColor : Color(hex: "#BBBBBB"))
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-                .padding(.horizontal, 4)
-                .padding(.vertical, 16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .frame(maxWidth: .infinity)
-            
-            // Download progress bar (only show when downloading)
-            if isDownloading {
-                VStack(spacing: 4) {
-                    // Progress bar
-                    ZStack(alignment: .leading) {
-                        Rectangle()
-                            .fill(Color(hex: "#333333"))
-                            .frame(height: 2)
-                        
-                        Rectangle()
-                            .fill(Color(hex: "#F8C762"))
-                            .frame(width: UIScreen.main.bounds.width * 0.8 * CGFloat(downloadProgress), height: 2)
-                    }
-                    .frame(width: UIScreen.main.bounds.width * 0.8, height: 2)
-                    
-                    // Progress text
-                    Text("Installing [\(Int(downloadProgress * 100))%]")
-                        .font(.custom("IBMPlexMono", size: 10))
-                        .foregroundColor(colorManager.orangeColor)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.top, 4)
-                        .padding(.bottom, 12)
-                }
-                .padding(.horizontal, 4)
-                .padding(.top, 8)
-            }
-            
-            // Horizontal line under the item
-            Rectangle()
-                .fill(Color(hex: "#333333"))
-                .frame(height: 1)
-        }
-    }
-} 
+ 
 
 struct UnusedModelsSheet: View {
     @Environment(\.dismiss) private var dismiss
@@ -505,7 +463,7 @@ struct UnusedModelsSheet: View {
                             onDelete()
                             dismiss()
                         }) {
-                            Text(selectedModels.count <= 1 ? "Delete Model" : "Delete Models")
+                            Text(selectedModels.count == 1 ? "Delete Model" : "Delete Models")
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .foregroundColor(ColorManager.shared.redColor)
                                 .frame(maxWidth: .infinity)
@@ -615,41 +573,4 @@ struct UnusedLLMModelRowView: View {
     }
 }
 
-struct UnusedModelRowView: View {
-    let model: Model
-    let isSelected: Bool
-    let isLastItem: Bool
-    let onToggle: () -> Void
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            Button(action: onToggle) {
-                HStack(alignment: .top) {
-                    Text(model.name)
-                        .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(Color(hex: "#EEEEEE"))
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(2)
-                    
-                    Spacer()
-                    
-                    // Selection indicator
-                    Image(systemName: isSelected ? "checkmark.square.fill" : "square")
-                        .font(.system(size: 20))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
-                }
-                .padding(.horizontal, 4)
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .frame(maxWidth: .infinity)
-            
-            // Horizontal line under the item (only if not the last item)
-            if !isLastItem {
-                Rectangle()
-                    .fill(Color(hex: "#333333"))
-                    .frame(height: 1)
-            }
-        }
-    }
-} 
+ 
