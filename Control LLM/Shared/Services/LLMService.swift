@@ -466,6 +466,7 @@ final class LLMService: @unchecked Sendable {
                                 if !hasCompleted {
                                     hasCompleted = true
                                     timeoutTask.cancel()
+                                    // Call completion callback when streaming finishes
                                     continuation.resume(returning: ())
                                 }
                             }
@@ -491,11 +492,29 @@ final class LLMService: @unchecked Sendable {
         
         let systemPrompt = "You are a helpful AI assistant. You provide clear, accurate, and helpful responses to user questions and requests."
         
+        // SPECIAL HANDLING: Gemma 3 270M model has a custom chat template that llama.cpp doesn't handle correctly
+        // This model-specific override ensures it works without affecting other models
+        if let modelFilename = currentModelFilename, modelFilename == "gemma-3-270m-it-Q4_K_M" {
+            print("🔧 LLMService: Using custom Gemma 3 270M template override")
+            return buildGemma3CustomTemplate(userText: userText, history: history, systemPrompt: systemPrompt)
+        }
+        
+        // For all other models, use the standard chat template system
         print("🔍 LLMService: Building prompt for model: \(currentModelFilename ?? "unknown") using chat template")
         return buildPromptUsingChatTemplate(userText: userText, history: history, systemPrompt: systemPrompt)
     }
     
     private func buildPromptUsingChatTemplate(userText: String, history: [ChatMessage]?, systemPrompt: String) -> String {
+        // SPECIAL HANDLING: Gemma 3 270M model has a custom chat template that llama.cpp doesn't handle correctly
+        // This model-specific override ensures it works without affecting other models
+        print("🔍 DEBUG: Checking model filename: '\(currentModelFilename ?? "nil")'")
+        if let modelFilename = currentModelFilename, modelFilename == "gemma-3-270m-it-Q4_K_M.gguf" {
+            print("🔧 LLMService: Using custom Gemma 3 270M template override")
+            return buildGemma3CustomTemplate(userText: userText, history: history, systemPrompt: systemPrompt)
+        } else {
+            print("🔍 DEBUG: Model filename doesn't match, using standard template. Expected: 'gemma-3-270m-it-Q4_K_M.gguf', Got: '\(currentModelFilename ?? "nil")'")
+        }
+        
         // CRASH PROTECTION: Validate inputs
         guard !userText.isEmpty, !systemPrompt.isEmpty else {
             print("❌ LLMService: Empty userText or systemPrompt in buildPromptUsingChatTemplate")
@@ -565,6 +584,51 @@ final class LLMService: @unchecked Sendable {
             print("❌ LLMService: Chat template application failed; returning user text only")
             return userText
         }
+    }
+    
+    /// Custom chat template builder specifically for Gemma 3 270M model
+    /// This model has a custom template that llama.cpp doesn't handle correctly
+    private func buildGemma3CustomTemplate(userText: String, history: [ChatMessage]?, systemPrompt: String) -> String {
+        var prompt = ""
+        
+        // Add system message merged with first user message (Gemma 3 custom template behavior)
+        if let history = history, !history.isEmpty {
+            // Find the first user message to merge system prompt with
+            if let firstUserMessage = history.first(where: { $0.isUser }) {
+                prompt += "<start_of_turn>user\n"
+                prompt += systemPrompt + "\n\n"
+                prompt += firstUserMessage.content + "<end_of_turn>\n"
+                
+                // Add remaining history
+                for message in history.dropFirst() {
+                    let role = message.isUser ? "user" : "model"
+                    prompt += "<start_of_turn>\(role)\n"
+                    prompt += message.content + "<end_of_turn>\n"
+                }
+            } else {
+                // No user messages in history, add system prompt to current user message
+                prompt += "<start_of_turn>user\n"
+                prompt += systemPrompt + "\n\n"
+                prompt += userText + "<end_of_turn>\n"
+            }
+        } else {
+            // No history, merge system prompt with current user message
+            prompt += "<start_of_turn>user\n"
+            prompt += systemPrompt + "\n\n"
+            prompt += userText + "<end_of_turn>\n"
+        }
+        
+        // Add current user message if not already added
+        if history?.contains(where: { $0.isUser }) != true {
+            prompt += "<start_of_turn>user\n"
+            prompt += userText + "<end_of_turn>\n"
+        }
+        
+        // Add assistant start token
+        prompt += "<start_of_turn>model\n"
+        
+        print("✅ LLMService: Applied custom Gemma 3 270M template (\(prompt.count) characters)")
+        return prompt
     }
     
     // Removed model-specific manual prompt builders. All models use chat template.

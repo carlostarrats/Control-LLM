@@ -102,12 +102,13 @@ class ChatViewModel {
             // Use the HybridLLMService to generate the response
             try await HybridLLMService.shared.generateResponse(
                 userText: userText,
-                history: historyToSend
-            ) { [weak self] partialResponse in
-                Task { @MainActor in
-                    self?.transcript += partialResponse
+                history: historyToSend,
+                onToken: { [weak self] partialResponse in
+                    Task { @MainActor in
+                        self?.transcript += partialResponse
+                    }
                 }
-            }
+            )
             
             await MainActor.run {
                 self.isProcessing = false

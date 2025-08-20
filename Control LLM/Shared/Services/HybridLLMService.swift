@@ -101,6 +101,7 @@ final class HybridLLMService: ObservableObject {
                 history: history,
                 onToken: onToken
             )
+            // Call completion callback when llama.cpp finishes
             
         case .ollama:
             // Build prompt using existing logic but adapted for Ollama
@@ -109,6 +110,8 @@ final class HybridLLMService: ObservableObject {
             
             // Call onToken with the complete response
             await onToken(response)
+            // Call completion callback when Ollama finishes
+            
         }
     }
     

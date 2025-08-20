@@ -12,8 +12,6 @@ class FeedbackService {
     enum SoundEffect: SystemSoundID {
         case messageSent = 1055
         case keyPress = 1104
-        case beginRecord = 1113
-        case endRecord = 1114
         case tabSwitch = 1256
     }
     
