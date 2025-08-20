@@ -10,6 +10,9 @@ class ChatViewModel {
     var lastSentMessage: String? = nil
     var messageHistory: [ChatMessage]? = []
     
+    // Add cancellation support
+    private var currentGenerationTask: Task<Void, Never>?
+    
     private var modelChangeObserver: NSObjectProtocol?
     private var updateTimer: Timer?
     private var cleanupTimer: Timer?
@@ -88,41 +91,59 @@ class ChatViewModel {
         }
         lastSentMessage = userText
 
-        // OPTIMIZATION: Use async/await directly instead of Task for better performance
-        do {
-            await MainActor.run {
-                self.isProcessing = true
-                self.transcript = ""
-            }
+        // Cancel any existing generation task
+        currentGenerationTask?.cancel()
+        
+        // Create new cancellable task for generation
+        currentGenerationTask = Task { [weak self] in
+            guard let self = self else { return }
             
-            // OPTIMIZATION: Load model and prepare history in parallel
-            let historyToSend = buildSafeHistory(from: messageHistory ?? [])
-            try await HybridLLMService.shared.loadSelectedModel()
+            do {
+                await MainActor.run {
+                    self.isProcessing = true
+                    self.transcript = ""
+                }
+                
+                // Load model and prepare history
+                let historyToSend = buildSafeHistory(from: messageHistory ?? [])
+                try await HybridLLMService.shared.loadSelectedModel()
 
-            // Use the HybridLLMService to generate the response
-            try await HybridLLMService.shared.generateResponse(
-                userText: userText,
-                history: historyToSend,
-                onToken: { [weak self] partialResponse in
-                    Task { @MainActor in
-                        self?.transcript += partialResponse
+                // Use the HybridLLMService to generate the response
+                try await HybridLLMService.shared.generateResponse(
+                    userText: userText,
+                    history: historyToSend,
+                    onToken: { [weak self] partialResponse in
+                        Task { @MainActor in
+                            // Check if task was cancelled
+                            if Task.isCancelled { return }
+                            self?.transcript += partialResponse
+                        }
+                    }
+                )
+                
+                // Only update state if not cancelled
+                if !Task.isCancelled {
+                    await MainActor.run {
+                        self.isProcessing = false
                     }
                 }
-            )
-            
-            await MainActor.run {
-                self.isProcessing = false
-            }
-            
-        } catch {
-            await MainActor.run {
-                print("❌ ChatViewModel: Error in send: \(error)")
-                self.isProcessing = false
-                self.transcript = "Error: \(error.localizedDescription)"
+                
+            } catch {
+                // Only update state if not cancelled
+                if !Task.isCancelled {
+                    await MainActor.run {
+                        print("❌ ChatViewModel: Error in send: \(error)")
+                        self.isProcessing = false
+                        self.transcript = "Error: \(error.localizedDescription)"
+                    }
+                }
             }
         }
+        
+        // Wait for the task to complete or be cancelled
+        await currentGenerationTask?.value
     }
-
+    
     // MARK: - History Safeguard
     private func buildSafeHistory(from fullHistory: [ChatMessage]) -> [ChatMessage] {
         // Limits to prevent overwhelming the prompt
@@ -239,5 +260,19 @@ class ChatViewModel {
             }
         }
         return result.sorted { $0.0 < $1.0 }
+    }
+    
+    // MARK: - Cancellation Support
+    
+    @MainActor
+    func stopGeneration() {
+        print("🔍 ChatViewModel: Stopping generation")
+        currentGenerationTask?.cancel()
+        currentGenerationTask = nil
+        
+        // Also stop the HybridLLMService generation
+        HybridLLMService.shared.stopGeneration()
+        
+        self.isProcessing = false
     }
 }

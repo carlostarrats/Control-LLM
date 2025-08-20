@@ -11,6 +11,9 @@ final class HybridLLMService: ObservableObject {
     private let llamaCppService = LLMService.shared
     private let ollamaService = OllamaService.shared
     
+    // Add cancellation support
+    private var currentGenerationTask: Task<Void, Error>?
+    
     private init() {}
     
     enum LLMEngine {
@@ -89,29 +92,68 @@ final class HybridLLMService: ObservableObject {
             throw HybridLLMError.modelNotLoaded
         }
 
-        // Donate the user's prompt to Shortcuts
-        ShortcutsIntegrationHelper.shared.donateMessageSent(message: userText)
+        // Cancel any existing generation task
+        currentGenerationTask?.cancel()
         
-        print("🔍 HybridLLMService: Generating response with \(currentEngine.description)")
+        // Create new cancellable task for generation
+        currentGenerationTask = Task { [weak self] in
+            guard let self = self else { return }
+            
+            // Donate the user's prompt to Shortcuts
+            ShortcutsIntegrationHelper.shared.donateMessageSent(message: userText)
+            
+            print("🔍 HybridLLMService: Generating response with \(currentEngine.description)")
+            
+            do {
+                switch currentEngine {
+                case .llamaCpp:
+                    try await llamaCppService.chat(
+                        user: userText,
+                        history: history,
+                        onToken: { partialResponse in
+                            // Check if task was cancelled
+                            if Task.isCancelled { return }
+                            Task { await onToken(partialResponse) }
+                        }
+                    )
+                    
+                case .ollama:
+                    // Build prompt using existing logic but adapted for Ollama
+                    let prompt = buildPrompt(userText: userText, history: history)
+                    let response = try await ollamaService.generateText(prompt: prompt)
+                    
+                    // Check if task was cancelled before calling onToken
+                    if !Task.isCancelled {
+                        await onToken(response)
+                    }
+                }
+            } catch {
+                // Only log error if not cancelled
+                if !Task.isCancelled {
+                    print("❌ HybridLLMService: Error in generation: \(error)")
+                    throw error
+                }
+            }
+        }
         
+        // Wait for the task to complete or be cancelled
+        _ = try? await currentGenerationTask?.value
+    }
+    
+    // MARK: - Cancellation Support
+    
+    func stopGeneration() {
+        print("🔍 HybridLLMService: Stopping generation")
+        currentGenerationTask?.cancel()
+        currentGenerationTask = nil
+        
+        // Cancel the underlying LLM generation
         switch currentEngine {
         case .llamaCpp:
-            try await llamaCppService.chat(
-                user: userText,
-                history: history,
-                onToken: onToken
-            )
-            // Call completion callback when llama.cpp finishes
-            
+            llamaCppService.cancelGeneration()
         case .ollama:
-            // Build prompt using existing logic but adapted for Ollama
-            let prompt = buildPrompt(userText: userText, history: history)
-            let response = try await ollamaService.generateText(prompt: prompt)
-            
-            // Call onToken with the complete response
-            await onToken(response)
-            // Call completion callback when Ollama finishes
-            
+            // Ollama doesn't support streaming cancellation in our implementation
+            break
         }
     }
     

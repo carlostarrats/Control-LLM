@@ -22,6 +22,9 @@ static bool s_backend_initialized = false;
 // CRASH FIX: Add mutex protection for static globals to prevent race conditions
 static pthread_mutex_t s_bridge_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+// Cancellation support
+static volatile bool s_generation_cancelled = false;
+
 static inline bool should_skip_token(const struct llama_vocab * vocab, llama_token id) {
     if (!vocab) return false;
     if (llama_vocab_is_control(vocab, id)) return true;
@@ -395,6 +398,9 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
         return;
     }
     
+    // Reset cancellation flag at start of generation
+    s_generation_cancelled = false;
+    
     // CRASH FIX: Add mutex protection for streaming operations
     pthread_mutex_lock(&s_bridge_mutex);
     
@@ -499,6 +505,12 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     
     int tokens_generated = 0;
     for (int t = 0; t < max_new_tokens; ++t) {
+        // Check for cancellation
+        if (s_generation_cancelled) {
+            NSLog(@"LlamaCppBridge: Generation cancelled at token %d", t);
+            break;
+        }
+        
         llama_token next_id = llama_sampler_sample(smpl, ctx, -1);
         if (next_id < 0) {
             NSLog(@"LlamaCppBridge: Invalid token ID %d during streaming generation", next_id);
@@ -593,6 +605,12 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     pthread_mutex_unlock(&s_bridge_mutex);
 }
 
+// Cancellation support
+void llm_bridge_cancel_generation(void) {
+    NSLog(@"LlamaCppBridge: Cancelling generation");
+    s_generation_cancelled = true;
+}
+
 // Voice recognition function removed
 
 // Speech synthesis function removed
@@ -641,5 +659,9 @@ int llama_generate_token(void* context, char* token, int max_token_length) {
 
 void llama_reset_context(void* context) {}
 int llama_get_context_size(void* context) { return 1024; }
+
+void llm_bridge_cancel_generation(void) {
+    NSLog(@"LlamaCppBridge: Cancel generation (placeholder)");
+}
 
 #endif

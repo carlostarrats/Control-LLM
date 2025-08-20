@@ -26,6 +26,9 @@ int llm_bridge_get_context_size(void* context);
 typedef void (^llm_piece_block)(const char* piece);
 void llm_bridge_generate_stream_block(void* context, const char* model_name, const char* prompt, llm_piece_block callback, int max_new_tokens);
 
+// Cancellation support
+void llm_bridge_cancel_generation(void);
+
 // Apply the model's built-in chat template (if available). Returns number of bytes written to out_buf.
 // If the buffer is too small, returns a negative number equal to the required size.
 int llm_bridge_apply_chat_template(const char* system_msg, const char* user_msg, char* out_buf, int out_buf_len, bool add_assistant_start);

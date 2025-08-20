@@ -371,11 +371,16 @@ struct TextModalView: View {
                     .background(Color(hex: "#2A2A2A"))
                     .cornerRadius(4)
                     .tint(colorManager.whiteTextColor)
+                    .disabled(viewModel.llm.isProcessing) // Disable during LLM response
                     .onChange(of: messageText) { _, _ in
-                        FeedbackService.shared.playSound(.keyPress)
+                        if !viewModel.llm.isProcessing { // Only play sound if not processing
+                            FeedbackService.shared.playSound(.keyPress)
+                        }
                     }
                     .onTapGesture {
-                        isTextFieldFocused = true
+                        if !viewModel.llm.isProcessing { // Only allow focus if not processing
+                            isTextFieldFocused = true
+                        }
                     }
                     .overlay(placeholderOverlay.allowsHitTesting(false), alignment: .leading) // Fix placeholder tap issue
                     .overlay(sendButtonOverlay, alignment: .bottomTrailing) // Anchor to bottom-right
@@ -400,7 +405,8 @@ struct TextModalView: View {
     // trailing padding changes when send-button visible
     private var trailingPadding: CGFloat {
         let trimmedText = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmedText.isEmpty ? 16 : 50
+        // Show button if there's text OR if LLM is processing (for stop button)
+        return (trimmedText.isEmpty && !viewModel.llm.isProcessing) ? 16 : 50
     }
 
     private struct InputBarHeightKey: PreferenceKey {
@@ -414,7 +420,7 @@ struct TextModalView: View {
     @ViewBuilder private var placeholderOverlay: some View {
         if messageText.isEmpty {
             HStack {
-                Text("Ask Anything…")
+                Text(viewModel.llm.isProcessing ? "Generating response..." : "Ask Anything…")
                     .font(.custom("IBMPlexMono", size: 16))
                     .foregroundColor(Color(hex: "#666666"))
                 Spacer()
@@ -426,20 +432,39 @@ struct TextModalView: View {
     // send button overlay
     @ViewBuilder private var sendButtonOverlay: some View {
         let trimmedText = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmedText.isEmpty {
+        if !trimmedText.isEmpty || viewModel.llm.isProcessing {
             Button(action: {
-                print("Send button pressed!")
-                NSLog("Send button pressed!")
-                Task {
-                    await sendMessage()
+                if viewModel.llm.isProcessing {
+                    // Stop button pressed - cancel ongoing generation
+                    print("Stop button pressed!")
+                    NSLog("Stop button pressed!")
+                    viewModel.llm.stopGeneration()
+                } else {
+                    // Send button pressed - send new message
+                    print("Send button pressed!")
+                    NSLog("Send button pressed!")
+                    Task {
+                        await sendMessage()
+                    }
                 }
             }) {
-                Image(systemName: "arrow.up")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(Color(hex: "#1D1D1D"))
-                    .frame(width: 32, height: 32)
-                    .background(colorManager.purpleColor)
-                    .cornerRadius(4)
+                if viewModel.llm.isProcessing {
+                    // Stop button (square icon)
+                    Text("■")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(Color(hex: "#1D1D1D"))
+                        .frame(width: 32, height: 32)
+                        .background(colorManager.redColor)
+                        .cornerRadius(4)
+                } else {
+                    // Send button (arrow icon)
+                    Image(systemName: "arrow.up")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(Color(hex: "#1D1D1D"))
+                        .frame(width: 32, height: 32)
+                        .background(colorManager.purpleColor)
+                        .cornerRadius(4)
+                }
             }
             .buttonStyle(.plain)
             .transition(.opacity.animation(.easeInOut(duration: 0.2)))
@@ -450,6 +475,12 @@ struct TextModalView: View {
 
     // MARK: - BUTTON ACTION --------------------------------------------------
     private func sendMessage() async {
+        // Prevent sending if already processing
+        guard !viewModel.llm.isProcessing else {
+            print("🔍 TextModalView: sendMessage called but LLM is already processing")
+            return
+        }
+        
         let text = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { 
             print("🔍 TextModalView: sendMessage called but text is empty")

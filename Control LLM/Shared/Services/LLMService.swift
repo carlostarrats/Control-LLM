@@ -14,7 +14,11 @@ final class LLMService: @unchecked Sendable {
     private var isChatOperationInProgress = false   // For chat generation
     private var lastOperationTime: Date = Date()  // Track when operations start
     
-
+    /// Cancel ongoing LLM generation
+    func cancelGeneration() {
+        print("🔍 LLMService: Cancelling ongoing generation")
+        llm_bridge_cancel_generation()
+    }
     
     /// Load a specific model by filename with optimized performance
     func loadModel(_ modelFilename: String) async throws {
