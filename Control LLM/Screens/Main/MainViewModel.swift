@@ -17,9 +17,15 @@ class MainViewModel: ObservableObject {
         let userMessage = ChatMessage(content: text, isUser: true, timestamp: Date())
         messages.append(userMessage)
         
-        // Use ChatViewModel for LLM integration
-        // The actual LLM response will be handled by the TextModalView through ChatViewModel
-        // This is just for adding the user message to the conversation
+        // Trigger the LLM response through ChatViewModel
+        Task {
+            do {
+                try await llm.send(text)
+            } catch {
+                print("❌ MainViewModel: Error calling LLM: \(error)")
+            }
+        }
+        
         donateChainedMessageIntentIfNeeded()
     }
     

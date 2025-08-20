@@ -528,8 +528,9 @@ struct TextModalView: View {
         DispatchQueue.main.async {
             self.messageText = ""
         }
-        print("🔍 TextModalView: About to call viewModel.llm.send with history count: \(viewModel.llm.messageHistory?.count ?? 0)")
-        try? await viewModel.llm.send(text)
+        print("🔍 TextModalView: LLM call already made through ChatViewModel, no duplicate call needed")
+        // Note: viewModel.llm.send(text) is already called by ChatViewModel.sendTextMessage
+        // No need to duplicate the LLM call here
         
         print("🔍 TextModalView: About to start polling")
         // 4) start polling the stream immediately for real-time word streaming
@@ -689,6 +690,7 @@ struct TextModalView: View {
                 }
                 
                 // Send the file content to LLM for processing
+                // Use the proper streaming path through ChatViewModel
                 try? await viewModel.llm.send("Please analyze this file content and provide a summary: \(formattedContent)")
                 
                 // Start monitoring the stream
