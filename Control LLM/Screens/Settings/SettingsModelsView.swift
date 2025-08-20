@@ -149,11 +149,11 @@ struct SettingsModelsView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "terminal")
                                 .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
                             
                             Text(NSLocalizedString("Models", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 20))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
                         }
                         .padding(.leading, 20)
                         
@@ -164,7 +164,7 @@ struct SettingsModelsView: View {
                         }) {
                             Image(systemName: "xmark")
                                 .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
                                 .frame(width: 32, height: 32)
                                 .contentShape(Rectangle())
                         }
@@ -255,7 +255,7 @@ struct AvailableDownloadModelView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text(model.displayName)
                         .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(Color(hex: "#EEEEEE"))
+                        .foregroundColor(ColorManager.shared.whiteTextColor)
                         .multilineTextAlignment(.leading)
                         .lineLimit(2)
                     
@@ -315,7 +315,7 @@ struct AvailableDownloadModelView: View {
                     // Progress text
                     Text("Installing [\(Int(downloadProgress * 100))%]")
                         .font(.custom("IBMPlexMono", size: 10))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
+                        .foregroundColor(ColorManager.shared.greyTextColor)
                 }
                 .padding(.horizontal, 4)
                 .padding(.bottom, 16)
@@ -342,7 +342,7 @@ struct InstalledLLMModelView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text(model.displayName)
                             .font(.custom("IBMPlexMono", size: 16))
-                            .foregroundColor(Color(hex: "#EEEEEE"))
+                            .foregroundColor(ColorManager.shared.whiteTextColor)
                             .multilineTextAlignment(.leading)
                             .lineLimit(2)
                         
@@ -350,7 +350,7 @@ struct InstalledLLMModelView: View {
                         if let subtitle = modelSubtitle {
                             Text(subtitle)
                                 .font(.custom("IBMPlexMono", size: 12))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.greyTextColor)
                                 .multilineTextAlignment(.leading)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
@@ -368,7 +368,7 @@ struct InstalledLLMModelView: View {
                             
                             Text(model.provider)
                                 .font(.custom("IBMPlexMono", size: 10))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.greyTextColor)
                         }
                     }
                     
@@ -377,7 +377,7 @@ struct InstalledLLMModelView: View {
                     // Active checkmark or empty circle
                     Image(systemName: isActive ? "checkmark.square.fill" : "square")
                         .font(.system(size: 20))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
+                        .foregroundColor(ColorManager.shared.greyTextColor)
                 }
                 .padding(.horizontal, 4)
                 .padding(.vertical, 16)
@@ -426,7 +426,7 @@ struct UnusedModelsSheet: View {
                     // Description
                     Text(unusedModels.isEmpty ? "No Unused Models" : "Delete your unused models.")
                         .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(unusedModels.isEmpty ? ColorManager.shared.redColor : Color(hex: "#EEEEEE"))
+                        .foregroundColor(unusedModels.isEmpty ? ColorManager.shared.redColor : ColorManager.shared.greyTextColor)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 20)
@@ -479,7 +479,7 @@ struct UnusedModelsSheet: View {
                         }) {
                             Text("Cancel")
                                 .font(.custom("IBMPlexMono", size: 16))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.greyTextColor)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
                                 .background(Color(hex: "#2A2A2A"))
@@ -507,7 +507,7 @@ struct UnusedModelsSheet: View {
                     HStack {
                         Text("Unused Models")
                             .font(.custom("IBMPlexMono", size: 20))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
+                            .foregroundColor(ColorManager.shared.whiteTextColor)
                             .padding(.leading, 20)
                         
                         Spacer()
@@ -517,7 +517,7 @@ struct UnusedModelsSheet: View {
                         }) {
                             Image(systemName: "xmark")
                                 .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
                                 .frame(width: 32, height: 32)
                                 .contentShape(Rectangle())
                         }
@@ -546,7 +546,7 @@ struct UnusedLLMModelRowView: View {
                 HStack(alignment: .top) {
                     Text(model.displayName)
                         .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(Color(hex: "#EEEEEE"))
+                        .foregroundColor(ColorManager.shared.whiteTextColor)
                         .multilineTextAlignment(.leading)
                         .lineLimit(2)
                     
@@ -555,7 +555,7 @@ struct UnusedLLMModelRowView: View {
                     // Selection indicator
                     Image(systemName: isSelected ? "checkmark.square.fill" : "square")
                         .font(.system(size: 20))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
+                        .foregroundColor(ColorManager.shared.whiteTextColor)
                 }
                 .padding(.horizontal, 4)
                 .padding(.vertical, 12)

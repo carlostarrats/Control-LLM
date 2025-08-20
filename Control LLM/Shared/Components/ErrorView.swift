@@ -31,11 +31,11 @@ struct ErrorView: View {
                 
                 Text(title)
                     .font(.custom("IBMPlexMono-Medium", size: 18))
-                    .foregroundColor(Color(hex: "#EEEEEE"))
+                    .foregroundColor(ColorManager.shared.whiteTextColor)
                 
                 Text(message)
                     .font(.custom("IBMPlexMono-Regular", size: 16))
-                    .foregroundColor(Color(hex: "#EEEEEE"))
+                    .foregroundColor(ColorManager.shared.whiteTextColor)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                 

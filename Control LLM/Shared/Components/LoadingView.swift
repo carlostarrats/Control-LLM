@@ -23,11 +23,11 @@ struct LoadingView: View {
             VStack(spacing: 16) {
                 ProgressView()
                     .scaleEffect(1.2)
-                    .tint(Color(hex: "#EEEEEE"))
+                    .tint(ColorManager.shared.whiteTextColor)
                 
                 Text(message)
                     .font(.custom("IBMPlexMono-Regular", size: 16))
-                    .foregroundColor(Color(hex: "#EEEEEE"))
+                    .foregroundColor(ColorManager.shared.whiteTextColor)
             }
         }
     }

@@ -204,6 +204,8 @@ struct TextModalView: View {
         }
     }
     
+    // MARK: - Response Completion Observer
+    
     // MARK: - Message Management -------------------------------------------
     
     private func calculateMessageOpacity(for message: ChatMessage) -> Double {
@@ -264,10 +266,10 @@ struct TextModalView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "keyboard")
                         .font(.system(size: 20, weight: .medium))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
+                        .foregroundColor(colorManager.whiteTextColor)
                     Text("Control")
                         .font(.custom("IBMPlexMono", size: 20))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
+                        .foregroundColor(colorManager.whiteTextColor)
                 }
                 .padding(.leading, 20)
 
@@ -276,7 +278,7 @@ struct TextModalView: View {
                 Button { isPresented = false } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
+                        .foregroundColor(colorManager.whiteTextColor)
                         .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.plain)
@@ -368,7 +370,7 @@ struct TextModalView: View {
                     .padding(.vertical, 12)
                     .background(Color(hex: "#2A2A2A"))
                     .cornerRadius(4)
-                    .tint(Color(hex: "#EEEEEE"))
+                    .tint(colorManager.whiteTextColor)
                     .onChange(of: messageText) { _, _ in
                         FeedbackService.shared.playSound(.keyPress)
                     }
@@ -499,6 +501,10 @@ struct TextModalView: View {
         isPolling = false
         pollCount = 0
         isDuplicateMessage = false
+        
+        // Reset haptic feedback tracking for new response
+        stableTranscriptCount = 0
+        hasProvidedCompletionHaptic = false
 
         print("🔍 TextModalView: About to call viewModel.sendTextMessage")
         // 1) user bubble
@@ -549,6 +555,10 @@ struct TextModalView: View {
     @State private var isDuplicateMessage = false
     @State private var lastLoadedModelForDuplicateCheck: String? = nil
     
+    // Response completion tracking for haptic feedback
+    @State private var stableTranscriptCount = 0
+    @State private var hasProvidedCompletionHaptic = false
+    
     // Voice integration state
     // Voice functionality removed
 
@@ -572,10 +582,24 @@ struct TextModalView: View {
         
         // Check if transcript has changed
         if currentTranscriptLength == lastTranscriptLength && currentTranscript == lastRenderedTranscript {
-            // No change - continue polling
+            // No change - increment stable count
+            stableTranscriptCount += 1
+            
+            // Check if transcript has been stable for 3 consecutive polls (600ms)
+            // This indicates the response is likely complete
+            if stableTranscriptCount >= 3 && !hasProvidedCompletionHaptic && !currentTranscript.isEmpty {
+                print("🔍 TextModalView: Response appears complete, providing haptic feedback")
+                FeedbackService.shared.playHaptic(.light)
+                hasProvidedCompletionHaptic = true
+            }
+            
+            // Continue polling
             self.scheduleNextPoll()
             return
         }
+        
+        // Transcript changed - reset stable count
+        stableTranscriptCount = 0
         
         // Check if transcript is empty but we have a previous response
         if currentTranscript.isEmpty && !lastRenderedTranscript.isEmpty {
@@ -711,7 +735,7 @@ struct MessageBubble: View {
                         
                         Text(message.content)
                             .font(.custom("IBMPlexMono", size: 14))
-                            .foregroundColor(message.isUser ? colorManager.purpleColor : Color(hex: "#EEEEEE"))
+                            .foregroundColor(message.isUser ? colorManager.purpleColor : colorManager.whiteTextColor)
                             .multilineTextAlignment(.leading)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 12)
@@ -747,7 +771,7 @@ struct MessageBubble: View {
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .lineLimit(nil)
                                 .multilineTextAlignment(.leading)
-                                .foregroundColor(Color(hex: "#EEEEEE"))
+                                .foregroundColor(colorManager.whiteTextColor)
                                 .padding(.leading, 2)
                         }
                         .animation(.spring(duration: 0.4), value: message.content.isEmpty)
@@ -834,17 +858,17 @@ struct FileMessageView: View {
         HStack(spacing: 8) {
             Image(systemName: "doc.fill")
                 .font(.system(size: 16, weight: .medium))
-                .foregroundColor(message.isUser ? .black : Color(hex: "#BBBBBB"))
+                .foregroundColor(message.isUser ? .black : ColorManager.shared.whiteTextColor)
             VStack(alignment: .leading, spacing: 2) {
                 Text("File Message")
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(message.isUser ? .black : Color(hex: "#EEEEEE"))
+                    .foregroundColor(message.isUser ? .black : ColorManager.shared.whiteTextColor)
                     .lineLimit(1)
                 // File extension display removed
             }
         }
         .padding(.horizontal, 16).padding(.vertical, 10)
-        .background(message.isUser ? Color(hex: "#EEEEEE") : Color(hex: "#2A2A2A"))
+        .background(message.isUser ? ColorManager.shared.whiteTextColor : Color(hex: "#2A2A2A"))
         .cornerRadius(4)
     }
 }

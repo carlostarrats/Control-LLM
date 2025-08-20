@@ -13,6 +13,8 @@ class AppearanceManager: ObservableObject {
     @Published var orangeColorHue: Double = 30.0 // For #F8C762
     @Published var greenColorHue: Double = 160.0 // For #3EBBA5
     @Published var purpleColorHue: Double = 220.0 // For #94A8E1
+    @Published var whiteTextColorHue: Double = 0.0 // For #EEEEEE (white text)
+    @Published var greyTextColorHue: Double = 0.0 // For #BBBBBB (grey text)
     
     // Default colors (extracted from current app)
     static var defaultVisualizerColor: Color {
@@ -23,6 +25,8 @@ class AppearanceManager: ObservableObject {
     static let defaultOrangeColor = Color(hex: "#F8C762")
     static let defaultGreenColor = Color(hex: "#3EBBA5")
     static let defaultPurpleColor = Color(hex: "#94A8E1")
+    static let defaultWhiteTextColor = Color(hex: "#EEEEEE")
+    static let defaultGreyTextColor = Color(hex: "#BBBBBB")
     
     private init() {
         // Initialize with the actual default HSB values for #E4DAE5
@@ -35,6 +39,8 @@ class AppearanceManager: ObservableObject {
         orangeColorHue = Self.defaultOrangeColor.hsb.hue * 360
         greenColorHue = Self.defaultGreenColor.hsb.hue * 360
         purpleColorHue = Self.defaultPurpleColor.hsb.hue * 360
+        whiteTextColorHue = Self.defaultWhiteTextColor.hsb.hue * 360
+        greyTextColorHue = Self.defaultGreyTextColor.hsb.hue * 360
     }
     
     func restoreDefaults() {
@@ -47,6 +53,8 @@ class AppearanceManager: ObservableObject {
         orangeColorHue = Self.defaultOrangeColor.hsb.hue * 360
         greenColorHue = Self.defaultGreenColor.hsb.hue * 360
         purpleColorHue = Self.defaultPurpleColor.hsb.hue * 360
+        whiteTextColorHue = Self.defaultWhiteTextColor.hsb.hue * 360
+        greyTextColorHue = Self.defaultGreyTextColor.hsb.hue * 360
     }
     
     var currentVisualizerColor: Color {
@@ -81,6 +89,30 @@ class AppearanceManager: ObservableObject {
     var currentPurpleColor: Color {
         Color(hue: purpleColorHue / 360, saturation: 0.4, brightness: 0.7)
     }
+    
+    var currentWhiteTextColor: Color {
+        // Create a color scale that includes the current white (#EEEEEE) but also allows for other colors
+        // When hue is 0 (default), use the exact white color
+        // When hue changes, use a light tinted version that's still readable
+        if abs(whiteTextColorHue - 0.0) < 1 {
+            return Self.defaultWhiteTextColor
+        } else {
+            // For other hues, use a light tinted version with low saturation and high brightness
+            return Color(hue: whiteTextColorHue / 360, saturation: 0.15, brightness: 0.95)
+        }
+    }
+    
+    var currentGreyTextColor: Color {
+        // Create a color scale that includes the current grey (#BBBBBB) but also allows for other colors
+        // When hue is 0 (default), use the exact grey color
+        // When hue changes, use a medium tinted version that's still readable
+        if abs(greyTextColorHue - 0.0) < 1 {
+            return Self.defaultGreyTextColor
+        } else {
+            // For other hues, use a medium tinted version with moderate saturation and brightness
+            return Color(hue: greyTextColorHue / 360, saturation: 0.25, brightness: 0.75)
+        }
+    }
 }
 
 // MARK: - Color Manager for App-wide Access
@@ -93,6 +125,8 @@ class ColorManager: ObservableObject {
     @Published private(set) var orangeColor: Color
     @Published private(set) var greenColor: Color
     @Published private(set) var purpleColor: Color
+    @Published private(set) var whiteTextColor: Color
+    @Published private(set) var greyTextColor: Color
 
     private init() {
         // Initialize with defaults
@@ -100,6 +134,8 @@ class ColorManager: ObservableObject {
         self.orangeColor = AppearanceManager.defaultOrangeColor
         self.greenColor = AppearanceManager.defaultGreenColor
         self.purpleColor = AppearanceManager.defaultPurpleColor
+        self.whiteTextColor = AppearanceManager.defaultWhiteTextColor
+        self.greyTextColor = AppearanceManager.defaultGreyTextColor
     }
 
     // Apply current editor values
@@ -108,6 +144,8 @@ class ColorManager: ObservableObject {
         self.orangeColor = appearanceManager.currentOrangeColor
         self.greenColor = appearanceManager.currentGreenColor
         self.purpleColor = appearanceManager.currentPurpleColor
+        self.whiteTextColor = appearanceManager.currentWhiteTextColor
+        self.greyTextColor = appearanceManager.currentGreyTextColor
     }
 }
 
@@ -134,7 +172,7 @@ struct CustomSlider: View {
                 
                 // Vertical line grabber - fixed center position
                 Rectangle()
-                    .fill(Color(hex: "#EEEEEE"))
+                    .fill(ColorManager.shared.whiteTextColor)
                     .frame(width: isPressed ? 4 : 2, height: isPressed ? 24 : 20)
                     .position(x: CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width, y: 15)
                     .animation(.easeInOut(duration: 0.2), value: isPressed)
@@ -226,7 +264,7 @@ struct AppearanceView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         Text("Control Unit Selection")
                             .font(.custom("IBMPlexMono", size: 18))
-                            .foregroundColor(Color(hex: "#EEEEEE"))
+                            .foregroundColor(ColorManager.shared.whiteTextColor)
                         
                         // Visualizer tabs - same styling as other design system elements
                         HStack(spacing: 0) {
@@ -243,7 +281,7 @@ struct AppearanceView: View {
                                         Text(tab.displayName)
                                             .font(.system(size: 14, weight: .medium))
                                     }
-                                    .foregroundColor(visualizerState.selectedVisualizerType == tab ? Color.white : Color(hex: "#666666"))
+                                    .foregroundColor(visualizerState.selectedVisualizerType == tab ? ColorManager.shared.whiteTextColor : Color(hex: "#666666"))
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
                                     .background(
@@ -260,7 +298,7 @@ struct AppearanceView: View {
                         // Descriptive text that changes based on selected tab
                         Text(descriptiveText)
                             .font(.custom("IBMPlexMono", size: 14))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
+                            .foregroundColor(ColorManager.shared.greyTextColor)
                             .multilineTextAlignment(.center)
                             .frame(maxWidth: .infinity, alignment: .center)
                             .padding(.top, 16)
@@ -279,11 +317,11 @@ struct AppearanceView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         Text("Main UI Colors")
                             .font(.custom("IBMPlexMono", size: 18))
-                            .foregroundColor(Color(hex: "#EEEEEE"))
+                            .foregroundColor(ColorManager.shared.whiteTextColor)
                         
-                        Text("These colors affect text and other UI elements.")
+                        Text("These colors affect text and other UI elements, including the primary white text color and secondary grey text color.")
                             .font(.custom("IBMPlexMono", size: 14))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
+                            .foregroundColor(ColorManager.shared.greyTextColor)
                             .multilineTextAlignment(.leading)
                             .padding(.top, 8)
                             .padding(.bottom, 16)
@@ -320,6 +358,20 @@ struct AppearanceView: View {
                                 currentColor: appearanceManager.currentPurpleColor
                             )
                             .onChange(of: appearanceManager.purpleColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
+                            
+                            HueSlider(
+                                title: appearanceManager.currentWhiteTextColor.hexString,
+                                hue: $appearanceManager.whiteTextColorHue,
+                                currentColor: appearanceManager.currentWhiteTextColor
+                            )
+                            .onChange(of: appearanceManager.whiteTextColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
+                            
+                            HueSlider(
+                                title: appearanceManager.currentGreyTextColor.hexString,
+                                hue: $appearanceManager.greyTextColorHue,
+                                currentColor: appearanceManager.currentGreyTextColor
+                            )
+                            .onChange(of: appearanceManager.greyTextColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
                         }
                     }
                     .padding(.horizontal, 20)
@@ -347,7 +399,7 @@ struct AppearanceView: View {
                         }) {
                             Text("Restore Defaults")
                                 .font(.custom("IBMPlexMono", size: 16))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.greyTextColor)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
                                 .background(Color(hex: "#2A2A2A"))
@@ -396,11 +448,11 @@ struct AppearanceView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "eye")
                                 .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
                             
                             Text("Appearance")
                                 .font(.custom("IBMPlexMono", size: 20))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
                         }
                         .padding(.leading, 20)
                         
@@ -411,7 +463,7 @@ struct AppearanceView: View {
                         }) {
                             Image(systemName: "xmark")
                                 .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
                                 .frame(width: 32, height: 32)
                                 .contentShape(Rectangle())
                         }

@@ -31,11 +31,11 @@ struct FAQView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "info.circle")
                                 .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
 
                             Text(NSLocalizedString("FAQs", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 20))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
                         }
                         .padding(.leading, 20)
 
@@ -44,7 +44,7 @@ struct FAQView: View {
                         Button(action: { dismiss() }) {
                             Image(systemName: "xmark")
                                 .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
                                 .frame(width: 32, height: 32)
                                 .contentShape(Rectangle())
                         }
@@ -93,7 +93,7 @@ struct FAQItemView: View {
 
                 Text(item.answer)
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#BBBBBB"))
+                    .foregroundColor(ColorManager.shared.greyTextColor)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, 4)

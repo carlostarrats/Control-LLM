@@ -113,19 +113,19 @@ struct SettingsItemView: View {
 				HStack {
 					Image(systemName: item.symbol)
 						.font(.system(size: 16, weight: .medium))
-						.foregroundColor(Color(hex: "#BBBBBB"))
+						.foregroundColor(ColorManager.shared.whiteTextColor)
 						.frame(width: 20)
 					
 					Text(NSLocalizedString(item.title, comment: ""))
 						.font(.custom("IBMPlexMono", size: 16))
-						.foregroundColor(Color(hex: "#EEEEEE"))
+						                .foregroundColor(ColorManager.shared.whiteTextColor)
 						.multilineTextAlignment(.leading)
 					
 					Spacer()
 					
 					Image(systemName: "chevron.right")
 						.font(.system(size: 12))
-						.foregroundColor(Color(hex: "#BBBBBB"))
+						.foregroundColor(ColorManager.shared.whiteTextColor)
 				}
 				.padding(.horizontal, 4)
 				.padding(.vertical, 12)

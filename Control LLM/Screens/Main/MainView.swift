@@ -6,9 +6,17 @@ struct MainView: View {
     
     init() {
         NSLog("🔍 MainView init")
+        // Check for first run immediately
+        let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
+        NSLog("🔍 Init check: hasSeenOnboarding = \(hasSeenOnboarding)")
+        if !hasSeenOnboarding {
+            NSLog("🔍 First run detected in init")
+            // We can't set @State here, so we'll use a different approach
+        }
     }
     @State private var showingTextModal = false
     @State private var showingSettingsView = false // Added state for Settings sheet
+    @State private var showingOnboarding = false // Will be set to true in onAppear if first run
     @State private var isChatMode = false
     @State private var blobScale: CGFloat = 1.0
     @State private var textOpacity: Double = 1.0
@@ -65,6 +73,23 @@ struct MainView: View {
                     .tag(2)
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            
+            // Onboarding Modal (first run only)
+            if showingOnboarding {
+                OnboardingModal(isPresented: $showingOnboarding)
+            }
+        }
+        .onAppear {
+            let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
+            NSLog("🔍 Onboarding check: hasSeenOnboarding = \(hasSeenOnboarding)")
+            
+            if hasSeenOnboarding {
+                NSLog("🔍 User has already seen onboarding, keeping modal hidden")
+                showingOnboarding = false
+            } else {
+                NSLog("🔍 First run, showing modal")
+                showingOnboarding = true
+            }
         }
     }
 
@@ -147,81 +172,13 @@ struct HomePage: View {
             .opacity(blobColorOpacity)
             .animation(.easeInOut(duration: 0.8), value: blobColorOpacity)
 
-            // Bottom navigation buttons with voice interaction flow
+            // Bottom navigation buttons removed - main screen now has no buttons
             VStack {
                 Spacer()
                 
-                // ZStack to prevent button movement - both buttons occupy same space
-                ZStack {
-                    // Navigation buttons (always present, fade out when voice detected)
-                    HStack(spacing: 0) { // No spacing between buttons
-                        // Settings button on the left
-                        Button(action: {
-                            FeedbackService.shared.playHaptic(.light)
-                            onSettings()
-                        }) {
-                            Image(systemName: "gearshape")
-                                .font(.system(size: 18, weight: .medium))
-                                .foregroundColor(Color(hex: "#1D1D1D"))
-                                .frame(width: 60, height: 60) // Increased to 60x60
-                                .background(colorManager.greenColor)
-                                .cornerRadius(4) // Full corner radius for single button
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .contentShape(Rectangle()) // Ensure full area is tappable
-                    
-                        Spacer() // Pushes keyboard button to the right
-                    
-                        // Control Button on the right
-                        Button(action: {
-                            FeedbackService.shared.playHaptic(.light)
-                            onChat()
-                        }) {
-                            Image(systemName: "keyboard")
-                                .font(.system(size: 18, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
-                                .frame(width: 60, height: 60) // Increased to 60x60
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .stroke(Color(hex: "#BBBBBB"), lineWidth: 1)
-                                )
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .contentShape(Rectangle()) // Ensure full area is tappable
-                    }
-                    .padding(.bottom, 50)
-                    .padding(.horizontal, 20)
-                    .opacity(shouldShowNavButtons ? 1.0 : 0.0) // Use computed property for stable visibility
-                    
-                    // Process button (always present, fade in when voice detected)
-                    Button(action: {
-                        FeedbackService.shared.playHaptic(.light)
-                        // Voice processing removed for now
-                    }) {
-                        ZStack {
-                            // Outer circle with stroke
-                            Circle()
-                                .stroke(Color(hex: "#666666"), lineWidth: 2)
-                                .frame(width: 60, height: 60)
-                            
-                            // Inner filled circle
-                            Circle()
-                                .fill(Color(hex: "#666666"))
-                                .frame(width: 52, height: 52)
-                            
-                            // Sparkle icon centered
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(Color(hex: "#1D1D1D"))
-                        }
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .contentShape(Rectangle()) // Ensure full area is tappable
-                    .padding(.bottom, 50)
-                    .padding(.horizontal, 20)
-                    .opacity(0.0) // Voice detection removed for now
-                    .animation(.easeInOut(duration: 0.8), value: 0.0) // Fixed value for now
-                }
+                // Empty space where buttons used to be
+                Spacer()
+                    .frame(height: 50)
             }
         }
     }

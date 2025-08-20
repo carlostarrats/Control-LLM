@@ -37,11 +37,11 @@ struct CreditsView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "text.page")
                                 .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
                             
                             Text(NSLocalizedString("Credits", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 20))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
                         }
                         .padding(.leading, 20)
                         
@@ -52,7 +52,7 @@ struct CreditsView: View {
                         }) {
                             Image(systemName: "xmark")
                                 .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
                                 .frame(width: 32, height: 32)
                                 .contentShape(Rectangle())
                         }
@@ -96,14 +96,14 @@ struct CreditsItemView: View {
                 HStack {
                     Text(item.title)
                         .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(Color(hex: "#EEEEEE"))
+                        .foregroundColor(ColorManager.shared.whiteTextColor)
                         .multilineTextAlignment(.leading)
                     
                     Spacer()
                     
                     Image(systemName: "arrow.up.right")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
+                        .foregroundColor(ColorManager.shared.whiteTextColor)
                 }
                 .padding(.horizontal, 4)
                 .padding(.vertical, 12)
