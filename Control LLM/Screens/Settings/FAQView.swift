@@ -62,10 +62,29 @@ struct FAQView: View {
 
     private var faqItems: [FAQItem] {
         [
-            // Voice-related FAQ items removed
             FAQItem(
                 question: "Privacy",
                 answer: "This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app."
+            ),
+            FAQItem(
+                question: "LLM Models",
+                answer: "Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices."
+            ),
+            FAQItem(
+                question: "Chat History",
+                answer: "No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage."
+            ),
+            FAQItem(
+                question: "Language",
+                answer: "English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English."
+            ),
+            FAQItem(
+                question: "UI Color",
+                answer: "All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme."
+            ),
+            FAQItem(
+                question: "Control Units",
+                answer: "Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience."
             ),
             FAQItem(
                 question: "iOS Shortcuts Integration",
@@ -90,10 +109,12 @@ struct FAQItemView: View {
                 Text(item.question)
                     .font(.custom("IBMPlexMono", size: 16))
                     .foregroundColor(ColorManager.shared.redColor)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                 Text(item.answer)
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(ColorManager.shared.greyTextColor)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, 4)
