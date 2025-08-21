@@ -2,8 +2,17 @@ import SwiftUI
 
 struct OnboardingModal: View {
     @Binding var isPresented: Bool
-    @State private var headerOpacity: Double = 1.0
-    @State private var blinkTimer: Timer?
+    
+    // Typewriter animation state
+    @State private var currentWordIndex: Int = 0
+    @State private var currentCharIndex: Int = 0
+    @State private var typewriterTimer: Timer?
+    @State private var charDelay: Double = 0.1 // Delay between each character
+    @State private var wordDelay: Double = 0.8 // Delay between words
+    @State private var animationStarted: Bool = false
+    
+    // Words to animate in diagonal pattern
+    private let words = ["INSTRUCTION:", "Swipe Left", "Swipe Right", "Read FAQs"]
     
     init(isPresented: Binding<Bool>) {
         self._isPresented = isPresented
@@ -39,43 +48,27 @@ struct OnboardingModal: View {
                 
                 Spacer()
                 
-                // Content container - all text as a group with 80px spacing
-                VStack(spacing: 80) {
-                    // Header: "INSTRUCTION:" with blinking effect
-                    Text("INSTRUCTION:")
-                        .font(.custom("IBMPlexMono", size: 15))
-                        .foregroundColor(headerOpacity > 0.5 ? ColorManager.shared.orangeColor : Color(hex: "#141414"))
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                                                                .onAppear {
-                                            // Start blinking animation - 1.5 seconds on each color, instant transitions
-                                            blinkTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { _ in
-                                                headerOpacity = headerOpacity > 0.5 ? 0.0 : 1.0
-                                            }
-                                        }
-                        .onDisappear {
-                            blinkTimer?.invalidate()
-                            blinkTimer = nil
-                        }
+                // Content container with diagonal word animation
+                ZStack {
+                    // Background for the words area
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(width: 270, height: 320) // Match the diagonal area
                     
-                    Text("Swipe Left")
-                        .font(.custom("IBMPlexMono", size: 15))
-                        .foregroundColor(Color(hex: "#141414"))
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    
-                    Text("Swipe Right")
-                        .font(.custom("IBMPlexMono", size: 15))
-                        .foregroundColor(Color(hex: "#141414"))
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    
-                    Text("Read FAQs")
-                        .font(.custom("IBMPlexMono", size: 15))
-                        .foregroundColor(Color(hex: "#141414"))
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, alignment: .center)
+                    // All words visible from start - just revealing whole words
+                    ForEach(0..<words.count, id: \.self) { index in
+                        Text(words[index])
+                            .font(.custom("IBMPlexMono", size: 15))
+                            .foregroundColor(Color(hex: "#141414")) // All text is now black
+                            .multilineTextAlignment(.center)
+                            .opacity((index == 0 || (animationStarted && index <= currentWordIndex)) ? 1.0 : 0.0)
+                            .position(
+                                x: index == 3 ? 240 : 40 + CGFloat(index) * 60, // "Read FAQs" positioned 20px from right edge
+                                y: 40 + CGFloat(index) * 80   // Move down for each word
+                            )
+                    }
                 }
+                .frame(width: 270, height: 320)
                 .padding(.horizontal, 40)
                 
                 Spacer()
@@ -85,6 +78,60 @@ struct OnboardingModal: View {
             .cornerRadius(4)
             .shadow(color: .black.opacity(0.3), radius: 20, x: 0, y: 10)
         }
+        .onAppear {
+            startTypewriterAnimation()
+        }
+        .onDisappear {
+            stopTypewriterAnimation()
+        }
+    }
+    
+    // MARK: - Typewriter Animation
+    
+        private func startTypewriterAnimation() {
+        // Reset animation state
+        currentWordIndex = 0
+        currentCharIndex = 0
+        animationStarted = false
+
+        // Start with 1.5 second delay before showing "Swipe Left"
+        typewriterTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { _ in
+            self.animationStarted = true
+            self.currentWordIndex = 1
+            // Schedule next word after 0.8 seconds
+            self.typewriterTimer?.invalidate()
+            self.typewriterTimer = Timer.scheduledTimer(withTimeInterval: self.wordDelay, repeats: false) { _ in
+                self.animateNextWord()
+            }
+        }
+    }
+    
+        private func animateNextWord() {
+        if currentWordIndex < words.count - 1 {
+            // Move to next word
+            currentWordIndex += 1
+
+            // Use normal 0.8 second delay for subsequent words
+            typewriterTimer?.invalidate()
+            typewriterTimer = Timer.scheduledTimer(withTimeInterval: wordDelay, repeats: false) { _ in
+                // Continue to next word
+                self.animateNextWord()
+            }
+        } else {
+            // Animation complete, stop timer
+            stopTypewriterAnimation()
+        }
+    }
+    
+    private func stopTypewriterAnimation() {
+        typewriterTimer?.invalidate()
+        typewriterTimer = nil
+    }
+    
+    // MARK: - Helper Functions
+    
+    private func isWordVisible(wordIndex: Int) -> Bool {
+        return wordIndex <= currentWordIndex
     }
 }
 
