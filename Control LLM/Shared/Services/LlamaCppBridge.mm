@@ -504,6 +504,7 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     NSLog(@"LlamaCppBridge: Starting generation loop for %d tokens", max_new_tokens);
     
     int tokens_generated = 0;
+    bool hit_token_limit = false;
     for (int t = 0; t < max_new_tokens; ++t) {
         // Check for cancellation
         if (s_generation_cancelled) {
@@ -522,6 +523,13 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
             NSLog(@"LlamaCppBridge: Hit end token at position %d", t);
             break;
         }
+        
+        // Check if we're about to hit the token limit
+        if (t == max_new_tokens - 1) {
+            NSLog(@"LlamaCppBridge: Reached maximum token limit (%d tokens)", max_new_tokens);
+            hit_token_limit = true;
+        }
+        
         if (!should_skip_token(vocab, next_id)) {
             int32_t nbytes = llama_token_to_piece(vocab, next_id, piece_buf, (int32_t)sizeof(piece_buf), 0, true);
             if (nbytes > 0 && !piece_looks_like_special(piece_buf, nbytes)) {
@@ -597,6 +605,12 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     llama_sampler_free(smpl);
     
     // No more buffering - all tokens are emitted immediately
+    
+    // Call completion callback with token limit indicator if applicable
+    if (hit_token_limit) {
+        // Send a special marker that Swift can interpret as token limit reached
+        callback("__TOKEN_LIMIT_REACHED__");
+    }
     
     // Call completion callback
     callback(NULL);

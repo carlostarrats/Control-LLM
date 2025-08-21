@@ -346,6 +346,11 @@ final class LLMService: @unchecked Sendable {
             let truncatedText = String(processedText.prefix(maxInputLength))
             print("🔍 DEBUG: Truncated text: '\(truncatedText)'")
             processedText = truncatedText
+            
+            // Throw error to inform user about truncation
+            throw NSError(domain: "LLMService",
+                          code: 26,
+                          userInfo: [NSLocalizedDescriptionKey: "Input text was too long (\(processedText.count) characters) and was truncated to \(maxInputLength) characters. Please shorten your message to avoid losing important information."])
         }
         
         // IMPROVEMENT: Only reset context if we've had too many conversations with THIS model
@@ -398,6 +403,12 @@ final class LLMService: @unchecked Sendable {
                 throw NSError(domain: "LLMService",
                              code: 6, 
                              userInfo: [NSLocalizedDescriptionKey: "Prompt too long (\(prompt.count) characters). Please shorten your message."])
+            }
+            
+            // Warning for prompts approaching token limits
+            let warningThreshold = 3000 // Characters
+            if prompt.count > warningThreshold {
+                print("⚠️ WARNING: Prompt is long (\(prompt.count) characters) and may approach token limits. Consider shortening your message or clearing chat history.")
             }
             
             // Use the new streaming implementation
@@ -463,8 +474,23 @@ final class LLMService: @unchecked Sendable {
                         print("🔧 LLMService: Calling llm_bridge_generate_stream_block...")
                         llm_bridge_generate_stream_block(context, modelNameCString, promptCString, { piece in
                             if let piece = piece {
-                                if let text = String(cString: piece, encoding: .utf8) {
-                                    Task { await onToken(text) }
+                                let pieceString = String(cString: piece, encoding: .utf8) ?? ""
+                                
+                                // Check for token limit marker
+                                if pieceString == "__TOKEN_LIMIT_REACHED__" {
+                                    print("⚠️ WARNING: Token limit reached during generation")
+                                    if !hasCompleted {
+                                        hasCompleted = true
+                                        timeoutTask.cancel()
+                                        continuation.resume(throwing: NSError(domain: "LLMService", 
+                                                                           code: 27, 
+                                                                           userInfo: [NSLocalizedDescriptionKey: "Response generation reached the maximum token limit (8000 tokens). The response may be incomplete. Consider asking a more specific question or breaking your request into smaller parts."]))
+                                    }
+                                    return
+                                }
+                                
+                                if !pieceString.isEmpty {
+                                    Task { await onToken(pieceString) }
                                 }
                             } else {
                                 if !hasCompleted {
@@ -718,6 +744,10 @@ final class LLMService: @unchecked Sendable {
                 return "Model not loaded. Please select and load a model first."
             case 25:
                 return "Failed to recreate context due to invalid pointer. Please try again."
+            case 26:
+                return "Input text was shortened to fit within limits. If the shortened version doesn't accurately represent your intent, please try a shorter message."
+            case 27:
+                return "Response generation reached the maximum token limit (8000 tokens). The response may be incomplete. Consider asking a more specific question or breaking your request into smaller parts."
             default:
                 return error.localizedDescription
             }

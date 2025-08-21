@@ -134,7 +134,25 @@ class ChatViewModel {
                     await MainActor.run {
                         print("❌ ChatViewModel: Error in send: \(error)")
                         self.isProcessing = false
-                        self.transcript = "Error: \(error.localizedDescription)"
+                        
+                        // Provide more user-friendly error messages for common cases
+                        let errorMessage: String
+                        if let nsError = error as NSError? {
+                            switch nsError.code {
+                            case 26: // Input too long
+                                errorMessage = "Your message was shortened to fit within limits. If the shortened version doesn't accurately represent what you wanted to say, please try a shorter message."
+                            case 27: // Token limit reached
+                                errorMessage = "The response was cut off because it reached the maximum length limit. Try asking a more specific question or breaking your request into smaller parts."
+                            case 6: // Prompt too long
+                                errorMessage = "Your message is too long. Please shorten it and try again."
+                            default:
+                                errorMessage = "Error: \(error.localizedDescription)"
+                            }
+                        } else {
+                            errorMessage = "Error: \(error.localizedDescription)"
+                        }
+                        
+                        self.transcript = errorMessage
                     }
                 }
             }
