@@ -28,8 +28,8 @@ struct ParticleVisualizerView: View {
             let finalY = baseY + Double.random(in: -randomOffset...randomOffset)
             let finalZ = Double.random(in: -10...10) // Small z variation for depth
             
-            // Give particles immediate velocity to prevent static appearance
-            let speed = Double.random(in: 0.8...1.2)
+            // Give particles immediate velocity to prevent static appearance - slower for more relaxed motion
+            let speed = Double.random(in: 0.4...0.8) // Reduced from 0.8...1.2 for slower movement
             let velocityAngle = Double.random(in: 0...(2 * .pi))
             
             return Particle(
@@ -39,7 +39,7 @@ struct ParticleVisualizerView: View {
                 z: finalZ,
                 vx: speed * cos(velocityAngle),
                 vy: speed * sin(velocityAngle),
-                vz: Double.random(in: -0.3...0.3)
+                vz: Double.random(in: -0.15...0.15) // Reduced from -0.3...0.3 for slower Z movement
             )
         }
     }
@@ -63,7 +63,7 @@ struct ParticleVisualizerView: View {
 
     
     private func startAnimation() {
-        timer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0/30.0, repeats: true) { _ in
             updateParticles()
         }
     }
