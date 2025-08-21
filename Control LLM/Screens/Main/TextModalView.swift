@@ -298,7 +298,7 @@ struct TextModalView: View {
                         VStack(spacing: 24) {
                             // Date header for each group
                             DateHeaderView(firstMessageTime: date)
-                            
+
                             // Messages in this group
                             ForEach(messages) { message in
                                 MessageBubble(
@@ -314,13 +314,24 @@ struct TextModalView: View {
                 .padding(.bottom, 24)
             }
             .safeAreaInset(edge: .bottom) {
-                Color.clear.frame(height: 80)
+                Color.clear.frame(height: 120) // Increased from 80 to provide more buffer
             }
-            .onChange(of: viewModel.messages) { _, _ in
-                // Update when messages change
-                if let last = viewModel.messages.last {
+            .onChange(of: viewModel.messages) { _, newMessages in
+                // Only scroll if we have new messages and the last one has content
+                if let last = newMessages.last, !last.content.isEmpty {
                     withAnimation(.spring()) {
                         proxy.scrollTo(last.id, anchor: .bottom)
+                    }
+                }
+            }
+            .onChange(of: viewModel.llm.transcript) { oldTranscript, newTranscript in
+                // Scroll when LLM starts responding (first content appears)
+                if oldTranscript.isEmpty && !newTranscript.isEmpty {
+                    if let lastAssistantIndex = viewModel.messages.lastIndex(where: { !$0.isUser }) {
+                        let lastAssistant = viewModel.messages[lastAssistantIndex]
+                        withAnimation(.spring()) {
+                            proxy.scrollTo(lastAssistant.id, anchor: .bottom)
+                        }
                     }
                 }
             }
@@ -796,7 +807,7 @@ struct MessageBubble: View {
                             // Animation is only rendered when content is empty to prevent layout issues
                             if message.content.isEmpty {
                                 ThinkingAnimationView()
-                                    .offset(x: -31, y: -35)
+                                    .offset(x: -31, y: -35) // Restore original positioning
                             }
 
                             // Actual text content
@@ -830,8 +841,9 @@ struct MessageBubble: View {
 
 struct ThinkingAnimationView: View {
     var body: some View {
-                        LottieView(name: "thinkingAnimation", loopMode: .loop)
+        LottieView(name: "thinkingAnimation", loopMode: .loop)
             .frame(width: 89, height: 89) // 15% smaller
+            .allowsHitTesting(false) // Prevent interaction with the animation
     }
 }
 
