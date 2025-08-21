@@ -474,7 +474,7 @@ final class LLMService: @unchecked Sendable {
                                     continuation.resume(returning: ())
                                 }
                             }
-                        }, 512)
+                        }, 8192)
                     }
                 }
             }
