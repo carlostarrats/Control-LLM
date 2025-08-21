@@ -2,182 +2,142 @@ import SwiftUI
 import Combine
 
 struct ParticleVisualizerView: View {
+    // Simple, guaranteed-to-work particle system
+    private let particleCount = 700
+    private let particleSize: CGFloat = 4.0
+    private let sphereRadius: CGFloat = 150.0
+    private let motionPeriod: TimeInterval = 8.0
     
-    // Particle system parameters
-    private let particleCount = 400 // Reduced from 2000 for better performance
-    private let particleSize: CGFloat = 4.0 // Slightly larger to compensate for fewer particles
+    @State private var particles: [Particle] = []
+    @State private var timer: Timer?
     
-    private var sphereRadius: CGFloat = 150 // Keep constant size
-     
-    // Liquid motion parameters
-    @State private var motionPhase: [Double]
-    @State private var motionCancellable: Cancellable?
-    private let motionPeriod: TimeInterval = 8.0 // Restore original timing for smooth, biological motion
-    
-
-    
-    init() {
-        
-        // Initialize motion phase with random offsets for each particle
-        let initialPhases = (0..<400).map { _ in Double.random(in: 0...(2 * .pi)) }
-        self._motionPhase = .init(initialValue: initialPhases)
+    private func initializeParticles() {
+        particles = (0..<particleCount).map { index in
+            // Use simple circular distribution for clean ring shape
+            let angle = Double(index) * 2.0 * .pi / Double(particleCount)
+            let radiusVariation = Double.random(in: 0.8...1.2) // Small radius variation
+            let currentRadius = sphereRadius * radiusVariation
+            
+            // Basic circular coordinates with some randomness
+            let baseX = currentRadius * cos(angle)
+            let baseY = currentRadius * sin(angle)
+            
+            // Add random offset to break up perfect circle but keep it natural
+            let randomOffset = 20.0
+            let finalX = baseX + Double.random(in: -randomOffset...randomOffset)
+            let finalY = baseY + Double.random(in: -randomOffset...randomOffset)
+            let finalZ = Double.random(in: -10...10) // Small z variation for depth
+            
+            // Give particles immediate velocity to prevent static appearance
+            let speed = Double.random(in: 0.8...1.2)
+            let velocityAngle = Double.random(in: 0...(2 * .pi))
+            
+            return Particle(
+                id: index,
+                x: finalX,
+                y: finalY,
+                z: finalZ,
+                vx: speed * cos(velocityAngle),
+                vy: speed * sin(velocityAngle),
+                vz: Double.random(in: -0.3...0.3)
+            )
+        }
     }
     
     var body: some View {
         ZStack {
-            // Generate particles on sphere surface using spherical coordinates
-            ForEach(0..<particleCount, id: \.self) { index in
-                                        SphereParticle(
-                            index: index,
-                            totalParticles: particleCount,
-                            sphereRadius: sphereRadius,
-                            particleSize: particleSize,
-                            motionPhase: motionPhase[index % motionPhase.count]
-                        )
+            // Simple particle rendering
+            ForEach(particles.indices, id: \.self) { index in
+                ParticleView(particle: $particles[index])
             }
-            
-
         }
-        .frame(width: 400, height: 400) // Fixed size to match other visualizers
-        .coordinateSpace(name: "visualizer")
         .onAppear {
-            startMotionTimer()
+            initializeParticles()
+            startAnimation()
         }
         .onDisappear {
-            stopMotionTimer()
+            stopAnimation()
         }
-        // Voice animation removed
     }
     
 
     
-    private func startMotionTimer() {
-        guard motionCancellable == nil else { return }
-        
-        // Start animation immediately
-        DispatchQueue.main.asyncAfter(deadline: .now()) {
-            updateMotion()
+    private func startAnimation() {
+        timer = Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in
+            updateParticles()
         }
-        
-        // Continue animation periodically
-        motionCancellable = Timer.publish(every: motionPeriod, on: .main, in: .common)
-            .autoconnect()
-            .sink { _ in
-                updateMotion()
-            }
     }
     
-    private func stopMotionTimer() {
-        motionCancellable?.cancel()
-        motionCancellable = nil
+    private func stopAnimation() {
+        timer?.invalidate()
+        timer = nil
     }
     
-
-    
-    private func updateMotion() {
-        // Gradually increment phases for smooth, continuous motion without twisting
-        let newPhases = motionPhase.enumerated().map { index, currentPhase in
-            // Add a larger increment that varies per particle for organic movement
-            // Increased by 20% and sized to complete full cycle in one timer interval
-            let baseIncrement = (2 * .pi) / 8.0 // Full circle divided by timer interval
-            let increment = baseIncrement * (0.8 + Double(index % 7) * 0.05) // 20% faster with variation
-            var newPhase = currentPhase + increment
+    private func updateParticles() {
+        for i in particles.indices {
+            // Update position
+            particles[i].x += particles[i].vx
+            particles[i].y += particles[i].vy
+            particles[i].z += particles[i].vz
             
-            // Keep phase within 0 to 2π range
-            if newPhase > 2 * .pi {
-                newPhase -= 2 * .pi
+            // Bounce off sphere boundary
+            let distance = sqrt(particles[i].x * particles[i].x + particles[i].y * particles[i].y + particles[i].z * particles[i].z)
+            if distance > sphereRadius {
+                let scale = sphereRadius / distance
+                particles[i].x *= scale
+                particles[i].y *= scale
+                particles[i].z *= scale
+                
+                // Reverse velocity component that's pointing outward
+                let nx = particles[i].x / distance
+                let ny = particles[i].y / distance
+                let nz = particles[i].z / distance
+                
+                let dot = particles[i].vx * nx + particles[i].vy * ny + particles[i].vz * nz
+                particles[i].vx -= 2 * dot * nx
+                particles[i].vy -= 2 * dot * ny
+                particles[i].vz -= 2 * dot * nz
             }
             
-            return newPhase
-        }
-        
-        withAnimation(.easeInOut(duration: 12.0)) { // Longer than timer interval for overlapping animations
-            motionPhase = newPhases
+            // Keep particles away from center
+            let centerDistance = sqrt(particles[i].x * particles[i].x + particles[i].y * particles[i].y)
+            if centerDistance < 80 {
+                let pushForce = 0.1
+                let pushX = particles[i].x / centerDistance * pushForce
+                let pushY = particles[i].y / centerDistance * pushForce
+                particles[i].vx += pushX
+                particles[i].vy += pushY
+            }
         }
     }
 }
 
-struct SphereParticle: View {
-    let index: Int
-    let totalParticles: Int
-    let sphereRadius: CGFloat
-    let particleSize: CGFloat
-    let motionPhase: Double
-    
-    // Store random offsets as state to avoid recomputation
-    @State private var randomPhiOffset: Double
-    @State private var randomThetaOffset: Double
-    
-    init(index: Int, totalParticles: Int, sphereRadius: CGFloat, particleSize: CGFloat, motionPhase: Double) {
-        self.index = index
-        self.totalParticles = totalParticles
-        self.sphereRadius = sphereRadius
-        self.particleSize = particleSize
-        self.motionPhase = motionPhase
-        
-        // Initialize random offsets once
-        self._randomPhiOffset = State(initialValue: Double.random(in: -0.05...0.05))
-        self._randomThetaOffset = State(initialValue: Double.random(in: -0.05...0.05))
-    }
-    
-    // Generate proper 3D sphere surface points with motion
-    private var position: (x: CGFloat, y: CGFloat, z: CGFloat) {
-        // Use golden ratio for better distribution
-        let goldenRatio = 1.618033988749895
-        
-        // Generate spherical coordinates with motion phase
-        let phi = acos(1 - 2.0 * Double(index) / Double(totalParticles))
-        let theta = 2.0 * .pi * Double(index) * goldenRatio + motionPhase
-        
-        // Add minimal randomness to break up patterns but keep clean edges
-        let randomPhi = phi + randomPhiOffset
-        let randomTheta = theta + randomThetaOffset
-        
-        // Position on sphere surface
-        let x = sphereRadius * CGFloat(sin(randomPhi) * cos(randomTheta))
-        let y = sphereRadius * CGFloat(sin(randomPhi) * sin(randomTheta))
-        let z = sphereRadius * CGFloat(cos(randomPhi))
-        
-        return (x: x, y: y, z: z)
-    }
-    
-    // Simplified activation effect - no wave motion
-    private var waveOffset: CGFloat {
-        return 0.0
-    }
-    
-    // Apply edge density bias to 3D points
-    private var shouldShowParticle: Bool {
-        let distanceFromViewCenter = sqrt(position.x * position.x + position.y * position.y)
-        let edgeBias = distanceFromViewCenter / sphereRadius
-        
-        // Modified edge bias: allow more center particles while maintaining edge density
-        // Add a base probability so center particles (distance ≈ 0) can still appear
-        let baseProbability = 0.3 // 30% chance for center particles
-        let edgeProbability = pow(edgeBias, 1.2) // Slightly reduced edge bias
-        let probability = baseProbability + edgeProbability * 0.7 // Combine base + edge
-        
-        // Use a deterministic random based on index to avoid flickering
-        let seed = Double(index) + motionPhase
-        let randomValue = sin(seed * 123.456) * 0.5 + 0.5 // Deterministic but varied
-        
-        return randomValue < probability
-    }
-    
+// Simple particle data structure
+struct Particle {
+    let id: Int
+    var x: Double
+    var y: Double
+    var z: Double
+    var vx: Double
+    var vy: Double
+    var vz: Double
+}
 
+// Simple particle view
+struct ParticleView: View {
+    @Binding var particle: Particle
     
     var body: some View {
-        if shouldShowParticle {
-            Circle()
-                .fill(Color(red: 0.533, green: 0.533, blue: 0.533)) // Simple gray color
-                .frame(width: particleSize, height: particleSize)
-                .position(
-                    x: 200 + position.x,
-                    y: 200 + position.y + waveOffset
-                )
-                .opacity(0.8) // Simple opacity
-                .allowsHitTesting(false)
-        }
+        Circle()
+            .fill(Color(red: 0.533, green: 0.533, blue: 0.533))
+            .frame(width: 4, height: 4)
+            .position(
+                x: 200 + particle.x,
+                y: 400 + particle.y
+            )
+            .opacity(0.8)
+            .shadow(color: Color(red: 0.533, green: 0.533, blue: 0.533).opacity(0.6), radius: 3, x: 0, y: 0)
+            .allowsHitTesting(false)
     }
 }
 
