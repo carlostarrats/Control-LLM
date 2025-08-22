@@ -10,6 +10,7 @@ struct ParticleVisualizerView: View {
     
     @State private var particles: [Particle] = []
     @State private var timer: Timer?
+    @State private var isInitialized = false
     
     private func initializeParticles() {
         particles = (0..<particleCount).map { index in
@@ -46,14 +47,25 @@ struct ParticleVisualizerView: View {
     
     var body: some View {
         ZStack {
-            // Simple particle rendering
-            ForEach(particles.indices, id: \.self) { index in
-                ParticleView(particle: $particles[index])
+            // Only show particles after they've been properly initialized and animated
+            if isInitialized {
+                ForEach(particles.indices, id: \.self) { index in
+                    ParticleView(particle: $particles[index])
+                }
             }
         }
         .onAppear {
+            // Initialize particles and run a few animation cycles before showing them
             initializeParticles()
             startAnimation()
+            
+            // Run even more animation cycles to get particles closer to their natural state
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.04) {
+                for _ in 0..<25 {
+                    updateParticles()
+                }
+                isInitialized = true
+            }
         }
         .onDisappear {
             stopAnimation()
