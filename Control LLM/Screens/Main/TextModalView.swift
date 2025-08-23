@@ -134,12 +134,17 @@ struct TextModalView: View {
     @State private var messageText = ""
     @FocusState private var isTextFieldFocused: Bool
     @State private var showingDocumentPicker = false
+    @State private var showingModelsSheet = false
 
     @State private var inputBarHeight: CGFloat = 0
     @State private var opacityUpdateTimer: Timer?
     var messageHistory: [ChatMessage]?
     @EnvironmentObject var colorManager: ColorManager
     
+    // MARK: - Computed Properties
+    private var hasModelsInstalled: Bool {
+        !ModelManager.shared.availableModels.isEmpty
+    }
 
 
     // MARK: body -------------------------------------------------------------
@@ -187,6 +192,9 @@ struct TextModalView: View {
             }
             
             print("🔍 TextModalView: State reset completed - displayed messages preserved")
+        }
+        .sheet(isPresented: $showingModelsSheet) {
+            SettingsModelsView()
         }
 
 
@@ -294,30 +302,19 @@ struct TextModalView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 24) {
-                    ForEach(getMessagesGroupedByDate(), id: \.0) { date, messages in
-                        VStack(spacing: 24) {
-                            // Date header for each group
-                            DateHeaderView(firstMessageTime: date)
-
-                            // Messages in this group
-                            ForEach(messages) { message in
-                                MessageBubble(
-                                    message: message,
-                                    opacity: calculateMessageOpacity(for: message)
-                                )
-                                .id(message.id)
-                            }
-                        }
+                    if !hasModelsInstalled {
+                        noModelMessage
+                    } else {
+                        normalMessageList
                     }
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 24)
             }
             .safeAreaInset(edge: .bottom) {
-                Color.clear.frame(height: 120) // Increased from 80 to provide more buffer
+                Color.clear.frame(height: 120)
             }
             .onChange(of: viewModel.messages) { _, newMessages in
-                // Only scroll if we have new messages and the last one has content
                 if let last = newMessages.last, !last.content.isEmpty {
                     withAnimation(.spring()) {
                         proxy.scrollTo(last.id, anchor: .bottom)
@@ -325,7 +322,6 @@ struct TextModalView: View {
                 }
             }
             .onChange(of: viewModel.llm.transcript) { oldTranscript, newTranscript in
-                // Scroll when LLM starts responding (first content appears)
                 if oldTranscript.isEmpty && !newTranscript.isEmpty {
                     if let lastAssistantIndex = viewModel.messages.lastIndex(where: { !$0.isUser }) {
                         let lastAssistant = viewModel.messages[lastAssistantIndex]
@@ -333,6 +329,51 @@ struct TextModalView: View {
                             proxy.scrollTo(lastAssistant.id, anchor: .bottom)
                         }
                     }
+                }
+            }
+        }
+    }
+    
+    // MARK: - No Model Message
+    private var noModelMessage: some View {
+        VStack(spacing: 20) {
+            Spacer()
+                .frame(height: 200)
+            
+            Text("Nothing to see here (yet) 🤖")
+                .font(.custom("IBMPlexMono", size: 16))
+                .foregroundColor(Color(hex: "#666666"))
+                .multilineTextAlignment(.center)
+            
+                                        Button(action: {
+                                showingModelsSheet = true
+                            }) {
+                                Text("Download Model")
+                                    .font(.custom("IBMPlexMono", size: 14))
+                                    .foregroundColor(Color(hex: "#141414"))
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 12)
+                                    .background(colorManager.purpleColor)
+                                    .cornerRadius(4)
+                            }
+            .buttonStyle(PlainButtonStyle())
+            
+            Spacer()
+        }
+    }
+    
+    // MARK: - Normal Message List
+    private var normalMessageList: some View {
+        ForEach(getMessagesGroupedByDate(), id: \.0) { date, messages in
+            VStack(spacing: 24) {
+                DateHeaderView(firstMessageTime: date)
+                
+                ForEach(messages) { message in
+                    MessageBubble(
+                        message: message,
+                        opacity: calculateMessageOpacity(for: message)
+                    )
+                    .id(message.id)
                 }
             }
         }
@@ -350,11 +391,12 @@ struct TextModalView: View {
                     }) {
                         Image(systemName: "plus")
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(colorManager.greenColor)
+                            .foregroundColor(hasModelsInstalled ? colorManager.greenColor : Color(hex: "#666666"))
                             .frame(width: 32, height: 32)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .disabled(!hasModelsInstalled)
                     .fileImporter(
                         isPresented: $showingDocumentPicker,
                         allowedContentTypes: [.text, .plainText, .data],
@@ -382,14 +424,14 @@ struct TextModalView: View {
                     .background(Color(hex: "#2A2A2A"))
                     .cornerRadius(4)
                     .tint(colorManager.whiteTextColor)
-                    .disabled(viewModel.llm.isProcessing) // Disable during LLM response
+                    .disabled(viewModel.llm.isProcessing || !hasModelsInstalled) // Disable during LLM response or when no models
                     .onChange(of: messageText) { _, _ in
-                        if !viewModel.llm.isProcessing { // Only play sound if not processing
+                        if !viewModel.llm.isProcessing && hasModelsInstalled { // Only play sound if not processing and models available
                             FeedbackService.shared.playSound(.keyPress)
                         }
                     }
                     .onTapGesture {
-                        if !viewModel.llm.isProcessing { // Only allow focus if not processing
+                        if !viewModel.llm.isProcessing && hasModelsInstalled { // Only allow focus if not processing and models available
                             isTextFieldFocused = true
                         }
                     }
@@ -416,8 +458,8 @@ struct TextModalView: View {
     // trailing padding changes when send-button visible
     private var trailingPadding: CGFloat {
         let trimmedText = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
-        // Show button if there's text OR if LLM is processing (for stop button)
-        return (trimmedText.isEmpty && !viewModel.llm.isProcessing) ? 16 : 50
+        // Show button if there's text OR if LLM is processing (for stop button), but only if models are available
+        return (!hasModelsInstalled || (trimmedText.isEmpty && !viewModel.llm.isProcessing)) ? 16 : 50
     }
 
     private struct InputBarHeightKey: PreferenceKey {
@@ -431,9 +473,19 @@ struct TextModalView: View {
     @ViewBuilder private var placeholderOverlay: some View {
         if messageText.isEmpty {
             HStack {
-                Text(viewModel.llm.isProcessing ? "Generating response..." : "Ask Anything…")
-                    .font(.custom("IBMPlexMono", size: 16))
-                    .foregroundColor(Color(hex: "#666666"))
+                if !hasModelsInstalled {
+                    Text("Download model to chat...")
+                        .font(.custom("IBMPlexMono", size: 16))
+                        .foregroundColor(Color(hex: "#666666"))
+                } else if viewModel.llm.isProcessing {
+                    Text("Generating response...")
+                        .font(.custom("IBMPlexMono", size: 16))
+                        .foregroundColor(Color(hex: "#666666"))
+                } else {
+                    Text("Ask Anything…")
+                        .font(.custom("IBMPlexMono", size: 16))
+                        .foregroundColor(Color(hex: "#666666"))
+                }
                 Spacer()
             }
             .padding(.horizontal, 16)
@@ -443,7 +495,7 @@ struct TextModalView: View {
     // send button overlay
     @ViewBuilder private var sendButtonOverlay: some View {
         let trimmedText = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmedText.isEmpty || viewModel.llm.isProcessing {
+        if (!trimmedText.isEmpty || viewModel.llm.isProcessing) && hasModelsInstalled {
             Button(action: {
                 if viewModel.llm.isProcessing {
                     // Stop button pressed - cancel ongoing generation
@@ -486,9 +538,14 @@ struct TextModalView: View {
 
     // MARK: - BUTTON ACTION --------------------------------------------------
     private func sendMessage() async {
-        // Prevent sending if already processing
+        // Prevent sending if already processing or no models available
         guard !viewModel.llm.isProcessing else {
             print("🔍 TextModalView: sendMessage called but LLM is already processing")
+            return
+        }
+        
+        guard hasModelsInstalled else {
+            print("🔍 TextModalView: sendMessage called but no models are installed")
             return
         }
         
