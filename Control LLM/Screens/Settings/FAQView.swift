@@ -87,6 +87,10 @@ struct FAQView: View {
                 answer: "Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience."
             ),
             FAQItem(
+                question: "Quick Clipboard Analysis",
+                answer: "Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored."
+            ),
+            FAQItem(
                 question: "iOS Shortcuts Integration",
                 answer: "Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device."
             )
