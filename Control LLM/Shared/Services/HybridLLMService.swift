@@ -174,7 +174,9 @@ final class HybridLLMService: ObservableObject {
     // MARK: - Prompt Building
     
     private func buildPrompt(userText: String, history: [ChatMessage]?) -> String {
-        let systemPrompt = "You are a helpful AI assistant. You provide clear, accurate, and helpful responses to user questions and requests."
+        // For clipboard analysis, integrate the system prompt directly into the user message
+        // This prevents the LLM from responding to the system prompt instead of the content
+        let systemPrompt = "You are a helpful AI assistant specialized in analyzing text content. When asked to analyze text (especially clipboard content), provide clear, focused analysis that extracts key information, identifies themes, and offers objective insights. Keep responses concise and directly relevant to the content provided. You can analyze any type of text content for educational, research, or analytical purposes."
         
         // Use a simple, universal format that works well with Ollama
         var fullPrompt = systemPrompt + "\n\n"

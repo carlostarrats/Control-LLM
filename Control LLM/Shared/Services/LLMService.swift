@@ -305,6 +305,8 @@ final class LLMService: @unchecked Sendable {
 
     /// Stream tokens for a user prompt, optionally with chat history
     func chat(user text: String, history: [ChatMessage]? = nil, onToken: @escaping (String) async -> Void) async throws {
+        print("🔍🔍🔍 LLMService.chat: ENTRY POINT - userText parameter: '\(text.prefix(100))...'")
+        print("🔍 LLMService.chat: History count: \(history?.count ?? 0)")
         // Safety mechanism: if the flag has been stuck for more than 5 minutes, reset it
         if isChatOperationInProgress {
             let timeSinceLastOperation = Date().timeIntervalSince(lastOperationTime)
@@ -508,6 +510,7 @@ final class LLMService: @unchecked Sendable {
     }
     
     private func buildPrompt(userText: String, history: [ChatMessage]?) -> String {
+        print("🔍🔍🔍 LLMService.buildPrompt: ENTRY POINT - userText parameter: '\(userText.prefix(100))...'")
         print("🔍 LLMService: buildPrompt called with history count: \(history?.count ?? 0)")
         if let history = history, !history.isEmpty {
             print("🔍 LLMService: Building prompt with \(history.count) history messages for model \(currentModelFilename ?? "unknown")")
@@ -520,30 +523,17 @@ final class LLMService: @unchecked Sendable {
         
 
         
-        let systemPrompt = "You are a helpful AI assistant. You provide clear, accurate, and helpful responses to user questions and requests."
+        let systemPrompt = "You are a helpful AI assistant specialized in analyzing text content. When asked to analyze text (especially clipboard content), provide clear, focused analysis that extracts key information, identifies themes, and offers objective insights. Keep responses concise and directly relevant to the content provided. You can analyze any type of text content for educational, research, or analytical purposes."
         
-        // SPECIAL HANDLING: Gemma 3 270M model has a custom chat template that llama.cpp doesn't handle correctly
-        // This model-specific override ensures it works without affecting other models
-        if let modelFilename = currentModelFilename, modelFilename == "gemma-3-270m-it-Q4_K_M" {
-            print("🔧 LLMService: Using custom Gemma 3 270M template override")
-            return buildGemma3CustomTemplate(userText: userText, history: history, systemPrompt: systemPrompt)
-        }
-        
-        // For all other models, use the standard chat template system
-        print("🔍 LLMService: Building prompt for model: \(currentModelFilename ?? "unknown") using chat template")
+        // UNIVERSAL APPROACH: Use the standard chat template system for ALL models
+        // This ensures compatibility with any model you switch to
+        print("🔍 LLMService: Building prompt for model: \(currentModelFilename ?? "unknown") using universal chat template")
         return buildPromptUsingChatTemplate(userText: userText, history: history, systemPrompt: systemPrompt)
     }
     
     private func buildPromptUsingChatTemplate(userText: String, history: [ChatMessage]?, systemPrompt: String) -> String {
-        // SPECIAL HANDLING: Gemma 3 270M model has a custom chat template that llama.cpp doesn't handle correctly
-        // This model-specific override ensures it works without affecting other models
-        print("🔍 DEBUG: Checking model filename: '\(currentModelFilename ?? "nil")'")
-        if let modelFilename = currentModelFilename, modelFilename == "gemma-3-270m-it-Q4_K_M.gguf" {
-            print("🔧 LLMService: Using custom Gemma 3 270M template override")
-            return buildGemma3CustomTemplate(userText: userText, history: history, systemPrompt: systemPrompt)
-        } else {
-            print("🔍 DEBUG: Model filename doesn't match, using standard template. Expected: 'gemma-3-270m-it-Q4_K_M.gguf', Got: '\(currentModelFilename ?? "nil")'")
-        }
+        // UNIVERSAL APPROACH: Use the standard chat template system for ALL models
+        print("🔍 LLMService: Using universal chat template for model: \(currentModelFilename ?? "unknown")")
         
         // CRASH PROTECTION: Validate inputs
         guard !userText.isEmpty, !systemPrompt.isEmpty else {
@@ -621,43 +611,24 @@ final class LLMService: @unchecked Sendable {
     private func buildGemma3CustomTemplate(userText: String, history: [ChatMessage]?, systemPrompt: String) -> String {
         var prompt = ""
         
-        // Add system message merged with first user message (Gemma 3 custom template behavior)
+        // Add conversation history if present (before the current message)
         if let history = history, !history.isEmpty {
-            // Find the first user message to merge system prompt with
-            if let firstUserMessage = history.first(where: { $0.isUser }) {
-                prompt += "<start_of_turn>user\n"
-                prompt += systemPrompt + "\n\n"
-                prompt += firstUserMessage.content + "<end_of_turn>\n"
-                
-                // Add remaining history
-                for message in history.dropFirst() {
-                    let role = message.isUser ? "user" : "model"
-                    prompt += "<start_of_turn>\(role)\n"
-                    prompt += message.content + "<end_of_turn>\n"
-                }
-            } else {
-                // No user messages in history, add system prompt to current user message
-                prompt += "<start_of_turn>user\n"
-                prompt += systemPrompt + "\n\n"
-                prompt += userText + "<end_of_turn>\n"
+            for message in history {
+                let role = message.isUser ? "user" : "model"
+                prompt += "<start_of_turn>\(role)\n"
+                prompt += message.content + "<end_of_turn>\n"
             }
-        } else {
-            // No history, merge system prompt with current user message
-            prompt += "<start_of_turn>user\n"
-            prompt += systemPrompt + "\n\n"
-            prompt += userText + "<end_of_turn>\n"
         }
         
-        // Add current user message if not already added
-        if history?.contains(where: { $0.isUser }) != true {
-            prompt += "<start_of_turn>user\n"
-            prompt += userText + "<end_of_turn>\n"
-        }
+        // Add current user message with system prompt integrated
+        prompt += "<start_of_turn>user\n"
+        prompt += userText + "<end_of_turn>\n"
         
         // Add assistant start token
         prompt += "<start_of_turn>model\n"
         
         print("✅ LLMService: Applied custom Gemma 3 270M template (\(prompt.count) characters)")
+        print("🔍 LLMService: Template preview: \(prompt.prefix(200))...")
         return prompt
     }
     

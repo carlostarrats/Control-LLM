@@ -72,6 +72,15 @@ struct MainView: View {
                 ChatPage(currentPage: $currentPage, viewModel: viewModel)
                     .tag(2)
             }
+            .onChange(of: viewModel.shouldNavigateToChat) { shouldNavigate in
+                if shouldNavigate {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        currentPage = 2
+                    }
+                    // Reset the flag
+                    viewModel.shouldNavigateToChat = false
+                }
+            }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             
             // Onboarding Modal (first run only)
@@ -90,8 +99,17 @@ struct MainView: View {
                 NSLog("🔍 First run, showing modal")
                 showingOnboarding = true
             }
+            
+            // Setup clipboard processing notification observer
+            viewModel.setupClipboardProcessingObserver()
+        }
+        .onDisappear {
+            // Clean up notification observer
+            viewModel.cleanupClipboardObserver()
         }
     }
+    
+
 
     private func activateChatMode() {
         withAnimation(.easeInOut(duration: 0.6)) {
@@ -204,44 +222,22 @@ struct ChatPage: View {
 struct NavigationButton: View {
     let title: String
     let action: () -> Void
-    let icon: String?
-    
-    init(title: String, icon: String? = nil, action: @escaping () -> Void) {
-        self.title = title
-        self.icon = icon
-        self.action = action
-    }
     
     var body: some View {
         Button(action: action) {
-            if let icon = icon {
-                HStack(spacing: 6) {
-                    Image(systemName: icon)
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
-                    
-                    Text(title)
-                        .font(.system(size: 16, weight: .medium, design: .monospaced))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
-                        .tracking(0)
-                }
-                .padding(.horizontal, 6)
-                .padding(.vertical, 8)
-            } else {
-                                    Text(title)
-                        .font(.system(size: 16, weight: .medium, design: .monospaced))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
-                        .tracking(0)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 8)
-            }
+            Text(title)
+                .font(.custom("IBMPlexMono", size: 14))
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Color(hex: "#2A2A2A"))
+                .cornerRadius(4)
         }
         .buttonStyle(PlainButtonStyle())
-        .accessibilityLabel(title)
-        .scaleEffect(1.0)
-        .animation(.easeInOut(duration: 0.1), value: true)
     }
 }
+
+
 
 struct DashedLineAboveText: View {
     let text: String

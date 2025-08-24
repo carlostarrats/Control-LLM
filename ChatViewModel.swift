@@ -1,20 +1,42 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Error Types
+
+enum ChatViewModelError: Error, LocalizedError {
+    case modelSwitchInProgress
+    
+    var errorDescription: String? {
+        switch self {
+        case .modelSwitchInProgress:
+            return "Model switch in progress. Please wait a moment before sending your message."
+        }
+    }
+}
+
 @Observable
 class ChatViewModel {
-    var transcript: String = ""
-    var isProcessing: Bool = false
-    var modelLoaded: Bool = false
-    var lastLoadedModel: String? = nil
-    var lastSentMessage: String? = nil
-    var messageHistory: [ChatMessage]? = []
+    // MARK: - Model Management
     
-    // Add cancellation support
-    private var currentGenerationTask: Task<Void, Never>?
+    var modelLoaded = false
+    var lastLoadedModel: String?
+    var isProcessing = false
+    var transcript = ""
+    
+    // FIXED: Add flag to prevent messages during model switch
+    var isModelSwitching = false
+    
+    // MARK: - Message Management
+    
+    var lastSentMessage: String?
+    var messageHistory: [ChatMessage]?
+    
+    // MARK: - Notification Management
     
     private var modelChangeObserver: NSObjectProtocol?
     private var updateTimer: Timer?
+    
+    private var currentGenerationTask: Task<Void, Never>?
     private var cleanupTimer: Timer?
     
     init() {
@@ -47,6 +69,10 @@ class ChatViewModel {
     
     private func handleModelChange() {
         print("🔍 ChatViewModel: handleModelChange called")
+        print("🔍 ChatViewModel: Current messageHistory count: \(messageHistory?.count ?? 0)")
+        
+        // FIXED: Set model switching flag to prevent new messages
+        isModelSwitching = true
         
         // OPTIMIZATION: Use async/await for better performance
         Task { [weak self] in
@@ -57,39 +83,111 @@ class ChatViewModel {
                 self.transcript = ""
                 self.modelLoaded = false
                 self.lastLoadedModel = nil
+                self.isProcessing = false  // CRITICAL FIX: Reset processing state
             }
             
             // Clear duplicate message state to allow re-sending
             self.clearDuplicateMessageState()
             
-            // OPTIMIZATION: Parallel unload and model preparation for faster switching
+            // CRITICAL FIX: DO NOT clear messageHistory during model switch
+            // This preserves conversation context across model changes
+            print("🔍 ChatViewModel: Preserving messageHistory during model switch: \(self.messageHistory?.count ?? 0) messages")
+            
+            // FIXED: Ensure proper sequencing - unload first, then load new model
             do {
-                print("🔍 ChatViewModel: Starting parallel model switch...")
-                try await withThrowingTaskGroup(of: Void.self) { group in
-                    group.addTask { try await HybridLLMService.shared.forceUnloadModel() }
-                    group.addTask { try await self.ensureModel() }
-                    try await group.waitForAll()
+                print("🔍 ChatViewModel: Starting sequential model switch...")
+                
+                // Step 1: Unload current model
+                print("🔍 ChatViewModel: Step 1 - Unloading current model")
+                try await HybridLLMService.shared.forceUnloadModel()
+                
+                // Step 2: Load new model
+                print("🔍 ChatViewModel: Step 2 - Loading new model")
+                try await self.ensureModel()
+                
+                // Step 3: Verify model is ready
+                print("🔍 ChatViewModel: Step 3 - Verifying model readiness")
+                let isReady = await HybridLLMService.shared.isModelLoaded
+                let modelName = await HybridLLMService.shared.currentModelFilename
+                
+                await MainActor.run {
+                    self.modelLoaded = isReady
+                    self.lastLoadedModel = modelName
                 }
+                
+                // FIXED: Add delay to ensure model is fully ready
+                print("🔍 ChatViewModel: Step 4 - Waiting for model to stabilize")
+                try await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+                
                 print("🔍 ChatViewModel: Model switch completed successfully")
+                print("🔍 ChatViewModel: New model: \(modelName ?? "unknown")")
+                print("🔍 ChatViewModel: Model loaded: \(isReady)")
+                print("🔍 ChatViewModel: After model switch, messageHistory count: \(self.messageHistory?.count ?? 0)")
+                
+                // Step 5: Verify history is intact
+                if let history = self.messageHistory {
+                    print("🔍 ChatViewModel: Final history verification:")
+                    for (index, message) in history.enumerated() {
+                        print("   [\(index)] \(message.isUser ? "User" : "Assistant"): \(message.content.prefix(100))...")
+                    }
+                }
+                
+                // FIXED: Clear model switching flag to allow new messages
+                await MainActor.run {
+                    self.isModelSwitching = false
+                }
+                print("🔍 ChatViewModel: Model switch complete - ready for new messages")
+                
             } catch {
                 print("❌ ChatViewModel: Error during model switch: \(error)")
                 await MainActor.run {
                     self.modelLoaded = false
+                    self.isModelSwitching = false
                 }
             }
         }
     }
     
     func send(_ userText: String) async throws {
-        print("🔍 ChatViewModel: send started — \(userText)")
+        print("🔍🔍🔍 ChatViewModel: send started — \(userText.prefix(100))...")
+        print("🔍 ChatViewModel: Current isProcessing: \(isProcessing)")
+        print("🔍 ChatViewModel: Current transcript: '\(transcript)'")
+        print("🔍 ChatViewModel: Current lastSentMessage: '\(lastSentMessage ?? "nil")'")
+        print("🔍 ChatViewModel: Current lastLoadedModel: '\(lastLoadedModel ?? "nil")'")
+        print("🔍 ChatViewModel: Current isModelSwitching: \(isModelSwitching)")
 
-        // Prevent duplicate submissions
-        let isDuplicate = userText == lastSentMessage && lastLoadedModel != nil
-        if isDuplicate {
-            print("🔍 ChatViewModel: Duplicate message detected, ignoring")
-            return
+        // FIXED: Prevent messages during model switch
+        if isModelSwitching {
+            print("🔍 ChatViewModel: ❌ Model switch in progress, rejecting message")
+            throw ChatViewModelError.modelSwitchInProgress
         }
+
+        // Special handling for clipboard messages - they should never be considered duplicates
+        let isClipboardMessageFormat = userText.hasPrefix("Analyze this text (keep under 8000 tokens):")
+        
+        if isClipboardMessageFormat {
+            // Clipboard messages are never duplicates - they always have different content
+            print("🔍 ChatViewModel: ✅ CLIPBOARD MESSAGE DETECTED - bypassing duplicate check")
+        } else {
+            // Normal duplicate detection for regular messages
+            let isDuplicate = userText == lastSentMessage && lastLoadedModel != nil
+            print("🔍 ChatViewModel: Regular message - isDuplicate: \(isDuplicate)")
+            if isDuplicate {
+                print("🔍 ChatViewModel: ❌ Duplicate message detected, ignoring and returning")
+                return
+            }
+        }
+        
+        print("🔍 ChatViewModel: ✅ Message passed duplicate check, proceeding...")
         lastSentMessage = userText
+
+        // CRITICAL FIX: Add user message to history BEFORE sending to LLM
+        let userMessage = ChatMessage(content: userText, isUser: true, timestamp: Date())
+        if messageHistory == nil {
+            messageHistory = []
+        }
+        messageHistory?.append(userMessage)
+        print("🔍 ChatViewModel: Added user message to history. Total messages: \(messageHistory?.count ?? 0)")
 
         // Cancel any existing generation task
         currentGenerationTask?.cancel()
@@ -105,7 +203,29 @@ class ChatViewModel {
                 }
                 
                 // Load model and prepare history
-                let historyToSend = buildSafeHistory(from: messageHistory ?? [])
+                print("🔍 ChatViewModel: About to build history from messageHistory: \(messageHistory?.count ?? 0) messages")
+                
+                // CRITICAL FIX: Build history from ALL messages (excluding current user message to avoid duplication)
+                // The current user message will be passed separately as userText
+                let currentHistory = messageHistory ?? []
+                
+                // Only remove the last message if we have more than 1 message (to avoid removing everything)
+                let historyWithoutCurrentMessage: [ChatMessage]
+                if currentHistory.count > 1 {
+                    historyWithoutCurrentMessage = Array(currentHistory.dropLast()) // Remove the just-added user message
+                } else {
+                    historyWithoutCurrentMessage = [] // No previous history, just current message
+                }
+                
+                let historyToSend = buildSafeHistory(from: historyWithoutCurrentMessage)
+                
+                print("🔍 ChatViewModel: History prepared, sending \(historyToSend.count) messages to LLM")
+                print("🔍 ChatViewModel: Current user message: '\(userText.prefix(100))...'")
+                print("🔍 ChatViewModel: Full history being sent:")
+                for (index, message) in historyToSend.enumerated() {
+                    print("   [\(index)] \(message.isUser ? "User" : "Assistant"): \(message.content.prefix(100))...")
+                }
+                
                 try await HybridLLMService.shared.loadSelectedModel()
 
                 // Use the HybridLLMService to generate the response
@@ -121,9 +241,12 @@ class ChatViewModel {
                     }
                 )
                 
-                // Only update state if not cancelled
+                // CRITICAL FIX: Add assistant response to history AFTER completion
                 if !Task.isCancelled {
                     await MainActor.run {
+                        let assistantMessage = ChatMessage(content: self.transcript, isUser: false, timestamp: Date())
+                        self.messageHistory?.append(assistantMessage)
+                        print("🔍 ChatViewModel: Added assistant response to history. Total messages: \(self.messageHistory?.count ?? 0)")
                         self.isProcessing = false
                     }
                 }
@@ -164,20 +287,37 @@ class ChatViewModel {
     
     // MARK: - History Safeguard
     private func buildSafeHistory(from fullHistory: [ChatMessage]) -> [ChatMessage] {
-        // Limits to prevent overwhelming the prompt
-        let maxMessages = 20
-        let maxCharacters = 4000
+        print("🔍 ChatViewModel: buildSafeHistory called with \(fullHistory.count) messages")
+        print("🔍 ChatViewModel: Full history content:")
+        for (index, message) in fullHistory.enumerated() {
+            print("   [\(index)] \(message.isUser ? "User" : "Assistant"): \(message.content.prefix(100))...")
+        }
+        
+        // FIXED: More reasonable limits that preserve conversation context
+        let maxMessages = 8  // Keep last 8 messages (4 exchanges) for better context
+        let maxCharacters = 3400  // Increased to allow more context retention
 
         // Take the most recent messages up to maxMessages
         var trimmed = Array(fullHistory.suffix(maxMessages))
+        print("🔍 ChatViewModel: After maxMessages trim: \(trimmed.count) messages")
 
         // If still too long, trim from the oldest in this window until below character cap
         func totalChars(_ msgs: [ChatMessage]) -> Int {
             msgs.reduce(0) { $0 + $1.content.count }
         }
 
+        let initialChars = totalChars(trimmed)
+        print("🔍 ChatViewModel: Initial character count: \(initialChars)")
+
         while totalChars(trimmed) > maxCharacters && !trimmed.isEmpty {
             trimmed.removeFirst()
+        }
+
+        let finalChars = totalChars(trimmed)
+        print("🔍 ChatViewModel: Final result: \(trimmed.count) messages, \(finalChars) characters")
+        print("🔍 ChatViewModel: Final history content:")
+        for (index, message) in trimmed.enumerated() {
+            print("   [\(index)] \(message.isUser ? "User" : "Assistant"): \(message.content.prefix(100))...")
         }
 
         return trimmed

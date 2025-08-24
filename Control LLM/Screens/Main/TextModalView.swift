@@ -165,36 +165,107 @@ struct TextModalView: View {
             
         }
         .onAppear {
-            if let history = messageHistory {
-                viewModel.llm.messageHistory = history
-            }
             setupOpacityUpdateTimer()
+            
+            // Reset clipboard message state when view appears
+            isClipboardMessage = false
+            hasAddedFollowUpQuestions = false
+            
+            // Also reset the ChatViewModel's duplicate detection to ensure clean state
+            viewModel.llm.lastSentMessage = nil
+            
+            print("🔍 TextModalView: onAppear - Reset clipboard state and duplicate detection")
+            
+            // CRITICAL FIX: Removed clipboard message observer setup - consolidated into single message flow
         }
         .onDisappear {
             opacityUpdateTimer?.invalidate()
             opacityUpdateTimer = nil
+            
+            // CRITICAL FIX: Removed clipboard message observer cleanup - consolidated into single message flow
         }
                         .onReceive(NotificationCenter.default.publisher(for: .modelDidChange)) { _ in
-            print("🔍 TextModalView: Model change notification received, resetting state...")
-            // Reset only internal polling state when model changes
+            print("🔍 TextModalView: Model changed notification received")
+            
+            // IMPORTANT: Preserve the user's follow-up question if it exists
+            let lastUserMessage = viewModel.messages.last { $0.isUser }
+            let hasFollowUpQuestion = lastUserMessage != nil && !lastUserMessage!.content.hasPrefix("Analyze this text")
+            
+            // CRITICAL FIX: Don't sync UI messages to ChatViewModel - this causes context loss
+            print("🔍 TextModalView: Model change - preserving ChatViewModel history")
+            
+            // Reset all streaming state for new model
             isPolling = false
             pollCount = 0
+            lastRenderedTranscript = ""
             lastTranscriptLength = 0
             lastSentMessage = ""
             isDuplicateMessage = false
+            stableTranscriptCount = 0
+            hasProvidedCompletionHaptic = false
             
-            // IMPORTANT: Don't clear lastRenderedTranscript here - this preserves the displayed content
-            // The transcript will be updated when the new model responds
-            
-            // Clear any empty thinking messages (placeholder messages)
-            viewModel.messages.removeAll { message in
-                !message.isUser && message.content.isEmpty
+            // CRITICAL FIX: Also reset local UI state to match ChatViewModel
+            // This ensures the UI is properly synchronized after model changes
+            if !viewModel.llm.isProcessing {
+                // If ChatViewModel is not processing, ensure our local state matches
+                // This prevents the UI from thinking it's in a processing state when it's not
+                print("🔍 TextModalView: ChatViewModel isProcessing is false, ensuring UI state matches")
             }
             
-            print("🔍 TextModalView: State reset completed - displayed messages preserved")
+            // Reset clipboard message state
+            isClipboardMessage = false
+            hasAddedFollowUpQuestions = false
+            
+            // CRITICAL FIX: Don't clear empty thinking messages during model change
+            // This can interfere with UI state and cause the thinking animation to not show
+            // viewModel.messages.removeAll { message in
+            //     !message.isUser && message.content.isEmpty
+            // }
+            
+            // IMPORTANT: Also reset the ChatViewModel's duplicate detection
+            viewModel.llm.lastSentMessage = nil
+            
+            // CRITICAL FIX: Don't sync UI messages - preserve ChatViewModel history
+            print("🔍 TextModalView: Model change complete - preserving context")
+            
+            // If there was a follow-up question, we need to re-send it to the new model
+            if hasFollowUpQuestion {
+                print("🔍 TextModalView: Preserving follow-up question for new model: '\(lastUserMessage!.content.prefix(100))...'")
+                // The question will be automatically re-sent by the ChatViewModel
+            }
+            
+            print("🔍 TextModalView: ALL streaming state reset completed for new model")
         }
         .sheet(isPresented: $showingModelsSheet) {
             SettingsModelsView()
+        }
+        .alert("Error", isPresented: $showingError) {
+            Button("OK") { 
+                errorMessage = nil
+                showingError = false
+            }
+        } message: {
+            if let errorMessage = errorMessage {
+                Text(errorMessage)
+            }
+        }
+        .onChange(of: viewModel.pendingClipboardPrompt) { _, newPrompt in
+            if let prompt = newPrompt {
+                print("🔍 TextModalView: Processing pending clipboard prompt: \(prompt.prefix(50))...")
+                
+                // Clear the pending prompt immediately to prevent re-processing
+                viewModel.pendingClipboardPrompt = nil
+                
+                // Process as clipboard message
+                isClipboardMessage = true
+                hasAddedFollowUpQuestions = false
+                
+                // Set the message text and send it
+                messageText = prompt
+                Task {
+                    await sendMessage()
+                }
+            }
         }
 
 
@@ -211,6 +282,15 @@ struct TextModalView: View {
             // This will cause the view to refresh with new opacity values
         }
     }
+    
+    // MARK: - Message Synchronization -----------------------------------------
+    
+    // REMOVED: syncUIMessagesToLLM function - was causing context loss by overwriting ChatViewModel history
+    
+    // MARK: - Clipboard Message Observer (REMOVED - consolidated into single message flow)
+    
+    // CRITICAL FIX: Removed separate clipboard message handling to prevent duplicate message processing
+    // All messages now go through the unified sendMessage() function
     
     // MARK: - Response Completion Observer
     
@@ -569,10 +649,20 @@ struct TextModalView: View {
         pollCount = 0
         
         // Check if this is the same message as last time
-        isDuplicateMessage = text == lastSentMessage
-        lastSentMessage = text
+        // Special handling for clipboard messages - they should never be considered duplicates
+        let isClipboardMessageFormat = text.hasPrefix("Analyze this text (keep under 8000 tokens):")
         
-        print("🔍 TextModalView: isDuplicateMessage: \(isDuplicateMessage)")
+        if isClipboardMessageFormat {
+            // Clipboard messages are never duplicates - they always have different content
+            isDuplicateMessage = false
+            print("🔍 TextModalView: Clipboard message detected, bypassing duplicate check")
+        } else {
+            // Normal duplicate detection for regular messages
+            isDuplicateMessage = text == lastSentMessage
+            print("🔍 TextModalView: isDuplicateMessage: \(isDuplicateMessage)")
+        }
+        
+        lastSentMessage = text
         
         // Allow re-sending if this is a duplicate but we're in a new context (e.g., after model switch)
         // Check if the transcript has changed or if we're in a new model context
@@ -605,12 +695,19 @@ struct TextModalView: View {
         stableTranscriptCount = 0
         hasProvidedCompletionHaptic = false
 
-        print("🔍 TextModalView: About to call viewModel.sendTextMessage")
-        // 1) user bubble
-        viewModel.sendTextMessage(text)
+        print("🔍 TextModalView: Sending message through MainViewModel")
+        
+        // CRITICAL FIX: Send through MainViewModel which handles user message creation and LLM sending
+        await MainActor.run {
+            viewModel.sendTextMessage(text)
+        }
+
+        // Reset clipboard message state for normal chat messages
+        isClipboardMessage = false
+        hasAddedFollowUpQuestions = false
 
         print("🔍 TextModalView: About to create placeholder message")
-        // 2) placeholder assistant bubble (slight delay so it appears after user bubble)
+        // 2) placeholder assistant bubble (0.3s delay to prevent motion and allow thinking animation)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             let placeholder = ChatMessage(
                 content: "",
@@ -619,9 +716,12 @@ struct TextModalView: View {
                 messageType: .text
             )
             viewModel.messages.append(placeholder)
-            print("🔍 TextModalView: Added empty placeholder message (delayed)")
+            print("🔍 TextModalView: Added empty placeholder message (0.3s delay)")
+            
+            // CRITICAL FIX: Don't sync UI messages - let ChatViewModel handle its own context
+            print("🔍 TextModalView: Placeholder added, starting polling")
         }
-
+        
         print("🔍 TextModalView: About to clear messageText")
         // 3) clear field + ask model
         DispatchQueue.main.async {
@@ -643,6 +743,46 @@ struct TextModalView: View {
         print("🔍 TextModalView: sendMessage completed successfully")
     }
     
+    // MARK: - Error Handling --------------------------------------------------
+    private func getErrorMessage(for error: Error) -> String {
+        let nsError = error as NSError
+        
+        switch nsError.domain {
+        case "LLMService":
+            switch nsError.code {
+            case 6: // Prompt too long
+                return "Your message is too long. Please shorten it and try again."
+            case 11: // Another model operation in progress
+                return "Another model operation is in progress. Please wait and try again."
+            case 12: // Model name not available
+                return "Model not available. Please check your model settings."
+            case 17: // Invalid context pointer
+                return "Model error. Please try restarting the app."
+            case 18: // Empty prompt
+                return "Empty message. Please type something and try again."
+            case 19: // Invalid strings
+                return "Message format error. Please try again."
+            case 20: // Streaming timeout
+                return "Response took too long. Please try a shorter message."
+            case 27: // Token limit reached
+                return "Response was cut off due to length. Try asking a more specific question."
+            default:
+                return "LLM Error: \(nsError.localizedDescription)"
+            }
+        case "ChatViewModel":
+            switch nsError.code {
+            case 1: // No model selected
+                return "No model selected. Please choose a model in Settings."
+            case 2: // Model loading failed
+                return "Failed to load model. Please try again or select a different model."
+            default:
+                return "Chat Error: \(nsError.localizedDescription)"
+            }
+        default:
+            return "Error: \(error.localizedDescription)"
+        }
+    }
+    
 
     
     // MARK: - STREAM POLLER --------------------------------------------------
@@ -655,9 +795,17 @@ struct TextModalView: View {
     @State private var isDuplicateMessage = false
     @State private var lastLoadedModelForDuplicateCheck: String? = nil
     
+    // Clipboard message tracking for follow-up questions
+    @State private var isClipboardMessage = false
+    @State private var hasAddedFollowUpQuestions = false
+    
     // Response completion tracking for haptic feedback
     @State private var stableTranscriptCount = 0
     @State private var hasProvidedCompletionHaptic = false
+    
+    // MARK: - Error Handling State
+    @State private var errorMessage: String?
+    @State private var showingError = false
     
     // Voice integration state
     // Voice functionality removed
@@ -672,18 +820,38 @@ struct TextModalView: View {
         
         print("🔍 TextModalView: Polling transcript - length: \(currentTranscriptLength), content: '\(currentTranscript)'")
         
-        // Check if we should stop polling
-        if pollCount > 50 { // Increased patience for first response
-            print("🔍 TextModalView: Max polls reached, stopping")
+        // Check if we should stop polling - give clipboard messages more time for analysis
+        let maxPolls = isClipboardMessage ? 300 : 150  // 30 seconds for clipboard, 15 seconds for regular messages
+        if pollCount > maxPolls {
+            print("🔍 TextModalView: Max polls (\(maxPolls)) reached, stopping")
             isPolling = false
             FeedbackService.shared.playHaptic(.light)
+            
+            // Show timeout error
+            errorMessage = "Response took too long. Please try a shorter message or check your model settings."
+            showingError = true
+            
+            // Add follow-up questions for clipboard messages if not already added
+            addFollowUpQuestionsIfNeeded()
             return
         }
         
-        // Check if transcript has changed
+        // FIXED: Better detection for streaming loops and stuck responses
         if currentTranscriptLength == lastTranscriptLength && currentTranscript == lastRenderedTranscript {
             // No change - increment stable count
             stableTranscriptCount += 1
+            
+            // FIXED: Detect streaming loops where LLM keeps generating same content
+            if stableTranscriptCount >= 5 && !currentTranscript.isEmpty {
+                print("🔍 TextModalView: WARNING - Possible streaming loop detected after \(stableTranscriptCount) stable polls")
+                print("🔍 TextModalView: Stopping polling to prevent infinite loop")
+                isPolling = false
+                FeedbackService.shared.playHaptic(.light)
+                
+                // Add follow-up questions for clipboard messages if not already added
+                addFollowUpQuestionsIfNeeded()
+                return
+            }
             
             // Check if transcript has been stable for 3 consecutive polls (600ms)
             // This indicates the response is likely complete
@@ -691,6 +859,13 @@ struct TextModalView: View {
                 print("🔍 TextModalView: Response appears complete, providing haptic feedback")
                 FeedbackService.shared.playHaptic(.light)
                 hasProvidedCompletionHaptic = true
+                
+                // Add follow-up questions for clipboard messages if not already added
+                addFollowUpQuestionsIfNeeded()
+                
+                // Stop polling when response is complete
+                isPolling = false
+                return
             }
             
             // Continue polling
@@ -755,6 +930,28 @@ struct TextModalView: View {
     }
 
     // Voice integration functionality removed
+
+    private func addFollowUpQuestionsIfNeeded() {
+        guard isClipboardMessage && !hasAddedFollowUpQuestions else { return }
+        
+        // Find the last assistant message
+        if let lastAssistantIndex = viewModel.messages.lastIndex(where: { !$0.isUser }) {
+            let followUpQuestions = [
+                "• Rewrite this differently?",
+                "• Expand on any points?",
+                "• Make this into bullet points?",
+                "• Find key themes?"
+            ]
+            
+            let followUpText = "\n\n**Follow-up Questions:**\n\n\(followUpQuestions.joined(separator: "\n"))"
+            
+            // Append follow-up questions to the existing response
+            viewModel.messages[lastAssistantIndex].content += followUpText
+            hasAddedFollowUpQuestions = true
+            
+            print("🔍 TextModalView: Added follow-up questions to clipboard message")
+        }
+    }
 
 
     // MARK: - File upload helper --------------------------------------------

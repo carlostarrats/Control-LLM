@@ -66,7 +66,7 @@ class ModelsViewModel: ObservableObject {
                 id: UUID(),
                 name: "Code Assistant",
                 description: "Specialized in programming and code review",
-                systemPrompt: "You are a helpful programming assistant...",
+                systemPrompt: "You are a helpful programming assistant specialized in analyzing code and providing technical guidance. When asked to analyze text (especially clipboard content), provide clear, focused analysis that extracts key information, identifies themes, and offers objective insights. Keep responses concise and directly relevant to the content provided.",
                 model: nil, // Will be updated when model is available
                 isActive: true
             ),
@@ -74,7 +74,7 @@ class ModelsViewModel: ObservableObject {
                 id: UUID(),
                 name: "Writing Coach",
                 description: "Helps with writing and content creation",
-                systemPrompt: "You are a writing coach who helps...",
+                systemPrompt: "You are a writing coach who helps improve writing quality and content analysis. When asked to analyze text (especially clipboard content), provide clear, focused analysis that extracts key information, identifies themes, and offers objective insights. Keep responses concise and directly relevant to the content provided.",
                 model: nil, // Will be updated when model is available
                 isActive: false
             ),
@@ -82,7 +82,7 @@ class ModelsViewModel: ObservableObject {
                 id: UUID(),
                 name: "Data Analyst",
                 description: "Specialized in data analysis and insights",
-                systemPrompt: "You are a data analyst who helps...",
+                systemPrompt: "You are a data analyst who helps extract insights from information. When asked to analyze text (especially clipboard content), provide clear, focused analysis that extracts key information, identifies themes, and offers objective insights. Keep responses concise and directly relevant to the content provided.",
                 model: nil, // Will be updated when model is available
                 isActive: true
             )
