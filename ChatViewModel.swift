@@ -26,6 +26,13 @@ class ChatViewModel {
     // FIXED: Add flag to prevent messages during model switch
     var isModelSwitching = false
     
+    // Response timing for latency calculation
+    var lastResponseTime: Date = Date()
+    var averageResponseDuration: TimeInterval = 0.0 // Average response time in seconds
+    private var requestStartTime: Date?
+    private var totalResponseTime: TimeInterval = 0.0
+    private var responseCount: Int = 0
+    
     // MARK: - Message Management
     
     var lastSentMessage: String?
@@ -200,6 +207,7 @@ class ChatViewModel {
                 await MainActor.run {
                     self.isProcessing = true
                     self.transcript = ""
+                    self.requestStartTime = Date() // Start timing the request
                 }
                 
                 // Load model and prepare history
@@ -248,6 +256,17 @@ class ChatViewModel {
                         self.messageHistory?.append(assistantMessage)
                         print("🔍 ChatViewModel: Added assistant response to history. Total messages: \(self.messageHistory?.count ?? 0)")
                         self.isProcessing = false
+                        
+                        // Calculate actual response duration and update average
+                        let endTime = Date()
+                        self.lastResponseTime = endTime
+                        if let startTime = self.requestStartTime {
+                            let currentResponseTime = endTime.timeIntervalSince(startTime)
+                            self.totalResponseTime += currentResponseTime
+                            self.responseCount += 1
+                            self.averageResponseDuration = self.totalResponseTime / Double(self.responseCount)
+                        }
+                        self.requestStartTime = nil
                     }
                 }
                 
@@ -257,6 +276,7 @@ class ChatViewModel {
                     await MainActor.run {
                         print("❌ ChatViewModel: Error in send: \(error)")
                         self.isProcessing = false
+                        self.requestStartTime = nil // Clear timing on error
                         
                         // Provide more user-friendly error messages for common cases
                         let errorMessage: String
@@ -328,6 +348,10 @@ class ChatViewModel {
             self.transcript = ""
             self.messageHistory = []
             self.lastSentMessage = nil
+            // Reset response timing stats
+            self.totalResponseTime = 0.0
+            self.responseCount = 0
+            self.averageResponseDuration = 0.0
             print("🔍 ChatViewModel: Conversation cleared")
         }
     }

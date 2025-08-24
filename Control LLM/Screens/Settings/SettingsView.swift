@@ -44,25 +44,23 @@ struct SettingsView: View {
                         .padding(.top, 0) // Removed negative padding
                         .padding(.horizontal, 20)
                         
-                        // Footer section
-                        VStack(spacing: 4) {
-                            Text("V 1.0")
-                                .font(.custom("IBMPlexMono", size: 14))
-                                .foregroundColor(Color(hex: "#666666"))
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding(.top, 40)
-                            
-                            Text(NSLocalizedString("Made by Control.Design", comment: ""))
-                                .font(.custom("IBMPlexMono", size: 14))
-                                .foregroundColor(Color(hex: "#666666"))
-                                .frame(maxWidth: .infinity, alignment: .center)
-                        }
-                        .padding(.horizontal, 20)
+                        // System Information Section
+                        SystemInfoView()
+                            .padding(.horizontal, 20)
+                            .padding(.top, 40)
+                            .padding(.bottom, 60)
                     }
-                    .padding(.bottom, 20)
                 }
                 
-                Spacer()
+                // Footer section - moved outside ScrollView to stick to bottom
+                VStack {
+                    Text(NSLocalizedString("Made by Control.Design", comment: ""))
+                        .font(.custom("IBMPlexMono", size: 14))
+                        .foregroundColor(Color(hex: "#666666"))
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 30)
                 
                 // Privacy notice text removed
             }
@@ -177,5 +175,194 @@ struct ToastView: View {
             removal: AnyTransition.offset(y: 20).combined(with: .opacity)
         ))
         .animation(.easeInOut(duration: 0.5), value: true)
+    }
+}
+
+struct SystemInfoView: View {
+    @State private var modelManager = ModelManager.shared
+    @State private var chatViewModel = ChatViewModel()
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            // Active Model Section
+            if let selectedModel = modelManager.selectedModel {
+                HStack(alignment: .center) {
+                    Text("Model")
+                        .font(.custom("IBMPlexMono", size: 14))
+                        .foregroundColor(Color(hex: "#666666"))
+                        .fixedSize()
+                    
+                    Spacer()
+                    
+                    Text(selectedModel.displayName)
+                        .font(.custom("IBMPlexMono", size: 14))
+                        .foregroundColor(Color(hex: "#666666"))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .fixedSize()
+                }
+                .background(Color(hex: "#1d1d1d"))
+                .cornerRadius(4)
+            }
+            
+            // System Status Section
+            HStack {
+                Text("System Status")
+                    .font(.custom("IBMPlexMono", size: 14))
+                    .foregroundColor(Color(hex: "#666666"))
+                
+                Spacer()
+                
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(statusColor)
+                        .frame(width: 8, height: 8)
+                    
+                    Text(statusText)
+                        .font(.custom("IBMPlexMono", size: 14))
+                        .foregroundColor(Color(hex: "#666666"))
+                }
+            }
+            .background(Color(hex: "#1d1d1d"))
+            .cornerRadius(4)
+            
+            // Response Latency Section
+            HStack {
+                Text("Response Latency")
+                    .font(.custom("IBMPlexMono", size: 14))
+                    .foregroundColor(Color(hex: "#666666"))
+                
+                Spacer()
+                
+                Text(responseLatency)
+                    .font(.custom("IBMPlexMono", size: 14))
+                    .foregroundColor(Color(hex: "#666666"))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .fixedSize()
+            }
+            .background(Color(hex: "#1d1d1d"))
+            .cornerRadius(4)
+            
+            // Memory Pressure Section
+            HStack {
+                Text("Memory Pressure")
+                    .font(.custom("IBMPlexMono", size: 14))
+                    .foregroundColor(Color(hex: "#666666"))
+                
+                Spacer()
+                
+                Text(memoryPressureText)
+                    .font(.custom("IBMPlexMono", size: 14))
+                    .foregroundColor(Color(hex: "#666666"))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .fixedSize()
+            }
+            .background(Color(hex: "#1d1d1d"))
+            .cornerRadius(4)
+            
+            // Thermal State Section
+            HStack {
+                Text("Thermal State")
+                    .font(.custom("IBMPlexMono", size: 14))
+                    .foregroundColor(Color(hex: "#666666"))
+                
+                Spacer()
+                
+                Text(thermalStateText)
+                    .font(.custom("IBMPlexMono", size: 14))
+                    .foregroundColor(Color(hex: "#666666"))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .fixedSize()
+            }
+            .background(Color(hex: "#1d1d1d"))
+            .cornerRadius(4)
+            
+            // Version Section
+            HStack {
+                Text("Version")
+                    .font(.custom("IBMPlexMono", size: 14))
+                    .foregroundColor(Color(hex: "#666666"))
+                
+                Spacer()
+                
+                Text("1.0")
+                    .font(.custom("IBMPlexMono", size: 14))
+                    .foregroundColor(Color(hex: "#666666"))
+            }
+            .background(Color(hex: "#1d1d1d"))
+            .cornerRadius(4)
+        }
+        .onAppear {
+            updateResourceInfo()
+            // Start timer to update thermal state and memory pressure every 5 seconds
+            Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
+                updateResourceInfo()
+            }
+        }
+    }
+    
+    private var statusText: String {
+        if chatViewModel.isProcessing {
+            return "Processing"
+        } else if chatViewModel.modelLoaded {
+            return "Ready"
+        } else {
+            return "Idle"
+        }
+    }
+    
+    private var statusColor: Color {
+        if chatViewModel.isProcessing {
+            return ColorManager.shared.orangeColor
+        } else if chatViewModel.modelLoaded {
+            return Color(hex: "#3EBBA5") // Success color
+        } else {
+            return ColorManager.shared.greyTextColor
+        }
+    }
+    
+    @State private var responseLatency: String = "Calculating..."
+    @State private var memoryPressureText: String = "Calculating..."
+    @State private var thermalStateText: String = "Calculating..."
+    
+    private func updateResourceInfo() {
+        // Response Latency - show average response time
+        if chatViewModel.averageResponseDuration > 0 {
+            responseLatency = String(format: "%.0f ms avg", chatViewModel.averageResponseDuration * 1000)
+        } else {
+            responseLatency = "No responses yet"
+        }
+        
+        // Memory Pressure - iOS doesn't expose this directly, so we'll show available memory
+        let processInfo = ProcessInfo.processInfo
+        let physicalMemory = processInfo.physicalMemory
+        let availableMemoryGB = Double(physicalMemory) / (1024 * 1024 * 1024) // Convert to GB
+        if availableMemoryGB > 2.0 {
+            memoryPressureText = "Low"
+        } else if availableMemoryGB > 1.0 {
+            memoryPressureText = "Moderate"
+        } else if availableMemoryGB > 0.5 {
+            memoryPressureText = "High"
+        } else {
+            memoryPressureText = "Critical"
+        }
+        
+        // Thermal State
+        let thermalState = ProcessInfo.processInfo.thermalState
+        switch thermalState {
+        case .nominal:
+            thermalStateText = "Nominal"
+        case .fair:
+            thermalStateText = "Fair"
+        case .serious:
+            thermalStateText = "Serious"
+        case .critical:
+            thermalStateText = "Critical"
+        @unknown default:
+            thermalStateText = "Unknown"
+        }
     }
 } 
