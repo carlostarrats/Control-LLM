@@ -52,15 +52,7 @@ struct SettingsView: View {
                     }
                 }
                 
-                // Footer section - moved outside ScrollView to stick to bottom
-                VStack {
-                    Text(NSLocalizedString("Made by Control.Design", comment: ""))
-                        .font(.custom("IBMPlexMono", size: 14))
-                        .foregroundColor(Color(hex: "#666666"))
-                        .frame(maxWidth: .infinity, alignment: .center)
-                }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 30)
+
                 
                 // Privacy notice text removed
             }
@@ -189,19 +181,19 @@ struct SystemInfoView: View {
                 HStack(alignment: .center) {
                     Text("Model")
                         .font(.custom("IBMPlexMono", size: 14))
-                        .foregroundColor(Color(hex: "#666666"))
+                        .foregroundColor(Color(hex: "#555555"))
                         .fixedSize()
                     
                     Spacer()
                     
                     Text(selectedModel.displayName)
                         .font(.custom("IBMPlexMono", size: 14))
-                        .foregroundColor(Color(hex: "#666666"))
+                        .foregroundColor(Color(hex: "#555555"))
                         .lineLimit(1)
                         .truncationMode(.tail)
                         .fixedSize()
                 }
-                .background(Color(hex: "#1d1d1d"))
+                .background(Color(hex: "#1c1c1c").opacity(0.9))
                 .cornerRadius(4)
             }
             
@@ -209,7 +201,7 @@ struct SystemInfoView: View {
             HStack {
                 Text("System Status")
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#666666"))
+                    .foregroundColor(Color(hex: "#555555"))
                 
                 Spacer()
                 
@@ -220,79 +212,79 @@ struct SystemInfoView: View {
                     
                     Text(statusText)
                         .font(.custom("IBMPlexMono", size: 14))
-                        .foregroundColor(Color(hex: "#666666"))
+                        .foregroundColor(Color(hex: "#555555"))
                 }
             }
-            .background(Color(hex: "#1d1d1d"))
+            .background(Color(hex: "#1b1b1b").opacity(0.9))
             .cornerRadius(4)
-            
+                
             // Response Latency Section
             HStack {
                 Text("Response Latency")
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#666666"))
+                    .foregroundColor(Color(hex: "#555555"))
                 
                 Spacer()
                 
                 Text(responseLatency)
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#666666"))
+                    .foregroundColor(Color(hex: "#555555"))
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .fixedSize()
             }
-            .background(Color(hex: "#1d1d1d"))
+            .background(Color(hex: "#1b1b1b").opacity(0.9))
             .cornerRadius(4)
-            
+                
             // Memory Pressure Section
             HStack {
                 Text("Memory Pressure")
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#666666"))
+                    .foregroundColor(Color(hex: "#555555"))
                 
                 Spacer()
                 
                 Text(memoryPressureText)
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#666666"))
+                    .foregroundColor(Color(hex: "#555555"))
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .fixedSize()
             }
-            .background(Color(hex: "#1d1d1d"))
+            .background(Color(hex: "#1a1a1a").opacity(0.9))
             .cornerRadius(4)
-            
+                
             // Thermal State Section
             HStack {
                 Text("Thermal State")
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#666666"))
+                    .foregroundColor(Color(hex: "#555555"))
                 
                 Spacer()
                 
                 Text(thermalStateText)
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#666666"))
+                    .foregroundColor(Color(hex: "#555555"))
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .fixedSize()
             }
-            .background(Color(hex: "#1d1d1d"))
+            .background(Color(hex: "#1a1a1a").opacity(0.9))
             .cornerRadius(4)
-            
+                
             // Version Section
             HStack {
                 Text("Version")
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#666666"))
+                    .foregroundColor(Color(hex: "#555555"))
                 
                 Spacer()
                 
                 Text("1.0")
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#666666"))
+                    .foregroundColor(Color(hex: "#555555"))
             }
-            .background(Color(hex: "#1d1d1d"))
+            .background(Color(hex: "#1a1a1a").opacity(0.9))
             .cornerRadius(4)
         }
         .onAppear {
