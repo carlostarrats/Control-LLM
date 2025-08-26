@@ -155,7 +155,7 @@ struct ParticleView: View {
 
 #Preview {
     VStack(spacing: 20) {
-        Text("Static Particle Visualizer")
+                        Text(NSLocalizedString("Static Particle Visualizer", comment: ""))
             .foregroundColor(.white)
             .font(.title2)
             .padding()

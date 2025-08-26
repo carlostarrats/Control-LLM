@@ -7,8 +7,8 @@ struct AgentTabsView: View {
         VStack {
             // Tab selector
             Picker("Content Type", selection: $viewModel.selectedTab) {
-                Text("Models").tag(0)
-                Text("Agents").tag(1)
+                Text(NSLocalizedString("Models", comment: "")).tag(0)
+                Text(NSLocalizedString("Agents", comment: "")).tag(1)
             }
             .pickerStyle(.segmented)
             .padding()
@@ -109,7 +109,7 @@ struct ModelRow: View {
                             .font(.caption)
                             .foregroundColor(.blue)
                         Text("•")
-                        Text("Available")
+                        Text(NSLocalizedString("Available", comment: ""))
                             .font(.caption)
                             .foregroundColor(.green)
                     }
@@ -123,7 +123,7 @@ struct ModelRow: View {
                 }
                 
                 if !model.isAvailable {
-                    Text("Unavailable")
+                    Text(NSLocalizedString("Unavailable", comment: ""))
                         .font(.caption)
                         .foregroundColor(.red)
                 }
@@ -147,7 +147,7 @@ struct AgentRow: View {
                         Text(agent.name)
                             .font(.headline)
                         if agent.isActive {
-                            Text("• Active")
+                            Text("• \(NSLocalizedString("Active", comment: ""))")
                                 .font(.caption)
                                 .foregroundColor(ColorManager.shared.greenColor)
                         }
@@ -160,11 +160,11 @@ struct AgentRow: View {
                     
                     HStack {
                         if let model = agent.model {
-                            Text("Model: \(model.name)")
+                            Text(String(format: NSLocalizedString("Model: %@", comment: ""), model.name))
                                 .font(.caption)
                                 .foregroundColor(.blue)
                         } else {
-                            Text("No Model Assigned")
+                            Text(NSLocalizedString("No Model Assigned", comment: ""))
                                 .font(.caption)
                                 .foregroundColor(.orange)
                         }

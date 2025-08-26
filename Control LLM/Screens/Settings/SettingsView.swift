@@ -179,7 +179,7 @@ struct SystemInfoView: View {
             // Active Model Section
             if let selectedModel = modelManager.selectedModel {
                 HStack(alignment: .center) {
-                    Text("Model")
+                    Text(NSLocalizedString("Models", comment: ""))
                         .font(.custom("IBMPlexMono", size: 14))
                         .foregroundColor(Color(hex: "#555555"))
                         .fixedSize()
@@ -199,7 +199,7 @@ struct SystemInfoView: View {
             
             // System Status Section
             HStack {
-                Text("System Status")
+                Text(NSLocalizedString("System Status", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#555555"))
                 
@@ -220,7 +220,7 @@ struct SystemInfoView: View {
                 
             // Response Latency Section
             HStack {
-                Text("Response Latency")
+                Text(NSLocalizedString("Response Latency", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#555555"))
                 
@@ -238,7 +238,7 @@ struct SystemInfoView: View {
                 
             // Memory Pressure Section
             HStack {
-                Text("Memory Pressure")
+                Text(NSLocalizedString("Memory Pressure", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#555555"))
                 
@@ -256,7 +256,7 @@ struct SystemInfoView: View {
                 
             // Thermal State Section
             HStack {
-                Text("Thermal State")
+                Text(NSLocalizedString("Thermal State", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#555555"))
                 
@@ -274,13 +274,13 @@ struct SystemInfoView: View {
                 
             // Version Section
             HStack {
-                Text("Version")
+                Text(NSLocalizedString("Version", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#555555"))
                 
                 Spacer()
                 
-                Text("1.0")
+                Text(NSLocalizedString("1.0", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#555555"))
             }

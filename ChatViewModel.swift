@@ -9,7 +9,7 @@ enum ChatViewModelError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .modelSwitchInProgress:
-            return "Model switch in progress. Please wait a moment before sending your message."
+            return NSLocalizedString("Model switch in progress. Please wait a moment before sending your message.", comment: "")
         }
     }
 }
@@ -294,16 +294,16 @@ class ChatViewModel {
                         if let nsError = error as NSError? {
                             switch nsError.code {
                             case 26: // Input too long
-                                errorMessage = "Your message was shortened to fit within limits. If the shortened version doesn't accurately represent what you wanted to say, please try a shorter message."
+                                errorMessage = NSLocalizedString("Your message was shortened to fit within limits. If the shortened version doesn't accurately represent what you wanted to say, please try a shorter message.", comment: "")
                             case 27: // Token limit reached
-                                errorMessage = "The response was cut off because it reached the maximum length limit. Try asking a more specific question or breaking your request into smaller parts."
+                                errorMessage = NSLocalizedString("The response was cut off because it reached the maximum length limit. Try asking a more specific question or breaking your request into smaller parts.", comment: "")
                             case 6: // Prompt too long
-                                errorMessage = "Your message is too long. Please shorten it and try again."
+                                errorMessage = NSLocalizedString("Your message is too long. Please shorten it and try again.", comment: "")
                             default:
-                                errorMessage = "Error: \(error.localizedDescription)"
+                                errorMessage = String(format: NSLocalizedString("Error: %@", comment: ""), error.localizedDescription)
                             }
                         } else {
-                            errorMessage = "Error: \(error.localizedDescription)"
+                            errorMessage = String(format: NSLocalizedString("Error: %@", comment: ""), error.localizedDescription)
                         }
                         
                         self.transcript = errorMessage

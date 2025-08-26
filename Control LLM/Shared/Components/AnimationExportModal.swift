@@ -13,11 +13,11 @@ struct AnimationExportModal: View {
             VStack(spacing: 20) {
                 // Header
                 VStack(spacing: 8) {
-                    Text("Export MYCROFT Animation")
+                    Text(NSLocalizedString("Export MYCROFT Animation", comment: ""))
                         .font(.custom("IBMPlexMono", size: 18))
                         .foregroundColor(Color(hex: "#BBBBBB"))
                     
-                    Text("Export frames as transparent PNGs")
+                    Text(NSLocalizedString("Export frames as transparent PNGs", comment: ""))
                         .font(.custom("IBMPlexMono", size: 14))
                         .foregroundColor(Color(hex: "#666666"))
                 }
@@ -27,7 +27,7 @@ struct AnimationExportModal: View {
                 VStack(spacing: 16) {
                     // Frame count
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Frame Count")
+                        Text(NSLocalizedString("Frame Count", comment: ""))
                             .font(.custom("IBMPlexMono", size: 14))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                         
@@ -47,7 +47,7 @@ struct AnimationExportModal: View {
                     
                     // Duration
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Duration (seconds)")
+                        Text(NSLocalizedString("Duration (seconds)", comment: ""))
                             .font(.custom("IBMPlexMono", size: 14))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                         
@@ -64,14 +64,14 @@ struct AnimationExportModal: View {
                     
                     // Export size
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Export Size")
+                        Text(NSLocalizedString("Export Size", comment: ""))
                             .font(.custom("IBMPlexMono", size: 14))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                         
                         Picker("Size", selection: $exportSize) {
-                            Text("400x400").tag(CGSize(width: 400, height: 400))
-                            Text("600x600").tag(CGSize(width: 600, height: 600))
-                            Text("800x800").tag(CGSize(width: 800, height: 800))
+                                                    Text(NSLocalizedString("400x400", comment: "")).tag(CGSize(width: 400, height: 400))
+                        Text(NSLocalizedString("600x600", comment: "")).tag(CGSize(width: 600, height: 600))
+                        Text(NSLocalizedString("800x800", comment: "")).tag(CGSize(width: 800, height: 800))
                         }
                         .pickerStyle(SegmentedPickerStyle())
                         .accentColor(Color(hex: "#FF00D0"))
@@ -81,7 +81,7 @@ struct AnimationExportModal: View {
                 
                 // Preview
                 VStack(spacing: 8) {
-                    Text("Preview")
+                    Text(NSLocalizedString("Preview", comment: ""))
                         .font(.custom("IBMPlexMono", size: 14))
                         .foregroundColor(Color(hex: "#BBBBBB"))
                     
@@ -138,7 +138,7 @@ struct AnimationExportModal: View {
                         ProgressView(value: exportService.progress)
                             .progressViewStyle(LinearProgressViewStyle(tint: Color(hex: "#FF00D0")))
                         
-                        Text("Frame \(exportService.currentFrame) of \(exportService.totalFrames)")
+                        Text(String(format: NSLocalizedString("Frame %d of %d", comment: ""), exportService.currentFrame, exportService.totalFrames))
                             .font(.custom("IBMPlexMono", size: 12))
                             .foregroundColor(Color(hex: "#666666"))
                     }

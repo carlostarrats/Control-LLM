@@ -480,7 +480,7 @@ struct TextModalView: View {
                     Image(systemName: "keyboard")
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(colorManager.whiteTextColor)
-                    Text("Control")
+                    Text(NSLocalizedString("Control", comment: ""))
                         .font(.custom("IBMPlexMono", size: 20))
                         .foregroundColor(colorManager.whiteTextColor)
                 }
@@ -545,7 +545,7 @@ struct TextModalView: View {
             Spacer()
                 .frame(height: 200)
             
-            Text("Nothing to see here (yet) 🤖")
+            Text(NSLocalizedString("Nothing to see here (yet) 🤖", comment: ""))
                 .font(.custom("IBMPlexMono", size: 16))
                 .foregroundColor(Color(hex: "#666666"))
                 .multilineTextAlignment(.center)
@@ -553,7 +553,7 @@ struct TextModalView: View {
                                         Button(action: {
                                 showingModelsSheet = true
                             }) {
-                                Text("Download Model")
+                                Text(NSLocalizedString("Download Model", comment: ""))
                                     .font(.custom("IBMPlexMono", size: 14))
                                     .foregroundColor(Color(hex: "#141414"))
                                     .padding(.horizontal, 16)
@@ -681,11 +681,11 @@ struct TextModalView: View {
             HStack {
                 Group { // Group to apply a single transition
                     if !hasModelsInstalled {
-                        Text("Download model to chat...")
+                        Text(NSLocalizedString("Download model to chat...", comment: ""))
                     } else if viewModel.llm.isProcessing || isLocalProcessing { // Also check local state
-                        Text("Generating response...")
+                        Text(NSLocalizedString("Generating response...", comment: ""))
                     } else {
-                        Text("Ask Anything…")
+                        Text(NSLocalizedString("Ask Anything…", comment: ""))
                     }
                 }
                 .font(.custom("IBMPlexMono", size: 16))
@@ -1315,7 +1315,7 @@ struct FileMessageView: View {
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(message.isUser ? .black : ColorManager.shared.whiteTextColor)
             VStack(alignment: .leading, spacing: 2) {
-                Text("File Message")
+                Text(NSLocalizedString("File Message", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(message.isUser ? .black : ColorManager.shared.whiteTextColor)
                     .lineLimit(1)

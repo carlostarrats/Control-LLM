@@ -262,7 +262,7 @@ struct AppearanceView: View {
                 VStack(spacing: 8) {
                     // Control Unit Selection Section
                     VStack(alignment: .leading, spacing: 20) {
-                        Text("Control Unit Selection")
+                        Text(NSLocalizedString("Control Unit Selection", comment: ""))
                             .font(.custom("IBMPlexMono", size: 18))
                             .foregroundColor(ColorManager.shared.whiteTextColor)
                         
@@ -315,11 +315,11 @@ struct AppearanceView: View {
                     
                     // Main UI Colors Section
                     VStack(alignment: .leading, spacing: 0) {
-                        Text("Main UI Colors")
+                        Text(NSLocalizedString("Main UI Colors", comment: ""))
                             .font(.custom("IBMPlexMono", size: 18))
                             .foregroundColor(ColorManager.shared.whiteTextColor)
                         
-                        Text("These colors affect text and other UI elements, including the primary white text color and secondary grey text color.")
+                        Text(NSLocalizedString("These colors affect text and other UI elements, including the primary white text color and secondary grey text color.", comment: ""))
                             .font(.custom("IBMPlexMono", size: 14))
                             .foregroundColor(ColorManager.shared.greyTextColor)
                             .multilineTextAlignment(.leading)
@@ -397,7 +397,7 @@ struct AppearanceView: View {
                                 suppressChangeTracking = false
                             }
                         }) {
-                            Text("Restore Defaults")
+                            Text(NSLocalizedString("Restore Defaults", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .foregroundColor(ColorManager.shared.greyTextColor)
                                 .frame(maxWidth: .infinity)
@@ -417,7 +417,7 @@ struct AppearanceView: View {
                             hasChanges = false
                             dismiss()
                         }) {
-                            Text("Apply Changes")
+                            Text(NSLocalizedString("Apply Changes", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .foregroundColor(hasChanges ? ColorManager.shared.greenColor : Color(hex: "#888888"))
                                 .frame(maxWidth: .infinity)
@@ -450,7 +450,7 @@ struct AppearanceView: View {
                                 .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(ColorManager.shared.whiteTextColor)
                             
-                            Text("Appearance")
+                            Text(NSLocalizedString("Appearance", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 20))
                                 .foregroundColor(ColorManager.shared.whiteTextColor)
                         }

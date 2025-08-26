@@ -42,7 +42,7 @@ struct TimeDisplayView: View {
 
 #Preview {
     VStack(spacing: 20) {
-        Text("Time Display Preview")
+                        Text(NSLocalizedString("Time Display Preview", comment: ""))
             .foregroundColor(.white)
             .font(.title2)
             .padding()

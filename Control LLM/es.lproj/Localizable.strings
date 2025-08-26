@@ -30,3 +30,112 @@
 // Voice settings explanation removed
 "PrivacyNotice" = "Esta app almacena todos los datos solo en tu dispositivo: no se guarda ni comparte nada, y no existe una cuenta. Para eliminar todos los datos, borra la app.";
 
+// Main UI Text
+"Control" = "Control";
+"Nothing to see here (yet) 🤖" = "Nada que ver aquí (aún) 🤖";
+"Download Model" = "Descargar Modelo";
+"Download model to chat..." = "Descarga un modelo para chatear...";
+"Generating response..." = "Generando respuesta...";
+"Ask Anything…" = "Pregunta lo que quieras…";
+"File Message" = "Mensaje de Archivo";
+
+// Models and Agents
+"Agents" = "Agentes";
+"Available" = "Disponible";
+"Unavailable" = "No Disponible";
+"Active" = "Activo";
+"Model: %@" = "Modelo: %@";
+"No Model Assigned" = "Sin Modelo Asignado";
+
+// Settings
+"UI" = "UI";
+"Dev" = "Desarrollo";
+"English" = "Inglés";
+"Spanish" = "Español";
+"French" = "Francés";
+"Version" = "Versión";
+"Build" = "Compilación";
+"Last Updated" = "Última Actualización";
+"API Endpoint" = "Endpoint de API";
+"Debug" = "Depuración";
+"Info" = "Información";
+"Warning" = "Advertencia";
+"Error" = "Error";
+"Control LLM" = "Control LLM";
+"A text-based AI assistant with custom UI and MVVM architecture." = "Un asistente de IA basado en texto con UI personalizada y arquitectura MVVM.";
+
+// Model Management
+"Installing [%d%%]" = "Instalando [%d%%]";
+"Unused Models" = "Modelos No Usados";
+
+// Error Messages
+"Your message was shortened to fit within limits. If the shortened version doesn't accurately represent what you wanted to say, please try a shorter message." = "Tu mensaje fue acortado para ajustarse a los límites. Si la versión acortada no representa exactamente lo que querías decir, intenta con un mensaje más corto.";
+"The response was cut off because it reached the maximum length limit. Try asking a more specific question or breaking your request into smaller parts." = "La respuesta se cortó porque alcanzó el límite máximo de longitud. Intenta hacer una pregunta más específica o dividir tu solicitud en partes más pequeñas.";
+"Your message is too long. Please shorten it and try again." = "Tu mensaje es demasiado largo. Por favor acórtalo e inténtalo de nuevo.";
+"Error: %@" = "Error: %@";
+"Model switch in progress. Please wait a moment before sending your message." = "Cambio de modelo en progreso. Por favor espera un momento antes de enviar tu mensaje.";
+
+// Animation Export
+"Export MYCROFT Animation" = "Exportar Animación MYCROFT";
+"Export frames as transparent PNGs" = "Exportar frames como PNGs transparentes";
+"Frame Count" = "Número de Frames";
+"Duration (seconds)" = "Duración (segundos)";
+"Export Size" = "Tamaño de Exportación";
+"400x400" = "400x400";
+"600x600" = "600x600";
+"800x800" = "800x800";
+"Preview" = "Vista Previa";
+"Frame %d of %d" = "Frame %d de %d";
+
+// Visualizer
+"Visualizer Styles Preview" = "Vista Previa de Estilos de Visualizador";
+"Liquid Blob" = "Burbuja Líquida";
+"Animation Cycle Demo" = "Demo de Ciclo de Animación";
+"Static Particle Visualizer" = "Visualizador de Partículas Estáticas";
+"Time Display Preview" = "Vista Previa de Pantalla de Tiempo";
+
+// System Status
+"System Status" = "Estado del Sistema";
+"Response Latency" = "Latencia de Respuesta";
+"Memory Pressure" = "Presión de Memoria";
+"Thermal State" = "Estado Térmico";
+"1.0" = "1.0";
+
+// Appearance Settings
+"Control Unit Selection" = "Selección de Unidad de Control";
+"Main UI Colors" = "Colores Principales de UI";
+"These colors affect text and other UI elements, including the primary white text color and secondary grey text color." = "Estos colores afectan el texto y otros elementos de UI, incluyendo el color principal del texto blanco y el color secundario del texto gris.";
+"Restore Defaults" = "Restaurar Valores Predeterminados";
+"Apply Changes" = "Aplicar Cambios";
+
+// Model Descriptions
+"Advanced reasoning and accuracy for complex conversations | 140+ languages" = "Razonamiento avanzado y precisión para conversaciones complejas | 140+ idiomas";
+"Balanced performance for everyday conversations | 140+ languages" = "Rendimiento equilibrado para conversaciones cotidianas | 140+ idiomas";
+"Ultra-fast responses for simple tasks | 140+ languages" = "Respuestas ultra-rápidas para tareas simples | 140+ idiomas";
+"Google's previous generation language model" = "Modelo de lenguaje de generación anterior de Google";
+"Google's Gemma language model" = "Modelo de lenguaje Gemma de Google";
+"Advanced reasoning with strong code and math capabilities | 23 languages" = "Razonamiento avanzado con fuertes capacidades de código y matemáticas | 23 idiomas";
+"Balanced performance with code and math focus | 23 languages" = "Rendimiento equilibrado con enfoque en código y matemáticas | 23 idiomas";
+"Microsoft's Phi language model with code capabilities | 23 languages" = "Modelo de lenguaje Phi de Microsoft con capacidades de código | 23 idiomas";
+"Ultra-compact model optimized for mobile | 29+ languages" = "Modelo ultra-compacto optimizado para móvil | 29+ idiomas";
+"General tasks with broader technical abilities | 29+ languages" = "Tareas generales con habilidades técnicas más amplias | 29+ idiomas";
+"Qwen2.5 language model with technical focus | 29+ languages" = "Modelo de lenguaje Qwen2.5 con enfoque técnico | 29+ idiomas";
+"Advanced reasoning with broad technical abilities | 30 languages" = "Razonamiento avanzado con amplias habilidades técnicas | 30 idiomas";
+"General purpose language model with technical focus | 30 languages" = "Modelo de lenguaje de propósito general con enfoque técnico | 30 idiomas";
+"Meta's latest large language model" = "Último modelo de lenguaje grande de Meta";
+"Meta's previous generation language model" = "Modelo de lenguaje de generación anterior de Meta";
+"Meta's open source language model" = "Modelo de lenguaje de código abierto de Meta";
+"Custom or specialized language model" = "Modelo de lenguaje personalizado o especializado";
+
+// Ollama Service
+"Invalid Ollama server URL" = "URL del servidor Ollama inválida";
+"Invalid response from Ollama server" = "Respuesta inválida del servidor Ollama";
+"Ollama server error: %d" = "Error del servidor Ollama: %d";
+"Model not found on Ollama server" = "Modelo no encontrado en el servidor Ollama";
+"Network error: %@" = "Error de red: %@";
+
+// Credits
+"Michael Verges - Liquid" = "Michael Verges - Liquid";
+"IBM Plex Mono" = "IBM Plex Mono";
+"Control.Design" = "Control.Design";
+
