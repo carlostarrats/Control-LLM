@@ -63,36 +63,36 @@ struct FAQView: View {
     private var faqItems: [FAQItem] {
         [
             FAQItem(
-                question: "Privacy",
-                answer: "This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app."
+                question: NSLocalizedString("Privacy", comment: "FAQ question"),
+                answer: NSLocalizedString("This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app.", comment: "FAQ answer")
             ),
             FAQItem(
-                question: "LLM Models",
-                answer: "Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices."
+                question: NSLocalizedString("LLM Models", comment: "FAQ question"),
+                answer: NSLocalizedString("Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices.", comment: "FAQ answer")
             ),
             FAQItem(
-                question: "Chat History",
-                answer: "No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage."
+                question: NSLocalizedString("Chat History", comment: "FAQ question"),
+                answer: NSLocalizedString("No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage.", comment: "FAQ answer")
             ),
             FAQItem(
-                question: "Language",
-                answer: "English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English."
+                question: NSLocalizedString("Language", comment: "FAQ question"),
+                answer: NSLocalizedString("English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English.", comment: "FAQ answer")
             ),
             FAQItem(
-                question: "UI Color",
-                answer: "All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme."
+                question: NSLocalizedString("UI Color", comment: "FAQ question"),
+                answer: NSLocalizedString("All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme.", comment: "FAQ answer")
             ),
             FAQItem(
-                question: "Control Units",
-                answer: "Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience."
+                question: NSLocalizedString("Control Units", comment: "FAQ question"),
+                answer: NSLocalizedString("Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience.", comment: "FAQ answer")
             ),
             FAQItem(
-                question: "Quick Clipboard Analysis",
-                answer: "Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored."
+                question: NSLocalizedString("Quick Clipboard Analysis", comment: "FAQ question"),
+                answer: NSLocalizedString("Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored.", comment: "FAQ answer")
             ),
             FAQItem(
-                question: "iOS Shortcuts Integration",
-                answer: "Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device."
+                question: NSLocalizedString("iOS Shortcuts Integration", comment: "FAQ question"),
+                answer: NSLocalizedString("Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device.", comment: "FAQ answer")
             )
         ]
     }

@@ -139,3 +139,21 @@
 "IBM Plex Mono" = "IBM Plex Mono";
 "Control.Design" = "Control.Design";
 
+// FAQ
+"Privacy" = "Privacy";
+"This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app." = "This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app.";
+"LLM Models" = "LLM Models";
+"Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices." = "Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices.";
+"Chat History" = "Chat History";
+"No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage." = "No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage.";
+"Language" = "Language";
+"English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English." = "The app interface supports English, Spanish, and French. For other languages, the interface remains in English, but the LLM automatically chats in your preferred language via localization.";
+"UI Color" = "UI Color";
+"All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme." = "All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme.";
+"Control Units" = "Control Units";
+"Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience." = "Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience.";
+"Quick Clipboard Analysis" = "Quick Clipboard Analysis";
+"Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored." = "Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored.";
+"iOS Shortcuts Integration" = "iOS Shortcuts Integration";
+"Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device." = "Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device.";
+

@@ -521,9 +521,13 @@ final class LLMService: @unchecked Sendable {
             print("🔍 LLMService: Building fresh prompt (no history) for model \(currentModelFilename ?? "unknown")")
         }
         
-
+        // Get the device's current language
+        let currentLanguage = Locale.current.languageCode ?? "en"
+        let languageName = Locale.current.localizedString(forLanguageCode: currentLanguage) ?? "the user's specified language"
         
-        let systemPrompt = "You are a helpful AI assistant. Please respond in the same language as the user's prompt. If you are unable to understand or respond in that language, please default to responding in English."
+        // Create a localized system prompt
+        let promptTemplate = NSLocalizedString("You are a helpful AI assistant. Please respond in %@. If you are unable to understand or respond in that language, please default to responding in English.", comment: "System prompt for LLM")
+        let systemPrompt = String(format: promptTemplate, languageName)
         
         // UNIVERSAL APPROACH: Use the standard chat template system for ALL models
         // This ensures compatibility with any model you switch to

@@ -138,3 +138,21 @@
 "Michael Verges - Liquid" = "Michael Verges - Liquid";
 "IBM Plex Mono" = "IBM Plex Mono";
 "Control.Design" = "Control.Design";
+
+// FAQ
+"Privacy" = "Confidentialité";
+"This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app." = "Cette application stocke toutes les données sur votre appareil uniquement ; rien n'est enregistré ou partagé, et aucun compte n'existe. Pour supprimer toutes les données, supprimez l'application.";
+"LLM Models" = "Modèles LLM";
+"Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices." = "Plusieurs modèles sont disponibles dans les paramètres, chacun variant en taille et en capacité. Les performances du modèle dépendent de votre appareil : les téléphones plus récents gèrent généralement mieux les modèles plus grands et plus puissants, tandis que les modèles plus petits sont optimisés pour les appareils plus anciens.";
+"Chat History" = "Historique des discussions";
+"No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage." = "Aucun historique de discussion n'est enregistré. Les messages dans la fenêtre de discussion disparaissent progressivement sur 7 jours jusqu'à leur suppression complète, garantissant une confidentialité totale et libérant de l'espace de stockage sur l'appareil.";
+"Language" = "Langue";
+"English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English." = "L'interface de l'application prend en charge l'anglais, l'espagnol et le français. Pour les autres langues, l'interface reste en anglais, mais le LLM discute automatiquement dans votre langue préférée via la localisation.";
+"UI Color" = "Couleur de l'interface utilisateur";
+"All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme." = "Toutes les couleurs de texte peuvent être personnalisées dans les paramètres d'apparence, vous permettant de créer votre thème visuel préféré.";
+"Control Units" = "Unités de contrôle";
+"Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience." = "Trois avatars LLM sont disponibles dans les paramètres d'apparence. Ce sont des choix purement cosmétiques pour personnaliser votre expérience de discussion.";
+"Quick Clipboard Analysis" = "Analyse rapide du presse-papiers";
+"Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored." = "Appuyez sur n'importe quel avatar animé pour analyser instantanément le texte copié. L'application ouvre automatiquement la discussion et fournit un résumé des articles, des e-mails ou des documents. Fonctionne uniquement avec le texte copié - les appuis sans texte sont ignorés.";
+"iOS Shortcuts Integration" = "Intégration des raccourcis iOS";
+"Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device." = "Les actions sont disponibles en tant que blocs de construction dans l'application Raccourcis d'Apple, vous permettant de créer des flux d'automatisation. Enchaînez plusieurs messages, configurez des commandes vocales personnalisées avec Siri et créez des séquences qui s'exécutent en arrière-plan. Utilisez simplement l'application normalement - vos actions sont automatiquement suggérées à Raccourcis pour créer des automatisations, le tout sur l'appareil.";
