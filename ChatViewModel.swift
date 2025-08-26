@@ -45,9 +45,11 @@ class ChatViewModel {
     
     private var currentGenerationTask: Task<Void, Never>?
     private var cleanupTimer: Timer?
+    private let historyStorageKey = "MessageHistory"
     
     init() {
         print("🔍 ChatViewModel: init")
+        loadHistory()
         
         // Load saved timing data from UserDefaults
         let savedAverage = UserDefaults.standard.double(forKey: "AverageResponseTime")
@@ -202,6 +204,7 @@ class ChatViewModel {
             messageHistory = []
         }
         messageHistory?.append(userMessage)
+        saveHistory()
         print("🔍 ChatViewModel: Added user message to history. Total messages: \(messageHistory?.count ?? 0)")
 
         // Cancel any existing generation task
@@ -262,6 +265,7 @@ class ChatViewModel {
                     await MainActor.run {
                         let assistantMessage = ChatMessage(content: self.transcript, isUser: false, timestamp: Date())
                         self.messageHistory?.append(assistantMessage)
+                        self.saveHistory()
                         print("🔍 ChatViewModel: Added assistant response to history. Total messages: \(self.messageHistory?.count ?? 0)")
                         self.isProcessing = false
                         
@@ -358,6 +362,7 @@ class ChatViewModel {
         DispatchQueue.main.async {
             self.transcript = ""
             self.messageHistory = []
+            self.saveHistory()
             self.lastSentMessage = nil
             // Keep response timing stats - don't reset them
             // self.totalResponseTime = 0.0
@@ -414,10 +419,37 @@ class ChatViewModel {
         messageHistory = messageHistory?.filter { message in
             message.timestamp > cutoffDate
         }
+        saveHistory()
         
         print("🔍 ChatViewModel: Cleaned up messages older than 7 days")
     }
     
+    // MARK: - History Persistence
+    
+    private func saveHistory() {
+        do {
+            let data = try JSONEncoder().encode(messageHistory)
+            UserDefaults.standard.set(data, forKey: historyStorageKey)
+            print("🔍 ChatViewModel: History saved successfully.")
+        } catch {
+            print("❌ ChatViewModel: Failed to save history: \(error)")
+        }
+    }
+    
+    private func loadHistory() {
+        guard let data = UserDefaults.standard.data(forKey: historyStorageKey) else {
+            print("🔍 ChatViewModel: No saved history found.")
+            return
+        }
+        do {
+            messageHistory = try JSONDecoder().decode([ChatMessage].self, from: data)
+            print("🔍 ChatViewModel: History loaded successfully. \(messageHistory?.count ?? 0) messages.")
+        } catch {
+            print("❌ ChatViewModel: Failed to load history: \(error)")
+            messageHistory = [] // Start fresh if loading fails
+        }
+    }
+
     func calculateMessageOpacity(for message: ChatMessage) -> Double {
         let calendar = Calendar.current
         let now = Date()
