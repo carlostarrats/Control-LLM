@@ -115,6 +115,16 @@ struct LottieView: UIViewRepresentable {
     }
 }
 
+// MARK: - Custom Button Style (No Haptic)
+private struct NoHapticButtonStyle: SwiftUI.ButtonStyle {
+    func makeBody(configuration: SwiftUI.ButtonStyleConfiguration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .opacity(configuration.isPressed ? 0.8 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
 // MARK: - Chat screen --------------------------------------------------------
 
 struct TextModalView: View {
@@ -135,6 +145,7 @@ struct TextModalView: View {
     @FocusState private var isTextFieldFocused: Bool
     @State private var showingDocumentPicker = false
     @State private var showingModelsSheet = false
+    @State private var sendButtonPressed = false
 
     @State private var inputBarHeight: CGFloat = 0
     @State private var opacityUpdateTimer: Timer?
@@ -446,7 +457,7 @@ struct TextModalView: View {
     private var normalMessageList: some View {
         ForEach(getMessagesGroupedByDate(), id: \.0) { date, messages in
             VStack(spacing: 24) {
-                DateHeaderView(firstMessageTime: date)
+                DateHeaderView(firstMessageTime: messages.first?.timestamp ?? date)
                 
                 ForEach(messages) { message in
                     MessageBubble(
@@ -576,21 +587,7 @@ struct TextModalView: View {
     @ViewBuilder private var sendButtonOverlay: some View {
         let trimmedText = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
         if (!trimmedText.isEmpty || viewModel.llm.isProcessing) && hasModelsInstalled {
-            Button(action: {
-                if viewModel.llm.isProcessing {
-                    // Stop button pressed - cancel ongoing generation
-                    print("Stop button pressed!")
-                    NSLog("Stop button pressed!")
-                    viewModel.llm.stopGeneration()
-                } else {
-                    // Send button pressed - send new message
-                    print("Send button pressed!")
-                    NSLog("Send button pressed!")
-                    Task {
-                        await sendMessage()
-                    }
-                }
-            }) {
+            Group {
                 if viewModel.llm.isProcessing {
                     // Stop button (square icon)
                     Text("■")
@@ -609,7 +606,31 @@ struct TextModalView: View {
                         .cornerRadius(4)
                 }
             }
-            .buttonStyle(.plain)
+            .scaleEffect(sendButtonPressed ? 0.95 : 1.0)
+            .opacity(sendButtonPressed ? 0.8 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: sendButtonPressed)
+            .onTapGesture {
+                // Handle button press without any haptic feedback
+                sendButtonPressed = true
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    sendButtonPressed = false
+                    
+                    if viewModel.llm.isProcessing {
+                        // Stop button pressed - cancel ongoing generation
+                        print("Stop button pressed!")
+                        NSLog("Stop button pressed!")
+                        viewModel.llm.stopGeneration()
+                    } else {
+                        // Send button pressed - send new message
+                        print("Send button pressed!")
+                        NSLog("Send button pressed!")
+                        Task {
+                            await sendMessage()
+                        }
+                    }
+                }
+            }
             .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             .padding(.trailing, 8)
             .padding(.bottom, 6) // keep anchored but visually centered for single-line height
