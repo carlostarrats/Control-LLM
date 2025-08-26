@@ -48,6 +48,14 @@ class ChatViewModel {
     
     init() {
         print("🔍 ChatViewModel: init")
+        
+        // Load saved timing data from UserDefaults
+        let savedAverage = UserDefaults.standard.double(forKey: "AverageResponseTime")
+        if savedAverage > 0 {
+            self.averageResponseDuration = savedAverage
+            print("🔍 ChatViewModel: Loaded saved average response time: \(savedAverage)s")
+        }
+        
         setupModelChangeObserver()
         setupCleanupTimer()
     }
@@ -265,6 +273,9 @@ class ChatViewModel {
                             self.totalResponseTime += currentResponseTime
                             self.responseCount += 1
                             self.averageResponseDuration = self.totalResponseTime / Double(self.responseCount)
+                            
+                            // Save to UserDefaults for persistence across sessions
+                            UserDefaults.standard.set(self.averageResponseDuration, forKey: "AverageResponseTime")
                         }
                         self.requestStartTime = nil
                     }
@@ -348,11 +359,11 @@ class ChatViewModel {
             self.transcript = ""
             self.messageHistory = []
             self.lastSentMessage = nil
-            // Reset response timing stats
-            self.totalResponseTime = 0.0
-            self.responseCount = 0
-            self.averageResponseDuration = 0.0
-            print("🔍 ChatViewModel: Conversation cleared")
+            // Keep response timing stats - don't reset them
+            // self.totalResponseTime = 0.0
+            // self.responseCount = 0
+            // self.averageResponseDuration = 0.0
+            print("🔍 ChatViewModel: Conversation cleared (timing data preserved)")
         }
     }
     

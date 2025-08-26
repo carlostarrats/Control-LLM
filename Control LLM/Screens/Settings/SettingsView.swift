@@ -172,7 +172,7 @@ struct ToastView: View {
 
 struct SystemInfoView: View {
     @State private var modelManager = ModelManager.shared
-    @State private var chatViewModel = ChatViewModel()
+    @State private var hybridService = HybridLLMService.shared
     
     var body: some View {
         VStack(spacing: 16) {
@@ -297,22 +297,18 @@ struct SystemInfoView: View {
     }
     
     private var statusText: String {
-        if chatViewModel.isProcessing {
-            return "Processing"
-        } else if chatViewModel.modelLoaded {
-            return "Ready"
+        if hybridService.isModelLoaded {
+            return "Connected"
         } else {
-            return "Idle"
+            return "Disconnected"
         }
     }
     
     private var statusColor: Color {
-        if chatViewModel.isProcessing {
-            return ColorManager.shared.orangeColor
-        } else if chatViewModel.modelLoaded {
-            return Color(hex: "#3EBBA5") // Success color
+        if hybridService.isModelLoaded {
+            return Color(hex: "#3EBBA5") // Success color - green
         } else {
-            return ColorManager.shared.greyTextColor
+            return ColorManager.shared.greyTextColor // Grey for disconnected
         }
     }
     
@@ -321,11 +317,12 @@ struct SystemInfoView: View {
     @State private var thermalStateText: String = "Calculating..."
     
     private func updateResourceInfo() {
-        // Response Latency - show average response time
-        if chatViewModel.averageResponseDuration > 0 {
-            responseLatency = String(format: "%.0f ms avg", chatViewModel.averageResponseDuration * 1000)
+        // Response Latency - show persistent average from UserDefaults
+        let savedAverage = UserDefaults.standard.double(forKey: "AverageResponseTime")
+        if savedAverage > 0 {
+            responseLatency = String(format: "%.0f ms avg", savedAverage * 1000)
         } else {
-            responseLatency = "No responses yet"
+            responseLatency = "No data yet"
         }
         
         // Memory Pressure - iOS doesn't expose this directly, so we'll show available memory
