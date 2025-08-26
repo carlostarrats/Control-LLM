@@ -679,19 +679,19 @@ struct TextModalView: View {
     @ViewBuilder private var placeholderOverlay: some View {
         if messageText.isEmpty {
             HStack {
-                if !hasModelsInstalled {
-                    Text("Download model to chat...")
-                        .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(Color(hex: "#666666"))
-                } else if viewModel.llm.isProcessing {
-                    Text("Generating response...")
-                        .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(Color(hex: "#666666"))
-                } else {
-                    Text("Ask Anything…")
-                        .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(Color(hex: "#666666"))
+                Group { // Group to apply a single transition
+                    if !hasModelsInstalled {
+                        Text("Download model to chat...")
+                    } else if viewModel.llm.isProcessing || isLocalProcessing { // Also check local state
+                        Text("Generating response...")
+                    } else {
+                        Text("Ask Anything…")
+                    }
                 }
+                .font(.custom("IBMPlexMono", size: 16))
+                .foregroundColor(Color(hex: "#666666"))
+                .transition(.identity) // Use .identity for instant change to sync with button
+
                 Spacer()
             }
             .padding(.horizontal, 16)
@@ -711,7 +711,7 @@ struct TextModalView: View {
                         .frame(width: 32, height: 32)
                         .background(colorManager.redColor)
                         .cornerRadius(4)
-                        .transition(.identity) // Use .identity to remove fade animation
+                        .transition(.identity) // Instant in, instant out
                 } else {
                     // Send button (arrow icon)
                     Image(systemName: "arrow.up")
@@ -720,7 +720,7 @@ struct TextModalView: View {
                         .frame(width: 32, height: 32)
                         .background(colorManager.purpleColor)
                         .cornerRadius(4)
-                        .transition(.identity) // Use .identity to remove fade animation
+                        .transition(.identity) // Reverted: Instant in, instant out
                 }
             }
             .scaleEffect(isSendButtonPressed ? 0.95 : 1.0)
@@ -1002,7 +1002,6 @@ struct TextModalView: View {
                 print("🔍 TextModalView: Stopping polling to prevent infinite loop")
                 isPolling = false
                 isLocalProcessing = false // Reset local processing state
-                FeedbackService.shared.playHaptic(.light)
                 
                 // Add follow-up questions for clipboard messages if not already added
                 addFollowUpQuestionsIfNeeded()
@@ -1013,7 +1012,6 @@ struct TextModalView: View {
             // This indicates the response is likely complete
             if stableTranscriptCount >= 3 && !hasProvidedCompletionHaptic && !currentTranscript.isEmpty {
                 print("🔍 TextModalView: Response appears complete, providing haptic feedback")
-                FeedbackService.shared.playHaptic(.light)
                 hasProvidedCompletionHaptic = true
                 
                 // Add follow-up questions for clipboard messages if not already added
