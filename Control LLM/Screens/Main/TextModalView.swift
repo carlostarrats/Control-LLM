@@ -1128,7 +1128,8 @@ struct DateHeaderView: View {
         let formatter = DateFormatter()
         formatter.locale = Locale.current
         formatter.timeZone = TimeZone.current
-        formatter.dateFormat = "hh:mm a"
+        formatter.timeStyle = .short
+        formatter.dateStyle = .none
         let timeText = formatter.string(from: firstMessageTime)
         return "\(dateText) \(timeText)"
     }
