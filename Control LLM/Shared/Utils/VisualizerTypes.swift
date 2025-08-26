@@ -9,9 +9,9 @@ enum VisualizerType: Int, CaseIterable {
     
     var displayName: String {
         switch self {
-        case .liquid: return "MYCROFT"
-        case .particle: return "WOPR"
-        case .flowing: return "TARS"
+        case .liquid: return NSLocalizedString("MYCROFT", comment: "Liquid visualizer name")
+        case .particle: return NSLocalizedString("WOPR", comment: "Particle visualizer name")
+        case .flowing: return NSLocalizedString("TARS", comment: "Flowing visualizer name")
         }
     }
     

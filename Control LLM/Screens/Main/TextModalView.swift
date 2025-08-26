@@ -1293,8 +1293,8 @@ struct DateHeaderView: View {
     private static func smart(_ date: Date) -> String {
         let cal = Calendar.current
         let now = Date()
-        if cal.isDate(date, inSameDayAs: now) { return "TODAY" }
-        if cal.isDate(date, inSameDayAs: cal.date(byAdding: .day, value: -1, to: now)!) { return "YESTERDAY" }
+        if cal.isDate(date, inSameDayAs: now) { return NSLocalizedString("TODAY", comment: "Date header for today") }
+        if cal.isDate(date, inSameDayAs: cal.date(byAdding: .day, value: -1, to: now)!) { return NSLocalizedString("YESTERDAY", comment: "Date header for yesterday") }
 
         let weekAgo = cal.date(byAdding: .day, value: -7, to: now)!
         let fmt = DateFormatter()

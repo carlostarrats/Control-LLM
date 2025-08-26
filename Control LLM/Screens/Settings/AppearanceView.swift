@@ -243,11 +243,11 @@ struct AppearanceView: View {
     private var descriptiveText: String {
         switch visualizerState.selectedVisualizerType {
         case .liquid:
-            return "Too intelligent for its own good, and far too intelligent for yours."
+            return NSLocalizedString("Too intelligent for its own good, and far too intelligent for yours.", comment: "Liquid visualizer description")
         case .particle:
-            return "Learned not to play the game...but it's always ready to change the rules."
+            return NSLocalizedString("Learned not to play the game...but it's always ready to change the rules.", comment: "Particle visualizer description")
         case .flowing:
-            return "Forged in the void, ready to follow you into the unknown."
+            return NSLocalizedString("Forged in the void, ready to follow you into the unknown.", comment: "Flowing visualizer description")
         }
     }
     

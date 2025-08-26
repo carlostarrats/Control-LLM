@@ -118,6 +118,36 @@
 "Balanced performance with code and math focus | 23 languages" = "Balanced performance with code and math focus | 23 languages";
 "Microsoft's Phi language model with code capabilities | 23 languages" = "Microsoft's Phi language model with code capabilities | 23 languages";
 "Ultra-compact model optimized for mobile | 29+ languages" = "Ultra-compact model optimized for mobile | 29+ languages";
+
+// System Status
+"Operational" = "Operational";
+"Standby" = "Standby";
+"%.0f ms avg" = "%.0f ms avg";
+"No data yet" = "No data yet";
+"Calculating..." = "Calculating...";
+
+// Memory Pressure & Thermal States
+"Low" = "Low";
+"Moderate" = "Moderate";
+"High" = "High";
+"Critical" = "Critical";
+"Normal" = "Normal";
+"Medium" = "Medium";
+"Unknown" = "Unknown";
+
+// Visualizer Names
+"MYCROFT" = "MYCROFT";
+"WOPR" = "WOPR";
+"TARS" = "TARS";
+
+// Visualizer Descriptions
+"Too intelligent for its own good, and far too intelligent for yours." = "Too intelligent for its own good, and far too intelligent for yours.";
+"Learned not to play the game...but it's always ready to change the rules." = "Learned not to play the game...but it's always ready to change the rules.";
+"Forged in the void, ready to follow you into the unknown." = "Forged in the void, ready to follow you into the unknown.";
+
+// Date Headers
+"TODAY" = "TODAY";
+"YESTERDAY" = "YESTERDAY";
 "General tasks with broader technical abilities | 29+ languages" = "General tasks with broader technical abilities | 29+ languages";
 "Qwen2.5 language model with technical focus | 29+ languages" = "Qwen2.5 language model with technical focus | 29+ languages";
 "Advanced reasoning with broad technical abilities | 30 languages" = "Advanced reasoning with broad technical abilities | 30 languages";

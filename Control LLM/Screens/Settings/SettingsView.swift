@@ -298,9 +298,9 @@ struct SystemInfoView: View {
     
     private var statusText: String {
         if hybridService.isModelLoaded {
-            return "Connected"
+            return NSLocalizedString("Operational", comment: "System status when model is loaded")
         } else {
-            return "Disconnected"
+            return NSLocalizedString("Standby", comment: "System status when model is not loaded")
         }
     }
     
@@ -312,17 +312,17 @@ struct SystemInfoView: View {
         }
     }
     
-    @State private var responseLatency: String = "Calculating..."
-    @State private var memoryPressureText: String = "Calculating..."
-    @State private var thermalStateText: String = "Calculating..."
+    @State private var responseLatency: String = NSLocalizedString("Calculating...", comment: "Status while calculating response latency")
+    @State private var memoryPressureText: String = NSLocalizedString("Calculating...", comment: "Status while calculating memory pressure")
+    @State private var thermalStateText: String = NSLocalizedString("Calculating...", comment: "Status while calculating thermal state")
     
     private func updateResourceInfo() {
         // Response Latency - show persistent average from UserDefaults
         let savedAverage = UserDefaults.standard.double(forKey: "AverageResponseTime")
         if savedAverage > 0 {
-            responseLatency = String(format: "%.0f ms avg", savedAverage * 1000)
+            responseLatency = String(format: NSLocalizedString("%.0f ms avg", comment: "Average response time format"), savedAverage * 1000)
         } else {
-            responseLatency = "No data yet"
+            responseLatency = NSLocalizedString("No data yet", comment: "Response latency when no data available")
         }
         
         // Memory Pressure - iOS doesn't expose this directly, so we'll show available memory
@@ -330,28 +330,28 @@ struct SystemInfoView: View {
         let physicalMemory = processInfo.physicalMemory
         let availableMemoryGB = Double(physicalMemory) / (1024 * 1024 * 1024) // Convert to GB
         if availableMemoryGB > 2.0 {
-            memoryPressureText = "Low"
+            memoryPressureText = NSLocalizedString("Low", comment: "Memory pressure level - low")
         } else if availableMemoryGB > 1.0 {
-            memoryPressureText = "Moderate"
+            memoryPressureText = NSLocalizedString("Moderate", comment: "Memory pressure level - moderate")
         } else if availableMemoryGB > 0.5 {
-            memoryPressureText = "High"
+            memoryPressureText = NSLocalizedString("High", comment: "Memory pressure level - high")
         } else {
-            memoryPressureText = "Critical"
+            memoryPressureText = NSLocalizedString("Critical", comment: "Memory pressure level - critical")
         }
         
         // Thermal State
         let thermalState = ProcessInfo.processInfo.thermalState
         switch thermalState {
         case .nominal:
-            thermalStateText = "Nominal"
+            thermalStateText = NSLocalizedString("Normal", comment: "Thermal state - normal")
         case .fair:
-            thermalStateText = "Fair"
+            thermalStateText = NSLocalizedString("Medium", comment: "Thermal state - medium")
         case .serious:
-            thermalStateText = "Serious"
+            thermalStateText = NSLocalizedString("High", comment: "Thermal state - high")
         case .critical:
-            thermalStateText = "Critical"
+            thermalStateText = NSLocalizedString("Critical", comment: "Thermal state - critical")
         @unknown default:
-            thermalStateText = "Unknown"
+            thermalStateText = NSLocalizedString("Unknown", comment: "Thermal state - unknown")
         }
     }
 } 
