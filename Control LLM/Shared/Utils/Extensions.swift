@@ -66,6 +66,11 @@ extension Color {
     }
 }
 
+// MARK: - Notification Names
+extension Notification.Name {
+    static let dismissKeyboard = Notification.Name("dismissKeyboard")
+}
+
 // MARK: - View Extensions
 extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {

@@ -298,6 +298,10 @@ struct TextModalView: View {
             opacityUpdateTimer?.invalidate()
             opacityUpdateTimer = nil
             
+            // Dismiss keyboard when view disappears
+            isTextFieldFocused = false
+            hideKeyboard()
+            
             // CRITICAL FIX: Removed clipboard message observer cleanup - consolidated into single message flow
         }
                         .onReceive(NotificationCenter.default.publisher(for: .modelDidChange)) { _ in
@@ -351,6 +355,11 @@ struct TextModalView: View {
             }
             
             print("🔍 TextModalView: ALL streaming state reset completed for new model")
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .dismissKeyboard)) { _ in
+            // Dismiss keyboard and reset focus when navigating away from chat
+            isTextFieldFocused = false
+            hideKeyboard()
         }
         .sheet(isPresented: $showingModelsSheet) {
             SettingsModelsView()
@@ -620,6 +629,7 @@ struct TextModalView: View {
                     .background(Color(hex: "#2A2A2A"))
                     .cornerRadius(4)
                     .tint(colorManager.whiteTextColor)
+                    .focused($isTextFieldFocused) // Explicitly bind focus state
                     .disabled(viewModel.llm.isProcessing || !hasModelsInstalled) // Disable during LLM response or when no models
                     .onChange(of: messageText) { _, _ in
                         if !viewModel.llm.isProcessing && hasModelsInstalled { // Only play sound if not processing and models available
@@ -847,9 +857,12 @@ struct TextModalView: View {
         }
         
         print("🔍 TextModalView: About to clear messageText")
-        // 3) clear field + ask model
+        // 3) clear field + ask model + dismiss keyboard
         DispatchQueue.main.async {
             self.messageText = ""
+            // Dismiss keyboard and reset focus after sending message
+            self.isTextFieldFocused = false
+            self.hideKeyboard()
         }
         print("🔍 TextModalView: LLM call already made through ChatViewModel, no duplicate call needed")
         // Note: viewModel.llm.send(text) is already called by ChatViewModel.sendTextMessage

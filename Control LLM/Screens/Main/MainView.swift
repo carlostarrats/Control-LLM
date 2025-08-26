@@ -81,6 +81,13 @@ struct MainView: View {
                     viewModel.shouldNavigateToChat = false
                 }
             }
+            .onChange(of: currentPage) { _, newPage in
+                // Dismiss keyboard when navigating away from chat page
+                if newPage != 2 {
+                    // Post notification to dismiss keyboard
+                    NotificationCenter.default.post(name: .dismissKeyboard, object: nil)
+                }
+            }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             
             // Onboarding Modal (first run only)
