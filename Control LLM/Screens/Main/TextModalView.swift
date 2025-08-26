@@ -117,11 +117,116 @@ struct LottieView: UIViewRepresentable {
 
 // MARK: - Custom Button Style (No Haptic)
 private struct NoHapticButtonStyle: SwiftUI.ButtonStyle {
-    func makeBody(configuration: SwiftUI.ButtonStyleConfiguration) -> some View {
+    func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .opacity(configuration.isPressed ? 0.8 : 1.0)
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+// MARK: - No Haptic Button Wrapper
+private struct NoHapticButton: UIViewRepresentable {
+    let isStopButton: Bool
+    let colorManager: ColorManager
+    let action: () -> Void
+    
+    func makeUIView(context: Context) -> NoHapticUIButton {
+        let button = NoHapticUIButton(type: .system)
+        
+        // Configure button appearance
+        if isStopButton {
+            button.setTitle("■", for: .normal)
+        } else {
+            button.setImage(UIImage(systemName: "arrow.up")?.withConfiguration(
+                UIImage.SymbolConfiguration(pointSize: 16, weight: .bold)
+            ), for: .normal)
+        }
+        
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+        button.setTitleColor(UIColor(Color(hex: "#1D1D1D")), for: .normal)
+        button.tintColor = UIColor(Color(hex: "#1D1D1D"))
+        button.backgroundColor = isStopButton ? UIColor(Color.red.opacity(0.8)) : UIColor(Color.blue.opacity(0.8))
+        button.layer.cornerRadius = 4
+        button.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
+        
+        // Disable all haptic feedback
+        button.showsTouchWhenHighlighted = false
+        
+        // Remove all existing gesture recognizers and add custom one
+        if let existingGestures = button.gestureRecognizers {
+            for gesture in existingGestures {
+                button.removeGestureRecognizer(gesture)
+            }
+        }
+        
+        // Add custom tap gesture recognizer
+        let tapGesture = NoHapticTapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.buttonTapped))
+        button.addGestureRecognizer(tapGesture)
+        
+        return button
+    }
+    
+    func updateUIView(_ uiView: NoHapticUIButton, context: Context) {
+        if isStopButton {
+            uiView.setTitle("■", for: .normal)
+        } else {
+            uiView.setImage(UIImage(systemName: "arrow.up")?.withConfiguration(
+                UIImage.SymbolConfiguration(pointSize: 16, weight: .bold)
+            ), for: .normal)
+        }
+        uiView.backgroundColor = isStopButton ? UIColor(Color.red.opacity(0.8)) : UIColor(Color.blue.opacity(0.8))
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(action: action)
+    }
+    
+    class Coordinator: NSObject {
+        let action: () -> Void
+        
+        init(action: @escaping () -> Void) {
+            self.action = action
+        }
+        
+        @objc func buttonTapped() {
+            action()
+        }
+    }
+}
+
+// MARK: - Custom UIButton that disables haptic feedback
+private class NoHapticUIButton: UIButton {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // Disable haptic feedback by overriding the touch method
+        super.touchesBegan(touches, with: event)
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // Disable haptic feedback by overriding the touch method
+        super.touchesEnded(touches, with: event)
+    }
+    
+    // Override to disable haptic feedback completely
+    override var isHighlighted: Bool {
+        get { return super.isHighlighted }
+        set { 
+            // Don't call super.setter to prevent haptic feedback
+            // super.isHighlighted = newValue
+        }
+    }
+}
+
+// MARK: - Custom Tap Gesture Recognizer that disables haptic feedback
+private class NoHapticTapGestureRecognizer: UITapGestureRecognizer {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // Disable haptic feedback
+        super.touchesBegan(touches, with: event!)
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // Disable haptic feedback
+        super.touchesEnded(touches, with: event!)
     }
 }
 
@@ -145,7 +250,7 @@ struct TextModalView: View {
     @FocusState private var isTextFieldFocused: Bool
     @State private var showingDocumentPicker = false
     @State private var showingModelsSheet = false
-    @State private var sendButtonPressed = false
+    @State private var isSendButtonPressed = false
 
     @State private var inputBarHeight: CGFloat = 0
     @State private var opacityUpdateTimer: Timer?
@@ -606,28 +711,26 @@ struct TextModalView: View {
                         .cornerRadius(4)
                 }
             }
-            .scaleEffect(sendButtonPressed ? 0.95 : 1.0)
-            .opacity(sendButtonPressed ? 0.8 : 1.0)
-            .animation(.easeInOut(duration: 0.1), value: sendButtonPressed)
+            .scaleEffect(isSendButtonPressed ? 0.95 : 1.0)
+            .opacity(isSendButtonPressed ? 0.8 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: isSendButtonPressed)
             .onTapGesture {
-                // Handle button press without any haptic feedback
-                sendButtonPressed = true
-                
+                isSendButtonPressed = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    sendButtonPressed = false
-                    
-                    if viewModel.llm.isProcessing {
-                        // Stop button pressed - cancel ongoing generation
-                        print("Stop button pressed!")
-                        NSLog("Stop button pressed!")
-                        viewModel.llm.stopGeneration()
-                    } else {
-                        // Send button pressed - send new message
-                        print("Send button pressed!")
-                        NSLog("Send button pressed!")
-                        Task {
-                            await sendMessage()
-                        }
+                    isSendButtonPressed = false
+                }
+
+                if viewModel.llm.isProcessing {
+                    // Stop button pressed - cancel ongoing generation
+                    print("Stop button pressed!")
+                    NSLog("Stop button pressed!")
+                    viewModel.llm.stopGeneration()
+                } else {
+                    // Send button pressed - send new message
+                    print("Send button pressed!")
+                    NSLog("Send button pressed!")
+                    Task {
+                        await sendMessage()
                     }
                 }
             }

@@ -4,13 +4,14 @@ import UIKit
 
 class FeedbackService {
     static let shared = FeedbackService()
+    private var audioPlayer: AVAudioPlayer?
     
     private init() {}
     
     // MARK: - Sound Effects
     
     enum SoundEffect: SystemSoundID {
-        case messageSent = 1055
+        case messageSent = 1306 // Changed from 1055 to a haptic-free sound
         case keyPress = 1104
         case tabSwitch = 1256
     }
