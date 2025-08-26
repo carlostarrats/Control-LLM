@@ -701,9 +701,9 @@ struct TextModalView: View {
     // send button overlay
     @ViewBuilder private var sendButtonOverlay: some View {
         let trimmedText = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if (!trimmedText.isEmpty || viewModel.llm.isProcessing) && hasModelsInstalled {
+        if (!trimmedText.isEmpty || viewModel.llm.isProcessing || isLocalProcessing) && hasModelsInstalled {
             Group {
-                if viewModel.llm.isProcessing {
+                if viewModel.llm.isProcessing || isLocalProcessing {
                     // Stop button (square icon)
                     Text("■")
                         .font(.system(size: 16, weight: .bold))
@@ -711,6 +711,7 @@ struct TextModalView: View {
                         .frame(width: 32, height: 32)
                         .background(colorManager.redColor)
                         .cornerRadius(4)
+                        .transition(.identity) // Use .identity to remove fade animation
                 } else {
                     // Send button (arrow icon)
                     Image(systemName: "arrow.up")
@@ -719,6 +720,7 @@ struct TextModalView: View {
                         .frame(width: 32, height: 32)
                         .background(colorManager.purpleColor)
                         .cornerRadius(4)
+                        .transition(.identity) // Use .identity to remove fade animation
                 }
             }
             .scaleEffect(isSendButtonPressed ? 0.95 : 1.0)
@@ -739,6 +741,24 @@ struct TextModalView: View {
                     // Send button pressed - send new message
                     print("Send button pressed!")
                     NSLog("Send button pressed!")
+                    
+                    // Immediately change button state and dismiss keyboard for instant UI response
+                    print("🔍 Setting isLocalProcessing = true for immediate button change")
+                    isLocalProcessing = true
+                    isTextFieldFocused = false
+                    
+                    // Force keyboard dismissal using multiple methods for reliability
+                    hideKeyboard()
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    
+                    // Force TextField to lose focus completely
+                    DispatchQueue.main.async {
+                        self.isTextFieldFocused = false
+                        self.hideKeyboard()
+                        // Additional force dismissal
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
+                    
                     Task {
                         await sendMessage()
                     }
@@ -857,12 +877,9 @@ struct TextModalView: View {
         }
         
         print("🔍 TextModalView: About to clear messageText")
-        // 3) clear field + ask model + dismiss keyboard
+        // 3) clear field + ask model (keyboard already dismissed)
         DispatchQueue.main.async {
             self.messageText = ""
-            // Dismiss keyboard and reset focus after sending message
-            self.isTextFieldFocused = false
-            self.hideKeyboard()
         }
         print("🔍 TextModalView: LLM call already made through ChatViewModel, no duplicate call needed")
         // Note: viewModel.llm.send(text) is already called by ChatViewModel.sendTextMessage
@@ -927,6 +944,7 @@ struct TextModalView: View {
     @State private var lastRenderedTranscript = ""
     @State private var isPolling = false
     @State private var pollCount = 0
+    @State private var isLocalProcessing = false // Local state for immediate button changes
     @State private var lastTranscriptLength = 0
     @State private var lastSentMessage = ""
     @State private var isDuplicateMessage = false
@@ -983,6 +1001,7 @@ struct TextModalView: View {
                 print("🔍 TextModalView: WARNING - Possible streaming loop detected after \(stableTranscriptCount) stable polls")
                 print("🔍 TextModalView: Stopping polling to prevent infinite loop")
                 isPolling = false
+                isLocalProcessing = false // Reset local processing state
                 FeedbackService.shared.playHaptic(.light)
                 
                 // Add follow-up questions for clipboard messages if not already added
@@ -1002,6 +1021,7 @@ struct TextModalView: View {
                 
                 // Stop polling when response is complete
                 isPolling = false
+                isLocalProcessing = false // Reset local processing state
                 return
             }
             
