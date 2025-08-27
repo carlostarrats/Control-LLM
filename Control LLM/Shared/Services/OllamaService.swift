@@ -259,15 +259,15 @@ enum OllamaError: Error {
     var localizedDescription: String {
         switch self {
         case .invalidURL:
-            return "Invalid Ollama server URL"
+            return NSLocalizedString("Invalid Ollama server URL", comment: "")
         case .invalidResponse:
-            return "Invalid response from Ollama server"
+            return NSLocalizedString("Invalid response from Ollama server", comment: "")
         case .serverError(let code):
-            return "Ollama server error: \(code)"
+            return String(format: NSLocalizedString("Ollama server error: %@", comment: ""), String(code))
         case .modelNotFound:
-            return "Model not found on Ollama server"
+            return NSLocalizedString("Model not found on Ollama server", comment: "")
         case .networkError(let error):
-            return "Network error: \(error.localizedDescription)"
+            return String(format: NSLocalizedString("Network error: %@", comment: ""), error.localizedDescription)
         }
     }
 }

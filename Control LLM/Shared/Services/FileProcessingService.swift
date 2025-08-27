@@ -63,7 +63,7 @@ class FileProcessingService {
             content: extractedText,
             type: .pdf,
             size: url.fileSize ?? 0,
-            metadata: ["pages": "\(pageCount)"]
+            metadata: ["pages": String(format: NSLocalizedString("%d", comment: ""), pageCount)]
         )
     }
     
@@ -102,14 +102,14 @@ class FileProcessingService {
         try handler.perform([request])
         
         guard let observations = request.results else {
-            return "No text found in image"
+            return NSLocalizedString("No text found in image", comment: "")
         }
         
         let extractedText = observations.compactMap { observation in
             observation.topCandidates(1).first?.string
         }.joined(separator: "\n")
         
-        return extractedText.isEmpty ? "No text found in image" : extractedText
+        return extractedText.isEmpty ? NSLocalizedString("No text found in image", comment: "") : extractedText
     }
     
     /// Process Word documents (basic implementation)
@@ -118,7 +118,7 @@ class FileProcessingService {
         // In a full implementation, you'd use a library like TextEdit or similar
         return FileContent(
             fileName: url.lastPathComponent,
-            content: "Word document processing is not yet supported. Please convert to PDF or text format.",
+            content: NSLocalizedString("Word document processing is not yet supported. Please convert to PDF or text format.", comment: ""),
             type: .document,
             size: url.fileSize ?? 0
         )
@@ -127,7 +127,7 @@ class FileProcessingService {
     /// Format file content for LLM processing
     func formatForLLM(_ fileContent: FileContent) -> String {
         var formatted = "📎 File: \(fileContent.fileName)\n"
-        formatted += "📄 Type: \(fileContent.type.rawValue)\n"
+        formatted += "📄 Type: \(fileContent.type.localizedName)\n"
         if let size = fileContent.size {
             formatted += "📏 Size: \(ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file))\n"
         }
@@ -171,6 +171,19 @@ enum FileType: String, CaseIterable {
     case pdf = "PDF"
     case image = "Image"
     case document = "Document"
+    
+    var localizedName: String {
+        switch self {
+        case .text:
+            return NSLocalizedString("Text", comment: "")
+        case .pdf:
+            return NSLocalizedString("PDF", comment: "")
+        case .image:
+            return NSLocalizedString("Image", comment: "")
+        case .document:
+            return NSLocalizedString("Document", comment: "")
+        }
+    }
 }
 
 enum FileProcessingError: Error, LocalizedError {
@@ -183,15 +196,15 @@ enum FileProcessingError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .unsupportedFormat:
-            return "This file format is not supported"
+            return NSLocalizedString("This file format is not supported", comment: "")
         case .encodingError:
-            return "Could not read the file encoding"
+            return NSLocalizedString("Could not read the file encoding", comment: "")
         case .pdfError:
-            return "Could not process the PDF file"
+            return NSLocalizedString("Could not process the PDF file", comment: "")
         case .imageError:
-            return "Could not process the image file"
+            return NSLocalizedString("Could not process the image file", comment: "")
         case .fileNotFound:
-            return "File not found"
+            return NSLocalizedString("File not found", comment: "")
         }
     }
 }

@@ -72,12 +72,12 @@ class VoiceIntegrationService: ObservableObject {
     var statusDescription: String {
         if isVoiceModeActive {
             if isProcessingVoice {
-                return "Listening..."
+                return NSLocalizedString("Listening...", comment: "")
             } else {
-                return "Voice mode active"
+                return NSLocalizedString("Voice mode active", comment: "")
             }
         } else {
-            return "Voice mode inactive"
+            return NSLocalizedString("Voice mode inactive", comment: "")
         }
     }
     

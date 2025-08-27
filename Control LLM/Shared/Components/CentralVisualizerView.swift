@@ -468,14 +468,14 @@ struct CentralVisualizerView: View {
 
 #Preview {
     VStack(spacing: 20) {
-        Text("Visualizer Styles Preview")
+        Text(NSLocalizedString("Visualizer Styles Preview", comment: ""))
             .foregroundColor(.white)
             .font(.title2)
             .padding()
         
         // Liquid Blob
         VStack {
-            Text("Liquid Blob")
+            Text(NSLocalizedString("Liquid Blob", comment: ""))
                 .foregroundColor(.white)
                 .font(.headline)
             CentralVisualizerView()
@@ -496,7 +496,7 @@ struct AnimationCycleDemo: View {
     
     var body: some View {
         VStack {
-            Text("Animation Cycle Demo")
+            Text(NSLocalizedString("Animation Cycle Demo", comment: ""))
                 .foregroundColor(.white)
                 .font(.title2)
                 .padding()
@@ -506,7 +506,7 @@ struct AnimationCycleDemo: View {
                 .background(Color.black)
                 .clipShape(Circle())
             
-            Text(isSpeaking ? "Speaking..." : "Idle")
+            Text(isSpeaking ? NSLocalizedString("Speaking...", comment: "") : NSLocalizedString("Idle", comment: ""))
                 .foregroundColor(.white)
                 .padding()
             

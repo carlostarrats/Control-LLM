@@ -24,47 +24,47 @@ struct LLMModelInfo: Identifiable {
         
         // Detect model type and provider with improved accuracy
         if lowercaseFilename.contains("gemma") {
-            self.provider = "Google"
+            self.provider = NSLocalizedString("Google", comment: "")
             if lowercaseFilename.contains("3n") {
-                self.name = "Gemma 3N E4B IT"
+                self.name = NSLocalizedString("Gemma 3N E4B IT", comment: "")
                 self.description = NSLocalizedString("Advanced reasoning and accuracy for complex conversations | 140+ languages", comment: "")
                 self.size = "4.3 GB"
             } else if lowercaseFilename.contains("3-1b") {
-                self.name = "Gemma 3 1B IT"
+                self.name = NSLocalizedString("Gemma 3 1B IT", comment: "")
                 self.description = NSLocalizedString("Balanced performance for everyday conversations | 140+ languages", comment: "")
                 self.size = "0.8 GB"
             } else if lowercaseFilename.contains("3-270m") {
-                self.name = "Gemma 3 270M IT"
+                self.name = NSLocalizedString("Gemma 3 270M IT", comment: "")
                 self.description = NSLocalizedString("Ultra-fast responses for simple tasks | 140+ languages", comment: "")
                 self.size = "0.3 GB"
             } else if lowercaseFilename.contains("2") {
-                self.name = "Gemma 2 Model"
+                self.name = NSLocalizedString("Gemma 2 Model", comment: "")
                 self.description = NSLocalizedString("Google's previous generation language model", comment: "")
-                self.size = "Unknown"
+                self.size = NSLocalizedString("Unknown", comment: "")
             } else {
-                self.name = "Gemma Model"
+                self.name = NSLocalizedString("Gemma Model", comment: "")
                 self.description = NSLocalizedString("Google's Gemma language model", comment: "")
-                self.size = "Unknown"
+                self.size = NSLocalizedString("Unknown", comment: "")
             }
         } else if lowercaseFilename.contains("phi") {
-            self.provider = "Microsoft"
+            self.provider = NSLocalizedString("Microsoft", comment: "")
             if lowercaseFilename.contains("3") {
-                self.name = "Phi-3 Model"
+                self.name = NSLocalizedString("Phi-3 Model", comment: "")
                 self.description = NSLocalizedString("Advanced reasoning with strong code and math capabilities | 23 languages", comment: "")
                 self.size = "2.4 GB"
             } else if lowercaseFilename.contains("2") {
-                self.name = "Phi-2 Model"
+                self.name = NSLocalizedString("Phi-2 Model", comment: "")
                 self.description = NSLocalizedString("Balanced performance with code and math focus | 23 languages", comment: "")
                 self.size = "1.3 GB"
             } else {
-                self.name = "Phi Model"
+                self.name = NSLocalizedString("Phi Model", comment: "")
                 self.description = NSLocalizedString("Microsoft's Phi language model with code capabilities | 23 languages", comment: "")
-                self.size = "Unknown"
+                self.size = NSLocalizedString("Unknown", comment: "")
             }
         } else if lowercaseFilename.contains("qwen") {
-            self.provider = "Alibaba"
+            self.provider = NSLocalizedString("Alibaba", comment: "")
             if lowercaseFilename.contains("2.5") {
-                self.name = "Qwen2.5 Model"
+                self.name = NSLocalizedString("Qwen2.5 Model", comment: "")
                 // CRASH FIX: Handle different Qwen 2.5 variants with accurate sizes
                 if lowercaseFilename.contains("0.5b") {
                     self.description = NSLocalizedString("Ultra-compact model optimized for mobile | 29+ languages", comment: "")
@@ -74,37 +74,37 @@ struct LLMModelInfo: Identifiable {
                     self.size = "1.5 GB"
                 } else {
                     self.description = NSLocalizedString("Qwen2.5 language model with technical focus | 29+ languages", comment: "")
-                    self.size = "Unknown"
+                    self.size = NSLocalizedString("Unknown", comment: "")
                 }
             } else if lowercaseFilename.contains("2") {
-                self.name = "Qwen2 Model"
+                self.name = NSLocalizedString("Qwen2 Model", comment: "")
                 self.description = NSLocalizedString("Advanced reasoning with broad technical abilities | 30 languages", comment: "")
                 self.size = "1.3 GB"
             } else {
-                self.name = "Qwen Model"
+                self.name = NSLocalizedString("Qwen Model", comment: "")
                 self.description = NSLocalizedString("General purpose language model with technical focus | 30 languages", comment: "")
-                self.size = "Unknown"
+                self.size = NSLocalizedString("Unknown", comment: "")
             }
         } else if lowercaseFilename.contains("llama") {
-            self.provider = "Meta"
+            self.provider = NSLocalizedString("Meta", comment: "")
             if lowercaseFilename.contains("3") {
-                self.name = "Llama 3 Model"
+                self.name = NSLocalizedString("Llama 3 Model", comment: "")
                 self.description = NSLocalizedString("Meta's latest large language model", comment: "")
-                self.size = "Unknown"
+                self.size = NSLocalizedString("Unknown", comment: "")
             } else if lowercaseFilename.contains("2") {
-                self.name = "Llama 2 Model"
+                self.name = NSLocalizedString("Llama 2 Model", comment: "")
                 self.description = NSLocalizedString("Meta's previous generation language model", comment: "")
-                self.size = "Unknown"
+                self.size = NSLocalizedString("Unknown", comment: "")
             } else {
-                self.name = "Llama Model"
+                self.name = NSLocalizedString("Llama Model", comment: "")
                 self.description = NSLocalizedString("Meta's open source language model", comment: "")
-                self.size = "Unknown"
+                self.size = NSLocalizedString("Unknown", comment: "")
             }
         } else {
             self.name = filename.replacingOccurrences(of: "-", with: " ").capitalized
             self.description = NSLocalizedString("Custom or specialized language model", comment: "")
-            self.provider = "Unknown"
-            self.size = "Unknown"
+            self.provider = NSLocalizedString("Unknown", comment: "")
+            self.size = NSLocalizedString("Unknown", comment: "")
         }
         
         // CRASH FIX: Special formatting for Qwen 2.5 models to add space between Qwen and 2.5

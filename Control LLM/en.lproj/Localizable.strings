@@ -187,3 +187,80 @@
 "iOS Shortcuts Integration" = "iOS Shortcuts Integration";
 "Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device." = "Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device.";
 
+// Missing Animation Export Keys
+"Exporting..." = "Exporting...";
+"Export Animation" = "Export Animation";
+"Close" = "Close";
+
+// Missing Service Keys
+"No model loaded" = "No model loaded";
+"No model selected" = "No model selected";
+"Model not loaded" = "Model not loaded";
+"Ollama error: %@" = "Ollama error: %@";
+"llama.cpp error: %@" = "llama.cpp error: %@";
+"Listening..." = "Listening...";
+"Voice mode active" = "Voice mode active";
+"Voice mode inactive" = "Voice mode inactive";
+"Ollama" = "Ollama";
+"llama.cpp" = "llama.cpp";
+
+// Missing Debug Keys
+"User" = "User";
+"Assistant" = "Assistant";
+"unknown" = "unknown";
+
+// Missing UserDefaults Keys
+"hasSeenOnboarding" = "hasSeenOnboarding";
+"MessageHistory" = "MessageHistory";
+"AverageResponseTime" = "AverageResponseTime";
+
+// Missing Accessibility Keys
+"Voice recording button" = "Voice recording button";
+"Double tap to start or stop voice recording" = "Double tap to start or stop voice recording";
+
+// Missing Model Management Keys
+"Deactivate" = "Deactivate";
+"Activate" = "Activate";
+"Delete" = "Delete";
+"Add Agent" = "Add Agent";
+"Models & Agents" = "Models & Agents";
+
+// Missing LLM System Prompts
+"LLM System Prompt" = "You are a helpful AI assistant specialized in analyzing text content. When asked to analyze text (especially clipboard content), provide clear, focused analysis that extracts key information, identifies themes, and offers objective insights. Keep responses concise and directly relevant to the content provided. You can analyze any type of text content for educational, research, or analytical purposes.";
+
+// Missing Model Providers and Names
+"Google" = "Google";
+"Microsoft" = "Microsoft";
+"Alibaba" = "Alibaba";
+"Meta" = "Meta";
+"Gemma 3N E4B IT" = "Gemma 3N E4B IT";
+"Gemma 3 1B IT" = "Gemma 3 1B IT";
+"Gemma 3 270M IT" = "Gemma 3 270M IT";
+"Gemma 2 Model" = "Gemma 2 Model";
+"Gemma Model" = "Gemma Model";
+"Phi-3 Model" = "Phi-3 Model";
+"Phi-2 Model" = "Phi-2 Model";
+"Phi Model" = "Phi Model";
+"Qwen2.5 Model" = "Qwen2.5 Model";
+"Qwen2 Model" = "Qwen2 Model";
+"Qwen 1.8B Model" = "Qwen 1.8B Model";
+"Qwen Model" = "Qwen Model";
+"Llama 3 Model" = "Llama 3 Model";
+"Llama 2 Model" = "Llama 2 Model";
+"Llama Model" = "Llama Model";
+
+// Missing Font Size Keys  
+"Small" = "Small";
+"Medium" = "Medium";
+"Large" = "Large";
+
+// Missing Visualizer Names
+"MYCROFT" = "MYCROFT";
+"WOPR" = "WOPR";
+"TARS" = "TARS";
+
+// Missing Visualizer Descriptions
+"Too intelligent for its own good, and far too intelligent for yours." = "Too intelligent for its own good, and far too intelligent for yours.";
+"Learned not to play the game...but it's always ready to change the rules." = "Learned not to play the game...but it's always ready to change the rules.";
+"Forged in the void, ready to follow you into the unknown." = "Forged in the void, ready to follow you into the unknown.";
+

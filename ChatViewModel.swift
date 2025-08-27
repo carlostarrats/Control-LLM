@@ -232,7 +232,7 @@ class ChatViewModel {
                 }
             } catch {
                 print("❌ ChatViewModel: Llama generation failed: \(error)")
-                let errorMessage = ChatMessage(content: "Error: \(error.localizedDescription)", isUser: false, timestamp: Date(), messageType: .error)
+                let errorMessage = ChatMessage(content: String(format: NSLocalizedString("Error: %@", comment: ""), error.localizedDescription), isUser: false, timestamp: Date(), messageType: .error)
                 self.messageHistory?.append(errorMessage)
                 self.saveHistory()
             }

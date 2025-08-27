@@ -523,7 +523,7 @@ final class LLMService: @unchecked Sendable {
         
 
         
-        let systemPrompt = "You are a helpful AI assistant specialized in analyzing text content. When asked to analyze text (especially clipboard content), provide clear, focused analysis that extracts key information, identifies themes, and offers objective insights. Keep responses concise and directly relevant to the content provided. You can analyze any type of text content for educational, research, or analytical purposes."
+        let systemPrompt = NSLocalizedString("LLM System Prompt", comment: "")
         
         // UNIVERSAL APPROACH: Use the standard chat template system for ALL models
         // This ensures compatibility with any model you switch to

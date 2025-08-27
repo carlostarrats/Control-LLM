@@ -6,9 +6,9 @@ struct SettingsTabsView: View {
     var body: some View {
         VStack {
             // Tab selector
-            Picker("Settings Type", selection: $viewModel.selectedTab) {
-                Text("UI").tag(0)
-                Text("Dev").tag(1)
+            Picker(NSLocalizedString("Settings Type", comment: ""), selection: $viewModel.selectedTab) {
+                Text(NSLocalizedString("UI", comment: "")).tag(0)
+                Text(NSLocalizedString("Dev", comment: "")).tag(1)
             }
             .pickerStyle(.segmented)
             .padding()
@@ -31,44 +31,44 @@ struct UISettingsTab: View {
     
     var body: some View {
         Form {
-            Section("App Settings") {
+            Section(NSLocalizedString("App Settings", comment: "")) {
                 // Voice commands removed
                 // Auto transcribe removed
-                Toggle("Save Chat History", isOn: $viewModel.appSettings.saveChatHistory)
-                Toggle("Notifications", isOn: $viewModel.appSettings.enableNotifications)
+                Toggle(NSLocalizedString("Save Chat History", comment: ""), isOn: $viewModel.appSettings.saveChatHistory)
+                Toggle(NSLocalizedString("Notifications", comment: ""), isOn: $viewModel.appSettings.enableNotifications)
                 
-                Picker("Language", selection: $viewModel.appSettings.language) {
-                    Text("English").tag("English")
-                    Text("Spanish").tag("Spanish")
-                    Text("French").tag("French")
+                Picker(NSLocalizedString("Language", comment: ""), selection: $viewModel.appSettings.language) {
+                    Text(NSLocalizedString("English", comment: "")).tag("English")
+                    Text(NSLocalizedString("Spanish", comment: "")).tag("Spanish")
+                    Text(NSLocalizedString("French", comment: "")).tag("French")
                 }
                 
-                Stepper("Max History Items: \(viewModel.appSettings.maxHistoryItems)", 
+                Stepper(String(format: NSLocalizedString("Max History Items: %d", comment: ""), viewModel.appSettings.maxHistoryItems), 
                        value: $viewModel.appSettings.maxHistoryItems, in: 10...1000, step: 10)
             }
             
-            Section("UI Customization") {
-                Toggle("Dark Mode", isOn: $viewModel.uiCustomization.useDarkMode)
-                Toggle("Haptic Feedback", isOn: $viewModel.uiCustomization.enableHapticFeedback)
-                Toggle("Animations", isOn: $viewModel.uiCustomization.enableAnimations)
+            Section(NSLocalizedString("UI Customization", comment: "")) {
+                Toggle(NSLocalizedString("Dark Mode", comment: ""), isOn: $viewModel.uiCustomization.useDarkMode)
+                Toggle(NSLocalizedString("Haptic Feedback", comment: ""), isOn: $viewModel.uiCustomization.enableHapticFeedback)
+                Toggle(NSLocalizedString("Animations", comment: ""), isOn: $viewModel.uiCustomization.enableAnimations)
                 
-                Picker("Font Size", selection: $viewModel.uiCustomization.fontSize) {
-                    ForEach(FontSize.allCases, id: \.self) { size in
-                        Text(size.rawValue).tag(size)
-                    }
+                Picker(NSLocalizedString("Font Size", comment: ""), selection: $viewModel.uiCustomization.fontSize) {
+                    Text(NSLocalizedString("Small", comment: "")).tag(FontSize.small)
+                    Text(NSLocalizedString("Medium", comment: "")).tag(FontSize.medium)
+                    Text(NSLocalizedString("Large", comment: "")).tag(FontSize.large)
                 }
                 
-                ColorPicker("Primary Color", selection: $viewModel.uiCustomization.primaryColor)
-                ColorPicker("Secondary Color", selection: $viewModel.uiCustomization.secondaryColor)
+                ColorPicker(NSLocalizedString("Primary Color", comment: ""), selection: $viewModel.uiCustomization.primaryColor)
+                ColorPicker(NSLocalizedString("Secondary Color", comment: ""), selection: $viewModel.uiCustomization.secondaryColor)
             }
             
             Section {
-                Button("Save Settings") {
+                Button(NSLocalizedString("Save Settings", comment: "")) {
                     viewModel.saveSettings()
                 }
                 .frame(maxWidth: .infinity)
                 
-                Button("Reset to Defaults") {
+                Button(NSLocalizedString("Reset to Defaults", comment: "")) {
                     viewModel.resetToDefaults()
                 }
                 .frame(maxWidth: .infinity)
@@ -83,72 +83,72 @@ struct DeveloperSettingsTab: View {
     
     var body: some View {
         Form {
-            Section("App Information") {
+            Section(NSLocalizedString("App Information", comment: "")) {
                 HStack {
-                    Text("Version")
+                    Text(NSLocalizedString("Version", comment: ""))
                     Spacer()
                     Text(viewModel.developerInfo.appVersion)
                         .foregroundColor(.secondary)
                 }
                 
                 HStack {
-                    Text("Build")
+                    Text(NSLocalizedString("Build", comment: ""))
                     Spacer()
                     Text(viewModel.developerInfo.buildNumber)
                         .foregroundColor(.secondary)
                 }
                 
                 HStack {
-                    Text("Last Updated")
+                    Text(NSLocalizedString("Last Updated", comment: ""))
                     Spacer()
                     Text(viewModel.developerInfo.lastUpdated, style: .date)
                         .foregroundColor(.secondary)
                 }
             }
             
-            Section("API Configuration") {
+            Section(NSLocalizedString("API Configuration", comment: "")) {
                 HStack {
-                    Text("API Endpoint")
+                    Text(NSLocalizedString("API Endpoint", comment: ""))
                     Spacer()
                     Text(viewModel.developerInfo.apiEndpoint)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
                 
-                Toggle("Debug Mode", isOn: $viewModel.developerInfo.debugMode)
+                Toggle(NSLocalizedString("Debug Mode", comment: ""), isOn: $viewModel.developerInfo.debugMode)
                 
-                Picker("Log Level", selection: $viewModel.developerInfo.logLevel) {
-                    Text("Debug").tag("Debug")
-                    Text("Info").tag("Info")
-                    Text("Warning").tag("Warning")
-                    Text("Error").tag("Error")
+                Picker(NSLocalizedString("Log Level", comment: ""), selection: $viewModel.developerInfo.logLevel) {
+                    Text(NSLocalizedString("Debug", comment: "")).tag("Debug")
+                    Text(NSLocalizedString("Info", comment: "")).tag("Info")
+                    Text(NSLocalizedString("Warning", comment: "")).tag("Warning")
+                    Text(NSLocalizedString("Error", comment: "")).tag("Error")
                 }
             }
             
-            Section("Developer Tools") {
-                Button("Export Settings") {
+            Section(NSLocalizedString("Developer Tools", comment: "")) {
+                Button(NSLocalizedString("Export Settings", comment: "")) {
                     viewModel.exportSettings()
                 }
                 .frame(maxWidth: .infinity)
                 
-                Button("Clear Cache") {
+                Button(NSLocalizedString("Clear Cache", comment: "")) {
                     // TODO: Implement cache clearing
                 }
                 .frame(maxWidth: .infinity)
                 .foregroundColor(Color(hex: "#F8C762"))
                 
-                Button("Reset App Data") {
+                Button(NSLocalizedString("Reset App Data", comment: "")) {
                     // TODO: Implement app data reset
                 }
                 .frame(maxWidth: .infinity)
                 .foregroundColor(.red)
             }
             
-            Section("About") {
+            Section(NSLocalizedString("About", comment: "")) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Control LLM")
+                    Text(NSLocalizedString("Control LLM", comment: ""))
                         .font(.headline)
-                    Text("A text-based AI assistant with custom UI and MVVM architecture.")
+                    Text(NSLocalizedString("A text-based AI assistant with custom UI and MVVM architecture.", comment: ""))
                         .font(.body)
                         .foregroundColor(.secondary)
                 }

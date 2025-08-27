@@ -176,7 +176,7 @@ final class HybridLLMService: ObservableObject {
     private func buildPrompt(userText: String, history: [ChatMessage]?) -> String {
         // For clipboard analysis, integrate the system prompt directly into the user message
         // This prevents the LLM from responding to the system prompt instead of the content
-        let systemPrompt = "You are a helpful AI assistant specialized in analyzing text content. When asked to analyze text (especially clipboard content), provide clear, focused analysis that extracts key information, identifies themes, and offers objective insights. Keep responses concise and directly relevant to the content provided. You can analyze any type of text content for educational, research, or analytical purposes."
+        let systemPrompt = NSLocalizedString("LLM System Prompt", comment: "")
         
         // Use a simple, universal format that works well with Ollama
         var fullPrompt = systemPrompt + "\n\n"
@@ -216,10 +216,10 @@ final class HybridLLMService: ObservableObject {
     
     func getCurrentEngineInfo() -> String {
         if !isModelLoaded {
-            return "No model loaded"
+            return NSLocalizedString("No model loaded", comment: "")
         }
         
-        return "\(currentEngine.description): \(currentModelFilename ?? "Unknown")"
+        return "\(currentEngine.description): \(currentModelFilename ?? NSLocalizedString("Unknown", comment: ""))"
     }
 }
 
@@ -235,15 +235,15 @@ enum HybridLLMError: Error {
     var localizedDescription: String {
         switch self {
         case .noModelSelected:
-            return "No model selected"
+            return NSLocalizedString("No model selected", comment: "")
         case .modelNotLoaded:
-            return "Model not loaded"
+            return NSLocalizedString("Model not loaded", comment: "")
         case .engineNotAvailable(let engine):
             return "\(engine.description) engine not available"
         case .llamaCppError(let error):
-            return "llama.cpp error: \(error.localizedDescription)"
+            return String(format: NSLocalizedString("llama.cpp error: %@", comment: ""), error.localizedDescription)
         case .ollamaError(let error):
-            return "Ollama error: \(error.localizedDescription)"
+            return String(format: NSLocalizedString("Ollama error: %@", comment: ""), error.localizedDescription)
         }
     }
 }

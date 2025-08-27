@@ -20,7 +20,7 @@ class SettingsViewModel: ObservableObject {
             saveChatHistory: true,
             maxHistoryItems: 100,
             enableNotifications: true,
-            language: "English"
+            language: NSLocalizedString("English", comment: "")
         )
         
         // Load UI customization
@@ -65,7 +65,7 @@ struct AppSettings {
     var saveChatHistory: Bool = true
     var maxHistoryItems: Int = 100
     var enableNotifications: Bool = true
-    var language: String = "English"
+            var language: String = NSLocalizedString("English", comment: "")
 }
 
 struct UICustomization {
@@ -90,6 +90,17 @@ enum FontSize: String, CaseIterable {
     case small = "Small"
     case medium = "Medium"
     case large = "Large"
+    
+    var localizedName: String {
+        switch self {
+        case .small:
+            return NSLocalizedString("Small", comment: "")
+        case .medium:
+            return NSLocalizedString("Medium", comment: "")
+        case .large:
+            return NSLocalizedString("Large", comment: "")
+        }
+    }
     
     var size: CGFloat {
         switch self {

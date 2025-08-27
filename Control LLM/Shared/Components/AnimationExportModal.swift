@@ -13,11 +13,11 @@ struct AnimationExportModal: View {
             VStack(spacing: 20) {
                 // Header
                 VStack(spacing: 8) {
-                    Text("Export MYCROFT Animation")
+                    Text(NSLocalizedString("Export MYCROFT Animation", comment: ""))
                         .font(.custom("IBMPlexMono", size: 18))
                         .foregroundColor(Color(hex: "#BBBBBB"))
                     
-                    Text("Export frames as transparent PNGs")
+                    Text(NSLocalizedString("Export frames as transparent PNGs", comment: ""))
                         .font(.custom("IBMPlexMono", size: 14))
                         .foregroundColor(Color(hex: "#666666"))
                 }
@@ -27,7 +27,7 @@ struct AnimationExportModal: View {
                 VStack(spacing: 16) {
                     // Frame count
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Frame Count")
+                        Text(NSLocalizedString("Frame Count", comment: ""))
                             .font(.custom("IBMPlexMono", size: 14))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                         
@@ -47,7 +47,7 @@ struct AnimationExportModal: View {
                     
                     // Duration
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Duration (seconds)")
+                        Text(NSLocalizedString("Duration (seconds)", comment: ""))
                             .font(.custom("IBMPlexMono", size: 14))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                         
@@ -64,7 +64,7 @@ struct AnimationExportModal: View {
                     
                     // Export size
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Export Size")
+                        Text(NSLocalizedString("Export Size", comment: ""))
                             .font(.custom("IBMPlexMono", size: 14))
                             .foregroundColor(Color(hex: "#BBBBBB"))
                         
@@ -81,7 +81,7 @@ struct AnimationExportModal: View {
                 
                 // Preview
                 VStack(spacing: 8) {
-                    Text("Preview")
+                    Text(NSLocalizedString("Preview", comment: ""))
                         .font(.custom("IBMPlexMono", size: 14))
                         .foregroundColor(Color(hex: "#BBBBBB"))
                     
@@ -116,7 +116,7 @@ struct AnimationExportModal: View {
                             Image(systemName: "square.and.arrow.up")
                         }
                         
-                        Text(exportService.isExporting ? "Exporting..." : "Export Animation")
+                        Text(exportService.isExporting ? NSLocalizedString("Exporting...", comment: "") : NSLocalizedString("Export Animation", comment: ""))
                             .font(.custom("IBMPlexMono", size: 16))
                     }
                     .foregroundColor(.white)
@@ -138,7 +138,7 @@ struct AnimationExportModal: View {
                         ProgressView(value: exportService.progress)
                             .progressViewStyle(LinearProgressViewStyle(tint: Color(hex: "#FF00D0")))
                         
-                        Text("Frame \(exportService.currentFrame) of \(exportService.totalFrames)")
+                        Text(String(format: NSLocalizedString("Frame %d of %d", comment: ""), exportService.currentFrame, exportService.totalFrames))
                             .font(.custom("IBMPlexMono", size: 12))
                             .foregroundColor(Color(hex: "#666666"))
                     }
@@ -146,7 +146,7 @@ struct AnimationExportModal: View {
                 }
                 
                 // Close button
-                Button("Close") {
+                Button(NSLocalizedString("Close", comment: "")) {
                     dismiss()
                 }
                 .font(.custom("IBMPlexMono", size: 16))

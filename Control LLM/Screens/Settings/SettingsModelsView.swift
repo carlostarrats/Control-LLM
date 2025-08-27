@@ -313,7 +313,7 @@ struct AvailableDownloadModelView: View {
                     .frame(width: UIScreen.main.bounds.width * 0.8, height: 2)
                     
                     // Progress text
-                    Text("Installing [\(Int(downloadProgress * 100))%]")
+                    Text(String(format: NSLocalizedString("Installing [%d%%]", comment: ""), Int(downloadProgress * 100)))
                         .font(.custom("IBMPlexMono", size: 10))
                         .foregroundColor(ColorManager.shared.greyTextColor)
                 }
@@ -424,7 +424,7 @@ struct UnusedModelsSheet: View {
             ScrollView {
                 VStack(spacing: 20) {
                     // Description
-                    Text(unusedModels.isEmpty ? "No Unused Models" : "Delete your unused models.")
+                    Text(unusedModels.isEmpty ? NSLocalizedString("No Unused Models", comment: "") : NSLocalizedString("Delete your unused models.", comment: ""))
                         .font(.custom("IBMPlexMono", size: 16))
                         .foregroundColor(unusedModels.isEmpty ? ColorManager.shared.redColor : ColorManager.shared.greyTextColor)
                         .multilineTextAlignment(.leading)
@@ -463,7 +463,7 @@ struct UnusedModelsSheet: View {
                             onDelete()
                             dismiss()
                         }) {
-                            Text(selectedModels.count == 1 ? "Delete Model" : "Delete Models")
+                            Text(selectedModels.count == 1 ? NSLocalizedString("Delete Model", comment: "") : NSLocalizedString("Delete Models", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .foregroundColor(ColorManager.shared.redColor)
                                 .frame(maxWidth: .infinity)
@@ -477,7 +477,7 @@ struct UnusedModelsSheet: View {
                         Button(action: {
                             dismiss()
                         }) {
-                            Text("Cancel")
+                            Text(NSLocalizedString("Cancel", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .foregroundColor(ColorManager.shared.greyTextColor)
                                 .frame(maxWidth: .infinity)
@@ -505,7 +505,7 @@ struct UnusedModelsSheet: View {
                     
                     // Header
                     HStack {
-                        Text("Unused Models")
+                        Text(NSLocalizedString("Unused Models", comment: ""))
                             .font(.custom("IBMPlexMono", size: 20))
                             .foregroundColor(ColorManager.shared.whiteTextColor)
                             .padding(.leading, 20)

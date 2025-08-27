@@ -96,7 +96,7 @@ class MainViewModel: ObservableObject {
         print("🔍 MainViewModel: handleClipboardTextProcessing called with text: \(text.prefix(100))...")
         
         // Create the analysis prompt (focused on analysis only, not summary)
-        let prompt = "Analyze this text (keep under 8000 tokens): \(text)"
+        let prompt = String(format: NSLocalizedString("Analyze this text (keep under 8000 tokens): %@", comment: ""), text)
         
         // Set pending prompt for TextModalView to process and trigger navigation
         DispatchQueue.main.async {

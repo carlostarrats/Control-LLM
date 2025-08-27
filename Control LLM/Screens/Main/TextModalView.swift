@@ -364,8 +364,8 @@ struct TextModalView: View {
         .sheet(isPresented: $showingModelsSheet) {
             SettingsModelsView()
         }
-        .alert("Error", isPresented: $showingError) {
-            Button("OK") { 
+        .alert(NSLocalizedString("Error", comment: ""), isPresented: $showingError) {
+            Button(NSLocalizedString("OK", comment: "")) { 
                 errorMessage = nil
                 showingError = false
             }
@@ -480,7 +480,7 @@ struct TextModalView: View {
                     Image(systemName: "keyboard")
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(colorManager.whiteTextColor)
-                    Text("Control")
+                    Text(NSLocalizedString("Control", comment: ""))
                         .font(.custom("IBMPlexMono", size: 20))
                         .foregroundColor(colorManager.whiteTextColor)
                 }
@@ -545,7 +545,7 @@ struct TextModalView: View {
             Spacer()
                 .frame(height: 200)
             
-            Text("Nothing to see here (yet) 🤖")
+            Text(NSLocalizedString("Nothing to see here (yet) 🤖", comment: ""))
                 .font(.custom("IBMPlexMono", size: 16))
                 .foregroundColor(Color(hex: "#666666"))
                 .multilineTextAlignment(.center)
@@ -553,7 +553,7 @@ struct TextModalView: View {
                                         Button(action: {
                                 showingModelsSheet = true
                             }) {
-                                Text("Download Model")
+                                Text(NSLocalizedString("Download Model", comment: ""))
                                     .font(.custom("IBMPlexMono", size: 14))
                                     .foregroundColor(Color(hex: "#141414"))
                                     .padding(.horizontal, 16)
@@ -681,11 +681,11 @@ struct TextModalView: View {
             HStack {
                 Group { // Group to apply a single transition
                     if !hasModelsInstalled {
-                        Text("Download model to chat...")
+                        Text(NSLocalizedString("Download model to chat...", comment: ""))
                     } else if viewModel.llm.isProcessing || isLocalProcessing { // Also check local state
-                        Text("Generating response...")
+                        Text(NSLocalizedString("Generating response...", comment: ""))
                     } else {
-                        Text("Ask Anything…")
+                        Text(NSLocalizedString("Ask Anything…", comment: ""))
                     }
                 }
                 .font(.custom("IBMPlexMono", size: 16))
@@ -705,7 +705,7 @@ struct TextModalView: View {
             Group {
                 if viewModel.llm.isProcessing || isLocalProcessing {
                     // Stop button (square icon)
-                    Text("■")
+                    Text(NSLocalizedString("■", comment: ""))
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(Color(hex: "#1D1D1D"))
                         .frame(width: 32, height: 32)
@@ -804,7 +804,7 @@ struct TextModalView: View {
         
         // Check if this is the same message as last time
         // Special handling for clipboard messages - they should never be considered duplicates
-        let isClipboardMessageFormat = text.hasPrefix("Analyze this text (keep under 8000 tokens):")
+        let isClipboardMessageFormat = text.hasPrefix(NSLocalizedString("Analyze this text (keep under 8000 tokens):", comment: ""))
         
         if isClipboardMessageFormat {
             // Clipboard messages are never duplicates - they always have different content
@@ -905,35 +905,35 @@ struct TextModalView: View {
         case "LLMService":
             switch nsError.code {
             case 6: // Prompt too long
-                return "Your message is too long. Please shorten it and try again."
+                return NSLocalizedString("Your message is too long. Please shorten it and try again.", comment: "")
             case 11: // Another model operation in progress
-                return "Another model operation is in progress. Please wait and try again."
+                return NSLocalizedString("Another model operation is in progress. Please wait and try again.", comment: "")
             case 12: // Model name not available
-                return "Model not available. Please check your model settings."
+                return NSLocalizedString("Model not available. Please check your model settings.", comment: "")
             case 17: // Invalid context pointer
-                return "Model error. Please try restarting the app."
+                return NSLocalizedString("Model error. Please try restarting the app.", comment: "")
             case 18: // Empty prompt
-                return "Empty message. Please type something and try again."
+                return NSLocalizedString("Empty message. Please type something and try again.", comment: "")
             case 19: // Invalid strings
-                return "Message format error. Please try again."
+                return NSLocalizedString("Message format error. Please try again.", comment: "")
             case 20: // Streaming timeout
-                return "Response took too long. Please try a shorter message."
+                return NSLocalizedString("Response took too long. Please try a shorter message.", comment: "")
             case 27: // Token limit reached
-                return "Response was cut off due to length. Try asking a more specific question."
+                return NSLocalizedString("Response was cut off due to length. Try asking a more specific question.", comment: "")
             default:
-                return "LLM Error: \(nsError.localizedDescription)"
+                return String(format: NSLocalizedString("LLM Error: %@", comment: ""), nsError.localizedDescription)
             }
         case "ChatViewModel":
             switch nsError.code {
             case 1: // No model selected
-                return "No model selected. Please choose a model in Settings."
+                return NSLocalizedString("No model selected. Please choose a model in Settings.", comment: "")
             case 2: // Model loading failed
-                return "Failed to load model. Please try again or select a different model."
+                return NSLocalizedString("Failed to load model. Please try again or select a different model.", comment: "")
             default:
-                return "Chat Error: \(nsError.localizedDescription)"
+                return String(format: NSLocalizedString("Chat Error: %@", comment: ""), nsError.localizedDescription)
             }
         default:
-            return "Error: \(error.localizedDescription)"
+            return String(format: NSLocalizedString("Error: %@", comment: ""), error.localizedDescription)
         }
     }
     
@@ -983,7 +983,7 @@ struct TextModalView: View {
             FeedbackService.shared.playHaptic(.light)
             
             // Show timeout error
-            errorMessage = "Response took too long. Please try a shorter message or check your model settings."
+            errorMessage = NSLocalizedString("Response took too long. Please try a shorter message or check your model settings.", comment: "")
             showingError = true
             
             // Add follow-up questions for clipboard messages if not already added
@@ -1111,7 +1111,7 @@ struct TextModalView: View {
 
     // MARK: - File upload helper --------------------------------------------
     private func handleFileUpload(_ url: URL) {
-        let fileName = url.lastPathComponent.isEmpty ? "Unknown File" : url.lastPathComponent
+        let fileName = url.lastPathComponent.isEmpty ? NSLocalizedString("Unknown File", comment: "") : url.lastPathComponent
         
         // Add file message to chat
         let fileMessage = ChatMessage(
@@ -1142,7 +1142,7 @@ struct TextModalView: View {
                 
                 // Send the file content to LLM for processing
                 // Use the proper streaming path through ChatViewModel
-                try? await viewModel.llm.send("Please analyze this file content and provide a summary: \(formattedContent)")
+                try? await viewModel.llm.send(String(format: NSLocalizedString("Please analyze this file content and provide a summary: %@", comment: ""), formattedContent))
                 
                 // Start monitoring the stream
                 await MainActor.run {
@@ -1293,8 +1293,8 @@ struct DateHeaderView: View {
     private static func smart(_ date: Date) -> String {
         let cal = Calendar.current
         let now = Date()
-        if cal.isDate(date, inSameDayAs: now) { return "TODAY" }
-        if cal.isDate(date, inSameDayAs: cal.date(byAdding: .day, value: -1, to: now)!) { return "YESTERDAY" }
+        if cal.isDate(date, inSameDayAs: now) { return NSLocalizedString("TODAY", comment: "") }
+        if cal.isDate(date, inSameDayAs: cal.date(byAdding: .day, value: -1, to: now)!) { return NSLocalizedString("YESTERDAY", comment: "") }
 
         let weekAgo = cal.date(byAdding: .day, value: -7, to: now)!
         let fmt = DateFormatter()
@@ -1315,7 +1315,7 @@ struct FileMessageView: View {
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(message.isUser ? .black : ColorManager.shared.whiteTextColor)
             VStack(alignment: .leading, spacing: 2) {
-                Text("File Message")
+                Text(NSLocalizedString("File Message", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(message.isUser ? .black : ColorManager.shared.whiteTextColor)
                     .lineLimit(1)

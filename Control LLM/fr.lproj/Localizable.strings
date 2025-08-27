@@ -186,3 +186,98 @@
 // Date Headers
 "TODAY" = "AUJOURD'HUI";
 "YESTERDAY" = "HIER";
+
+// Missing Animation Export Keys
+"Exporting..." = "Exportation...";
+"Export Animation" = "Exporter l'Animation";
+"Close" = "Fermer";
+
+// Missing Service Keys
+"No model loaded" = "Aucun modèle chargé";
+"No model selected" = "Aucun modèle sélectionné";
+"Model not loaded" = "Modèle non chargé";
+"Ollama error: %@" = "Erreur Ollama: %@";
+"llama.cpp error: %@" = "Erreur llama.cpp: %@";
+"Listening..." = "Écoute...";
+"Voice mode active" = "Mode vocal actif";
+"Voice mode inactive" = "Mode vocal inactif";
+"Ollama" = "Ollama";
+"llama.cpp" = "llama.cpp";
+
+// Missing Debug Keys
+"User" = "Utilisateur";
+"Assistant" = "Assistant";
+"unknown" = "inconnu";
+
+// Missing UserDefaults Keys
+"hasSeenOnboarding" = "hasSeenOnboarding";
+"MessageHistory" = "Historique des Messages";
+"AverageResponseTime" = "Temps de Réponse Moyen";
+
+// Missing Accessibility Keys
+"Voice recording button" = "Bouton d'enregistrement vocal";
+"Double tap to start or stop voice recording" = "Appuyez deux fois pour démarrer ou arrêter l'enregistrement vocal";
+
+// Missing Model Management Keys
+"Deactivate" = "Désactiver";
+"Activate" = "Activer";
+"Delete" = "Supprimer";
+"Add Agent" = "Ajouter un Agent";
+"Models & Agents" = "Modèles et Agents";
+
+// Missing LLM System Prompts
+"LLM System Prompt" = "Vous êtes un assistant IA utile spécialisé dans l'analyse de contenu textuel. Lorsqu'on vous demande d'analyser du texte (surtout du contenu du presse-papiers), fournissez une analyse claire et ciblée qui extrait les informations clés, identifie les thèmes et offre des perspectives objectives. Gardez les réponses concises et directement pertinentes au contenu fourni. Vous pouvez analyser tout type de contenu textuel à des fins éducatives, de recherche ou analytiques.";
+
+// Missing Model Providers and Names
+"Google" = "Google";
+"Microsoft" = "Microsoft";
+"Alibaba" = "Alibaba";
+"Meta" = "Meta";
+"Gemma 3N E4B IT" = "Gemma 3N E4B IT";
+"Gemma 3 1B IT" = "Gemma 3 1B IT";
+"Gemma 3 270M IT" = "Gemma 3 270M IT";
+"Gemma 2 Model" = "Modèle Gemma 2";
+"Gemma Model" = "Modèle Gemma";
+"Phi-3 Model" = "Modèle Phi-3";
+"Phi-2 Model" = "Modèle Phi-2";
+"Phi Model" = "Modèle Phi";
+"Qwen2.5 Model" = "Modèle Qwen2.5";
+"Qwen2 Model" = "Modèle Qwen2";
+"Qwen 1.8B Model" = "Modèle Qwen 1.8B";
+"Qwen Model" = "Modèle Qwen";
+"Llama 3 Model" = "Modèle Llama 3";
+"Llama 2 Model" = "Modèle Llama 2";
+"Llama Model" = "Modèle Llama";
+
+// Missing Font Size Keys  
+"Small" = "Petit";
+"Medium" = "Moyen";
+"Large" = "Grand";
+
+// Missing FAQ Questions and Answers
+"Privacy" = "Confidentialité";
+"This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app." = "Cette application stocke toutes les données uniquement sur votre appareil - rien n'est sauvegardé ou partagé, et aucun compte n'existe. Pour supprimer toutes les données, supprimez l'application.";
+"LLM Models" = "Modèles LLM";
+"Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices." = "Plusieurs modèles sont disponibles dans les Paramètres, chacun variant en taille et en capacité. Les performances du modèle dépendent de votre appareil - les téléphones plus récents gèrent généralement mieux les modèles plus grands et plus puissants, tandis que les modèles plus petits sont optimisés pour les appareils plus anciens.";
+"Chat History" = "Historique de chat";
+"No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage." = "Aucun historique de chat n'est sauvegardé. Les messages dans la fenêtre de chat s'estompent progressivement sur 7 jours jusqu'à être complètement effacés, garantissant une confidentialité totale et libérant l'espace de stockage de l'appareil.";
+"Language" = "Langue";
+"English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English." = "L'interface de l'application prend en charge l'anglais, l'espagnol et le français. Pour d'autres langues, l'interface reste en anglais, mais le LLM chat automatiquement dans votre langue préférée via la localisation.";
+"UI Color" = "Couleur de l'interface";
+"All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme." = "Toutes les couleurs de texte peuvent être personnalisées dans les paramètres d'Apparence, vous permettant de créer votre thème visuel préféré.";
+"Control Units" = "Unités de contrôle";
+"Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience." = "Trois avatars LLM sont disponibles dans les paramètres d'Apparence. Ce sont des choix purement cosmétiques pour personnaliser votre expérience de chat.";
+"Quick Clipboard Analysis" = "Analyse Rapide du Presse-papiers";
+"Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored." = "Appuyez sur n'importe quel avatar animé pour analyser instantanément le texte copié. L'application ouvre automatiquement le chat et fournit un résumé d'articles, d'e-mails ou de documents. Ne fonctionne qu'avec le texte copié - les appuis vides sont ignorés.";
+"iOS Shortcuts Integration" = "Intégration Raccourcis iOS";
+"Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device." = "Les actions sont disponibles comme blocs de construction dans l'application Raccourcis d'Apple, vous permettant de créer des flux de travail d'automatisation. Enchaînez plusieurs messages, configurez des commandes vocales personnalisées avec Siri et créez des séquences qui s'exécutent en arrière-plan. Utilisez simplement l'application normalement - vos actions sont automatiquement suggérées aux Raccourcis pour créer des automatisations, tout sur l'appareil.";
+
+// Missing Visualizer Names
+"MYCROFT" = "MYCROFT";
+"WOPR" = "WOPR";
+"TARS" = "TARS";
+
+// Missing Visualizer Descriptions
+"Too intelligent for its own good, and far too intelligent for yours." = "Trop intelligent pour son propre bien, et bien trop intelligent pour le vôtre.";
+"Learned not to play the game...but it's always ready to change the rules." = "A appris à ne pas jouer le jeu... mais est toujours prêt à changer les règles.";
+"Forged in the void, ready to follow you into the unknown." = "Forgé dans le vide, prêt à vous suivre vers l'inconnu.";

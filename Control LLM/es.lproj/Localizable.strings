@@ -148,6 +148,73 @@
 // Date Headers
 "TODAY" = "HOY";
 "YESTERDAY" = "AYER";
+
+// Missing Animation Export Keys
+"Exporting..." = "Exportando...";
+"Export Animation" = "Exportar Animación";
+"Close" = "Cerrar";
+
+// Missing Service Keys
+"No model loaded" = "No hay modelo cargado";
+"No model selected" = "No hay modelo seleccionado";
+"Model not loaded" = "Modelo no cargado";
+"Ollama error: %@" = "Error de Ollama: %@";
+"llama.cpp error: %@" = "Error de llama.cpp: %@";
+"Listening..." = "Escuchando...";
+"Voice mode active" = "Modo de voz activo";
+"Voice mode inactive" = "Modo de voz inactivo";
+"Ollama" = "Ollama";
+"llama.cpp" = "llama.cpp";
+
+// Missing Debug Keys
+"User" = "Usuario";
+"Assistant" = "Asistente";
+"unknown" = "desconocido";
+
+// Missing UserDefaults Keys
+"hasSeenOnboarding" = "hasSeenOnboarding";
+"MessageHistory" = "Historial de Mensajes";
+"AverageResponseTime" = "Tiempo Promedio de Respuesta";
+
+// Missing Accessibility Keys
+"Voice recording button" = "Botón de grabación de voz";
+"Double tap to start or stop voice recording" = "Toca dos veces para iniciar o detener la grabación de voz";
+
+// Missing Model Management Keys
+"Deactivate" = "Desactivar";
+"Activate" = "Activar";
+"Delete" = "Eliminar";
+"Add Agent" = "Agregar Agente";
+"Models & Agents" = "Modelos y Agentes";
+
+// Missing LLM System Prompts
+"LLM System Prompt" = "Eres un asistente de IA útil especializado en analizar contenido de texto. Cuando te pidan analizar texto (especialmente contenido del portapapeles), proporciona un análisis claro y enfocado que extraiga información clave, identifique temas y ofrezca perspectivas objetivas. Mantén las respuestas concisas y directamente relevantes al contenido proporcionado. Puedes analizar cualquier tipo de contenido de texto para propósitos educativos, de investigación o analíticos.";
+
+// Missing Model Providers and Names
+"Google" = "Google";
+"Microsoft" = "Microsoft";
+"Alibaba" = "Alibaba";
+"Meta" = "Meta";
+"Gemma 3N E4B IT" = "Gemma 3N E4B IT";
+"Gemma 3 1B IT" = "Gemma 3 1B IT";
+"Gemma 3 270M IT" = "Gemma 3 270M IT";
+"Gemma 2 Model" = "Modelo Gemma 2";
+"Gemma Model" = "Modelo Gemma";
+"Phi-3 Model" = "Modelo Phi-3";
+"Phi-2 Model" = "Modelo Phi-2";
+"Phi Model" = "Modelo Phi";
+"Qwen2.5 Model" = "Modelo Qwen2.5";
+"Qwen2 Model" = "Modelo Qwen2";
+"Qwen 1.8B Model" = "Modelo Qwen 1.8B";
+"Qwen Model" = "Modelo Qwen";
+"Llama 3 Model" = "Modelo Llama 3";
+"Llama 2 Model" = "Modelo Llama 2";
+"Llama Model" = "Modelo Llama";
+
+// Missing Font Size Keys  
+"Small" = "Pequeño";
+"Medium" = "Mediano";
+"Large" = "Grande";
 "General tasks with broader technical abilities | 29+ languages" = "Tareas generales con habilidades técnicas más amplias | 29+ idiomas";
 "Qwen2.5 language model with technical focus | 29+ languages" = "Modelo de lenguaje Qwen2.5 con enfoque técnico | 29+ idiomas";
 "Advanced reasoning with broad technical abilities | 30 languages" = "Razonamiento avanzado con amplias capacidades técnicas | 30 idiomas";
@@ -186,4 +253,14 @@
 "Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored." = "Toca cualquier avatar animado para analizar instantáneamente el texto copiado. La aplicación abre automáticamente el chat y proporciona un resumen de artículos, correos electrónicos o documentos. Solo funciona con texto copiado; los toques sin texto copiado se ignoran.";
 "iOS Shortcuts Integration" = "Integración con Atajos de iOS";
 "Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device." = "Las acciones están disponibles como bloques de construcción en la aplicación Atajos de Apple, lo que te permite crear flujos de trabajo de automatización. Encadena varios mensajes, configura comandos de voz personalizados con Siri y crea secuencias que se ejecutan en segundo plano. Simplemente usa la aplicación normalmente: tus acciones se sugieren automáticamente a Atajos para crear automatizaciones, todo en el dispositivo.";
+
+// Missing Visualizer Names
+"MYCROFT" = "MYCROFT";
+"WOPR" = "WOPR";
+"TARS" = "TARS";
+
+// Missing Visualizer Descriptions
+"Too intelligent for its own good, and far too intelligent for yours." = "Demasiado inteligente para su propio bien, y demasiado inteligente para el tuyo.";
+"Learned not to play the game...but it's always ready to change the rules." = "Aprendió a no jugar el juego... pero siempre está listo para cambiar las reglas.";
+"Forged in the void, ready to follow you into the unknown." = "Forjado en el vacío, listo para seguirte hacia lo desconocido.";
 

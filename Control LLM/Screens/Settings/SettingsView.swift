@@ -76,12 +76,12 @@ struct SettingsView: View {
     
     private var settingsItems: [SettingsItem] {
         [
-            SettingsItem(title: "Models", symbol: "terminal", action: { showingModels = true }),
+            SettingsItem(title: NSLocalizedString("Models", comment: ""), symbol: "terminal", action: { showingModels = true }),
             // Agents removed
-            SettingsItem(title: "Appearance", symbol: "eye", action: { showingAppearance = true }),
+            SettingsItem(title: NSLocalizedString("Appearance", comment: ""), symbol: "eye", action: { showingAppearance = true }),
             // Voice settings removed
-            SettingsItem(title: "FAQ", symbol: "questionmark.circle", action: { showingFAQ = true }),
-            SettingsItem(title: "Credits", symbol: "text.page", action: { showingCredits = true })
+            SettingsItem(title: NSLocalizedString("FAQ", comment: ""), symbol: "questionmark.circle", action: { showingFAQ = true }),
+            SettingsItem(title: NSLocalizedString("Credits", comment: ""), symbol: "text.page", action: { showingCredits = true })
         ]
     }
 }

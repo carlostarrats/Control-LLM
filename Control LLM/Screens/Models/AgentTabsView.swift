@@ -59,12 +59,12 @@ struct AgentsTab: View {
                     viewModel.selectAgent(agent)
                 }
                 .swipeActions {
-                    Button(agent.isActive ? "Deactivate" : "Activate") {
+                    Button(agent.isActive ? NSLocalizedString("Deactivate", comment: "") : NSLocalizedString("Activate", comment: "")) {
                         viewModel.toggleAgent(agent)
                     }
                     .tint(agent.isActive ? ColorManager.shared.orangeColor : ColorManager.shared.greenColor)
                     
-                    Button("Delete", role: .destructive) {
+                    Button(NSLocalizedString("Delete", comment: ""), role: .destructive) {
                         viewModel.deleteAgent(agent)
                     }
                 }
@@ -73,7 +73,7 @@ struct AgentsTab: View {
         .listStyle(.plain)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Add Agent") {
+                Button(NSLocalizedString("Add Agent", comment: "")) {
                     // TODO: Show add agent sheet
                 }
             }

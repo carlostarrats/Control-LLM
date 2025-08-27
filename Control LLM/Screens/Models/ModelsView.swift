@@ -8,7 +8,7 @@ struct ModelsView: View {
             VStack {
                 AgentTabsView(viewModel: viewModel)
             }
-            .navigationTitle("Models & Agents")
+            .navigationTitle(NSLocalizedString("Models & Agents", comment: ""))
             .navigationBarTitleDisplayMode(.large)
         }
     }

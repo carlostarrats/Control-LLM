@@ -192,8 +192,8 @@ struct HomePage: View {
                 brightnessLevel: brightnessLevel
             )
             .scaleEffect(blobScale)
-            .accessibilityLabel("Voice recording button")
-            .accessibilityHint("Double tap to start or stop voice recording")
+                            .accessibilityLabel(NSLocalizedString("Voice recording button", comment: ""))
+                .accessibilityHint(NSLocalizedString("Double tap to start or stop voice recording", comment: ""))
             .opacity(blobColorOpacity)
             .animation(.easeInOut(duration: 0.8), value: blobColorOpacity)
 
