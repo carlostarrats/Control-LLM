@@ -137,6 +137,7 @@ class MainViewModel: ObservableObject {
 enum MessageType: Codable {
     case text
     case file
+    case error
 }
 
 struct ChatMessage: Identifiable, Codable, Equatable {

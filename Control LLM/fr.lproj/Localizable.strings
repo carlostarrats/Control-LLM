@@ -1,0 +1,188 @@
+"Settings" = "Paramètres";
+"Models" = "Modèles";
+"Appearance" = "Apparence";
+// Voice localization removed
+"Language" = "Langue";
+"Chat History" = "Historique du Chat";
+"FAQs" = "FAQ";
+"Credits" = "Crédits";
+"Made by Control.Design" = "Créé par Control.Design";
+"INSTALLED" = "INSTALLÉS";
+"AVAILABLE DOWNLOADS" = "TÉLÉCHARGEMENTS DISPONIBLES";
+"All Available Installed" = "Tout disponible installé";
+"Manage Unused Models" = "Gérer les modèles inutilisés";
+"Unused Models" = "Modèles inutilisés";
+"No Unused Models" = "Aucun modèle inutilisé";
+"Delete your unused models." = "Supprimez vos modèles inutilisés.";
+"Delete Model" = "Supprimer le modèle";
+"Delete Models" = "Supprimer les modèles";
+"Cancel" = "Annuler";
+"Delete All History" = "Supprimer tout l'historique";
+"This action can't be undone." = "Cette action ne peut pas être annulée.";
+// iOS System Voices localization removed
+// Voice work explanation removed
+// Voice input explanation removed
+"Is chat text-only?" = "Le chat est-il uniquement textuel ?";
+"Yes. The chat window is text-only and shows the full conversation history." = "Oui. La fenêtre de chat est uniquement textuelle et affiche tout l'historique de conversation.";
+"Are my chats private?" = "Mes chats sont-ils privés ?";
+"All data stays on-device. Nothing is uploaded or shared. Delete the app to remove all data." = "Toutes les données restent sur l'appareil. Rien n'est téléchargé ou partagé. Supprimez l'application pour supprimer toutes les données.";
+// Voice availability question removed
+// Voice settings explanation removed
+"PrivacyNotice" = "Cette application stocke toutes les données uniquement sur votre appareil — rien n'est sauvegardé ou partagé, et aucun compte n'existe. Pour supprimer toutes les données, supprimez l'application.";
+
+// Main UI Text
+"Control" = "Contrôle";
+"Nothing to see here (yet) 🤖" = "Rien à voir ici (encore) 🤖";
+"Download Model" = "Télécharger le Modèle";
+"Download model to chat..." = "Téléchargez un modèle pour discuter...";
+"Generating response..." = "Génération de la réponse...";
+"Ask Anything…" = "Demandez n'importe quoi…";
+"File Message" = "Message de Fichier";
+
+// Models and Agents
+"Agents" = "Agents";
+"Available" = "Disponible";
+"Unavailable" = "Indisponible";
+"Active" = "Actif";
+"Model: %@" = "Modèle : %@";
+"No Model Assigned" = "Aucun Modèle Assigné";
+
+// Settings
+"UI" = "UI";
+"Dev" = "Développement";
+"English" = "Anglais";
+"Spanish" = "Espagnol";
+"French" = "Français";
+"Version" = "Version";
+"Build" = "Build";
+"Last Updated" = "Dernière Mise à Jour";
+"API Endpoint" = "Point de Terminaison API";
+"Debug" = "Débogage";
+"Info" = "Information";
+"Warning" = "Avertissement";
+"Error" = "Erreur";
+"Control LLM" = "Control LLM";
+"A text-based AI assistant with custom UI and MVVM architecture." = "Un assistant IA basé sur le texte avec une interface utilisateur personnalisée et une architecture MVVM.";
+
+// Model Management
+"Installing [%d%%]" = "Installation [%d%%]";
+"Unused Models" = "Modèles Inutilisés";
+
+// Error Messages
+"Your message was shortened to fit within limits. If the shortened version doesn't accurately represent what you wanted to say, please try a shorter message." = "Votre message a été raccourci pour respecter les limites. Si la version raccourcie ne représente pas exactement ce que vous vouliez dire, essayez un message plus court.";
+"The response was cut off because it reached the maximum length limit. Try asking a more specific question or breaking your request into smaller parts." = "La réponse a été coupée car elle a atteint la limite de longueur maximale. Essayez de poser une question plus spécifique ou de diviser votre demande en parties plus petites.";
+"Your message is too long. Please shorten it and try again." = "Votre message est trop long. Veuillez le raccourcir et réessayer.";
+"Error: %@" = "Erreur : %@";
+"Model switch in progress. Please wait a moment before sending your message." = "Changement de modèle en cours. Veuillez attendre un moment avant d'envoyer votre message.";
+
+// Animation Export
+"Export MYCROFT Animation" = "Exporter l'Animation MYCROFT";
+"Export frames as transparent PNGs" = "Exporter les images en PNG transparents";
+"Frame Count" = "Nombre d'Images";
+"Duration (seconds)" = "Durée (secondes)";
+"Export Size" = "Taille d'Exportation";
+"400x400" = "400x400";
+"600x600" = "600x600";
+"800x800" = "800x800";
+"Preview" = "Aperçu";
+"Frame %d of %d" = "Image %d sur %d";
+
+// Visualizer
+"Visualizer Styles Preview" = "Aperçu des Styles de Visualiseur";
+"Liquid Blob" = "Blob Liquide";
+"Animation Cycle Demo" = "Démo de Cycle d'Animation";
+"Static Particle Visualizer" = "Visualiseur de Particules Statiques";
+"Time Display Preview" = "Aperçu de l'Affichage du Temps";
+
+// System Status
+"System Status" = "État du Système";
+"Response Latency" = "Latence de Réponse";
+"Memory Pressure" = "Pression de Mémoire";
+"Thermal State" = "État Thermique";
+"1.0" = "1.0";
+
+// Appearance Settings
+"Control Unit Selection" = "Sélection d'Unité de Contrôle";
+"Main UI Colors" = "Couleurs Principales de l'UI";
+"These colors affect text and other UI elements, including the primary white text color and secondary grey text color." = "Ces couleurs affectent le texte et d'autres éléments de l'UI, y compris la couleur principale du texte blanc et la couleur secondaire du texte gris.";
+"Restore Defaults" = "Restaurer les Valeurs par Défaut";
+"Apply Changes" = "Appliquer les Changements";
+
+// Model Descriptions
+"Advanced reasoning and accuracy for complex conversations | 140+ languages" = "Raisonnement avancé et précision pour les conversations complexes | 140+ langues";
+"Balanced performance for everyday conversations | 140+ languages" = "Performance équilibrée pour les conversations quotidiennes | 140+ langues";
+"Ultra-fast responses for simple tasks | 140+ languages" = "Réponses ultra-rapides pour les tâches simples | 140+ langues";
+"Google's previous generation language model" = "Modèle de langage de génération précédente de Google";
+"Google's Gemma language model" = "Modèle de langage Gemma de Google";
+"Advanced reasoning with strong code and math capabilities | 23 languages" = "Raisonnement avancé avec de solides capacités de code et de mathématiques | 23 langues";
+"Balanced performance with code and math focus | 23 languages" = "Performance équilibrée avec un accent sur le code et les mathématiques | 23 langues";
+"Microsoft's Phi language model with code capabilities | 23 languages" = "Modèle de langage Phi de Microsoft avec des capacités de code | 23 langues";
+"Ultra-compact model optimized for mobile | 29+ languages" = "Modèle ultra-compact optimisé pour mobile | 29+ langues";
+"General tasks with broader technical abilities | 29+ languages" = "Tâches générales avec des capacités techniques plus larges | 29+ langues";
+"Qwen2.5 language model with technical focus | 29+ languages" = "Modèle de langage Qwen2.5 avec un accent technique | 29+ langues";
+"Advanced reasoning with broad technical abilities | 30 languages" = "Raisonnement avancé avec de larges capacités techniques | 30 langues";
+"General purpose language model with technical focus | 30 languages" = "Modèle de langage à usage général avec un accent technique | 30 langues";
+"Meta's latest large language model" = "Dernier modèle de langage large de Meta";
+"Meta's previous generation language model" = "Modèle de langage de génération précédente de Meta";
+"Meta's open source language model" = "Modèle de langage open source de Meta";
+"Custom or specialized language model" = "Modèle de langage personnalisé ou spécialisé";
+
+// Ollama Service
+"Invalid Ollama server URL" = "URL du serveur Ollama invalide";
+"Invalid response from Ollama server" = "Réponse invalide du serveur Ollama";
+"Ollama server error: %d" = "Erreur du serveur Ollama : %d";
+"Model not found on Ollama server" = "Modèle non trouvé sur le serveur Ollama";
+"Network error: %@" = "Erreur réseau : %@";
+
+// Credits
+"Michael Verges - Liquid" = "Michael Verges - Liquid";
+"IBM Plex Mono" = "IBM Plex Mono";
+"Control.Design" = "Control.Design";
+
+// FAQ
+"Privacy" = "Confidentialité";
+"This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app." = "Cette application stocke toutes les données sur votre appareil uniquement ; rien n'est enregistré ou partagé, et aucun compte n'existe. Pour supprimer toutes les données, supprimez l'application.";
+"LLM Models" = "Modèles LLM";
+"Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices." = "Plusieurs modèles sont disponibles dans les paramètres, chacun variant en taille et en capacité. Les performances du modèle dépendent de votre appareil : les téléphones plus récents gèrent généralement mieux les modèles plus grands et plus puissants, tandis que les modèles plus petits sont optimisés pour les appareils plus anciens.";
+"Chat History" = "Historique des discussions";
+"No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage." = "Aucun historique de discussion n'est enregistré. Les messages dans la fenêtre de discussion disparaissent progressivement sur 7 jours jusqu'à leur suppression complète, garantissant une confidentialité totale et libérant de l'espace de stockage sur l'appareil.";
+"Language" = "Langue";
+"English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English." = "L'interface de l'application prend en charge l'anglais, l'espagnol et le français. Pour les autres langues, l'interface reste en anglais, mais le LLM discute automatiquement dans votre langue préférée via la localisation.";
+"UI Color" = "Couleur de l'interface utilisateur";
+"All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme." = "Toutes les couleurs de texte peuvent être personnalisées dans les paramètres d'apparence, vous permettant de créer votre thème visuel préféré.";
+"Control Units" = "Unités de contrôle";
+"Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience." = "Trois avatars LLM sont disponibles dans les paramètres d'apparence. Ce sont des choix purement cosmétiques pour personnaliser votre expérience de chat.";
+"Quick Clipboard Analysis" = "Analyse rapide du presse-papiers";
+"Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored." = "Appuyez sur n'importe quel avatar animé pour analyser instantanément le texte copié. L'application ouvre automatiquement le chat et fournit un résumé des articles, e-mails ou documents. Ne fonctionne qu'avec du texte copié - les pressions sans contenu sont ignorées.";
+"iOS Shortcuts Integration" = "Intégration des raccourcis iOS";
+"Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device." = "Les actions sont disponibles en tant que blocs de construction dans l'application Raccourcis d'Apple, vous permettant de créer des flux d'automatisation. Enchaînez plusieurs messages, configurez des commandes vocales personnalisées avec Siri et créez des séquences qui s'exécutent en arrière-plan. Utilisez simplement l'application normalement - vos actions sont automatiquement suggérées à Raccourcis pour créer des automatisations, le tout sur l'appareil.";
+
+// System Status
+"Operational" = "Opérationnel";
+"Standby" = "En attente";
+"%.0f ms avg" = "%.0f ms moy";
+"No data yet" = "Pas encore de données";
+"Calculating..." = "Calcul en cours...";
+
+// Memory Pressure & Thermal States
+"Low" = "Faible";
+"Moderate" = "Modérée";
+"High" = "Élevée";
+"Critical" = "Critique";
+"Normal" = "Normal";
+"Medium" = "Moyen";
+"Unknown" = "Inconnu";
+
+// Visualizer Names
+"MYCROFT" = "MYCROFT";
+"WOPR" = "WOPR";
+"TARS" = "TARS";
+
+// Visualizer Descriptions
+"Too intelligent for its own good, and far too intelligent for yours." = "Trop intelligent pour son propre bien, et beaucoup trop intelligent pour le vôtre.";
+"Learned not to play the game...but it's always ready to change the rules." = "A appris à ne pas jouer le jeu... mais il est toujours prêt à changer les règles.";
+"Forged in the void, ready to follow you into the unknown." = "Forgé dans le vide, prêt à vous suivre dans l'inconnu.";
+
+// Date Headers
+"TODAY" = "AUJOURD'HUI";
+"YESTERDAY" = "HIER";

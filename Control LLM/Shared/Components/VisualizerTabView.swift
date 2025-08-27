@@ -101,14 +101,14 @@ struct VisualizerTabView: View {
 
 #Preview {
     VStack(spacing: 20) {
-        Text("Visualizer Styles Preview")
+                        Text(NSLocalizedString("Visualizer Styles Preview", comment: ""))
             .foregroundColor(.white)
             .font(.title2)
             .padding()
         
         // Liquid Blob
         VStack {
-            Text("Liquid Blob")
+                            Text(NSLocalizedString("Liquid Blob", comment: ""))
                 .foregroundColor(.white)
                 .font(.headline)
             VisualizerTabView()

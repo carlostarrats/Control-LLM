@@ -30,3 +30,160 @@
 // Voice settings explanation removed
 "PrivacyNotice" = "This app stores all data on your device only — nothing is saved or shared, and no account exists. To remove all data, delete the app.";
 
+// Main UI Text
+"Control" = "Control";
+"Nothing to see here (yet) 🤖" = "Nothing to see here (yet) 🤖";
+"Download Model" = "Download Model";
+"Download model to chat..." = "Download model to chat...";
+"Generating response..." = "Generating response...";
+"Ask Anything…" = "Ask Anything…";
+"File Message" = "File Message";
+
+// Models and Agents
+"Agents" = "Agents";
+"Available" = "Available";
+"Unavailable" = "Unavailable";
+"Active" = "Active";
+"Model: %@" = "Model: %@";
+"No Model Assigned" = "No Model Assigned";
+
+// Settings
+"UI" = "UI";
+"Dev" = "Dev";
+"English" = "English";
+"Spanish" = "Spanish";
+"French" = "French";
+"Version" = "Version";
+"Build" = "Build";
+"Last Updated" = "Last Updated";
+"API Endpoint" = "API Endpoint";
+"Debug" = "Debug";
+"Info" = "Info";
+"Warning" = "Warning";
+"Error" = "Error";
+"Control LLM" = "Control LLM";
+"A text-based AI assistant with custom UI and MVVM architecture." = "A text-based AI assistant with custom UI and MVVM architecture.";
+
+// Model Management
+"Installing [%d%%]" = "Installing [%d%%]";
+"Unused Models" = "Unused Models";
+
+// Error Messages
+"Your message was shortened to fit within limits. If the shortened version doesn't accurately represent what you wanted to say, please try a shorter message." = "Your message was shortened to fit within limits. If the shortened version doesn't accurately represent what you wanted to say, please try a shorter message.";
+"The response was cut off because it reached the maximum length limit. Try asking a more specific question or breaking your request into smaller parts." = "The response was cut off because it reached the maximum length limit. Try asking a more specific question or breaking your request into smaller parts.";
+"Your message is too long. Please shorten it and try again." = "Your message is too long. Please shorten it and try again.";
+"Error: %@" = "Error: %@";
+"Model switch in progress. Please wait a moment before sending your message." = "Model switch in progress. Please wait a moment before sending your message.";
+
+// Animation Export
+"Export MYCROFT Animation" = "Export MYCROFT Animation";
+"Export frames as transparent PNGs" = "Export frames as transparent PNGs";
+"Frame Count" = "Frame Count";
+"Duration (seconds)" = "Duration (seconds)";
+"Export Size" = "Export Size";
+"400x400" = "400x400";
+"600x600" = "600x600";
+"800x800" = "800x800";
+"Preview" = "Preview";
+"Frame %d of %d" = "Frame %d of %d";
+
+// Visualizer
+"Visualizer Styles Preview" = "Visualizer Styles Preview";
+"Liquid Blob" = "Liquid Blob";
+"Animation Cycle Demo" = "Animation Cycle Demo";
+"Static Particle Visualizer" = "Static Particle Visualizer";
+"Time Display Preview" = "Time Display Preview";
+
+// System Status
+"System Status" = "System Status";
+"Response Latency" = "Response Latency";
+"Memory Pressure" = "Memory Pressure";
+"Thermal State" = "Thermal State";
+"1.0" = "1.0";
+
+// Appearance Settings
+"Control Unit Selection" = "Control Unit Selection";
+"Main UI Colors" = "Main UI Colors";
+"These colors affect text and other UI elements, including the primary white text color and secondary grey text color." = "These colors affect text and other UI elements, including the primary white text color and secondary grey text color.";
+"Restore Defaults" = "Restore Defaults";
+"Apply Changes" = "Apply Changes";
+
+// Model Descriptions
+"Advanced reasoning and accuracy for complex conversations | 140+ languages" = "Advanced reasoning and accuracy for complex conversations | 140+ languages";
+"Balanced performance for everyday conversations | 140+ languages" = "Balanced performance for everyday conversations | 140+ languages";
+"Ultra-fast responses for simple tasks | 140+ languages" = "Ultra-fast responses for simple tasks | 140+ languages";
+"Google's previous generation language model" = "Google's previous generation language model";
+"Google's Gemma language model" = "Google's Gemma language model";
+"Advanced reasoning with strong code and math capabilities | 23 languages" = "Advanced reasoning with strong code and math capabilities | 23 languages";
+"Balanced performance with code and math focus | 23 languages" = "Balanced performance with code and math focus | 23 languages";
+"Microsoft's Phi language model with code capabilities | 23 languages" = "Microsoft's Phi language model with code capabilities | 23 languages";
+"Ultra-compact model optimized for mobile | 29+ languages" = "Ultra-compact model optimized for mobile | 29+ languages";
+
+// System Status
+"Operational" = "Operational";
+"Standby" = "Standby";
+"%.0f ms avg" = "%.0f ms avg";
+"No data yet" = "No data yet";
+"Calculating..." = "Calculating...";
+
+// Memory Pressure & Thermal States
+"Low" = "Low";
+"Moderate" = "Moderate";
+"High" = "High";
+"Critical" = "Critical";
+"Normal" = "Normal";
+"Medium" = "Medium";
+"Unknown" = "Unknown";
+
+// Visualizer Names
+"MYCROFT" = "MYCROFT";
+"WOPR" = "WOPR";
+"TARS" = "TARS";
+
+// Visualizer Descriptions
+"Too intelligent for its own good, and far too intelligent for yours." = "Too intelligent for its own good, and far too intelligent for yours.";
+"Learned not to play the game...but it's always ready to change the rules." = "Learned not to play the game...but it's always ready to change the rules.";
+"Forged in the void, ready to follow you into the unknown." = "Forged in the void, ready to follow you into the unknown.";
+
+// Date Headers
+"TODAY" = "TODAY";
+"YESTERDAY" = "YESTERDAY";
+"General tasks with broader technical abilities | 29+ languages" = "General tasks with broader technical abilities | 29+ languages";
+"Qwen2.5 language model with technical focus | 29+ languages" = "Qwen2.5 language model with technical focus | 29+ languages";
+"Advanced reasoning with broad technical abilities | 30 languages" = "Advanced reasoning with broad technical abilities | 30 languages";
+"General purpose language model with technical focus | 30 languages" = "General purpose language model with technical focus | 30 languages";
+"Meta's latest large language model" = "Meta's latest large language model";
+"Meta's previous generation language model" = "Meta's previous generation language model";
+"Meta's open source language model" = "Meta's open source language model";
+"Custom or specialized language model" = "Custom or specialized language model";
+
+// Ollama Service
+"Invalid Ollama server URL" = "Invalid Ollama server URL";
+"Invalid response from Ollama server" = "Invalid response from Ollama server";
+"Ollama server error: %d" = "Ollama server error: %d";
+"Model not found on Ollama server" = "Model not found on Ollama server";
+"Network error: %@" = "Network error: %@";
+
+// Credits
+"Michael Verges - Liquid" = "Michael Verges - Liquid";
+"IBM Plex Mono" = "IBM Plex Mono";
+"Control.Design" = "Control.Design";
+
+// FAQ
+"Privacy" = "Privacy";
+"This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app." = "This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app.";
+"LLM Models" = "LLM Models";
+"Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices." = "Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices.";
+"Chat History" = "Chat History";
+"No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage." = "No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage.";
+"Language" = "Language";
+"English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English." = "The app interface supports English, Spanish, and French. For other languages, the interface remains in English, but the LLM automatically chats in your preferred language via localization.";
+"UI Color" = "UI Color";
+"All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme." = "All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme.";
+"Control Units" = "Control Units";
+"Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience." = "Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience.";
+"Quick Clipboard Analysis" = "Quick Clipboard Analysis";
+"Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored." = "Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored.";
+"iOS Shortcuts Integration" = "iOS Shortcuts Integration";
+"Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device." = "Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device.";
+

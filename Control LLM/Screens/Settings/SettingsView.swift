@@ -179,7 +179,7 @@ struct SystemInfoView: View {
             // Active Model Section
             if let selectedModel = modelManager.selectedModel {
                 HStack(alignment: .center) {
-                    Text("Model")
+                    Text(NSLocalizedString("Models", comment: ""))
                         .font(.custom("IBMPlexMono", size: 14))
                         .foregroundColor(Color(hex: "#555555"))
                         .fixedSize()
@@ -199,7 +199,7 @@ struct SystemInfoView: View {
             
             // System Status Section
             HStack {
-                Text("System Status")
+                Text(NSLocalizedString("System Status", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#555555"))
                 
@@ -220,7 +220,7 @@ struct SystemInfoView: View {
                 
             // Response Latency Section
             HStack {
-                Text("Response Latency")
+                Text(NSLocalizedString("Response Latency", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#555555"))
                 
@@ -238,7 +238,7 @@ struct SystemInfoView: View {
                 
             // Memory Pressure Section
             HStack {
-                Text("Memory Pressure")
+                Text(NSLocalizedString("Memory Pressure", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#555555"))
                 
@@ -256,7 +256,7 @@ struct SystemInfoView: View {
                 
             // Thermal State Section
             HStack {
-                Text("Thermal State")
+                Text(NSLocalizedString("Thermal State", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#555555"))
                 
@@ -274,13 +274,13 @@ struct SystemInfoView: View {
                 
             // Version Section
             HStack {
-                Text("Version")
+                Text(NSLocalizedString("Version", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#555555"))
                 
                 Spacer()
                 
-                Text("1.0")
+                Text(NSLocalizedString("1.0", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#555555"))
             }
@@ -298,11 +298,11 @@ struct SystemInfoView: View {
     
     private var statusText: String {
         if chatViewModel.isProcessing {
-            return "Processing"
+            return NSLocalizedString("Processing", comment: "System status when processing")
         } else if chatViewModel.modelLoaded {
-            return "Ready"
+            return NSLocalizedString("Operational", comment: "System status when model is loaded")
         } else {
-            return "Idle"
+            return NSLocalizedString("Standby", comment: "System status when model is not loaded")
         }
     }
     
@@ -310,22 +310,22 @@ struct SystemInfoView: View {
         if chatViewModel.isProcessing {
             return ColorManager.shared.orangeColor
         } else if chatViewModel.modelLoaded {
-            return Color(hex: "#3EBBA5") // Success color
+            return Color(hex: "#3EBBA5") // Success color - green
         } else {
-            return ColorManager.shared.greyTextColor
+            return ColorManager.shared.greyTextColor // Grey for disconnected
         }
     }
     
-    @State private var responseLatency: String = "Calculating..."
-    @State private var memoryPressureText: String = "Calculating..."
-    @State private var thermalStateText: String = "Calculating..."
+    @State private var responseLatency: String = NSLocalizedString("Calculating...", comment: "Status while calculating response latency")
+    @State private var memoryPressureText: String = NSLocalizedString("Calculating...", comment: "Status while calculating memory pressure")
+    @State private var thermalStateText: String = NSLocalizedString("Calculating...", comment: "Status while calculating thermal state")
     
     private func updateResourceInfo() {
-        // Response Latency - show average response time
+        // Response Latency - show average from chatViewModel
         if chatViewModel.averageResponseDuration > 0 {
-            responseLatency = String(format: "%.0f ms avg", chatViewModel.averageResponseDuration * 1000)
+            responseLatency = String(format: NSLocalizedString("%.0f ms avg", comment: "Average response time format"), chatViewModel.averageResponseDuration * 1000)
         } else {
-            responseLatency = "No responses yet"
+            responseLatency = NSLocalizedString("No data yet", comment: "Response latency when no data available")
         }
         
         // Memory Pressure - iOS doesn't expose this directly, so we'll show available memory
@@ -333,28 +333,28 @@ struct SystemInfoView: View {
         let physicalMemory = processInfo.physicalMemory
         let availableMemoryGB = Double(physicalMemory) / (1024 * 1024 * 1024) // Convert to GB
         if availableMemoryGB > 2.0 {
-            memoryPressureText = "Low"
+            memoryPressureText = NSLocalizedString("Low", comment: "Memory pressure level - low")
         } else if availableMemoryGB > 1.0 {
-            memoryPressureText = "Moderate"
+            memoryPressureText = NSLocalizedString("Moderate", comment: "Memory pressure level - moderate")
         } else if availableMemoryGB > 0.5 {
-            memoryPressureText = "High"
+            memoryPressureText = NSLocalizedString("High", comment: "Memory pressure level - high")
         } else {
-            memoryPressureText = "Critical"
+            memoryPressureText = NSLocalizedString("Critical", comment: "Memory pressure level - critical")
         }
         
         // Thermal State
         let thermalState = ProcessInfo.processInfo.thermalState
         switch thermalState {
         case .nominal:
-            thermalStateText = "Nominal"
+            thermalStateText = NSLocalizedString("Normal", comment: "Thermal state - normal")
         case .fair:
-            thermalStateText = "Fair"
+            thermalStateText = NSLocalizedString("Medium", comment: "Thermal state - medium")
         case .serious:
-            thermalStateText = "Serious"
+            thermalStateText = NSLocalizedString("High", comment: "Thermal state - high")
         case .critical:
-            thermalStateText = "Critical"
+            thermalStateText = NSLocalizedString("Critical", comment: "Thermal state - critical")
         @unknown default:
-            thermalStateText = "Unknown"
+            thermalStateText = NSLocalizedString("Unknown", comment: "Thermal state - unknown")
         }
     }
 } 

@@ -30,3 +30,160 @@
 // Voice settings explanation removed
 "PrivacyNotice" = "Esta app almacena todos los datos solo en tu dispositivo: no se guarda ni comparte nada, y no existe una cuenta. Para eliminar todos los datos, borra la app.";
 
+// Main UI Text
+"Control" = "Control";
+"Nothing to see here (yet) 🤖" = "Nada que ver aquí (aún) 🤖";
+"Download Model" = "Descargar Modelo";
+"Download model to chat..." = "Descarga un modelo para chatear...";
+"Generating response..." = "Generando respuesta...";
+"Ask Anything…" = "Pregunta lo que quieras…";
+"File Message" = "Mensaje de Archivo";
+
+// Models and Agents
+"Agents" = "Agentes";
+"Available" = "Disponible";
+"Unavailable" = "No Disponible";
+"Active" = "Activo";
+"Model: %@" = "Modelo: %@";
+"No Model Assigned" = "Sin Modelo Asignado";
+
+// Settings
+"UI" = "UI";
+"Dev" = "Desarrollo";
+"English" = "Inglés";
+"Spanish" = "Español";
+"French" = "Francés";
+"Version" = "Versión";
+"Build" = "Compilación";
+"Last Updated" = "Última Actualización";
+"API Endpoint" = "Endpoint de API";
+"Debug" = "Depuración";
+"Info" = "Información";
+"Warning" = "Advertencia";
+"Error" = "Error";
+"Control LLM" = "Control LLM";
+"A text-based AI assistant with custom UI and MVVM architecture." = "Un asistente de IA basado en texto con UI personalizada y arquitectura MVVM.";
+
+// Model Management
+"Installing [%d%%]" = "Instalando [%d%%]";
+"Unused Models" = "Modelos No Usados";
+
+// Error Messages
+"Your message was shortened to fit within limits. If the shortened version doesn't accurately represent what you wanted to say, please try a shorter message." = "Tu mensaje fue acortado para ajustarse a los límites. Si la versión acortada no representa exactamente lo que querías decir, intenta con un mensaje más corto.";
+"The response was cut off because it reached the maximum length limit. Try asking a more specific question or breaking your request into smaller parts." = "La respuesta se cortó porque alcanzó el límite máximo de longitud. Intenta hacer una pregunta más específica o dividir tu solicitud en partes más pequeñas.";
+"Your message is too long. Please shorten it and try again." = "Tu mensaje es demasiado largo. Por favor acórtalo e inténtalo de nuevo.";
+"Error: %@" = "Error: %@";
+"Model switch in progress. Please wait a moment before sending your message." = "Cambio de modelo en progreso. Por favor espera un momento antes de enviar tu mensaje.";
+
+// Animation Export
+"Export MYCROFT Animation" = "Exportar Animación MYCROFT";
+"Export frames as transparent PNGs" = "Exportar frames como PNGs transparentes";
+"Frame Count" = "Número de Frames";
+"Duration (seconds)" = "Duración (segundos)";
+"Export Size" = "Tamaño de Exportación";
+"400x400" = "400x400";
+"600x600" = "600x600";
+"800x800" = "800x800";
+"Preview" = "Vista Previa";
+"Frame %d of %d" = "Frame %d de %d";
+
+// Visualizer
+"Visualizer Styles Preview" = "Vista Previa de Estilos de Visualizador";
+"Liquid Blob" = "Burbuja Líquida";
+"Animation Cycle Demo" = "Demo de Ciclo de Animación";
+"Static Particle Visualizer" = "Visualizador de Partículas Estáticas";
+"Time Display Preview" = "Vista Previa de Pantalla de Tiempo";
+
+// System Status
+"System Status" = "Estado del Sistema";
+"Response Latency" = "Latencia de Respuesta";
+"Memory Pressure" = "Presión de Memoria";
+"Thermal State" = "Estado Térmico";
+"1.0" = "1.0";
+
+// Appearance Settings
+"Control Unit Selection" = "Selección de Unidad de Control";
+"Main UI Colors" = "Colores Principales de UI";
+"These colors affect text and other UI elements, including the primary white text color and secondary grey text color." = "Estos colores afectan el texto y otros elementos de UI, incluyendo el color principal del texto blanco y el color secundario del texto gris.";
+"Restore Defaults" = "Restaurar Valores Predeterminados";
+"Apply Changes" = "Aplicar Cambios";
+
+// Model Descriptions
+"Advanced reasoning and accuracy for complex conversations | 140+ languages" = "Razonamiento avanzado y precisión para conversaciones complejas | 140+ idiomas";
+"Balanced performance for everyday conversations | 140+ languages" = "Rendimiento equilibrado para conversaciones cotidianas | 140+ idiomas";
+"Ultra-fast responses for simple tasks | 140+ languages" = "Respuestas ultrarrápidas para tareas sencillas | 140+ idiomas";
+"Google's previous generation language model" = "Modelo de lenguaje de la generación anterior de Google";
+"Google's Gemma language model" = "Modelo de lenguaje Gemma de Google";
+"Advanced reasoning with strong code and math capabilities | 23 languages" = "Razonamiento avanzado con sólidas capacidades de código y matemáticas | 23 idiomas";
+"Balanced performance with code and math focus | 23 languages" = "Rendimiento equilibrado con enfoque en código y matemáticas | 23 idiomas";
+"Microsoft's Phi language model with code capabilities | 23 languages" = "Modelo de lenguaje Phi de Microsoft con capacidades de código | 23 idiomas";
+"Ultra-compact model optimized for mobile | 29+ languages" = "Modelo ultracompacto optimizado para móviles | 29+ idiomas";
+
+// System Status
+"Operational" = "Operacional";
+"Standby" = "En espera";
+"%.0f ms avg" = "%.0f ms prom";
+"No data yet" = "Sin datos aún";
+"Calculating..." = "Calculando...";
+
+// Memory Pressure & Thermal States
+"Low" = "Baja";
+"Moderate" = "Moderada";
+"High" = "Alta";
+"Critical" = "Crítica";
+"Normal" = "Normal";
+"Medium" = "Media";
+"Unknown" = "Desconocido";
+
+// Visualizer Names
+"MYCROFT" = "MYCROFT";
+"WOPR" = "WOPR";
+"TARS" = "TARS";
+
+// Visualizer Descriptions
+"Too intelligent for its own good, and far too intelligent for yours." = "Demasiado inteligente para su propio bien, y mucho más inteligente que tú.";
+"Learned not to play the game...but it's always ready to change the rules." = "Aprendió a no jugar el juego... pero siempre está listo para cambiar las reglas.";
+"Forged in the void, ready to follow you into the unknown." = "Forjado en el vacío, listo para seguirte hacia lo desconocido.";
+
+// Date Headers
+"TODAY" = "HOY";
+"YESTERDAY" = "AYER";
+"General tasks with broader technical abilities | 29+ languages" = "Tareas generales con habilidades técnicas más amplias | 29+ idiomas";
+"Qwen2.5 language model with technical focus | 29+ languages" = "Modelo de lenguaje Qwen2.5 con enfoque técnico | 29+ idiomas";
+"Advanced reasoning with broad technical abilities | 30 languages" = "Razonamiento avanzado con amplias capacidades técnicas | 30 idiomas";
+"General purpose language model with technical focus | 30 languages" = "Modelo de lenguaje de propósito general con enfoque técnico | 30 idiomas";
+"Meta's latest large language model" = "Último modelo de lenguaje grande de Meta";
+"Meta's previous generation language model" = "Modelo de lenguaje de la generación anterior de Meta";
+"Meta's open source language model" = "Modelo de lenguaje de código abierto de Meta";
+"Custom or specialized language model" = "Modelo de lenguaje personalizado o especializado";
+
+// Ollama Service
+"Invalid Ollama server URL" = "URL del servidor Ollama inválida";
+"Invalid response from Ollama server" = "Respuesta inválida del servidor Ollama";
+"Ollama server error: %d" = "Error del servidor Ollama: %d";
+"Model not found on Ollama server" = "Modelo no encontrado en el servidor Ollama";
+"Network error: %@" = "Error de red: %@";
+
+// Credits
+"Michael Verges - Liquid" = "Michael Verges - Liquid";
+"IBM Plex Mono" = "IBM Plex Mono";
+"Control.Design" = "Control.Design";
+
+// FAQ
+"Privacy" = "Privacidad";
+"This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app." = "Esta aplicación almacena todos los datos en tu dispositivo únicamente; no se guarda ni se comparte nada, y no existe ninguna cuenta. Para eliminar todos los datos, borra la aplicación.";
+"LLM Models" = "Modelos LLM";
+"Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices." = "Hay varios modelos disponibles en Configuración, cada uno con un tamaño y capacidad diferentes. El rendimiento del modelo depende de tu dispositivo: los teléfonos más nuevos suelen manejar mejor los modelos más grandes y potentes, mientras que los modelos más pequeños están optimizados para dispositivos más antiguos.";
+"Chat History" = "Historial de chat";
+"No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage." = "No se guarda ningún historial de chat. Los mensajes en la ventana de chat se desvanecen gradualmente durante 7 días hasta que se borran por completo, garantizando una total privacidad y liberando espacio de almacenamiento en el dispositivo.";
+"Language" = "Idioma";
+"English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English." = "La interfaz de la aplicación es compatible con inglés, español y francés. Para otros idiomas, la interfaz permanece en inglés, pero el LLM chatea automáticamente en tu idioma preferido a través de la localización.";
+"UI Color" = "Color de la interfaz";
+"All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme." = "Todos los colores del texto se pueden personalizar en la configuración de Apariencia, lo que te permite crear tu tema visual preferido.";
+"Control Units" = "Unidades de control";
+"Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience." = "Hay tres avatares de LLM disponibles en la configuración de Apariencia. Estas son elecciones puramente cosméticas para personalizar tu experiencia de chat.";
+"Quick Clipboard Analysis" = "Análisis Rápido del Portapapeles";
+"Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored." = "Toca cualquier avatar animado para analizar instantáneamente el texto copiado. La aplicación abre automáticamente el chat y proporciona un resumen de artículos, correos electrónicos o documentos. Solo funciona con texto copiado; los toques sin texto copiado se ignoran.";
+"iOS Shortcuts Integration" = "Integración con Atajos de iOS";
+"Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device." = "Las acciones están disponibles como bloques de construcción en la aplicación Atajos de Apple, lo que te permite crear flujos de trabajo de automatización. Encadena varios mensajes, configura comandos de voz personalizados con Siri y crea secuencias que se ejecutan en segundo plano. Simplemente usa la aplicación normalmente: tus acciones se sugieren automáticamente a Atajos para crear automatizaciones, todo en el dispositivo.";
+
