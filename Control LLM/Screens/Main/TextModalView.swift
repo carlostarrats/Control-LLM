@@ -422,21 +422,8 @@ struct TextModalView: View {
     // MARK: - Message Management -------------------------------------------
     
     private func calculateMessageOpacity(for message: ChatMessage) -> Double {
-        let calendar = Calendar.current
-        let now = Date()
-        let daysDifference = calendar.dateComponents([.day], from: message.timestamp, to: now).day ?? 0
-        
-        // Apply opacity fade based on message age
-        switch daysDifference {
-        case 0: return 1.0      // Today: 100% opacity
-        case 1: return 0.9      // Yesterday: 90% opacity
-        case 2: return 0.8      // Day 2: 80% opacity
-        case 3: return 0.7      // Day 3: 70% opacity
-        case 4: return 0.6      // Day 4: 60% opacity
-        case 5: return 0.5      // Day 5: 50% opacity
-        case 6: return 0.4      // Day 6: 40% opacity
-        default: return 0.0     // Day 7+: 0% opacity (will be deleted)
-        }
+        // All messages in current session have full opacity
+        return 1.0
     }
     
     private func getMessagesGroupedByDate() -> [(Date, [ChatMessage])] {
@@ -444,15 +431,9 @@ struct TextModalView: View {
         guard !messages.isEmpty else { return [] }
         
         let calendar = Calendar.current
-        let now = Date()
-        let cutoffDate = calendar.date(byAdding: .day, value: -7, to: now) ?? now
         
-        // Filter out messages older than 7 days
-        let recentMessages = messages.filter { message in
-            message.timestamp > cutoffDate
-        }
-        
-        let grouped = Dictionary(grouping: recentMessages) { message in
+        // Group messages by day within the current session
+        let grouped = Dictionary(grouping: messages) { message in
             calendar.startOfDay(for: message.timestamp)
         }
         
@@ -569,9 +550,13 @@ struct TextModalView: View {
     
     // MARK: - Normal Message List
     private var normalMessageList: some View {
-        ForEach(getMessagesGroupedByDate(), id: \.0) { date, messages in
+        ForEach(Array(getMessagesGroupedByDate().enumerated()), id: \.element.0) { index, dateAndMessages in
+            let (date, messages) = dateAndMessages
             VStack(spacing: 24) {
-                DateHeaderView(firstMessageTime: messages.first?.timestamp ?? date)
+                DateHeaderView(
+                    firstMessageTime: messages.first?.timestamp ?? date,
+                    isFirstMessageInConversation: index == 0
+                )
                 
                 ForEach(messages) { message in
                     MessageBubble(
@@ -1260,6 +1245,7 @@ struct ThinkingAnimationView: View {
 
 struct DateHeaderView: View {
     let firstMessageTime: Date
+    let isFirstMessageInConversation: Bool
     @State private var isVisible = false
     
     var body: some View {
@@ -1278,15 +1264,21 @@ struct DateHeaderView: View {
     }
     
     private func formattedDateAndTime() -> String {
-        let dateText = Self.smart(firstMessageTime)
-        
         let formatter = DateFormatter()
         formatter.locale = Locale.current
         formatter.timeZone = TimeZone.current
         formatter.timeStyle = .short
         formatter.dateStyle = .none
         let timeText = formatter.string(from: firstMessageTime)
-        return "\(dateText) \(timeText)"
+        
+        if isFirstMessageInConversation {
+            // For first message, show only time
+            return timeText
+        } else {
+            // For subsequent messages, show date and time
+            let dateText = Self.smart(firstMessageTime)
+            return "\(dateText) \(timeText)"
+        }
     }
     
     // smart-date formatter

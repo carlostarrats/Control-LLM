@@ -34,7 +34,6 @@ struct UISettingsTab: View {
             Section(NSLocalizedString("App Settings", comment: "")) {
                 // Voice commands removed
                 // Auto transcribe removed
-                Toggle(NSLocalizedString("Save Chat History", comment: ""), isOn: $viewModel.appSettings.saveChatHistory)
                 Toggle(NSLocalizedString("Notifications", comment: ""), isOn: $viewModel.appSettings.enableNotifications)
                 
                 Picker(NSLocalizedString("Language", comment: ""), selection: $viewModel.appSettings.language) {
@@ -42,9 +41,6 @@ struct UISettingsTab: View {
                     Text(NSLocalizedString("Spanish", comment: "")).tag("Spanish")
                     Text(NSLocalizedString("French", comment: "")).tag("French")
                 }
-                
-                Stepper(String(format: NSLocalizedString("Max History Items: %d", comment: ""), viewModel.appSettings.maxHistoryItems), 
-                       value: $viewModel.appSettings.maxHistoryItems, in: 10...1000, step: 10)
             }
             
             Section(NSLocalizedString("UI Customization", comment: "")) {

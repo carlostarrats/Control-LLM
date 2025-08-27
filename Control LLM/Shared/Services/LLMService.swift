@@ -606,32 +606,6 @@ final class LLMService: @unchecked Sendable {
         }
     }
     
-    /// Custom chat template builder specifically for Gemma 3 270M model
-    /// This model has a custom template that llama.cpp doesn't handle correctly
-    private func buildGemma3CustomTemplate(userText: String, history: [ChatMessage]?, systemPrompt: String) -> String {
-        var prompt = ""
-        
-        // Add conversation history if present (before the current message)
-        if let history = history, !history.isEmpty {
-            for message in history {
-                let role = message.isUser ? "user" : "model"
-                prompt += "<start_of_turn>\(role)\n"
-                prompt += message.content + "<end_of_turn>\n"
-            }
-        }
-        
-        // Add current user message with system prompt integrated
-        prompt += "<start_of_turn>user\n"
-        prompt += userText + "<end_of_turn>\n"
-        
-        // Add assistant start token
-        prompt += "<start_of_turn>model\n"
-        
-        print("✅ LLMService: Applied custom Gemma 3 270M template (\(prompt.count) characters)")
-        print("🔍 LLMService: Template preview: \(prompt.prefix(200))...")
-        return prompt
-    }
-    
     // Removed model-specific manual prompt builders. All models use chat template.
     
     /// Clear any potential state to ensure fresh calls

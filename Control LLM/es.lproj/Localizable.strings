@@ -197,7 +197,7 @@
 "Meta" = "Meta";
 "Gemma 3N E4B IT" = "Gemma 3N E4B IT";
 "Gemma 3 1B IT" = "Gemma 3 1B IT";
-"Gemma 3 270M IT" = "Gemma 3 270M IT";
+
 "Gemma 2 Model" = "Modelo Gemma 2";
 "Gemma Model" = "Modelo Gemma";
 "Phi-3 Model" = "Modelo Phi-3";
@@ -242,7 +242,7 @@
 "LLM Models" = "Modelos LLM";
 "Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices." = "Hay varios modelos disponibles en Configuración, cada uno con un tamaño y capacidad diferentes. El rendimiento del modelo depende de tu dispositivo: los teléfonos más nuevos suelen manejar mejor los modelos más grandes y potentes, mientras que los modelos más pequeños están optimizados para dispositivos más antiguos.";
 "Chat History" = "Historial de chat";
-"No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage." = "No se guarda ningún historial de chat. Los mensajes en la ventana de chat se desvanecen gradualmente durante 7 días hasta que se borran por completo, garantizando una total privacidad y liberando espacio de almacenamiento en el dispositivo.";
+"Chat history is temporary and automatically resets when you close and reopen the app. If you keep the app open in the background, your chat history will reset after 24 hours to ensure privacy." = "El historial de chat es temporal y se restablece automáticamente cuando cierras y vuelves a abrir la aplicación. Si mantienes la aplicación abierta en segundo plano, tu historial de chat se restablecerá después de 24 horas para garantizar la privacidad.";
 "Language" = "Idioma";
 "English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English." = "La interfaz de la aplicación es compatible con inglés, español y francés. Para otros idiomas, la interfaz permanece en inglés, pero el LLM chatea automáticamente en tu idioma preferido a través de la localización.";
 "UI Color" = "Color de la interfaz";

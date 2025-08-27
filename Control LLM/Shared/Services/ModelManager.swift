@@ -33,10 +33,6 @@ struct LLMModelInfo: Identifiable {
                 self.name = NSLocalizedString("Gemma 3 1B IT", comment: "")
                 self.description = NSLocalizedString("Balanced performance for everyday conversations | 140+ languages", comment: "")
                 self.size = "0.8 GB"
-            } else if lowercaseFilename.contains("3-270m") {
-                self.name = NSLocalizedString("Gemma 3 270M IT", comment: "")
-                self.description = NSLocalizedString("Ultra-fast responses for simple tasks | 140+ languages", comment: "")
-                self.size = "0.3 GB"
             } else if lowercaseFilename.contains("2") {
                 self.name = NSLocalizedString("Gemma 2 Model", comment: "")
                 self.description = NSLocalizedString("Google's previous generation language model", comment: "")

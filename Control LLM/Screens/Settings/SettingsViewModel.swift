@@ -17,8 +17,6 @@ class SettingsViewModel: ObservableObject {
         appSettings = AppSettings(
             // Voice commands removed
             // Auto transcribe removed
-            saveChatHistory: true,
-            maxHistoryItems: 100,
             enableNotifications: true,
             language: NSLocalizedString("English", comment: "")
         )
@@ -62,10 +60,8 @@ class SettingsViewModel: ObservableObject {
 struct AppSettings {
     // Voice commands removed
     // Auto transcribe removed
-    var saveChatHistory: Bool = true
-    var maxHistoryItems: Int = 100
     var enableNotifications: Bool = true
-            var language: String = NSLocalizedString("English", comment: "")
+    var language: String = NSLocalizedString("English", comment: "")
 }
 
 struct UICustomization {

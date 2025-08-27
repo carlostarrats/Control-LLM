@@ -235,7 +235,7 @@
 "Meta" = "Meta";
 "Gemma 3N E4B IT" = "Gemma 3N E4B IT";
 "Gemma 3 1B IT" = "Gemma 3 1B IT";
-"Gemma 3 270M IT" = "Gemma 3 270M IT";
+
 "Gemma 2 Model" = "Modèle Gemma 2";
 "Gemma Model" = "Modèle Gemma";
 "Phi-3 Model" = "Modèle Phi-3";
@@ -260,7 +260,7 @@
 "LLM Models" = "Modèles LLM";
 "Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices." = "Plusieurs modèles sont disponibles dans les Paramètres, chacun variant en taille et en capacité. Les performances du modèle dépendent de votre appareil - les téléphones plus récents gèrent généralement mieux les modèles plus grands et plus puissants, tandis que les modèles plus petits sont optimisés pour les appareils plus anciens.";
 "Chat History" = "Historique de chat";
-"No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage." = "Aucun historique de chat n'est sauvegardé. Les messages dans la fenêtre de chat s'estompent progressivement sur 7 jours jusqu'à être complètement effacés, garantissant une confidentialité totale et libérant l'espace de stockage de l'appareil.";
+"Chat history is temporary and automatically resets when you close and reopen the app. If you keep the app open in the background, your chat history will reset after 24 hours to ensure privacy." = "L'historique de chat est temporaire et se réinitialise automatiquement lorsque vous fermez et rouvrez l'application. Si vous gardez l'application ouverte en arrière-plan, votre historique de chat se réinitialisera après 24 heures pour assurer la confidentialité.";
 "Language" = "Langue";
 "English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English." = "L'interface de l'application prend en charge l'anglais, l'espagnol et le français. Pour d'autres langues, l'interface reste en anglais, mais le LLM chat automatiquement dans votre langue préférée via la localisation.";
 "UI Color" = "Couleur de l'interface";

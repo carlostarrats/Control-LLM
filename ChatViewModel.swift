@@ -38,18 +38,21 @@ class ChatViewModel {
     var lastSentMessage: String?
     var messageHistory: [ChatMessage]?
     
+    // MARK: - Session Management
+    
+    private var appOpenTime: Date = Date()
+    private let sessionDurationKey = "AppSessionStartTime"
+    
     // MARK: - Notification Management
     
     private var modelChangeObserver: NSObjectProtocol?
     private var updateTimer: Timer?
     
     private var currentGenerationTask: Task<Void, Never>?
-    private var cleanupTimer: Timer?
-    private let historyStorageKey = "MessageHistory"
     
     init() {
         print("🔍 ChatViewModel: init")
-        loadHistory()
+        initializeSession()
         
         // Load saved timing data from UserDefaults
         let savedAverage = UserDefaults.standard.double(forKey: "AverageResponseTime")
@@ -59,7 +62,6 @@ class ChatViewModel {
         }
         
         setupModelChangeObserver()
-        setupCleanupTimer()
     }
     
     deinit {
@@ -70,7 +72,6 @@ class ChatViewModel {
         }
         // Clean up timers
         updateTimer?.invalidate()
-        cleanupTimer?.invalidate()
     }
     
     private func setupModelChangeObserver() {
@@ -166,6 +167,9 @@ class ChatViewModel {
     }
     
     func send(_ userText: String, addUserMessageToHistory: Bool = true) async throws {
+        // Check session expiry before processing message
+        checkSessionExpiry()
+        
         // Prevent duplicate messages if already sent
         if lastSentMessage == userText, isProcessing {
             print("🔍 ChatViewModel: ⚠️ Duplicate message detected while processing, skipping send.")
@@ -187,7 +191,6 @@ class ChatViewModel {
             let userMessage = ChatMessage(content: userText, isUser: true, timestamp: Date())
             if messageHistory == nil { messageHistory = [] }
             messageHistory?.append(userMessage)
-            saveHistory()
             print("🔍 ChatViewModel: Added user message to history.")
         }
 
@@ -219,7 +222,6 @@ class ChatViewModel {
                 if !Task.isCancelled {
                     let finalMessage = ChatMessage(content: self.transcript, isUser: false, timestamp: Date())
                     self.messageHistory?.append(finalMessage)
-                    self.saveHistory()
                 }
                 
             } catch is CancellationError {
@@ -228,13 +230,11 @@ class ChatViewModel {
                 if !transcript.isEmpty {
                     let partialMessage = ChatMessage(content: transcript, isUser: false, timestamp: Date())
                     self.messageHistory?.append(partialMessage)
-                    self.saveHistory()
                 }
             } catch {
                 print("❌ ChatViewModel: Llama generation failed: \(error)")
                 let errorMessage = ChatMessage(content: String(format: NSLocalizedString("Error: %@", comment: ""), error.localizedDescription), isUser: false, timestamp: Date(), messageType: .error)
                 self.messageHistory?.append(errorMessage)
-                self.saveHistory()
             }
             
             await MainActor.run {
@@ -286,7 +286,6 @@ class ChatViewModel {
         DispatchQueue.main.async {
             self.transcript = ""
             self.messageHistory = []
-            self.saveHistory()
             self.lastSentMessage = nil
             // Keep response timing stats - don't reset them
             // self.totalResponseTime = 0.0
@@ -325,71 +324,13 @@ class ChatViewModel {
         }
     }
     
-    // MARK: - Memory Fade Management
+
     
-    private func setupCleanupTimer() {
-        // Run cleanup every hour to remove old messages
-        cleanupTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
-            self?.cleanupOldMessages()
-        }
-    }
-    
-    private func cleanupOldMessages() {
-        let calendar = Calendar.current
-        let now = Date()
-        let cutoffDate = calendar.date(byAdding: .day, value: -7, to: now) ?? now
-        
-        // Remove messages older than 7 days
-        messageHistory = messageHistory?.filter { message in
-            message.timestamp > cutoffDate
-        }
-        saveHistory()
-        
-        print("🔍 ChatViewModel: Cleaned up messages older than 7 days")
-    }
-    
-    // MARK: - History Persistence
-    
-    private func saveHistory() {
-        do {
-            let data = try JSONEncoder().encode(messageHistory)
-            UserDefaults.standard.set(data, forKey: historyStorageKey)
-            print("🔍 ChatViewModel: History saved successfully.")
-        } catch {
-            print("❌ ChatViewModel: Failed to save history: \(error)")
-        }
-    }
-    
-    private func loadHistory() {
-        guard let data = UserDefaults.standard.data(forKey: historyStorageKey) else {
-            print("🔍 ChatViewModel: No saved history found.")
-            return
-        }
-        do {
-            messageHistory = try JSONDecoder().decode([ChatMessage].self, from: data)
-            print("🔍 ChatViewModel: History loaded successfully. \(messageHistory?.count ?? 0) messages.")
-        } catch {
-            print("❌ ChatViewModel: Failed to load history: \(error)")
-            messageHistory = [] // Start fresh if loading fails
-        }
-    }
+
 
     func calculateMessageOpacity(for message: ChatMessage) -> Double {
-        let calendar = Calendar.current
-        let now = Date()
-        let daysDifference = calendar.dateComponents([.day], from: message.timestamp, to: now).day ?? 0
-        
-        // Apply opacity fade based on message age
-        switch daysDifference {
-        case 0: return 1.0      // Today: 100% opacity
-        case 1: return 0.9      // Yesterday: 90% opacity
-        case 2: return 0.8      // Day 2: 80% opacity
-        case 3: return 0.7      // Day 3: 70% opacity
-        case 4: return 0.6      // Day 4: 60% opacity
-        case 5: return 0.5      // Day 5: 50% opacity
-        case 6: return 0.4      // Day 6: 40% opacity
-        default: return 0.0     // Day 7+: 0% opacity (will be deleted)
-        }
+        // All messages in current session have full opacity
+        return 1.0
     }
     
     func getMessagesGroupedByDate() -> [(Date, [ChatMessage])] {
@@ -423,5 +364,52 @@ class ChatViewModel {
         HybridLLMService.shared.stopGeneration()
         
         self.isProcessing = false
+    }
+    
+    // MARK: - Session Management
+    
+    private func initializeSession() {
+        // Check if we need to start a new session
+        if let savedTimeData = UserDefaults.standard.data(forKey: sessionDurationKey),
+           let savedTime = try? JSONDecoder().decode(Date.self, from: savedTimeData) {
+            
+            let timeSinceOpen = Date().timeIntervalSince(savedTime)
+            let twentyFourHours: TimeInterval = 24 * 60 * 60 // 24 hours in seconds
+            
+            if timeSinceOpen >= twentyFourHours {
+                // 24 hours have passed, start fresh session
+                print("🔍 ChatViewModel: 24 hours passed, starting fresh session")
+                startNewSession()
+            } else {
+                // Continue existing session
+                appOpenTime = savedTime
+                print("🔍 ChatViewModel: Continuing existing session started at \(savedTime)")
+            }
+        } else {
+            // First time or no saved session, start fresh
+            startNewSession()
+        }
+    }
+    
+    private func startNewSession() {
+        appOpenTime = Date()
+        messageHistory = []
+        
+        // Save new session start time
+        if let encodedTime = try? JSONEncoder().encode(appOpenTime) {
+            UserDefaults.standard.set(encodedTime, forKey: sessionDurationKey)
+        }
+        
+        print("🔍 ChatViewModel: Started new session at \(appOpenTime)")
+    }
+    
+    private func checkSessionExpiry() {
+        let timeSinceOpen = Date().timeIntervalSince(appOpenTime)
+        let twentyFourHours: TimeInterval = 24 * 60 * 60
+        
+        if timeSinceOpen >= twentyFourHours {
+            print("🔍 ChatViewModel: Session expired, resetting history")
+            startNewSession()
+        }
     }
 }

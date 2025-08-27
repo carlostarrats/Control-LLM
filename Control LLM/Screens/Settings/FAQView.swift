@@ -72,7 +72,7 @@ struct FAQView: View {
             ),
             FAQItem(
                 question: NSLocalizedString("Chat History", comment: ""),
-                answer: NSLocalizedString("No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage.", comment: "")
+                answer: NSLocalizedString("Chat history is temporary and automatically resets when you close and reopen the app. If you keep the app open in the background, your chat history will reset after 24 hours to ensure privacy.", comment: "")
             ),
             FAQItem(
                 question: NSLocalizedString("Language", comment: ""),
