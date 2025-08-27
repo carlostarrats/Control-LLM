@@ -32,33 +32,39 @@ class MainViewModel: ObservableObject {
         }
     }
     
-    func sendTextMessage(_ text: String) {
-        print("🔍 MainViewModel: sendTextMessage called with text: \(text.prefix(50))...")
+    func sendTextMessage(_ text: String) async {
+        // 1. Add user message and placeholder to UI immediately
+        let userMessage = ChatMessage(content: text, isUser: true, timestamp: Date())
+        let placeholder = ChatMessage(content: "", isUser: false, timestamp: Date())
         
-        // Don't add the user's message to the UI here.
-        // The ChatViewModel will add it to its history, and we will sync from there
-        // to ensure a single source of truth.
-        
-        Task {
-            do {
-                // This call will handle the LLM logic AND add both the user and assistant messages
-                // to the llm.messageHistory array, then save it.
-                try await llm.send(text)
-                
-                // After the LLM is done, sync the entire history back to the UI.
-                await MainActor.run {
-                    if let updatedHistory = self.llm.messageHistory {
-                        self.messages = updatedHistory
-                        print("🔍 MainViewModel: Synced messages with ChatViewModel history. New count: \(self.messages.count)")
-                    }
-                }
-            } catch {
-                print("❌ MainViewModel: Error calling LLM: \(error)")
-                // Optionally, display an error message in the UI
-            }
+        await MainActor.run {
+            messages.append(userMessage)
+            messages.append(placeholder)
         }
         
-        donateChainedMessageIntentIfNeeded()
+        do {
+            // 2. Call the LLM, telling it NOT to add a duplicate user message
+            try await llm.send(text, addUserMessageToHistory: false)
+            
+            // 3. When done, find the final assistant message from the history
+            if let assistantMessage = llm.messageHistory?.last(where: { !$0.isUser }) {
+                // 4. On the main thread, find the placeholder and replace it with the final message
+                await MainActor.run {
+                    if let placeholderIndex = self.messages.firstIndex(where: { $0.id == placeholder.id }) {
+                        self.messages[placeholderIndex] = assistantMessage
+                    }
+                }
+            }
+        } catch {
+            // Handle errors by replacing the placeholder with an error message
+            let errorMessage = ChatMessage(content: "Error: \(error.localizedDescription)", isUser: false, timestamp: Date(), messageType: .error)
+            await MainActor.run {
+                if let placeholderIndex = self.messages.firstIndex(where: { $0.id == placeholder.id }) {
+                    self.messages[placeholderIndex] = errorMessage
+                }
+            }
+            print("❌ MainViewModel: Error sending message: \(error)")
+        }
     }
     
     func clearMessages() {
@@ -139,6 +145,7 @@ class MainViewModel: ObservableObject {
 enum MessageType: Codable {
     case text
     case file
+    case error
 }
 
 struct ChatMessage: Identifiable, Codable, Equatable {

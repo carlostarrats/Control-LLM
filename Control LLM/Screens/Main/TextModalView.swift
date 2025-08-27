@@ -385,10 +385,11 @@ struct TextModalView: View {
                 isClipboardMessage = true
                 hasAddedFollowUpQuestions = false
                 
-                // Set the message text and send it
-                messageText = prompt
+                // Set the message text and send it directly through the ViewModel
+                let textToSend = prompt
+                self.messageText = "" // Clear the field
                 Task {
-                    await sendMessage()
+                    await viewModel.sendTextMessage(textToSend)
                 }
             }
         }
@@ -512,6 +513,10 @@ struct TextModalView: View {
                     } else {
                         normalMessageList
                     }
+                    
+                    // Buffer space at bottom for thinking animation visibility
+                    Spacer()
+                        .frame(height: 100)
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 24)
@@ -759,8 +764,14 @@ struct TextModalView: View {
                         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     }
                     
+                    // All UI logic is now handled by the MainViewModel for a single source of truth.
                     Task {
-                        await sendMessage()
+                        await viewModel.sendTextMessage(messageText)
+                    }
+                    
+                    // 3) clear field (keyboard already dismissed)
+                    DispatchQueue.main.async {
+                        self.messageText = ""
                     }
                 }
             }
@@ -771,131 +782,9 @@ struct TextModalView: View {
     }
 
     // MARK: - BUTTON ACTION --------------------------------------------------
-    private func sendMessage() async {
-        // Prevent sending if already processing or no models available
-        guard !viewModel.llm.isProcessing else {
-            print("🔍 TextModalView: sendMessage called but LLM is already processing")
-            return
-        }
-        
-        guard hasModelsInstalled else {
-            print("🔍 TextModalView: sendMessage called but no models are installed")
-            return
-        }
-        
-        let text = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { 
-            print("🔍 TextModalView: sendMessage called but text is empty")
-            return 
-        }
-
-        // Play sound for sending a message
-        FeedbackService.shared.playSound(.messageSent)
-
-        // Donate user's action to Shortcuts
-        ShortcutsIntegrationHelper.shared.donateMessageSent(message: text)
-
-        print("🔍 TextModalView: sendMessage called with text: '\(text)'")
-        NSLog("🔍 TextModalView: sendMessage called with text: '\(text)'")
-
-        // Stop any existing polling before starting new message
-        isPolling = false
-        pollCount = 0
-        
-        // Check if this is the same message as last time
-        // Special handling for clipboard messages - they should never be considered duplicates
-        let isClipboardMessageFormat = text.hasPrefix("Analyze this text (keep under 8000 tokens):")
-        
-        if isClipboardMessageFormat {
-            // Clipboard messages are never duplicates - they always have different content
-            isDuplicateMessage = false
-            print("🔍 TextModalView: Clipboard message detected, bypassing duplicate check")
-        } else {
-            // Normal duplicate detection for regular messages
-            isDuplicateMessage = text == lastSentMessage
-            print("🔍 TextModalView: isDuplicateMessage: \(isDuplicateMessage)")
-        }
-        
-        lastSentMessage = text
-        
-        // Allow re-sending if this is a duplicate but we're in a new context (e.g., after model switch)
-        // Check if the transcript has changed or if we're in a new model context
-        let isNewContext = viewModel.llm.transcript.isEmpty || 
-                          viewModel.llm.lastLoadedModel != lastLoadedModelForDuplicateCheck
-        lastLoadedModelForDuplicateCheck = viewModel.llm.lastLoadedModel
-        
-        if isDuplicateMessage && isNewContext {
-            print("🔍 TextModalView: Duplicate message detected, but allowing re-send in new context")
-            isDuplicateMessage = false
-        } else if isDuplicateMessage {
-            print("🔍 TextModalView: Duplicate message detected, ignoring")
-            return
-        }
-        
-        // Clear any existing thinking messages (empty assistant messages)
-        viewModel.messages.removeAll { message in
-            !message.isUser && message.content.isEmpty
-        }
-        
-        // Force UI refresh by updating lastRenderedTranscript
-        lastRenderedTranscript = ""
-        
-        // Reset animation state for new message
-        isPolling = false
-        pollCount = 0
-        isDuplicateMessage = false
-        
-        // Reset haptic feedback tracking for new response
-        stableTranscriptCount = 0
-        hasProvidedCompletionHaptic = false
-
-        print("🔍 TextModalView: Sending message through MainViewModel")
-        
-        // CRITICAL FIX: Send through MainViewModel which handles user message creation and LLM sending
-        await MainActor.run {
-            viewModel.sendTextMessage(text)
-        }
-
-        // Reset clipboard message state for normal chat messages
-        isClipboardMessage = false
-        hasAddedFollowUpQuestions = false
-
-        print("🔍 TextModalView: About to create placeholder message")
-        // 2) placeholder assistant bubble (0.3s delay to prevent motion and allow thinking animation)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            let placeholder = ChatMessage(
-                content: "",
-                isUser: false,
-                timestamp: Date(),
-                messageType: .text
-            )
-            viewModel.messages.append(placeholder)
-            print("🔍 TextModalView: Added empty placeholder message (0.3s delay)")
-            
-            // CRITICAL FIX: Don't sync UI messages - let ChatViewModel handle its own context
-            print("🔍 TextModalView: Placeholder added, starting polling")
-        }
-        
-        print("🔍 TextModalView: About to clear messageText")
-        // 3) clear field + ask model (keyboard already dismissed)
-        DispatchQueue.main.async {
-            self.messageText = ""
-        }
-        print("🔍 TextModalView: LLM call already made through ChatViewModel, no duplicate call needed")
-        // Note: viewModel.llm.send(text) is already called by ChatViewModel.sendTextMessage
-        // No need to duplicate the LLM call here
-        
-        print("🔍 TextModalView: About to start polling")
-        // 4) start polling the stream immediately for real-time word streaming
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            print("🔍 TextModalView: Starting monitorAssistantStream")
-            isPolling = true
-            pollCount = 0
-            monitorAssistantStream()
-        }
-        
-        print("🔍 TextModalView: sendMessage completed successfully")
-    }
+    // All message sending logic is now handled by the send button's onTapGesture
+    // and the MainViewModel to ensure a single source of truth.
+    // The legacy sendMessage() and monitorAssistantStream() functions have been removed.
     
     // MARK: - Error Handling --------------------------------------------------
     private func getErrorMessage(for error: Error) -> String {
@@ -967,123 +856,6 @@ struct TextModalView: View {
 
     private let maxPollCount = 300 // 30 seconds max (300 * 0.1s)
 
-    private func monitorAssistantStream() {
-        guard isPolling else { return }
-        
-        let currentTranscriptLength = viewModel.llm.transcript.count
-        let currentTranscript = viewModel.llm.transcript
-        
-        print("🔍 TextModalView: Polling transcript - length: \(currentTranscriptLength), content: '\(currentTranscript)'")
-        
-        // Check if we should stop polling - give clipboard messages more time for analysis
-        let maxPolls = isClipboardMessage ? 300 : 150  // 30 seconds for clipboard, 15 seconds for regular messages
-        if pollCount > maxPolls {
-            print("🔍 TextModalView: Max polls (\(maxPolls)) reached, stopping")
-            isPolling = false
-            FeedbackService.shared.playHaptic(.light)
-            
-            // Show timeout error
-            errorMessage = "Response took too long. Please try a shorter message or check your model settings."
-            showingError = true
-            
-            // Add follow-up questions for clipboard messages if not already added
-            addFollowUpQuestionsIfNeeded()
-            return
-        }
-        
-        // FIXED: Better detection for streaming loops and stuck responses
-        if currentTranscriptLength == lastTranscriptLength && currentTranscript == lastRenderedTranscript {
-            // No change - increment stable count
-            stableTranscriptCount += 1
-            
-            // FIXED: Detect streaming loops where LLM keeps generating same content
-            if stableTranscriptCount >= 5 && !currentTranscript.isEmpty {
-                print("🔍 TextModalView: WARNING - Possible streaming loop detected after \(stableTranscriptCount) stable polls")
-                print("🔍 TextModalView: Stopping polling to prevent infinite loop")
-                isPolling = false
-                isLocalProcessing = false // Reset local processing state
-                
-                // Add follow-up questions for clipboard messages if not already added
-                addFollowUpQuestionsIfNeeded()
-                return
-            }
-            
-            // Check if transcript has been stable for 3 consecutive polls (600ms)
-            // This indicates the response is likely complete
-            if stableTranscriptCount >= 3 && !hasProvidedCompletionHaptic && !currentTranscript.isEmpty {
-                print("🔍 TextModalView: Response appears complete, providing haptic feedback")
-                hasProvidedCompletionHaptic = true
-                
-                // Add follow-up questions for clipboard messages if not already added
-                addFollowUpQuestionsIfNeeded()
-                
-                // Stop polling when response is complete
-                isPolling = false
-                isLocalProcessing = false // Reset local processing state
-                return
-            }
-            
-            // Continue polling
-            self.scheduleNextPoll()
-            return
-        }
-        
-        // Transcript changed - reset stable count
-        stableTranscriptCount = 0
-        
-        // Check if transcript is empty but we have a previous response
-        if currentTranscript.isEmpty && !lastRenderedTranscript.isEmpty {
-            print("🔍 TextModalView: Transcript is empty but we have previous content, continuing to poll")
-            self.scheduleNextPoll()
-            return
-        }
-        
-        print("🔍 TextModalView: Transcript changed! Updating UI...")
-        print("🔍 TextModalView: Previous transcript: '\(lastRenderedTranscript)'")
-        print("🔍 TextModalView: New transcript: '\(viewModel.llm.transcript)'")
-        
-        // Only update if we have actual content
-        if !currentTranscript.isEmpty {
-            lastRenderedTranscript = currentTranscript
-            lastTranscriptLength = currentTranscriptLength
-            pollCount = 0 // Reset counter when transcript changes
-
-            if let idx = viewModel.messages.lastIndex(where: { !$0.isUser }),
-               idx < viewModel.messages.count {
-                print("🔍 TextModalView: Updating existing assistant message at index \(idx)")
-                print("🔍 TextModalView: Setting message content to: '\(viewModel.llm.transcript)'")
-                // Mutate the last assistant bubble in place (no array replacement)
-                viewModel.messages[idx].content = viewModel.llm.transcript
-                print("🔍 TextModalView: Message updated successfully")
-            } else {
-                print("🔍 TextModalView: Creating new assistant message")
-                print("🔍 TextModalView: New message content: '\(viewModel.llm.transcript)'")
-                // Create initial assistant bubble
-                let bot = ChatMessage(
-                    content: viewModel.llm.transcript,
-                    isUser: false,
-                    timestamp: Date(),
-                    messageType: .text
-                )
-                viewModel.messages.append(bot)
-                print("🔍 TextModalView: New message created and added")
-            }
-        } else {
-            print("🔍 TextModalView: Transcript is empty, continuing to poll for content")
-        }
-
-        self.scheduleNextPoll()
-    }
-
-    private func scheduleNextPoll() {
-        guard isPolling else { return }
-        pollCount += 1
-        // Poll at a comfortable reading pace (200ms for natural streaming)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            monitorAssistantStream()
-        }
-    }
-
     // Voice integration functionality removed
 
     private func addFollowUpQuestionsIfNeeded() {
@@ -1146,7 +918,7 @@ struct TextModalView: View {
                 
                 // Start monitoring the stream
                 await MainActor.run {
-                    monitorAssistantStream()
+                    // monitorAssistantStream() // This function is removed
                 }
                 
             } catch {
@@ -1213,8 +985,8 @@ struct MessageBubble: View {
                     } else {
                         // Assistant messages: ZStack for stable transition
                         ZStack(alignment: .topLeading) {
-                            // Animation is only rendered when content is empty to prevent layout issues
-                            if message.content.isEmpty {
+                            // Animation is only rendered when content is empty or placeholder to prevent layout issues
+                            if message.content.isEmpty || message.content == " " {
                                 ThinkingAnimationView()
                                     .offset(x: -31, y: -35) // Restore original positioning
                             }

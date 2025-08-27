@@ -165,47 +165,31 @@ class ChatViewModel {
         }
     }
     
-    func send(_ userText: String) async throws {
-        print("🔍🔍🔍 ChatViewModel: send started — \(userText.prefix(100))...")
-        print("🔍 ChatViewModel: Current isProcessing: \(isProcessing)")
-        print("🔍 ChatViewModel: Current transcript: '\(transcript)'")
-        print("🔍 ChatViewModel: Current lastSentMessage: '\(lastSentMessage ?? "nil")'")
-        print("🔍 ChatViewModel: Current lastLoadedModel: '\(lastLoadedModel ?? "nil")'")
-        print("🔍 ChatViewModel: Current isModelSwitching: \(isModelSwitching)")
-
-        // FIXED: Prevent messages during model switch
-        if isModelSwitching {
-            print("🔍 ChatViewModel: ❌ Model switch in progress, rejecting message")
-            throw ChatViewModelError.modelSwitchInProgress
+    func send(_ userText: String, addUserMessageToHistory: Bool = true) async throws {
+        // Prevent duplicate messages if already sent
+        if lastSentMessage == userText, isProcessing {
+            print("🔍 ChatViewModel: ⚠️ Duplicate message detected while processing, skipping send.")
+            return
         }
-
-        // Special handling for clipboard messages - they should never be considered duplicates
-        let isClipboardMessageFormat = userText.hasPrefix("Analyze this text (keep under 8000 tokens):")
         
-        if isClipboardMessageFormat {
-            // Clipboard messages are never duplicates - they always have different content
-            print("🔍 ChatViewModel: ✅ CLIPBOARD MESSAGE DETECTED - bypassing duplicate check")
-        } else {
-            // Normal duplicate detection for regular messages
-            let isDuplicate = userText == lastSentMessage && lastLoadedModel != nil
-            print("🔍 ChatViewModel: Regular message - isDuplicate: \(isDuplicate)")
-            if isDuplicate {
-                print("🔍 ChatViewModel: ❌ Duplicate message detected, ignoring and returning")
-                return
+        // Ensure isProcessing is handled correctly, even if errors occur
+        await MainActor.run { self.isProcessing = true }
+        defer {
+            Task {
+                await MainActor.run { self.isProcessing = false }
             }
         }
         
-        print("🔍 ChatViewModel: ✅ Message passed duplicate check, proceeding...")
         lastSentMessage = userText
+        await MainActor.run { self.transcript = "" }
 
-        // CRITICAL FIX: Add user message to history BEFORE sending to LLM
-        let userMessage = ChatMessage(content: userText, isUser: true, timestamp: Date())
-        if messageHistory == nil {
-            messageHistory = []
+        if addUserMessageToHistory {
+            let userMessage = ChatMessage(content: userText, isUser: true, timestamp: Date())
+            if messageHistory == nil { messageHistory = [] }
+            messageHistory?.append(userMessage)
+            saveHistory()
+            print("🔍 ChatViewModel: Added user message to history.")
         }
-        messageHistory?.append(userMessage)
-        saveHistory()
-        print("🔍 ChatViewModel: Added user message to history. Total messages: \(messageHistory?.count ?? 0)")
 
         // Cancel any existing generation task
         currentGenerationTask?.cancel()
@@ -215,109 +199,49 @@ class ChatViewModel {
             guard let self = self else { return }
             
             do {
-                await MainActor.run {
-                    self.isProcessing = true
-                    self.transcript = ""
-                    self.requestStartTime = Date() // Start timing the request
-                }
-                
-                // Load model and prepare history
-                print("🔍 ChatViewModel: About to build history from messageHistory: \(messageHistory?.count ?? 0) messages")
-                
-                // CRITICAL FIX: Build history from ALL messages (excluding current user message to avoid duplication)
-                // The current user message will be passed separately as userText
                 let currentHistory = messageHistory ?? []
-                
-                // Only remove the last message if we have more than 1 message (to avoid removing everything)
-                let historyWithoutCurrentMessage: [ChatMessage]
-                if currentHistory.count > 1 {
-                    historyWithoutCurrentMessage = Array(currentHistory.dropLast()) // Remove the just-added user message
-                } else {
-                    historyWithoutCurrentMessage = [] // No previous history, just current message
-                }
-                
-                let historyToSend = buildSafeHistory(from: historyWithoutCurrentMessage)
-                
-                print("🔍 ChatViewModel: History prepared, sending \(historyToSend.count) messages to LLM")
-                print("🔍 ChatViewModel: Current user message: '\(userText.prefix(100))...'")
-                print("🔍 ChatViewModel: Full history being sent:")
-                for (index, message) in historyToSend.enumerated() {
-                    print("   [\(index)] \(message.isUser ? "User" : "Assistant"): \(message.content.prefix(100))...")
-                }
-                
-                try await HybridLLMService.shared.loadSelectedModel()
+                let historyToSend = buildSafeHistory(from: currentHistory)
 
-                // Use the HybridLLMService to generate the response
+                try await HybridLLMService.shared.loadSelectedModel()
+                
                 try await HybridLLMService.shared.generateResponse(
                     userText: userText,
                     history: historyToSend,
                     onToken: { [weak self] partialResponse in
                         Task { @MainActor in
-                            // Check if task was cancelled
                             if Task.isCancelled { return }
                             self?.transcript += partialResponse
                         }
                     }
                 )
-                
-                // CRITICAL FIX: Add assistant response to history AFTER completion
+
+                // After the stream is complete, save the final message
                 if !Task.isCancelled {
-                    await MainActor.run {
-                        let assistantMessage = ChatMessage(content: self.transcript, isUser: false, timestamp: Date())
-                        self.messageHistory?.append(assistantMessage)
-                        self.saveHistory()
-                        print("🔍 ChatViewModel: Added assistant response to history. Total messages: \(self.messageHistory?.count ?? 0)")
-                        self.isProcessing = false
-                        
-                        // Calculate actual response duration and update average
-                        let endTime = Date()
-                        self.lastResponseTime = endTime
-                        if let startTime = self.requestStartTime {
-                            let currentResponseTime = endTime.timeIntervalSince(startTime)
-                            self.totalResponseTime += currentResponseTime
-                            self.responseCount += 1
-                            self.averageResponseDuration = self.totalResponseTime / Double(self.responseCount)
-                            
-                            // Save to UserDefaults for persistence across sessions
-                            UserDefaults.standard.set(self.averageResponseDuration, forKey: "AverageResponseTime")
-                        }
-                        self.requestStartTime = nil
-                    }
+                    let finalMessage = ChatMessage(content: self.transcript, isUser: false, timestamp: Date())
+                    self.messageHistory?.append(finalMessage)
+                    self.saveHistory()
                 }
                 
+            } catch is CancellationError {
+                print("🔍 ChatViewModel: Generation was cancelled.")
+                // Ensure a partial message is saved if cancelled
+                if !transcript.isEmpty {
+                    let partialMessage = ChatMessage(content: transcript, isUser: false, timestamp: Date())
+                    self.messageHistory?.append(partialMessage)
+                    self.saveHistory()
+                }
             } catch {
-                // Only update state if not cancelled
-                if !Task.isCancelled {
-                    await MainActor.run {
-                        print("❌ ChatViewModel: Error in send: \(error)")
-                        self.isProcessing = false
-                        self.requestStartTime = nil // Clear timing on error
-                        
-                        // Provide more user-friendly error messages for common cases
-                        let errorMessage: String
-                        if let nsError = error as NSError? {
-                            switch nsError.code {
-                            case 26: // Input too long
-                                errorMessage = NSLocalizedString("Your message was shortened to fit within limits. If the shortened version doesn't accurately represent what you wanted to say, please try a shorter message.", comment: "")
-                            case 27: // Token limit reached
-                                errorMessage = NSLocalizedString("The response was cut off because it reached the maximum length limit. Try asking a more specific question or breaking your request into smaller parts.", comment: "")
-                            case 6: // Prompt too long
-                                errorMessage = NSLocalizedString("Your message is too long. Please shorten it and try again.", comment: "")
-                            default:
-                                errorMessage = String(format: NSLocalizedString("Error: %@", comment: ""), error.localizedDescription)
-                            }
-                        } else {
-                            errorMessage = String(format: NSLocalizedString("Error: %@", comment: ""), error.localizedDescription)
-                        }
-                        
-                        self.transcript = errorMessage
-                    }
-                }
+                print("❌ ChatViewModel: Llama generation failed: \(error)")
+                let errorMessage = ChatMessage(content: "Error: \(error.localizedDescription)", isUser: false, timestamp: Date(), messageType: .error)
+                self.messageHistory?.append(errorMessage)
+                self.saveHistory()
+            }
+            
+            await MainActor.run {
+                self.requestStartTime = nil
+                self.lastSentMessage = nil // Allow sending the same message again
             }
         }
-        
-        // Wait for the task to complete or be cancelled
-        await currentGenerationTask?.value
     }
     
     // MARK: - History Safeguard
