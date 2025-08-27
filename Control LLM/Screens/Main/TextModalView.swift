@@ -575,7 +575,7 @@ struct TextModalView: View {
             HStack(alignment: .bottom, spacing: 12) {
                 // Plus button with full-height background matching input bar
                 ZStack {
-                    Color(hex: "#141414")
+                    Color(hex: "#0f0f0f")
                     Button(action: {
                         showingDocumentPicker = true
                     }) {
@@ -1301,21 +1301,43 @@ struct DateHeaderView: View {
 
 struct FileMessageView: View {
     let message: ChatMessage
+    
+    private var fileName: String {
+        // Extract filename from message content (removes the 📎 emoji and trims whitespace)
+        let content = message.content
+        if content.hasPrefix("📎 ") {
+            return String(content.dropFirst(2)).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return content.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    private var truncatedFileName: String {
+        let name = fileName
+        if name.count > 12 {
+            return String(name.prefix(12)) + "..."
+        }
+        return name
+    }
+    
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "doc.fill")
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(message.isUser ? .black : ColorManager.shared.whiteTextColor)
+                .font(.system(size: 24, weight: .medium))
+                .foregroundColor(Color(hex: "#141414"))
+                .frame(width: 24, height: 32) // Match height of two lines
             VStack(alignment: .leading, spacing: 2) {
-                Text(NSLocalizedString("File Message", comment: ""))
+                Text("\(NSLocalizedString("File Upload", comment: "")):")
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(message.isUser ? .black : ColorManager.shared.whiteTextColor)
+                    .foregroundColor(Color(hex: "#141414"))
                     .lineLimit(1)
-                // File extension display removed
+                Text(truncatedFileName)
+                    .font(.custom("IBMPlexMono", size: 14))
+                    .foregroundColor(Color(hex: "#141414"))
+                    .lineLimit(1)
             }
         }
         .padding(.horizontal, 16).padding(.vertical, 10)
-        .background(message.isUser ? ColorManager.shared.whiteTextColor : Color(hex: "#2A2A2A"))
+        .background(ColorManager.shared.greenColor)
         .cornerRadius(4)
     }
 }
