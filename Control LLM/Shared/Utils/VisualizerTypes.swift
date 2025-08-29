@@ -28,7 +28,28 @@ enum VisualizerType: Int, CaseIterable {
 class VisualizerStateManager: ObservableObject {
     static let shared = VisualizerStateManager()
     
-    @Published var selectedVisualizerType: VisualizerType = .liquid
+    @Published var selectedVisualizerType: VisualizerType = .liquid {
+        didSet {
+            saveSelectedVisualizerType()
+        }
+    }
     
-    private init() {}
+    private let userDefaults = UserDefaults.standard
+    private let selectedVisualizerKey = "selectedVisualizerType"
+    
+    private init() {
+        loadSelectedVisualizerType()
+    }
+    
+    private func loadSelectedVisualizerType() {
+        let savedRawValue = userDefaults.integer(forKey: selectedVisualizerKey)
+        if let visualizerType = VisualizerType(rawValue: savedRawValue) {
+            selectedVisualizerType = visualizerType
+        }
+        // If no saved value or invalid value, it will use the default .liquid
+    }
+    
+    private func saveSelectedVisualizerType() {
+        userDefaults.set(selectedVisualizerType.rawValue, forKey: selectedVisualizerKey)
+    }
 }

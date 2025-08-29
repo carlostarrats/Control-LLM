@@ -77,11 +77,11 @@ struct VisualizerTabView: View {
             return
         }
         
-        // Check if content is too long (estimate token count roughly)
+        // PHASE 3: Use centralized constants for consistent limits
         // Rough estimate: 1 token ≈ 4 characters
         let estimatedTokens = trimmedText.count / 4
-        if estimatedTokens > 8000 {
-            clipboardAlertMessage = "Clipboard content is too long. Please copy a shorter text (under 8000 tokens)."
+        if estimatedTokens > Constants.safeTokenLimit {
+            clipboardAlertMessage = "Clipboard content is too long. Please copy a shorter text (under \(Constants.safeTokenLimit) tokens)."
             showingClipboardAlert = true
             return
         }

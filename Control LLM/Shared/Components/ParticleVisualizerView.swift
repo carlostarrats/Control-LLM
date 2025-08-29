@@ -11,70 +11,90 @@ struct ParticleVisualizerView: View {
     @State private var particles: [Particle] = []
     @State private var timer: Timer?
     @State private var isInitialized = false
+    @State private var animationPhase: Double = 0.0
+    @State private var physicsRampUp: Double = 0.0 // New: gradual physics ramp-up
+    
+    // Static particle positions for consistent behavior
+    private static var cachedParticles: [Particle] = []
+    private static var hasCachedParticles = false
     
     private func initializeParticles() {
-        particles = (0..<particleCount).map { index in
-            // Use simple circular distribution for clean ring shape
-            let angle = Double(index) * 2.0 * .pi / Double(particleCount)
-            let radiusVariation = Double.random(in: 0.8...1.2) // Small radius variation
-            let currentRadius = sphereRadius * radiusVariation
+        // Use cached particles if available, otherwise create new ones
+        if Self.hasCachedParticles {
+            particles = Self.cachedParticles
+        } else {
+            particles = (0..<particleCount).map { index in
+                // Use simple circular distribution for clean ring shape
+                let angle = Double(index) * 2.0 * .pi / Double(particleCount)
+                
+                // Start particles much closer to their natural ring position
+                let radiusVariation = Double.random(in: 0.95...1.05) // Reduced from 0.8...1.2 for tighter initial formation
+                let currentRadius = sphereRadius * radiusVariation
+                
+                // Basic circular coordinates with minimal randomness for initial formation
+                let baseX = currentRadius * cos(angle)
+                let baseY = currentRadius * sin(angle)
+                
+                // Much smaller random offset to prevent perfect circle but keep particles close to natural position
+                let randomOffset = 8.0 // Reduced from 20.0 for tighter initial formation
+                let finalX = baseX + Double.random(in: -randomOffset...randomOffset)
+                let finalY = baseY + Double.random(in: -randomOffset...randomOffset)
+                let finalZ = Double.random(in: -5...5) // Reduced from -10...10 for less depth variation initially
+                
+                // Start with much slower velocities to prevent dramatic movement
+                let speed = Double.random(in: 0.2...0.4) // Reduced from 0.4...0.8 for gentler initial motion
+                let velocityAngle = Double.random(in: 0...(2 * .pi))
+                
+                return Particle(
+                    id: index,
+                    x: finalX,
+                    y: finalY,
+                    z: finalZ,
+                    vx: speed * cos(velocityAngle),
+                    vy: speed * sin(velocityAngle),
+                    vz: Double.random(in: -0.08...0.08) // Reduced from -0.15...0.15 for gentler Z movement
+                )
+            }
             
-            // Basic circular coordinates with some randomness
-            let baseX = currentRadius * cos(angle)
-            let baseY = currentRadius * sin(angle)
-            
-            // Add random offset to break up perfect circle but keep it natural
-            let randomOffset = 20.0
-            let finalX = baseX + Double.random(in: -randomOffset...randomOffset)
-            let finalY = baseY + Double.random(in: -randomOffset...randomOffset)
-            let finalZ = Double.random(in: -10...10) // Small z variation for depth
-            
-            // Give particles immediate velocity to prevent static appearance - slower for more relaxed motion
-            let speed = Double.random(in: 0.4...0.8) // Reduced from 0.8...1.2 for slower movement
-            let velocityAngle = Double.random(in: 0...(2 * .pi))
-            
-            return Particle(
-                id: index,
-                x: finalX,
-                y: finalY,
-                z: finalZ,
-                vx: speed * cos(velocityAngle),
-                vy: speed * sin(velocityAngle),
-                vz: Double.random(in: -0.15...0.15) // Reduced from -0.3...0.3 for slower Z movement
-            )
+            // Cache the particles for future use
+            Self.cachedParticles = particles
+            Self.hasCachedParticles = true
         }
     }
     
     var body: some View {
         ZStack {
-            // Only show particles after they've been properly initialized and animated
-            if isInitialized {
-                ForEach(particles.indices, id: \.self) { index in
-                    ParticleView(particle: $particles[index])
-                }
+            // Show particles immediately - no more delay
+            ForEach(particles.indices, id: \.self) { index in
+                ParticleView(particle: $particles[index])
             }
         }
         .onAppear {
-            // Initialize particles and run a few animation cycles before showing them
+            // Initialize particles and start animation immediately
             initializeParticles()
             startAnimation()
             
-            // Run even more animation cycles to get particles closer to their natural state
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.04) {
-                for _ in 0..<25 {
-                    updateParticles()
-                }
-                isInitialized = true
+            // Smooth fade-in animation for particles
+            withAnimation(.easeIn(duration: 0.3)) {
+                animationPhase = 1.0
+            }
+            
+            // Gradually ramp up physics over 1 second to eliminate snap
+            withAnimation(.easeInOut(duration: 1.0)) {
+                physicsRampUp = 1.0
             }
         }
         .onDisappear {
             stopAnimation()
+            // Reset physics ramp for next appearance
+            physicsRampUp = 0.0
         }
     }
     
-
-    
     private func startAnimation() {
+        // Ensure we don't create multiple timers
+        stopAnimation()
+        
         timer = Timer.scheduledTimer(withTimeInterval: 1.0/30.0, repeats: true) { _ in
             updateParticles()
         }
@@ -92,7 +112,7 @@ struct ParticleVisualizerView: View {
             particles[i].y += particles[i].vy
             particles[i].z += particles[i].vz
             
-            // Bounce off sphere boundary
+            // Bounce off sphere boundary - gradually increase force
             let distance = sqrt(particles[i].x * particles[i].x + particles[i].y * particles[i].y + particles[i].z * particles[i].z)
             if distance > sphereRadius {
                 let scale = sphereRadius / distance
@@ -100,27 +120,31 @@ struct ParticleVisualizerView: View {
                 particles[i].y *= scale
                 particles[i].z *= scale
                 
-                // Reverse velocity component that's pointing outward
+                // Reverse velocity component that's pointing outward - apply ramp-up
                 let nx = particles[i].x / distance
                 let ny = particles[i].y / distance
                 let nz = particles[i].z / distance
                 
                 let dot = particles[i].vx * nx + particles[i].vy * ny + particles[i].vz * nz
-                particles[i].vx -= 2 * dot * nx
-                particles[i].vy -= 2 * dot * ny
-                particles[i].vz -= 2 * dot * nz
+                let bounceForce = 2.0 * physicsRampUp // Gradually increase bounce force
+                particles[i].vx -= bounceForce * dot * nx
+                particles[i].vy -= bounceForce * dot * ny
+                particles[i].vz -= bounceForce * dot * nz
             }
             
-            // Keep particles away from center
+            // Keep particles away from center - gradually increase force
             let centerDistance = sqrt(particles[i].x * particles[i].x + particles[i].y * particles[i].y)
             if centerDistance < 80 {
-                let pushForce = 0.1
+                let pushForce = 0.1 * physicsRampUp // Gradually increase push force
                 let pushX = particles[i].x / centerDistance * pushForce
                 let pushY = particles[i].y / centerDistance * pushForce
                 particles[i].vx += pushX
                 particles[i].vy += pushY
             }
         }
+        
+        // Update cached particles for consistency
+        Self.cachedParticles = particles
     }
 }
 

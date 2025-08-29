@@ -508,8 +508,13 @@ struct TextModalView: View {
                 }
             }
             .onChange(of: viewModel.llm.transcript) { oldTranscript, newTranscript in
-                if oldTranscript.isEmpty && !newTranscript.isEmpty {
+                // CRITICAL FIX: Actually update the message content when transcript changes
+                if !newTranscript.isEmpty && newTranscript != oldTranscript {
                     if let lastAssistantIndex = viewModel.messages.lastIndex(where: { !$0.isUser }) {
+                        // Update the message content with the new transcript
+                        viewModel.messages[lastAssistantIndex].content = newTranscript
+                        
+                        // Scroll to the updated message
                         let lastAssistant = viewModel.messages[lastAssistantIndex]
                         withAnimation(.spring()) {
                             proxy.scrollTo(lastAssistant.id, anchor: .bottom)
@@ -955,6 +960,28 @@ struct TextModalView: View {
     private func monitorAssistantStream() {
         guard isPolling else { return }
         
+        // Check if file processing failed - stop polling immediately
+        if let fileError = viewModel.fileProcessingError {
+            print("🔍 TextModalView: File processing failed with error: \(fileError), stopping polling")
+            isPolling = false
+            isLocalProcessing = false
+            
+            // Find and update the placeholder message to show the error
+            if let placeholderIndex = viewModel.messages.firstIndex(where: { !$0.isUser && $0.content.isEmpty }) {
+                viewModel.messages[placeholderIndex].content = "❌ \(fileError)"
+            }
+            
+            return
+        }
+        
+        // Check if file processing is still in progress - if not, stop polling
+        if viewModel.isFileProcessing == false && viewModel.selectedFileUrl != nil {
+            print("🔍 TextModalView: File processing completed, stopping polling")
+            isPolling = false
+            isLocalProcessing = false
+            return
+        }
+        
         let currentTranscriptLength = viewModel.llm.transcript.count
         let currentTranscript = viewModel.llm.transcript
         
@@ -982,7 +1009,7 @@ struct TextModalView: View {
             stableTranscriptCount += 1
             
             // FIXED: Detect streaming loops where LLM keeps generating same content
-            if stableTranscriptCount >= 5 && !currentTranscript.isEmpty {
+            if stableTranscriptCount >= 3 && !currentTranscript.isEmpty {
                 print("🔍 TextModalView: WARNING - Possible streaming loop detected after \(stableTranscriptCount) stable polls")
                 print("🔍 TextModalView: Stopping polling to prevent infinite loop")
                 isPolling = false
@@ -1107,46 +1134,21 @@ struct TextModalView: View {
         )
         viewModel.messages.append(fileMessage)
         
-        // Process file and send to LLM
-        Task {
-            do {
-                let fileContent = try await FileProcessingService.shared.processFile(url)
-                let formattedContent = FileProcessingService.shared.formatForLLM(fileContent)
-                
-                // Add assistant message with file analysis
-                let assistantMessage = ChatMessage(
-                    content: "I've processed your file. Here's what I found:\n\n\(formattedContent)\n\nWhat would you like me to do with this content?",
-                    isUser: false,
-                    timestamp: Date(),
-                    messageType: .text
-                )
-                
-                await MainActor.run {
-                    viewModel.messages.append(assistantMessage)
-                }
-                
-                // Send the file content to LLM for processing
-                // Use the proper streaming path through ChatViewModel
-                try? await viewModel.llm.send(String(format: NSLocalizedString("Please analyze this file content and provide a summary: %@", comment: ""), formattedContent))
-                
-                // Start monitoring the stream
-                await MainActor.run {
-                    monitorAssistantStream()
-                }
-                
-            } catch {
-                let errorMessage = ChatMessage(
-                    content: "❌ Error processing file: \(error.localizedDescription)",
-                    isUser: false,
-                    timestamp: Date(),
-                    messageType: .text
-                )
-                
-                await MainActor.run {
-                    viewModel.messages.append(errorMessage)
-                }
-            }
-        }
+        // Show "File received, what's next?" message
+        let assistantMessage = ChatMessage(
+            content: "File received, what's next?",
+            isUser: false,
+            timestamp: Date(),
+            messageType: .text
+        )
+        
+        viewModel.messages.append(assistantMessage)
+        
+        // Store the file URL for later processing when user asks questions
+        viewModel.selectedFileUrl = url
+        
+        // The file content will be processed through the proper LargeFileProcessingService path
+        // when the user asks follow-up questions about the file
     }
 }
 

@@ -223,8 +223,13 @@ void* llm_bridge_create_context(void* model) {
     
     // Use larger context size for better performance with all models
     // This helps with Gemma 3N and other larger models
-    ctx_params.n_ctx = 4096; // Increased from 2048 for better performance
-    NSLog(@"LlamaCppBridge: Using larger context (4096) for better model performance");
+    ctx_params.n_ctx = 8192; // Increased from 4096 to handle larger prompts
+    // IMPORTANT: Increase batch size so initial prompt decode can handle long prompts
+    // Default n_batch can be ~512, which caused failures like
+    // "decode: failed to find a memory slot for batch of size 523".
+    // Setting this to match our tokenization cap avoids those errors.
+    ctx_params.n_batch = 4096;
+    NSLog(@"LlamaCppBridge: Using larger context (8192) for better model performance");
     
     s_ctx = llama_init_from_model((struct llama_model*)model, ctx_params);
     
@@ -265,8 +270,8 @@ int llm_bridge_generate_text(void* context, const char* prompt, char* output, in
     // Unified path for all models
     
     // 1) Tokenize prompt with model-specific parameters
-    const int32_t max_prompt_tokens = 1024;
-    llama_token prompt_tokens[max_prompt_tokens];
+            const int32_t max_prompt_tokens = 4096; // Increased from 1024 to handle larger prompts
+        llama_token prompt_tokens[max_prompt_tokens];
     int32_t n_prompt;
     
     // Standard models: use normal special token handling
@@ -444,15 +449,28 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     }
 
     // tokenize prompt
-    const int32_t max_prompt_tokens = 2048; // Increased from 1024
-    llama_token prompt_tokens[max_prompt_tokens];
+            const int32_t max_prompt_tokens = 8192; // Increased from 2048 to handle larger prompts
+        llama_token prompt_tokens[max_prompt_tokens];
     int32_t n_prompt;
 
     NSLog(@"LlamaCppBridge: Using standard tokenization (add_special=true, parse_special=true)");
     n_prompt = llama_tokenize(vocab, prompt, (int32_t)strlen(prompt), prompt_tokens, max_prompt_tokens, /*add_special*/ true, /*parse_special*/ true);
 
     if (n_prompt <= 0) {
-        NSLog(@"LlamaCppBridge: Tokenization failed for streaming generation (returned %d tokens)", n_prompt);
+        NSLog(@"❌ CRITICAL ERROR: LlamaCppBridge: Tokenization failed for streaming generation (returned %d tokens)", n_prompt);
+        NSLog(@"🔍 Tokenization failure details:");
+        NSLog(@"   - Prompt length: %zu characters", strlen(prompt));
+        NSLog(@"   - Max prompt tokens: %d", max_prompt_tokens);
+        NSLog(@"   - Prompt preview: %.200s...", prompt);
+        
+        // Provide specific error information based on failure type
+        if (n_prompt == 0) {
+            NSLog(@"   - Error: Empty prompt or no valid tokens generated");
+        } else if (n_prompt < 0) {
+            NSLog(@"   - Error: Tokenization failed with error code %d", n_prompt);
+            NSLog(@"   - This usually means the prompt is too long or contains invalid characters");
+        }
+        
         pthread_mutex_unlock(&s_bridge_mutex);
         callback(NULL);
         return;
@@ -505,11 +523,18 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     
     int tokens_generated = 0;
     bool hit_token_limit = false;
+    int cancellation_check_counter = 0;
+    const int cancellation_check_frequency = 10; // Check every 10 tokens for faster response
+    
     for (int t = 0; t < max_new_tokens; ++t) {
-        // Check for cancellation
-        if (s_generation_cancelled) {
-            NSLog(@"LlamaCppBridge: Generation cancelled at token %d", t);
-            break;
+        // PHASE 4: Enhanced cancellation checking for faster response
+        cancellation_check_counter++;
+        if (cancellation_check_counter >= cancellation_check_frequency) {
+            cancellation_check_counter = 0;
+            if (s_generation_cancelled) {
+                NSLog(@"LlamaCppBridge: PHASE 4 - Generation cancelled at token %d (enhanced checking)", t);
+                break;
+            }
         }
         
         llama_token next_id = llama_sampler_sample(smpl, ctx, -1);

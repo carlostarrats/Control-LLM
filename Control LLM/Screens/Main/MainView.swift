@@ -212,13 +212,12 @@ struct HomePage: View {
 // MARK: - Chat Page
 struct ChatPage: View {
     @Binding var currentPage: Int
-    let viewModel: MainViewModel
+    @ObservedObject var viewModel: MainViewModel
     
     var body: some View {
         TextModalView(
             viewModel: viewModel,
-            isPresented: .constant(true),
-            messageHistory: viewModel.messages
+            isPresented: .constant(true)
         )
     }
 }

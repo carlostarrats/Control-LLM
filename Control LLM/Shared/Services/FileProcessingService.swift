@@ -6,10 +6,23 @@ import Vision
 class FileProcessingService {
     static let shared = FileProcessingService()
     
+    // Track multi-pass processing state
+    @MainActor var isMultiPassProcessingActive: Bool = false
+    
+    // PHASE 1: Temporary debug flag to force multi-pass processing
+    static let forceMultiPassForDebugging = true // Set to true to force multi-pass regardless of file size
+    
     private init() {}
     
     /// Process a file and extract its content for LLM processing
     func processFile(_ url: URL) async throws -> FileContent {
+        let shouldAccess = url.startAccessingSecurityScopedResource()
+        defer {
+            if shouldAccess {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+        
         let fileExtension = url.pathExtension.lowercased()
         
         switch fileExtension {
@@ -43,44 +56,109 @@ class FileProcessingService {
     
     /// Process PDF files
     private func processPDFFile(_ url: URL) async throws -> FileContent {
-        guard let pdfDocument = PDFDocument(url: url) else {
-            throw FileProcessingError.pdfError
-        }
+        print("🔍 FileProcessingService: Starting PDF processing for URL: \(url.path)")
         
+        // CRITICAL FIX: Run all file I/O and parsing in a detached background task
+        // to prevent any possibility of blocking the main thread during UI transitions (e.g., file picker dismissal).
+        return try await Task.detached {
+            // First try to create PDFDocument from URL (for files with direct access)
+            if let pdfDocument = PDFDocument(url: url) {
+                print("✅ FileProcessingService: Successfully created PDFDocument from URL.")
+                // Pass needed properties instead of capturing self
+                let fileName = url.lastPathComponent
+                let fileSize = url.fileSize ?? 0
+                return try await FileProcessingService.shared.extractTextFromPDFDocument(pdfDocument, fileName: fileName, size: fileSize)
+            }
+            
+            // If URL access fails, try to read the file data and create PDFDocument from data
+            print("⚠️ FileProcessingService: Could not create PDFDocument from URL, attempting to read data directly.")
+            do {
+                let fileData = try Data(contentsOf: url)
+                print("✅ FileProcessingService: Successfully read PDF data (\(fileData.count) bytes).")
+                guard let pdfDocument = PDFDocument(data: fileData) else {
+                    print("❌ FileProcessingService: Failed to create PDFDocument from data.")
+                    throw FileProcessingError.pdfError
+                }
+                
+                print("✅ FileProcessingService: Successfully created PDFDocument from data.")
+                // Pass needed properties instead of capturing self
+                let fileName = url.lastPathComponent
+                return try await FileProcessingService.shared.extractTextFromPDFDocument(pdfDocument, fileName: fileName, size: fileData.count)
+            } catch {
+                print("❌ FileProcessingService: Failed to read PDF data with error: \(error)")
+                throw FileProcessingError.pdfError
+            }
+        }.value
+    }
+    
+    /// Extract text from PDFDocument (helper method)
+    private func extractTextFromPDFDocument(_ pdfDocument: PDFDocument, fileName: String, size: Int) async throws -> FileContent {
+        print("🔍 FileProcessingService: Starting text extraction from PDF")
         var extractedText = ""
         let pageCount = pdfDocument.pageCount
+        print("🔍 FileProcessingService: PDF has \(pageCount) pages")
         
         for i in 0..<pageCount {
             if let page = pdfDocument.page(at: i) {
                 if let pageContent = page.string {
                     extractedText += pageContent + "\n\n"
+                    print("🔍 FileProcessingService: Extracted \(pageContent.count) characters from page \(i+1)")
+                } else {
+                    print("⚠️ FileProcessingService: Page \(i+1) has no text content")
                 }
+            } else {
+                print("❌ FileProcessingService: Could not access page \(i+1)")
             }
         }
         
+        print("🔍 FileProcessingService: Total extracted text: \(extractedText.count) characters")
+        
+        if extractedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            print("❌ FileProcessingService: PDF contains no readable text")
+            throw FileProcessingError.emptyContent
+        }
+        
+        print("✅ FileProcessingService: Successfully extracted text from PDF")
         return FileContent(
-            fileName: url.lastPathComponent,
+            fileName: fileName,
             content: extractedText,
             type: .pdf,
-            size: url.fileSize ?? 0,
+            size: size,
             metadata: ["pages": String(format: NSLocalizedString("%d", comment: ""), pageCount)]
         )
     }
     
     /// Process image files using Vision framework for text extraction
     private func processImageFile(_ url: URL) async throws -> FileContent {
-        guard let image = UIImage(contentsOfFile: url.path) else {
-            throw FileProcessingError.imageError
+        // First try to load image from file path (for files with direct access)
+        if let image = UIImage(contentsOfFile: url.path) {
+            let extractedText = try await extractTextFromImage(image)
+            return FileContent(
+                fileName: url.lastPathComponent,
+                content: extractedText,
+                type: .image,
+                size: url.fileSize ?? 0
+            )
         }
         
-        let extractedText = try await extractTextFromImage(image)
-        
-        return FileContent(
-            fileName: url.lastPathComponent,
-            content: extractedText,
-            type: .image,
-            size: url.fileSize ?? 0
-        )
+        // If file path access fails, try to read the file data and create image from data
+        do {
+            let fileData = try Data(contentsOf: url)
+            guard let image = UIImage(data: fileData) else {
+                throw FileProcessingError.imageError
+            }
+            
+            let extractedText = try await extractTextFromImage(image)
+            return FileContent(
+                fileName: url.lastPathComponent,
+                content: extractedText,
+                type: .image,
+                size: fileData.count
+            )
+        } catch {
+            print("❌ FileProcessingService: Failed to read image data: \(error)")
+            throw FileProcessingError.imageError
+        }
     }
     
     /// Extract text from image using Vision framework
@@ -124,8 +202,8 @@ class FileProcessingService {
         )
     }
     
-    /// Format file content for LLM processing
-    func formatForLLM(_ fileContent: FileContent) -> String {
+    /// Truncates content and adds a metadata header for the LLM prompt.
+    func formatForLLM(_ fileContent: FileContent, maxLength: Int) -> String {
         var formatted = "📎 File: \(fileContent.fileName)\n"
         formatted += "📄 Type: \(fileContent.type.localizedName)\n"
         if let size = fileContent.size {
@@ -137,14 +215,242 @@ class FileProcessingService {
             }
         }
         formatted += "\n📝 Content:\n\n"
-        formatted += fileContent.content
+        
+        // Calculate how much space is left for content after header
+        let headerLength = formatted.count
+        let availableContentLength = max(maxLength - headerLength - 100, 200) // Reserve 100 chars for ellipsis message
+        
+        if fileContent.content.count <= availableContentLength {
+            // Content fits within limit
+            formatted += fileContent.content
+        } else {
+            // Content needs to be chunked intelligently
+            let chunkedContent = intelligentChunk(content: fileContent.content, 
+                                                maxLength: availableContentLength,
+                                                fileType: fileContent.type)
+            formatted += chunkedContent
+        }
         
         return formatted
+    }
+    
+    /// Calculate number of passes needed for multi-pass processing
+    func calculatePassCount(_ fileContent: FileContent, maxLength: Int = Constants.defaultChunkSize) -> Int {
+        let headerLength = estimateHeaderLength(fileContent)
+        // PHASE 3: Use centralized constants for consistent limits
+        let availableContentLength = max(maxLength - headerLength - Constants.instructionBuffer, 100) // Conservative buffer
+        let chunkSize = availableContentLength - 300 // Conservative reserve
+        
+        let passCount: Int
+        if fileContent.content.count <= availableContentLength {
+            passCount = 1
+        } else {
+            passCount = Int(ceil(Double(fileContent.content.count) / Double(chunkSize)))
+        }
+        
+        // PHASE 1: Add detailed logging for pass count calculation
+        print("🔍 PHASE 1 LOGGING - FileProcessingService.calculatePassCount:")
+        print("   - Input maxLength: \(maxLength)")
+        print("   - File content length: \(fileContent.content.count)")
+        print("   - Estimated header length: \(headerLength)")
+        print("   - Available content length: \(availableContentLength)")
+        print("   - Chunk size: \(chunkSize)")
+        print("   - Calculated passes: \(passCount)")
+        print("   - Math: ceil(\(fileContent.content.count) / \(chunkSize)) = \(passCount)")
+        
+        return passCount
+    }
+    
+    /// Get content chunk for specific pass
+    func getContentChunk(_ fileContent: FileContent, pass: Int, totalPasses: Int, maxLength: Int = Constants.defaultChunkSize) -> String {
+        let headerLength = estimateHeaderLength(fileContent)
+        // PHASE 3: Use centralized constants for consistent chunk sizing
+        let availableContentLength = max(maxLength - headerLength - Constants.instructionBuffer, 100) // Conservative buffer
+        let chunkSize = availableContentLength - 300 // Conservative reserve
+        
+        let startIndex = (pass - 1) * chunkSize
+        let endIndex = min(startIndex + chunkSize, fileContent.content.count)
+        
+        let startStringIndex = fileContent.content.index(fileContent.content.startIndex, offsetBy: startIndex)
+        let endStringIndex = fileContent.content.index(fileContent.content.startIndex, offsetBy: endIndex)
+        
+        let chunk = String(fileContent.content[startStringIndex..<endStringIndex])
+        
+        var formatted = "📎 File: \(fileContent.fileName) (Pass \(pass)/\(totalPasses))\n"
+        formatted += "📄 Type: \(fileContent.type.localizedName)\n"
+        if let size = fileContent.size {
+            formatted += "📏 Size: \(ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file))\n"
+        }
+        if let metadata = fileContent.metadata {
+            for (key, value) in metadata {
+                formatted += "ℹ️ \(key): \(value)\n"
+            }
+        }
+        formatted += "\n📝 Content (Part \(pass)/\(totalPasses)):\n\n"
+        formatted += chunk
+        
+        if pass < totalPasses {
+            formatted += "\n\n[This is part \(pass) of \(totalPasses). More content will follow in subsequent passes.]"
+        }
+        
+        return formatted
+    }
+    
+    /// Estimate header length for calculations
+    func estimateHeaderLength(_ fileContent: FileContent) -> Int {
+        var headerLength = fileContent.fileName.count + 50 // Base overhead
+        headerLength += fileContent.type.localizedName.count
+        if let size = fileContent.size {
+            headerLength += 30 // Size formatting
+        }
+        if let metadata = fileContent.metadata {
+            for (key, value) in metadata {
+                headerLength += key.count + value.count + 10
+            }
+        }
+        return headerLength + 50 // Content header and buffer
+    }
+    
+
+    
+    /// Intelligently chunk content based on file type and length constraints
+    private func intelligentChunk(content: String, maxLength: Int, fileType: FileType) -> String {
+        // For very small limits, just take the beginning
+        if maxLength < 300 {
+            let truncated = String(content.prefix(maxLength - 50))
+            return truncated + "\n\n[Content truncated due to length. Original length: \(content.count) characters]"
+        }
+        
+        switch fileType {
+        case .pdf, .text, .document:
+            return chunkTextContent(content: content, maxLength: maxLength)
+        case .image:
+            // For image text extraction, usually shorter, so take beginning + end if needed
+            return chunkImageContent(content: content, maxLength: maxLength)
+        }
+    }
+    
+    /// Chunk text content intelligently by preserving structure
+    private func chunkTextContent(content: String, maxLength: Int) -> String {
+        let reserveForSummary = 150
+        let actualMaxLength = maxLength - reserveForSummary
+        
+        // Try to split by paragraphs or sentences to preserve structure
+        let paragraphs = content.components(separatedBy: "\n\n")
+        var result = ""
+        var includedParagraphs = 0
+        
+        for paragraph in paragraphs {
+            let paragraphWithNewlines = paragraph + "\n\n"
+            if result.count + paragraphWithNewlines.count <= actualMaxLength {
+                result += paragraphWithNewlines
+                includedParagraphs += 1
+            } else {
+                break
+            }
+        }
+        
+        // If we couldn't fit any complete paragraphs, fall back to character truncation
+        if result.isEmpty && !paragraphs.isEmpty {
+            result = String(content.prefix(actualMaxLength))
+        }
+        
+        // Add summary information
+        let totalParagraphs = paragraphs.count
+        if includedParagraphs < totalParagraphs {
+            result += "\n[Showing \(includedParagraphs) of \(totalParagraphs) sections. Original length: \(content.count) characters. This is a preview - ask follow-up questions about specific sections if needed.]"
+        }
+        
+        return result
+    }
+    
+    /// Chunk image-extracted content
+    private func chunkImageContent(content: String, maxLength: Int) -> String {
+        if content.count <= maxLength {
+            return content
+        }
+        
+        // For image content, take the beginning (most important) and indicate truncation
+        let truncated = String(content.prefix(maxLength - 80))
+        return truncated + "\n\n[Image text extraction truncated. Original length: \(content.count) characters]"
     }
     
     /// Get supported file types
     var supportedFileTypes: [String] {
         return ["txt", "md", "rtf", "pdf", "jpg", "jpeg", "png", "heic"]
+    }
+    
+    // MARK: - Data-based Processing Methods
+    
+    /// Process text files using data directly
+    private func processTextFileWithData(_ data: Data, fileName: String) async throws -> FileContent {
+        guard let text = String(data: data, encoding: .utf8) else {
+            throw FileProcessingError.encodingError
+        }
+        
+        return FileContent(
+            fileName: fileName,
+            content: text,
+            type: .text,
+            size: data.count
+        )
+    }
+    
+    /// Process PDF files using data directly
+    private func processPDFFileWithData(_ data: Data, fileName: String) async throws -> FileContent {
+        guard let pdfDocument = PDFDocument(data: data) else {
+            throw FileProcessingError.pdfError
+        }
+        
+        var extractedText = ""
+        let pageCount = pdfDocument.pageCount
+        
+        for i in 0..<pageCount {
+            if let page = pdfDocument.page(at: i) {
+                if let pageContent = page.string {
+                    extractedText += pageContent + "\n\n"
+                }
+            }
+        }
+        
+        if extractedText.isEmpty {
+            extractedText = "No text content could be extracted from this PDF. It may be an image-based PDF or have no selectable text."
+        }
+        
+        return FileContent(
+            fileName: fileName,
+            content: extractedText,
+            type: .pdf,
+            size: data.count,
+            metadata: ["pages": String(format: NSLocalizedString("%d", comment: ""), pageCount)]
+        )
+    }
+    
+    /// Process image files using data directly
+    private func processImageFileWithData(_ data: Data, fileName: String) async throws -> FileContent {
+        guard let image = UIImage(data: data) else {
+            throw FileProcessingError.imageError
+        }
+        
+        let extractedText = try await extractTextFromImage(image)
+        
+        return FileContent(
+            fileName: fileName,
+            content: extractedText,
+            type: .image,
+            size: data.count
+        )
+    }
+    
+    /// Process Word documents using data directly
+    private func processWordDocumentWithData(_ data: Data, fileName: String) async throws -> FileContent {
+        // For now, return a message about Word document support
+        return FileContent(
+            fileName: fileName,
+            content: NSLocalizedString("Word document processing is not yet supported. Please convert to PDF or text format.", comment: ""),
+            type: .document,
+            size: data.count
+        )
     }
 }
 
@@ -192,6 +498,7 @@ enum FileProcessingError: Error, LocalizedError {
     case pdfError
     case imageError
     case fileNotFound
+    case emptyContent
     
     var errorDescription: String? {
         switch self {
@@ -205,6 +512,8 @@ enum FileProcessingError: Error, LocalizedError {
             return NSLocalizedString("Could not process the image file", comment: "")
         case .fileNotFound:
             return NSLocalizedString("File not found", comment: "")
+        case .emptyContent:
+            return NSLocalizedString("The file contains no readable text", comment: "")
         }
     }
 }
@@ -221,3 +530,4 @@ extension URL {
         }
     }
 }
+

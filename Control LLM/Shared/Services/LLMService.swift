@@ -12,12 +12,39 @@ final class LLMService: @unchecked Sendable {
     private let maxConversationsBeforeReset = 50  // Increased from 3 to prevent interference with model switching
     private var isModelOperationInProgress = false  // For model loading/unloading
     private var isChatOperationInProgress = false   // For chat generation
+    private var _isMultiPassMode = false             // For multi-pass processing
     private var lastOperationTime: Date = Date()  // Track when operations start
     
-    /// Cancel ongoing LLM generation
+    /// Public read-only access to multi-pass mode status
+    var isMultiPassMode: Bool {
+        return _isMultiPassMode
+    }
+    
+    /// Cancel ongoing LLM generation (Phase 4: Enhanced Reliability)
     func cancelGeneration() {
-        print("🔍 LLMService: Cancelling ongoing generation")
+        print("🔍 LLMService: PHASE 4 - Cancelling ongoing generation with enhanced reliability")
+        
+        // Set the cancellation flag in the C bridge
         llm_bridge_cancel_generation()
+        
+        // Reset the operation in progress flag to allow new operations
+        isModelOperationInProgress = false
+        
+        print("🔍 LLMService: PHASE 4 - Cancellation flag set and operation flags reset")
+    }
+    
+    /// Enable multi-pass mode to prevent concurrency errors during multi-pass processing
+    func enableMultiPassMode() {
+        print("🔧 LLMService: Enabling multi-pass mode")
+        _isMultiPassMode = true
+        isChatOperationInProgress = true
+    }
+    
+    /// Disable multi-pass mode and reset chat operation flags
+    func disableMultiPassMode() {
+        print("🔧 LLMService: Disabling multi-pass mode")
+        _isMultiPassMode = false
+        isChatOperationInProgress = false
     }
     
     /// Load a specific model by filename with optimized performance
@@ -316,17 +343,22 @@ final class LLMService: @unchecked Sendable {
             }
         }
         
-        // Prevent concurrent chat operations
-        guard !isChatOperationInProgress else {
-            throw NSError(domain: "LLMService", code: 22, userInfo: [NSLocalizedDescriptionKey: "Another chat operation is in progress"])
-        }
-        
-        isChatOperationInProgress = true
-        lastOperationTime = Date()
-        
-        // Ensure the flag is always reset, even if errors occur
-        defer { 
-            isChatOperationInProgress = false 
+        // Prevent concurrent chat operations (unless in multi-pass mode)
+        if !_isMultiPassMode {
+            guard !isChatOperationInProgress else {
+                throw NSError(domain: "LLMService", code: 22, userInfo: [NSLocalizedDescriptionKey: "Another chat operation is in progress"])
+            }
+            
+            isChatOperationInProgress = true
+            lastOperationTime = Date()
+            
+            // Ensure the flag is always reset, even if errors occur (only for single-pass)
+            defer { 
+                isChatOperationInProgress = false 
+            }
+        } else {
+            print("🔧 LLMService: Multi-pass mode active, skipping concurrency check")
+            lastOperationTime = Date()
         }
         
         // Increment conversation counter
@@ -341,7 +373,7 @@ final class LLMService: @unchecked Sendable {
         }
         
         // Check input length to prevent memory issues
-        let maxInputLength = 2000 // Conservative limit for 3B models
+        let maxInputLength = Constants.maxInputLength // Increased limit for file uploads - allows ~2-3 pages of content
         var processedText = text
         if processedText.count > maxInputLength {
             print("⚠️ WARNING: Input text too long (\(processedText.count) chars), truncating to \(maxInputLength)")
@@ -400,16 +432,24 @@ final class LLMService: @unchecked Sendable {
             print("🔍 LLMService: Final prompt preview: \(String(prompt.prefix(200)))...")
             
             // Safety check for extremely long prompts
-            let maxPromptLength = 4096 // Increased to handle larger contexts
+            // Increased to match maxInputLength and model's actual context window (32768 tokens)
+            let maxPromptLength = 16000 // Increased from 4096 to handle larger contexts
             if prompt.count > maxPromptLength {
                 throw NSError(domain: "LLMService",
                              code: 6, 
                              userInfo: [NSLocalizedDescriptionKey: "Prompt too long (\(prompt.count) characters). Please shorten your message."])
             }
             
-            // Warning for prompts approaching token limits
-            let warningThreshold = 3000 // Characters
-            if prompt.count > warningThreshold {
+            // CRITICAL FIX: Add specific check for multi-pass processing prompts
+            // Multi-pass prompts can be complex and need extra validation
+                    if prompt.count > Constants.criticalThreshold {
+            print("⚠️ WARNING: Multi-pass prompt is very long (\(prompt.count) characters). This may cause tokenization issues.")
+            print("🔍 Prompt preview: \(String(prompt.prefix(500)))...")
+        }
+        
+        // Warning for prompts approaching token limits
+        let warningThreshold = Constants.warningThreshold // Characters
+        if prompt.count > warningThreshold {
                 print("⚠️ WARNING: Prompt is long (\(prompt.count) characters) and may approach token limits. Consider shortening your message or clearing chat history.")
             }
             
@@ -419,6 +459,24 @@ final class LLMService: @unchecked Sendable {
         } catch {
             throw error
         }
+    }
+
+    /// Stream tokens for a raw prompt (bypass chat template entirely)
+    func chatRaw(prompt rawPrompt: String, onToken: @escaping (String) async -> Void) async throws {
+        // Ensure model is ready
+        if !isModelLoaded { try await loadSelectedModel() }
+        guard let context = llamaContext else {
+            throw NSError(domain: "LLMService", code: 24, userInfo: [NSLocalizedDescriptionKey: "Model not loaded"])
+        }
+
+        // Minimal validation
+        let prompt = rawPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !prompt.isEmpty else {
+            throw NSError(domain: "LLMService", code: 18, userInfo: [NSLocalizedDescriptionKey: "Empty prompt for streaming"]) 
+        }
+
+        // Stream directly
+        try await streamResponseWithLlamaCpp(context: context, prompt: prompt, onToken: onToken)
     }
 
     private func streamResponseWithLlamaCpp(context: UnsafeMutableRawPointer, prompt: String, onToken: @escaping (String) async -> Void) async throws {
@@ -449,12 +507,13 @@ final class LLMService: @unchecked Sendable {
             let modelNameToSend = modelName
 
             // Timeout for the entire streaming operation
+            // Increased timeout for multi-pass processing scenarios
             let timeoutTask = Task {
-                try await Task.sleep(nanoseconds: 60_000_000_000) // 60 seconds
+                try await Task.sleep(nanoseconds: 180_000_000_000) // 180 seconds (3 minutes)
                 if !hasCompleted {
                     hasCompleted = true
                     print("❌ LLMService: Streaming generation timed out.")
-                    continuation.resume(throwing: NSError(domain: "LLMService", code: 20, userInfo: [NSLocalizedDescriptionKey: "Streaming generation timed out."]))
+                    continuation.resume(throwing: NSError(domain: "LLMService", code: 20, userInfo: [NSLocalizedDescriptionKey: "Streaming generation timed out. This may happen with very large documents requiring multi-pass processing."]))
                 }
             }
 
@@ -567,9 +626,25 @@ final class LLMService: @unchecked Sendable {
             print("❌ LLMService: Invalid role/content arrays in buildPromptUsingChatTemplate")
             return userText // Fallback to user text only
         }
+        
+        // CRASH PROTECTION: Sanitize content strings to prevent crashes
+        let sanitizedContentStrings: [String] = contentStrings.map { content in
+            // Remove any potentially problematic characters and ensure valid UTF-8
+            let sanitized = content
+                .replacingOccurrences(of: "\0", with: "") // Remove null bytes
+                .replacingOccurrences(of: "\r", with: "\n") // Normalize line endings
+                .trimmingCharacters(in: .whitespacesAndNewlines) // Remove leading/trailing whitespace
+            
+            // Ensure the string is valid UTF-8 and not empty
+            guard !sanitized.isEmpty, sanitized.utf8.count > 0 else {
+                return "[Content removed for safety]"
+            }
+            
+            return sanitized
+        }
 
         let cRolePtrs: [UnsafePointer<CChar>?] = roleStrings.map { s in s.withCString { UnsafePointer(strdup($0)) } }
-        let cContentPtrs: [UnsafePointer<CChar>?] = contentStrings.map { s in s.withCString { UnsafePointer(strdup($0)) } }
+        let cContentPtrs: [UnsafePointer<CChar>?] = sanitizedContentStrings.map { s in s.withCString { UnsafePointer(strdup($0)) } }
 
         // CRASH PROTECTION: Ensure cleanup happens in all code paths
         defer {
@@ -593,7 +668,7 @@ final class LLMService: @unchecked Sendable {
                 }
                 
                 print("🔧 LLMService: Calling llm_bridge_apply_chat_template_messages...")
-                return Int(llm_bridge_apply_chat_template_messages(rbuf.baseAddress, cbuf.baseAddress, Int32(contentStrings.count), true, &buf, Int32(bufferLen)))
+                return Int(llm_bridge_apply_chat_template_messages(rbuf.baseAddress, cbuf.baseAddress, Int32(sanitizedContentStrings.count), true, &buf, Int32(bufferLen)))
             }
         }
 

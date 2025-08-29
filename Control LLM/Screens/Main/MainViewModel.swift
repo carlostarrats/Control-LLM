@@ -5,6 +5,9 @@ import SwiftUI
 class MainViewModel: ObservableObject {
     @Published var lastMessage: String?
     @Published var messages: [ChatMessage] = []
+    @Published var selectedFileUrl: URL?
+    @Published var isFileProcessing: Bool = false
+    @Published var fileProcessingError: String? = nil
     @Published var shouldNavigateToChat = false
     @Published var pendingClipboardPrompt: String?
     
@@ -39,12 +42,104 @@ class MainViewModel: ObservableObject {
             self.objectWillChange.send()
         }
         
-        // Trigger the LLM response through ChatViewModel
-        Task {
-            do {
-                try await llm.send(text)
-            } catch {
-                print("❌ MainViewModel: Error calling LLM: \(error)")
+        // Check if there's a file to process
+        if let fileUrl = selectedFileUrl {
+            print("🔍 MainViewModel: File detected, processing with LargeFileProcessingService")
+            
+            // Set file processing state
+            isFileProcessing = true
+            fileProcessingError = nil
+            
+            // Process the file through LargeFileProcessingService
+            Task {
+                do {
+                    // Extract the file content using FileProcessingService (already returns FileContent)
+                    let fileContent = try await FileProcessingService.shared.processFile(fileUrl)
+                    
+                    // Process with LargeFileProcessingService (returns String?, not throwing)
+                    let result = await LargeFileProcessingService.shared.process(
+                        fileContent: fileContent,
+                        instruction: text,
+                        maxContentLength: 1000000,
+                        llmService: HybridLLMService.shared,
+                        progressHandler: { progressMessage in
+                            print("🔍 MainViewModel: Progress: \(progressMessage)")
+                        },
+                        transcriptHandler: { [self] transcript in
+                            print("🔍 MainViewModel: Transcript: \(transcript)")
+                            // CRITICAL FIX: Actually update the transcript that TextModalView is polling
+                            // MainViewModel is already @MainActor, so no need for Task wrapper
+                            llm.transcript = transcript
+                        }
+                    )
+                    
+                    print("🔍 MainViewModel: File processing completed with result: \(result ?? "nil")")
+                    
+                    // Check if processing failed
+                    if result == nil {
+                        print("❌ MainViewModel: File processing failed - result is nil")
+                        
+                        // Set error state
+                        await MainActor.run {
+                            isFileProcessing = false
+                            fileProcessingError = "Processing failed - no result returned"
+                        }
+                        
+                        // Send error message to user
+                        let errorMessage = ChatMessage(
+                            content: "❌ Error processing file: Processing failed - no result returned",
+                            isUser: false,
+                            timestamp: Date()
+                        )
+                        
+                        await MainActor.run {
+                            messages.append(errorMessage)
+                        }
+                    } else {
+                        // Processing succeeded
+                        print("✅ MainViewModel: File processing succeeded")
+                        
+                        // Clear the file URL after processing
+                        selectedFileUrl = nil
+                        
+                        // Reset file processing state
+                        await MainActor.run {
+                            isFileProcessing = false
+                            fileProcessingError = nil
+                        }
+                    }
+                    
+                } catch {
+                    print("❌ MainViewModel: Error in FileProcessingService: \(error)")
+                    
+                    // Set error state
+                    await MainActor.run {
+                        isFileProcessing = false
+                        fileProcessingError = error.localizedDescription
+                    }
+                    
+                    // Send error message to user
+                    let errorMessage = ChatMessage(
+                        content: "❌ Error processing file: \(error.localizedDescription)",
+                        isUser: false,
+                        timestamp: Date()
+                    )
+                    
+                    await MainActor.run {
+                        messages.append(errorMessage)
+                    }
+                }
+            }
+        } else {
+            // No file, just send text as normal
+            print("🔍 MainViewModel: No file detected, sending text normally")
+            
+            Task {
+                do {
+                    try await llm.send(text)
+                } catch {
+                    print("❌ MainViewModel: Error calling LLM: \(error)")
+                }
             }
         }
         

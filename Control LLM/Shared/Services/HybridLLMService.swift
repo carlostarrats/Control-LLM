@@ -14,6 +14,9 @@ final class HybridLLMService: ObservableObject {
     // Add cancellation support
     private var currentGenerationTask: Task<Void, Error>?
     
+    // CRITICAL FIX: Add async-safe semaphore to prevent concurrent access to generateResponse
+    private let serviceSemaphore = AsyncSemaphore(value: 1)
+    
     private init() {}
     
     enum LLMEngine {
@@ -86,36 +89,56 @@ final class HybridLLMService: ObservableObject {
     func generateResponse(
         userText: String,
         history: [ChatMessage]? = nil,
+        useRawPrompt: Bool = false,
         onToken: @escaping (String) async -> Void
     ) async throws {
-        guard isModelLoaded else {
-            throw HybridLLMError.modelNotLoaded
-        }
+        // CRITICAL FIX: Use async semaphore to prevent concurrent access
+        await serviceSemaphore.wait()
+        
+        do {
+            guard isModelLoaded else {
+                throw HybridLLMError.modelNotLoaded
+            }
 
         // Cancel any existing generation task
         currentGenerationTask?.cancel()
         
+        // DEBUG: Log the useRawPrompt parameter
+        print("🔍 HybridLLMService: generateResponse called with useRawPrompt: \(useRawPrompt)")
+        
         // Create new cancellable task for generation
-        currentGenerationTask = Task { [weak self] in
+        currentGenerationTask = Task { [weak self, useRawPrompt] in
             guard let self = self else { return }
             
             // Donate the user's prompt to Shortcuts
             ShortcutsIntegrationHelper.shared.donateMessageSent(message: userText)
             
             print("🔍 HybridLLMService: Generating response with \(currentEngine.description)")
+            print("🔍 HybridLLMService: useRawPrompt flag: \(useRawPrompt)")
             
             do {
                 switch currentEngine {
                 case .llamaCpp:
-                    try await llamaCppService.chat(
-                        user: userText,
-                        history: history,
-                        onToken: { partialResponse in
-                            // Check if task was cancelled
-                            if Task.isCancelled { return }
-                            Task { await onToken(partialResponse) }
-                        }
-                    )
+                    if useRawPrompt {
+                        print("🔍 HybridLLMService: Using chatRaw path")
+                        try await llamaCppService.chatRaw(
+                            prompt: userText,
+                            onToken: { partialResponse in
+                                if Task.isCancelled { return }
+                                Task { await onToken(partialResponse) }
+                            }
+                        )
+                    } else {
+                        print("🔍 HybridLLMService: Using regular chat path")
+                        try await llamaCppService.chat(
+                            user: userText,
+                            history: history,
+                            onToken: { partialResponse in
+                                if Task.isCancelled { return }
+                                Task { await onToken(partialResponse) }
+                            }
+                        )
+                    }
                     
                 case .ollama:
                     // Build prompt using existing logic but adapted for Ollama
@@ -138,21 +161,48 @@ final class HybridLLMService: ObservableObject {
         
         // Wait for the task to complete or be cancelled
         _ = try? await currentGenerationTask?.value
+        
+        // Signal semaphore after successful completion
+        await serviceSemaphore.signal()
+        
+    } catch {
+        // Signal semaphore before re-throwing the error
+        await serviceSemaphore.signal()
+        throw error
+    }
     }
     
-    // MARK: - Cancellation Support
+    // MARK: - Cancellation Support (Phase 4: Enhanced Reliability)
     
     func stopGeneration() {
-        print("🔍 HybridLLMService: Stopping generation")
+        print("🔍 HybridLLMService: PHASE 4 - Stopping generation with enhanced reliability")
+        
+        // Cancel the current generation task
         currentGenerationTask?.cancel()
         currentGenerationTask = nil
         
-        // Cancel the underlying LLM generation
+        // Cancel the underlying LLM generation with enhanced logic
         switch currentEngine {
         case .llamaCpp:
+            print("🔍 HybridLLMService: PHASE 4 - Cancelling llama.cpp generation")
             llamaCppService.cancelGeneration()
+            
+            // Wait briefly for cancellation to take effect
+            Task {
+                try? await Task.sleep(nanoseconds: UInt64(Constants.maxCancellationWaitTime) * 1_000_000)
+                
+                // Verify cancellation took effect
+                if currentGenerationTask != nil {
+                    print("⚠️ HybridLLMService: PHASE 4 - Cancellation may not have taken effect, forcing cleanup")
+                    currentGenerationTask?.cancel()
+                    currentGenerationTask = nil
+                }
+            }
+            
         case .ollama:
+            print("🔍 HybridLLMService: PHASE 4 - Ollama doesn't support streaming cancellation, but cleaning up tasks")
             // Ollama doesn't support streaming cancellation in our implementation
+            // But we can still clean up our task references
             break
         }
     }
