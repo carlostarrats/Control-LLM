@@ -42,6 +42,51 @@ class MainViewModel: ObservableObject {
             self.objectWillChange.send()
         }
         
+        // CRITICAL FIX: Check if there's processed PDF data available for questions
+        if LargeFileProcessingService.shared.hasProcessedData() {
+            print("🔍 MainViewModel: Processed PDF data available, answering question")
+            
+            // Answer the question using stored processed data
+            Task {
+                let result = await LargeFileProcessingService.shared.answerQuestion(
+                    question: text,
+                    llmService: HybridLLMService.shared,
+                    progressHandler: { progressMessage in
+                        print("🔍 MainViewModel: Progress: \(progressMessage)")
+                    },
+                    transcriptHandler: { [self] transcript in
+                        print("🔍 MainViewModel: Transcript: \(transcript)")
+                        llm.transcript = transcript
+                    }
+                )
+                
+                if let result = result {
+                    // Add the answer to messages
+                    let answerMessage = ChatMessage(
+                        content: result,
+                        isUser: false,
+                        timestamp: Date()
+                    )
+                    
+                    await MainActor.run {
+                        messages.append(answerMessage)
+                    }
+                } else {
+                    // Add error message
+                    let errorMessage = ChatMessage(
+                        content: "❌ Failed to answer question using processed PDF data",
+                        isUser: false,
+                        timestamp: Date()
+                    )
+                    
+                    await MainActor.run {
+                        messages.append(errorMessage)
+                    }
+                }
+            }
+            return
+        }
+        
         // Check if there's a file to process
         if let fileUrl = selectedFileUrl {
             print("🔍 MainViewModel: File detected, processing with LargeFileProcessingService")
@@ -96,17 +141,24 @@ class MainViewModel: ObservableObject {
                             messages.append(errorMessage)
                         }
                     } else {
-                        // Processing succeeded
-                        print("✅ MainViewModel: File processing succeeded")
+                        // Processing succeeded - add the result to messages
+                        print("✅ MainViewModel: File processing succeeded with result: \(result?.prefix(100) ?? "nil")...")
                         
-                        // Clear the file URL after processing
-                        selectedFileUrl = nil
+                        // Add the result to chat messages
+                        let resultMessage = ChatMessage(
+                            content: result ?? "No content generated",
+                            isUser: false,
+                            timestamp: Date()
+                        )
                         
-                        // Reset file processing state
                         await MainActor.run {
+                            messages.append(resultMessage)
                             isFileProcessing = false
                             fileProcessingError = nil
                         }
+                        
+                        // Clear the file URL after processing
+                        selectedFileUrl = nil
                     }
                     
                 } catch {

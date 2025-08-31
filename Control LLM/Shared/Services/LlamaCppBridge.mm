@@ -485,9 +485,22 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     }
     if (llama_decode(ctx, batch) != 0) {
         NSLog(@"LlamaCppBridge: Initial decode failed for streaming generation");
-        pthread_mutex_unlock(&s_bridge_mutex);
-        callback(NULL);
-        return;
+        
+        // CRITICAL FIX: Try to reset context and retry once before giving up
+        NSLog(@"LlamaCppBridge: Attempting to reset context and retry...");
+        
+        // Reset the context to clear accumulated memory
+        llama_memory_clear(llama_get_memory(ctx), true);
+        
+        // Try decode again with fresh context
+        if (llama_decode(ctx, batch) != 0) {
+            NSLog(@"LlamaCppBridge: Retry decode failed - sending memory allocation error to Swift");
+            callback("__MEMORY_ALLOCATION_FAILED__");
+            pthread_mutex_unlock(&s_bridge_mutex);
+            return;
+        } else {
+            NSLog(@"LlamaCppBridge: Context reset successful - continuing with generation");
+        }
     }
 
     struct llama_sampler_chain_params sparams = llama_sampler_chain_default_params();
@@ -524,7 +537,7 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     int tokens_generated = 0;
     bool hit_token_limit = false;
     int cancellation_check_counter = 0;
-    const int cancellation_check_frequency = 10; // Check every 10 tokens for faster response
+            const int cancellation_check_frequency = 1; // Check every token for immediate cancellation
     
     for (int t = 0; t < max_new_tokens; ++t) {
         // PHASE 4: Enhanced cancellation checking for faster response
@@ -640,6 +653,10 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     // Call completion callback
     callback(NULL);
     
+    // CRITICAL FIX: Reset context after each chunk to prevent memory accumulation
+    NSLog(@"LlamaCppBridge: Resetting context after chunk completion to free memory");
+    llama_memory_clear(llama_get_memory(ctx), true);
+    
     NSLog(@"LlamaCppBridge: Streaming generation completed");
     pthread_mutex_unlock(&s_bridge_mutex);
 }
@@ -696,8 +713,22 @@ int llama_generate_token(void* context, char* token, int max_token_length) {
     return token_len;
 }
 
-void llama_reset_context(void* context) {}
-int llama_get_context_size(void* context) { return 1024; }
+void llama_reset_context(void* context) {
+    if (context) {
+        struct llama_context * ctx = (struct llama_context *) context;
+        // Clear the memory to free accumulated memory
+        llama_memory_clear(llama_get_memory(ctx), true);
+        NSLog(@"LlamaCppBridge: Context reset - memory cleared");
+    }
+}
+
+int llama_get_context_size(void* context) { 
+    if (context) {
+        struct llama_context * ctx = (struct llama_context *) context;
+        return (int)llama_get_kv_cache_token_count(ctx);
+    }
+    return 0; 
+}
 
 void llm_bridge_cancel_generation(void) {
     NSLog(@"LlamaCppBridge: Cancel generation (placeholder)");

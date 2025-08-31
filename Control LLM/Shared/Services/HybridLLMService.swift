@@ -90,6 +90,7 @@ final class HybridLLMService: ObservableObject {
         userText: String,
         history: [ChatMessage]? = nil,
         useRawPrompt: Bool = false,
+        maxTokens: Int = 8192,
         onToken: @escaping (String) async -> Void
     ) async throws {
         // CRITICAL FIX: Use async semaphore to prevent concurrent access
@@ -123,6 +124,7 @@ final class HybridLLMService: ObservableObject {
                         print("🔍 HybridLLMService: Using chatRaw path")
                         try await llamaCppService.chatRaw(
                             prompt: userText,
+                            maxTokens: maxTokens,
                             onToken: { partialResponse in
                                 if Task.isCancelled { return }
                                 Task { await onToken(partialResponse) }
@@ -133,6 +135,7 @@ final class HybridLLMService: ObservableObject {
                         try await llamaCppService.chat(
                             user: userText,
                             history: history,
+                            maxTokens: maxTokens,
                             onToken: { partialResponse in
                                 if Task.isCancelled { return }
                                 Task { await onToken(partialResponse) }
