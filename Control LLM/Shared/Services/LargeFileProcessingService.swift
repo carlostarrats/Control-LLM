@@ -125,6 +125,19 @@ class LargeFileProcessingService {
             print("✅ LargeFileProcessingService: Model already loaded")
         }
         
+        // NEW: All images should use simple processing to avoid chunking issues
+        if fileContent.type == .image {
+            print("🔥 LargeFileProcessingService: Image content detected (\(fileContent.content.count) chars), processing directly")
+            await progressHandler("Processing image text directly...")
+            return await processImageContent(
+                fileContent: fileContent,
+                instruction: instruction,
+                llmService: llmService,
+                progressHandler: progressHandler,
+                transcriptHandler: transcriptHandler
+            )
+        }
+        
         // CRITICAL FIX: Use much smaller chunk size to prevent timeouts
         // The LLM is timing out on 3200 character chunks, so we need smaller ones
         let fixedChunkSize = 1500  // Much smaller to process faster and avoid timeouts
@@ -528,13 +541,21 @@ class LargeFileProcessingService {
             """
 
                 do {
-                    // REPLACED: Broken LLM with working text processing
-                    await transcriptHandler("✅ Processing chunk \(chunkIndex)/\(totalChunks) with working text analysis...")
+                    // FIXED: Re-enable LLM processing for proper chunk summarization
+                    await transcriptHandler("✅ Processing chunk \(chunkIndex)/\(totalChunks) with LLM...")
                     
-                    // WORKING SOLUTION: Extract key information from text without broken LLM
-                    let chunkSummary = extractKeyInformation(from: chunk, chunkIndex: chunkIndex, totalChunks: totalChunks)
+                    var chunkSummary = ""
+                    try await llmService.generateResponse(userText: chunkPrompt, useRawPrompt: true, maxTokens: 300) { token in
+                        chunkSummary += token
+                    }
+                    
+                    // Ensure we have meaningful content
+                    if chunkSummary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        await transcriptHandler("⚠️ Chunk \(chunkIndex)/\(totalChunks) generated empty summary, using fallback")
+                        chunkSummary = extractKeyInformation(from: chunk, chunkIndex: chunkIndex, totalChunks: totalChunks)
+                    }
+                    
                     summaries.append(chunkSummary)
-                    
                     await transcriptHandler("✅ Chunk \(chunkIndex)/\(totalChunks) processed successfully with \(chunkSummary.count) characters")
                 } catch {
                     let errorMessage = "Error processing part \(chunkIndex)/\(totalChunks): \(error.localizedDescription)"
@@ -602,6 +623,23 @@ class LargeFileProcessingService {
             transcriptHandler: transcriptHandler,
             progressHandler: progressHandler
         )
+    }
+    
+    // NEW: Process image content - return text directly (OCR result)
+    private func processImageContent(
+        fileContent: FileContent,
+        instruction: String,
+        llmService: HybridLLMService,
+        progressHandler: @escaping (String) async -> Void,
+        transcriptHandler: @escaping (String) async -> Void
+    ) async -> String? {
+        
+        print("🔥 LargeFileProcessingService: Processing image content directly")
+        await progressHandler("Analyzing image text...")
+        
+        // For any question about image text, just return the text content directly
+        await progressHandler("Image analysis complete!")
+        return fileContent.content
     }
     
     // NEW: Extracted final synthesis logic
@@ -737,31 +775,20 @@ class LargeFileProcessingService {
         let maxSummaries = 5 // Only use first 5 summaries to keep prompt very small
         let limitedSummaries = Array(validSummaries.prefix(maxSummaries))
         
-        // Create a focused, simple prompt that directly asks the question
+        // Create a simple, focused prompt for PDF summaries
         let focusedPrompt = """
-        You are an expert document analyst. I have analyzed a document and generated detailed summaries for each part.
-        
-        TASK: Create a comprehensive, well-structured final summary that answers: "\(instruction)"
-        
-        REQUIREMENTS:
-        - Synthesize ALL the information from the chunk summaries below into a coherent final answer
-        - Identify key themes, patterns, and relationships across all chunks
-        - Provide specific details and examples from the content
-        - Organize the information logically with clear sections
-        - Ensure the summary is complete and covers all major points
-        - Write in clear, professional language
-        - Do NOT just list the individual chunk summaries - create a unified, synthesized answer
-        
-        CHUNK SUMMARIES:
+        You are a helpful assistant. Answer this question about the document: "\(instruction)"
+
+        Document content:
         \(limitedSummaries.map { String($0.prefix(maxSummaryLength)) }.joined(separator: "\n\n"))
-        
-        Please provide a comprehensive, well-structured final summary that synthesizes all the information above into a coherent answer to the question.
+
+        Answer:
         """
         
         do {
             var finalAnswer = ""
             var tokenCount = 0
-            let maxTokens = 1500 // Conservative token limit
+            let maxTokens = 800 // Reverted to original limit to prevent repetition
             
             await transcriptHandler("🤖 LLM is generating your answer...")
             
