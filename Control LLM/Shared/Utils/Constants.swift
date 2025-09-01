@@ -24,10 +24,10 @@ struct Constants {
     
     /// Conservative character limit that safely fits within token limits
     /// 1 token ≈ 4 characters, so 3000 chars ≈ 750 tokens (well within 1638 safe limit)
-    static let maxSafeCharacters = 4000 // Reduced to ensure chunks fit within 8192 token limit
+    static let maxSafeCharacters = 4000 // Reduced to ensure chunks fit within 2048 token limit
     
     /// Maximum input length for file uploads (allows ~2-3 pages of content)
-    static let maxInputLength = 8000
+    static let maxInputLength = 2000
     
     /// Warning threshold for prompts approaching token limits
     static let warningThreshold = 3000

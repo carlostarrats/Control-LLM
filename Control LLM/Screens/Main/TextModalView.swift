@@ -726,7 +726,10 @@ struct TextModalView: View {
                     // Stop button pressed - cancel ongoing generation
                     print("Stop button pressed!")
                     NSLog("Stop button pressed!")
+                    
+                    // Cancel both LLM generation and PDF processing
                     viewModel.llm.stopGeneration()
+                    viewModel.cancelFileProcessing()
                 } else {
                     // Send button pressed - send new message
                     print("Send button pressed!")
@@ -794,7 +797,7 @@ struct TextModalView: View {
         
         // Check if this is the same message as last time
         // Special handling for clipboard messages - they should never be considered duplicates
-        let isClipboardMessageFormat = text.hasPrefix(NSLocalizedString("Analyze this text (keep under 8000 tokens):", comment: ""))
+        let isClipboardMessageFormat = text.hasPrefix(NSLocalizedString("Analyze this text (keep under 2000 tokens):", comment: ""))
         
         if isClipboardMessageFormat {
             // Clipboard messages are never duplicates - they always have different content
@@ -852,7 +855,13 @@ struct TextModalView: View {
 
         print("🔍 TextModalView: About to create placeholder message")
         // 2) placeholder assistant bubble (0.3s delay to prevent motion and allow thinking animation)
+        // BUT: Don't create placeholder if file processing is happening
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            if viewModel.isFileProcessing {
+                print("🔍 TextModalView: File processing detected, skipping placeholder creation")
+                return
+            }
+            
             let placeholder = ChatMessage(
                 content: "",
                 isUser: false,
@@ -877,11 +886,18 @@ struct TextModalView: View {
         
         print("🔍 TextModalView: About to start polling")
         // 4) start polling the stream immediately for real-time word streaming
+        // BUT: Don't poll if file processing is happening (file processing handles its own results)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            print("🔍 TextModalView: Starting monitorAssistantStream")
-            isPolling = true
-            pollCount = 0
-            monitorAssistantStream()
+            if viewModel.isFileProcessing {
+                print("🔍 TextModalView: File processing detected, skipping polling")
+                isPolling = false
+                isLocalProcessing = false
+            } else {
+                print("🔍 TextModalView: Starting monitorAssistantStream")
+                isPolling = true
+                pollCount = 0
+                monitorAssistantStream()
+            }
         }
         
         print("🔍 TextModalView: sendMessage completed successfully")
@@ -975,7 +991,7 @@ struct TextModalView: View {
         }
         
         // Check if file processing is still in progress - if not, stop polling
-        if viewModel.isFileProcessing == false && viewModel.selectedFileUrl != nil {
+        if viewModel.isFileProcessing == false {
             print("🔍 TextModalView: File processing completed, stopping polling")
             isPolling = false
             isLocalProcessing = false

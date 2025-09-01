@@ -331,7 +331,7 @@ final class LLMService: @unchecked Sendable {
     }
 
     /// Stream tokens for a user prompt, optionally with chat history
-    func chat(user text: String, history: [ChatMessage]? = nil, maxTokens: Int = 8192, onToken: @escaping (String) async -> Void) async throws {
+    func chat(user text: String, history: [ChatMessage]? = nil, maxTokens: Int = 2048, onToken: @escaping (String) async -> Void) async throws {
         print("🔍🔍🔍 LLMService.chat: ENTRY POINT - userText parameter: '\(text.prefix(100))...'")
         print("🔍 LLMService.chat: History count: \(history?.count ?? 0)")
         // Safety mechanism: if the flag has been stuck for more than 5 minutes, reset it
@@ -462,7 +462,7 @@ final class LLMService: @unchecked Sendable {
     }
 
     /// Stream tokens for a raw prompt (bypass chat template entirely)
-    func chatRaw(prompt rawPrompt: String, maxTokens: Int = 8192, onToken: @escaping (String) async -> Void) async throws {
+    func chatRaw(prompt rawPrompt: String, maxTokens: Int = 2048, onToken: @escaping (String) async -> Void) async throws {
         // Ensure model is ready
         if !isModelLoaded { try await loadSelectedModel() }
         guard let context = llamaContext else {
@@ -479,7 +479,7 @@ final class LLMService: @unchecked Sendable {
         try await streamResponseWithLlamaCpp(context: context, prompt: prompt, maxTokens: maxTokens, onToken: onToken)
     }
 
-    private func streamResponseWithLlamaCpp(context: UnsafeMutableRawPointer, prompt: String, maxTokens: Int = 8192, onToken: @escaping (String) async -> Void) async throws {
+    private func streamResponseWithLlamaCpp(context: UnsafeMutableRawPointer, prompt: String, maxTokens: Int = 2048, onToken: @escaping (String) async -> Void) async throws {
         // CRASH PROTECTION: Validate context pointer
         guard context != UnsafeMutableRawPointer(bitPattern: 0x0) && context != UnsafeMutableRawPointer(bitPattern: 0x1) else {
             print("❌ LLMService: Invalid context pointer in streamResponseWithLlamaCpp")
@@ -545,7 +545,7 @@ final class LLMService: @unchecked Sendable {
                                         timeoutTask.cancel()
                                         continuation.resume(throwing: NSError(domain: "LLMService", 
                                                                            code: 27, 
-                                                                           userInfo: [NSLocalizedDescriptionKey: "Response generation reached the maximum token limit (8000 tokens). The response may be incomplete. Consider asking a more specific question or breaking your request into smaller parts."]))
+                                                                           userInfo: [NSLocalizedDescriptionKey: "Response generation reached the maximum token limit (2000 tokens). The response may be incomplete. Consider asking a more specific question or breaking your request into smaller parts."]))
                                     }
                                     return
                                 }
@@ -767,7 +767,7 @@ final class LLMService: @unchecked Sendable {
             case 26:
                 return "Input text was shortened to fit within limits. If the shortened version doesn't accurately represent your intent, please try a shorter message."
             case 27:
-                return "Response generation reached the maximum token limit (8000 tokens). The response may be incomplete. Consider asking a more specific question or breaking your request into smaller parts."
+                return "Response generation reached the maximum token limit (2000 tokens). The response may be incomplete. Consider asking a more specific question or breaking your request into smaller parts."
             default:
                 return error.localizedDescription
             }

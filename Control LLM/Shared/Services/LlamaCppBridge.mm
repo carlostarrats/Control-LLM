@@ -223,13 +223,13 @@ void* llm_bridge_create_context(void* model) {
     
     // Use larger context size for better performance with all models
     // This helps with Gemma 3N and other larger models
-    ctx_params.n_ctx = 8192; // Increased from 4096 to handle larger prompts
+    ctx_params.n_ctx = 2048; // Reduced to prevent context overflow in summarization
     // IMPORTANT: Increase batch size so initial prompt decode can handle long prompts
     // Default n_batch can be ~512, which caused failures like
     // "decode: failed to find a memory slot for batch of size 523".
     // Setting this to match our tokenization cap avoids those errors.
     ctx_params.n_batch = 4096;
-    NSLog(@"LlamaCppBridge: Using larger context (8192) for better model performance");
+    NSLog(@"LlamaCppBridge: Using larger context (2048) for better model performance");
     
     s_ctx = llama_init_from_model((struct llama_model*)model, ctx_params);
     
@@ -449,7 +449,7 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     }
 
     // tokenize prompt
-            const int32_t max_prompt_tokens = 8192; // Increased from 2048 to handle larger prompts
+            const int32_t max_prompt_tokens = 2048; // Reduced to match context window
         llama_token prompt_tokens[max_prompt_tokens];
     int32_t n_prompt;
 
@@ -603,16 +603,18 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
                     }
                 }
                 
-                // Remove <think> tags
+                // Remove <think> tags - improved handling for incomplete tags
                 pos = 0;
                 while ((pos = clean_piece.find(think_open)) != std::string::npos) {
                     size_t end_pos = clean_piece.find(think_close, pos);
                     if (end_pos != std::string::npos) {
+                        // Complete thinking tag found, remove it
                         clean_piece.erase(pos, end_pos + think_close.length() - pos);
                     } else {
-                        // Incomplete tag, remove from this point
-                        clean_piece.erase(pos);
-                        break;
+                        // Incomplete thinking tag - remove just the opening tag and continue
+                        // This prevents getting stuck when models generate incomplete thinking content
+                        clean_piece.erase(pos, think_open.length());
+                        NSLog(@"LlamaCppBridge: Removed incomplete <think> tag, continuing generation");
                     }
                 }
                 

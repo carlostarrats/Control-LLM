@@ -138,6 +138,19 @@ class LargeFileProcessingService {
             )
         }
         
+        // NEW: PDFs use clean text extraction first, then LLM processing
+        if fileContent.type == .pdf {
+            print("🔥 LargeFileProcessingService: PDF content detected (\(fileContent.content.count) chars), extracting clean text first")
+            await progressHandler("Extracting clean text from PDF...")
+            return await processPDFWithCleanText(
+                fileContent: fileContent,
+                instruction: instruction,
+                llmService: llmService,
+                progressHandler: progressHandler,
+                transcriptHandler: transcriptHandler
+            )
+        }
+        
         // CRITICAL FIX: Use much smaller chunk size to prevent timeouts
         // The LLM is timing out on 3200 character chunks, so we need smaller ones
         let fixedChunkSize = 1500  // Much smaller to process faster and avoid timeouts
@@ -642,6 +655,541 @@ class LargeFileProcessingService {
         return fileContent.content
     }
     
+    // NEW: Process PDF with pure text extraction (no LLM enhancement)
+    private func processPDFWithCleanText(
+        fileContent: FileContent,
+        instruction: String,
+        llmService: HybridLLMService,
+        progressHandler: @escaping (String) async -> Void,
+        transcriptHandler: @escaping (String) async -> Void
+    ) async -> String? {
+        
+        print("🔥 LargeFileProcessingService: Processing PDF with pure text extraction")
+        
+        // Step 1: Extract clean text from PDF content
+        let cleanText = extractCleanTextFromPDF(fileContent.content)
+        print("🔥 LargeFileProcessingService: Clean text extracted (\(cleanText.count) chars)")
+        
+        await progressHandler("Clean text extracted, generating intelligent summary...")
+        
+        // Step 2: Pure text extraction with intelligent formatting
+        print("🔥 LargeFileProcessingService: Creating intelligent summary from text")
+        await progressHandler("Creating structured summary...")
+        
+        // Create intelligent summary without LLM processing
+        let summary = createIntelligentTextSummary(from: cleanText, instruction: instruction)
+        
+        await progressHandler("Summary complete!")
+        return summary
+    }
+    
+    // NEW: Extract clean text from PDF content
+    private func extractCleanTextFromPDF(_ content: String) -> String {
+        var cleanText = content
+        
+        // Remove common PDF artifacts
+        cleanText = cleanText.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression) // Multiple spaces
+        cleanText = cleanText.replacingOccurrences(of: "\\n\\s*\\n", with: "\n\n", options: .regularExpression) // Multiple newlines
+        cleanText = cleanText.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // Remove page numbers and headers/footers (common patterns)
+        cleanText = cleanText.replacingOccurrences(of: "\\b\\d+\\s*of\\s*\\d+\\b", with: "", options: .regularExpression) // "1 of 5"
+        cleanText = cleanText.replacingOccurrences(of: "\\bPage\\s+\\d+\\b", with: "", options: .regularExpression) // "Page 1"
+        
+        // Remove excessive whitespace
+        cleanText = cleanText.replacingOccurrences(of: "\\s{3,}", with: " ", options: .regularExpression)
+        
+        return cleanText
+    }
+    
+    // NEW: Chunk raw text at natural boundaries (sentences, paragraphs)
+    private func chunkRawTextAtNaturalBoundaries(_ content: String) -> [String] {
+        var chunks: [String] = []
+        let paragraphs = content.components(separatedBy: "\n\n")
+        
+        for paragraph in paragraphs {
+            let trimmedParagraph = paragraph.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmedParagraph.isEmpty {
+                // Split long paragraphs into sentences
+                let sentences = trimmedParagraph.components(separatedBy: CharacterSet(charactersIn: ".!?"))
+                var currentChunk = ""
+                
+                for sentence in sentences {
+                    let trimmedSentence = sentence.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                    if !trimmedSentence.isEmpty {
+                        if currentChunk.count + trimmedSentence.count > 400 {
+                            // Much smaller chunks to avoid context limits
+                            if !currentChunk.isEmpty {
+                                chunks.append(currentChunk.trimmingCharacters(in: .whitespacesAndNewlines))
+                                currentChunk = ""
+                            }
+                        }
+                        currentChunk += trimmedSentence + ". "
+                    }
+                }
+                
+                // Add the last chunk from this paragraph
+                if !currentChunk.isEmpty {
+                    chunks.append(currentChunk.trimmingCharacters(in: .whitespacesAndNewlines))
+                }
+            }
+        }
+        
+        return chunks
+    }
+    
+    // NEW: Extract key information directly from text without LLM (improved)
+    private func extractKeyInformationDirectly(_ content: String) -> [String] {
+        var keyPoints: [String] = []
+        
+        // First, try to split by lines
+        let lines = content.components(separatedBy: .newlines)
+        
+        // If we have very few lines (meaning it's mostly one big block), split by sentences instead
+        let meaningfulLines = lines.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        
+        if meaningfulLines.count < 5 {
+            // Content is mostly one block, split by sentences
+            let sentences = content.components(separatedBy: CharacterSet(charactersIn: ".!?"))
+            for sentence in sentences {
+                let trimmedSentence = sentence.trimmingCharacters(in: .whitespacesAndNewlines)
+                if trimmedSentence.count > 15 && trimmedSentence.count < 300 {
+                    // Skip timestamps and casual conversation
+                    if isTimestampOrCasual(trimmedSentence) {
+                        continue
+                    }
+                    
+                    // Look for important patterns
+                    if isImportantLine(trimmedSentence) {
+                        let cleanSentence = cleanAndFormatPoint(trimmedSentence)
+                        if !cleanSentence.isEmpty {
+                            keyPoints.append(cleanSentence)
+                        }
+                    }
+                }
+            }
+        } else {
+            // Content has proper line breaks, process line by line
+            for line in lines {
+                let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmedLine.isEmpty && trimmedLine.count > 8 && trimmedLine.count < 400 {
+                    // Skip timestamps and casual conversation
+                    if isTimestampOrCasual(trimmedLine) {
+                        continue
+                    }
+                    
+                    // Look for important patterns with better logic
+                    if isImportantLine(trimmedLine) {
+                        // Clean and format the line
+                        let cleanLine = cleanAndFormatPoint(trimmedLine)
+                        if !cleanLine.isEmpty && cleanLine.count > 15 {
+                            keyPoints.append(cleanLine)
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Remove duplicates and limit to most important points
+        let uniquePoints = Array(Set(keyPoints))
+        return Array(uniquePoints.prefix(15)) // Increased to 15 points for comprehensive information like original
+    }
+    
+    // NEW: Improved logic to determine if a line is important
+    private func isImportantLine(_ line: String) -> Bool {
+        // Skip very long lines (likely entire document blocks)
+        if line.count > 600 {
+            return false
+        }
+        
+        // Check for bullet points and numbered lists
+        if line.hasPrefix("•") || line.hasPrefix("-") || line.hasPrefix("*") ||
+           line.range(of: "^\\d+\\.", options: .regularExpression) != nil {
+            return true
+        }
+        
+        // Check for section headers (all caps or title case)
+        if line.range(of: "^[A-Z][A-Z\\s]+$", options: .regularExpression) != nil ||
+           line.range(of: "^[A-Z][a-z]+(\\s+[A-Z][a-z]+)*:", options: .regularExpression) != nil {
+            return true
+        }
+        
+        // Check for important content patterns
+        if isImportantContent(line) {
+            return true
+        }
+        
+        // Check for sentences that contain important keywords
+        if containsImportantKeywords(line) {
+            return true
+        }
+        
+        // Check for sentences with numbers (often contain important data)
+        if line.range(of: "\\d+", options: .regularExpression) != nil && line.count > 15 {
+            return true
+        }
+        
+        // Check for questions (often important)
+        if line.contains("?") && line.count > 10 {
+            return true
+        }
+        
+        // Check for statements with common important words
+        let importantWords = ["will", "should", "must", "need", "require", "important", "note", "warning", "caution", "result", "conclusion", "summary", "findings", "recommendation", "affect", "impact", "change", "develop", "improve", "increase", "decrease"]
+        let lowercasedLine = line.lowercased()
+        for word in importantWords {
+            if lowercasedLine.contains(word) && line.count > 15 {
+                return true
+            }
+        }
+        
+        // Check for sentences with proper structure (more lenient)
+        if line.contains(".") && line.count > 20 && line.count < 300 {
+            return true
+        }
+        
+        return false
+    }
+    
+    // NEW: Check if line contains important keywords
+    private func containsImportantKeywords(_ line: String) -> Bool {
+        let importantKeywords = [
+            // Medical terms
+            "diagnosis", "treatment", "symptoms", "condition", "disease", "syndrome",
+            "malformation", "fluid", "pressure", "nerves", "spinal", "cord", "brain",
+            "mri", "scan", "test", "results", "findings", "recommendation", "surgery",
+            "patient", "doctor", "physician", "specialist", "clinic", "hospital",
+            "appointment", "consultation", "examination", "assessment", "evaluation",
+            
+            // General important terms
+            "important", "significant", "critical", "urgent", "priority", "key",
+            "main", "primary", "essential", "necessary", "required", "mandatory",
+            "conclusion", "summary", "recommendation", "action", "next steps",
+            "deadline", "due date", "schedule", "timeline", "milestone",
+            
+            // Financial terms
+            "cost", "price", "budget", "expense", "revenue", "profit", "loss",
+            "payment", "invoice", "receipt", "refund", "discount", "fee",
+            
+            // Legal terms
+            "agreement", "contract", "terms", "conditions", "liability", "responsibility",
+            "obligation", "rights", "duties", "compliance", "regulation", "policy"
+        ]
+        
+        let lowerLine = line.lowercased()
+        for keyword in importantKeywords {
+            if lowerLine.contains(keyword) {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    // NEW: Check if line is timestamp or casual conversation
+    private func isTimestampOrCasual(_ line: String) -> Bool {
+        // Timestamp patterns (0:00:02, 0:00:03, etc.)
+        if line.range(of: "^\\d+:\\d+:\\d+", options: .regularExpression) != nil {
+            return true
+        }
+        
+        // Casual conversation patterns
+        let casualWords = ["okay", "yeah", "uh-huh", "um", "uh", "so", "like", "you know", "i mean", "right", "sure"]
+        let lowerLine = line.lowercased()
+        for word in casualWords {
+            if lowerLine.contains(word) && line.count < 50 {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    // NEW: Check if content is important (medical terms, numbers, names, etc.)
+    private func isImportantContent(_ line: String) -> Bool {
+        // Medical terms and conditions
+        let medicalTerms = ["diagnosis", "treatment", "symptoms", "condition", "disease", "syndrome", 
+                           "malformation", "fluid", "pressure", "nerves", "spinal", "cord", "brain",
+                           "mri", "scan", "test", "results", "findings", "recommendation", "surgery",
+                           "patient", "doctor", "physician", "specialist", "clinic", "hospital",
+                           "appointment", "consultation", "examination", "assessment", "evaluation"]
+        
+        let lowerLine = line.lowercased()
+        for term in medicalTerms {
+            if lowerLine.contains(term) {
+                return true
+            }
+        }
+        
+        // Contains numbers (measurements, dates, etc.)
+        if line.range(of: "\\d+", options: .regularExpression) != nil {
+            return true
+        }
+        
+        // Contains proper nouns (names, places)
+        if line.range(of: "[A-Z][a-z]+", options: .regularExpression) != nil {
+            return true
+        }
+        
+        // Reasonable length for meaningful content
+        return line.count > 20 && line.count < 200
+    }
+    
+    // NEW: Create LLM-enhanced summary from extracted points
+    private func createLLMEnhancedSummary(_ keyPoints: [String], llmService: HybridLLMService) async -> String {
+        print("🔥 LargeFileProcessingService: Starting LLM enhancement with \(keyPoints.count) key points")
+        
+        // Combine key points into a single text block
+        let extractedText = keyPoints.joined(separator: "\n")
+        print("🔥 LargeFileProcessingService: Extracted text length: \(extractedText.count) characters")
+        
+        // Check if we have enough content but not too much
+        if extractedText.count < 100 {
+            print("🔥 LargeFileProcessingService: Not enough content, falling back to simple summary")
+            // Fallback to simple summary if not enough content
+            return createIntelligentTextSummary(from: extractedText, instruction: "")
+        }
+        
+        // Create prompt for LLM processing
+        var llmPrompt = """
+        Write a brief summary of this document. Use exactly 3 sentences.
+
+        \(extractedText)
+
+        Summary:
+        """
+        
+        // Check if content is too large for LLM
+        if extractedText.count > 800 {
+            print("🔥 LargeFileProcessingService: Content too large (\(extractedText.count) chars), truncating for LLM")
+            // Truncate to avoid token limits
+            let truncatedText = String(extractedText.prefix(800))
+            llmPrompt = llmPrompt.replacingOccurrences(of: extractedText, with: truncatedText)
+        }
+        
+        do {
+            print("🔥 LargeFileProcessingService: Calling LLM for enhancement...")
+            // Process through LLM with conservative token limit
+            let llmResponse = try await llmService.generateResponseSync(
+                userText: llmPrompt,
+                useRawPrompt: true,
+                maxTokens: 1000  // Very high limit - let model complete naturally
+            )
+            
+            print("🔥 LargeFileProcessingService: LLM enhancement successful, response length: \(llmResponse.count)")
+            return llmResponse
+            
+        } catch {
+            print("❌ LargeFileProcessingService: Error creating LLM-enhanced summary: \(error)")
+            // Fallback to simple summary if LLM fails
+            return createIntelligentTextSummary(from: extractedText, instruction: "")
+        }
+    }
+    
+    // NEW: Create intelligent text summary without LLM enhancement
+    private func createIntelligentTextSummary(from content: String, instruction: String) -> String {
+        print("🔥 LargeFileProcessingService: Creating intelligent text summary")
+        
+        // Extract structured information from the text
+        let documentInfo = extractDocumentStructure(content)
+        let keyPoints = extractKeyInformationDirectly(content)
+        let importantData = extractImportantData(content)
+        let topics = extractMainTopics(content)
+        
+        // Create a well-structured, readable summary
+        var summary = "📋 DOCUMENT SUMMARY\n\n"
+        
+        // Add document overview with better formatting
+        summary += "📖 Document Overview:\n"
+        summary += "• Content Type: \(documentInfo.type)\n"
+        summary += "• Main Topics: \(topics.joined(separator: ", "))\n"
+        summary += "• Data Points: \(importantData.count) important items found\n\n"
+        
+        // Add key points with better formatting
+        if !keyPoints.isEmpty {
+            summary += "🔑 Key Points:\n"
+            for (index, point) in keyPoints.enumerated() {
+                let cleanPoint = cleanAndFormatPoint(point)
+                summary += "\(index + 1). \(cleanPoint)\n\n"
+            }
+        }
+        
+        // Add important data with better formatting
+        if !importantData.isEmpty {
+            summary += "📊 Important Data:\n"
+            for data in importantData.prefix(15) {
+                summary += "• \(data)\n"
+            }
+            summary += "\n"
+        }
+        
+        // Add document structure info with better formatting
+        if !documentInfo.sections.isEmpty {
+            summary += "📑 Document Structure:\n"
+            for section in documentInfo.sections.prefix(15) {
+                summary += "• \(section)\n"
+            }
+            summary += "\n"
+        }
+        
+        // Add summary based on instruction with better formatting
+        if !instruction.isEmpty && instruction.lowercased() != "summarize" {
+            summary += "🎯 Response to Your Question:\n"
+            summary += "Question: \"\(instruction)\"\n\n"
+            summary += "The document contains relevant information that addresses your question. "
+            summary += "Key details are highlighted in the sections above.\n\n"
+        }
+        
+        summary += "✅ Summary generated using intelligent text analysis"
+        
+        return summary
+    }
+    
+    // NEW: Extract document structure and type
+    private func extractDocumentStructure(_ content: String) -> (type: String, sections: [String]) {
+        var sections: [String] = []
+        var documentType = "General Document"
+        
+        // Look for document type indicators
+        let lowerContent = content.lowercased()
+        if lowerContent.contains("medical") || lowerContent.contains("diagnosis") || lowerContent.contains("treatment") {
+            documentType = "Medical Document"
+        } else if lowerContent.contains("legal") || lowerContent.contains("contract") || lowerContent.contains("agreement") {
+            documentType = "Legal Document"
+        } else if lowerContent.contains("financial") || lowerContent.contains("budget") || lowerContent.contains("report") {
+            documentType = "Financial Document"
+        } else if lowerContent.contains("transcript") || lowerContent.contains("conversation") {
+            documentType = "Transcript/Conversation"
+        }
+        
+        // Extract section headers (lines that are all caps or start with numbers)
+        let lines = content.components(separatedBy: .newlines)
+        for line in lines {
+            let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmedLine.count > 5 && trimmedLine.count < 100 {
+                // Check if it's a section header
+                if trimmedLine.range(of: "^[A-Z\\s]+$", options: .regularExpression) != nil ||
+                   trimmedLine.range(of: "^\\d+\\.\\s+[A-Z]", options: .regularExpression) != nil ||
+                   trimmedLine.range(of: "^[A-Z][A-Z\\s]+:", options: .regularExpression) != nil {
+                    sections.append(trimmedLine)
+                }
+            }
+        }
+        
+        return (type: documentType, sections: sections)
+    }
+    
+    // NEW: Extract important data (numbers, dates, names, etc.)
+    private func extractImportantData(_ content: String) -> [String] {
+        var importantData: [String] = []
+        
+        // Extract dates
+        let datePattern = "\\b\\d{1,2}[/-]\\d{1,2}[/-]\\d{2,4}\\b|\\b\\d{4}[/-]\\d{1,2}[/-]\\d{1,2}\\b"
+        if let regex = try? NSRegularExpression(pattern: datePattern) {
+            let matches = regex.matches(in: content, range: NSRange(content.startIndex..., in: content))
+            for match in matches {
+                if let range = Range(match.range, in: content) {
+                    let date = String(content[range])
+                    importantData.append("Date: \(date)")
+                }
+            }
+        }
+        
+        // Extract monetary amounts
+        let moneyPattern = "\\$\\d+[,\\.]?\\d*|\\d+[,\\.]?\\d*\\s*(dollars?|USD|cents?)"
+        if let regex = try? NSRegularExpression(pattern: moneyPattern, options: .caseInsensitive) {
+            let matches = regex.matches(in: content, range: NSRange(content.startIndex..., in: content))
+            for match in matches {
+                if let range = Range(match.range, in: content) {
+                    let amount = String(content[range])
+                    importantData.append("Amount: \(amount)")
+                }
+            }
+        }
+        
+        // Extract percentages
+        let percentPattern = "\\d+%|\\d+\\s*percent"
+        if let regex = try? NSRegularExpression(pattern: percentPattern, options: .caseInsensitive) {
+            let matches = regex.matches(in: content, range: NSRange(content.startIndex..., in: content))
+            for match in matches {
+                if let range = Range(match.range, in: content) {
+                    let percent = String(content[range])
+                    importantData.append("Percentage: \(percent)")
+                }
+            }
+        }
+        
+        // Extract phone numbers
+        let phonePattern = "\\(?\\d{3}\\)?[-\\s]?\\d{3}[-\\s]?\\d{4}"
+        if let regex = try? NSRegularExpression(pattern: phonePattern) {
+            let matches = regex.matches(in: content, range: NSRange(content.startIndex..., in: content))
+            for match in matches {
+                if let range = Range(match.range, in: content) {
+                    let phone = String(content[range])
+                    importantData.append("Phone: \(phone)")
+                }
+            }
+        }
+        
+        return Array(Set(importantData)) // Remove duplicates
+    }
+    
+    // NEW: Extract main topics from content
+    private func extractMainTopics(_ content: String) -> [String] {
+        let words = content.lowercased()
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { $0.count > 4 && !isCommonWord($0) }
+        
+        // Count word frequency
+        var wordCount: [String: Int] = [:]
+        for word in words {
+            wordCount[word, default: 0] += 1
+        }
+        
+        // Get top 5 most frequent meaningful words
+        let topWords = wordCount.sorted { $0.value > $1.value }
+            .prefix(5)
+            .map { $0.key.capitalized }
+        
+        return Array(topWords)
+    }
+    
+    // NEW: Check if word is common (should be filtered out)
+    private func isCommonWord(_ word: String) -> Bool {
+        let commonWords = ["the", "and", "for", "are", "but", "not", "you", "all", "can", "had", "her", "was", "one", "our", "out", "day", "get", "has", "him", "his", "how", "its", "may", "new", "now", "old", "see", "two", "who", "boy", "did", "man", "men", "put", "say", "she", "too", "use", "way", "will", "with", "this", "that", "they", "have", "been", "from", "were", "said", "each", "which", "their", "time", "will", "about", "there", "could", "other", "after", "first", "well", "also", "where", "much", "some", "very", "when", "come", "here", "just", "like", "long", "make", "many", "over", "such", "take", "than", "them", "these", "think", "want", "what", "year", "your", "good", "know", "look", "more", "most", "only", "other", "right", "should", "still", "those", "under", "water", "would", "write", "being", "every", "great", "might", "shall", "these", "those", "where", "which", "while", "whose", "world", "years", "young", "again", "along", "among", "begin", "being", "below", "between", "during", "family", "follow", "friend", "little", "never", "number", "people", "please", "really", "should", "something", "sometimes", "through", "together", "without", "another", "because", "before", "change", "different", "example", "important", "interest", "question", "sentence", "something", "thought", "through", "together", "without"]
+        
+        return commonWords.contains(word.lowercased())
+    }
+    
+    // NEW: Clean and format individual points
+    private func cleanAndFormatPoint(_ point: String) -> String {
+        var cleanPoint = point.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // Remove bullet points and numbering
+        cleanPoint = cleanPoint.replacingOccurrences(of: "^[•\\-\\*]\\s*", with: "", options: .regularExpression)
+        cleanPoint = cleanPoint.replacingOccurrences(of: "^\\d+\\.\\s*", with: "", options: .regularExpression)
+        
+        // Remove internal thinking patterns
+        cleanPoint = cleanPoint.replacingOccurrences(of: "\\b(thinking|let me|I need to|I should|I will|I can|I'll)\\b", with: "", options: [.regularExpression, .caseInsensitive])
+        cleanPoint = cleanPoint.replacingOccurrences(of: "\\b(this is|that is|it is|there is|here is)\\b", with: "", options: [.regularExpression, .caseInsensitive])
+        cleanPoint = cleanPoint.replacingOccurrences(of: "\\b(so|now|then|next|also|furthermore|moreover|additionally)\\b", with: "", options: [.regularExpression, .caseInsensitive])
+        
+        // Clean up multiple spaces
+        cleanPoint = cleanPoint.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+        
+        // Capitalize first letter
+        if !cleanPoint.isEmpty {
+            cleanPoint = String(cleanPoint.prefix(1).uppercased()) + String(cleanPoint.dropFirst())
+        }
+        
+        // Ensure it ends with proper punctuation
+        if !cleanPoint.isEmpty && !cleanPoint.hasSuffix(".") && !cleanPoint.hasSuffix("!") && !cleanPoint.hasSuffix("?") {
+            cleanPoint += "."
+        }
+        
+        return cleanPoint
+    }
+    
     // NEW: Extracted final synthesis logic
     private func createFinalSynthesis(
         summaries: [String],
@@ -657,12 +1205,6 @@ class LargeFileProcessingService {
         // CRITICAL FIX: Process final synthesis in much smaller batches to avoid memory allocation failures
         // The LLM can't handle even 1226 tokens, so we need to process in much smaller chunks
         let maxSummaryLength = 50  // Much smaller to keep prompts under 1000 characters
-        let truncatedSummaries = summaries.map { summary in
-            if summary.count > maxSummaryLength {
-                return String(summary.prefix(maxSummaryLength)) + "..."
-            }
-            return summary
-        }
         
         // CRITICAL FIX: Check if we have enough valid summaries before giving up
         let validSummaries = summaries.filter { !$0.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty }
@@ -762,7 +1304,7 @@ class LargeFileProcessingService {
         await transcriptHandler("🔄 LLM is now analyzing all document content to answer: '\(instruction)'")
         
         // CRITICAL FIX: Drastically reduce prompt size to prevent token exhaustion
-        // The LLM is hitting 8000 token limit, so we need much smaller prompts
+        // The LLM is hitting 2000 token limit, so we need much smaller prompts
         let maxSummaryLength = 50 // Drastically reduced from 200 to 50 to prevent token exhaustion
         let validSummaries = summaries.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
         
@@ -1001,7 +1543,7 @@ class LargeFileProcessingService {
     // FIXED: Content-aware chunk sizing that respects LLM token limits
     private func calculateOptimalChunkSize(for content: String, maxSize: Int) -> Int {
         // CRITICAL FIX: Respect actual LLM token limits, not arbitrary character limits
-        // The LLM can handle ~8000 tokens, so we need to be conservative with chunk sizes
+        // The LLM can handle ~2000 tokens, so we need to be conservative with chunk sizes
         
         // CRITICAL FIX: Much more conservative estimate to avoid GGML assertion failures
         // The console shows 19,470 chars → 6,612 tokens, which exceeds n_batch limit

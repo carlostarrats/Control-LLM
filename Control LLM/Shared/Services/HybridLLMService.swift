@@ -90,7 +90,7 @@ final class HybridLLMService: ObservableObject {
         userText: String,
         history: [ChatMessage]? = nil,
         useRawPrompt: Bool = false,
-        maxTokens: Int = 8192,
+        maxTokens: Int = 2048,
         onToken: @escaping (String) async -> Void
     ) async throws {
         // CRITICAL FIX: Use async semaphore to prevent concurrent access
@@ -173,6 +173,66 @@ final class HybridLLMService: ObservableObject {
         await serviceSemaphore.signal()
         throw error
     }
+    }
+    
+    // MARK: - Non-streaming Generation (for PDF processing)
+    
+    func generateResponseSync(
+        userText: String,
+        history: [ChatMessage]? = nil,
+        useRawPrompt: Bool = false,
+        maxTokens: Int = 2048
+    ) async throws -> String {
+        // CRITICAL FIX: Use async semaphore to prevent concurrent access
+        await serviceSemaphore.wait()
+        
+        do {
+            guard isModelLoaded else {
+                throw HybridLLMError.modelNotLoaded
+            }
+            
+            print("🔍 HybridLLMService: generateResponseSync called with useRawPrompt: \(useRawPrompt)")
+            
+            var result = ""
+            
+            switch currentEngine {
+            case .llamaCpp:
+                if useRawPrompt {
+                    print("🔍 HybridLLMService: Using chatRaw path (sync)")
+                    try await llamaCppService.chatRaw(
+                        prompt: userText,
+                        maxTokens: maxTokens,
+                        onToken: { partialResponse in
+                            result += partialResponse
+                        }
+                    )
+                } else {
+                    print("🔍 HybridLLMService: Using regular chat path (sync)")
+                    try await llamaCppService.chat(
+                        user: userText,
+                        history: history,
+                        maxTokens: maxTokens,
+                        onToken: { partialResponse in
+                            result += partialResponse
+                        }
+                    )
+                }
+                
+            case .ollama:
+                // Build prompt using existing logic but adapted for Ollama
+                let prompt = buildPrompt(userText: userText, history: history)
+                result = try await ollamaService.generateText(prompt: prompt)
+            }
+            
+            // Signal semaphore after successful completion
+            await serviceSemaphore.signal()
+            return result
+            
+        } catch {
+            // Signal semaphore before re-throwing the error
+            await serviceSemaphore.signal()
+            throw error
+        }
     }
     
     // MARK: - Cancellation Support (Phase 4: Enhanced Reliability)
