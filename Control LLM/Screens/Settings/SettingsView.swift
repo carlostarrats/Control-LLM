@@ -45,7 +45,7 @@ struct SettingsView: View {
                         .padding(.horizontal, 20)
                         
                         // System Information Section
-                        SystemInfoView()
+                        SystemInfoView(mainViewModel: mainViewModel)
                             .padding(.horizontal, 20)
                             .padding(.top, 40)
                             .padding(.bottom, 60)
@@ -171,8 +171,8 @@ struct ToastView: View {
 }
 
 struct SystemInfoView: View {
+    @ObservedObject var mainViewModel: MainViewModel
     @State private var modelManager = ModelManager.shared
-    @State private var chatViewModel = ChatViewModel()
     
     var body: some View {
         VStack(spacing: 16) {
@@ -297,9 +297,9 @@ struct SystemInfoView: View {
     }
     
     private var statusText: String {
-        if chatViewModel.isProcessing {
+        if mainViewModel.llm.isProcessing {
             return NSLocalizedString("Processing", comment: "System status when processing")
-        } else if chatViewModel.modelLoaded {
+        } else if mainViewModel.llm.modelLoaded {
             return NSLocalizedString("Operational", comment: "System status when model is loaded")
         } else {
             return NSLocalizedString("Standby", comment: "System status when model is not loaded")
@@ -307,9 +307,9 @@ struct SystemInfoView: View {
     }
     
     private var statusColor: Color {
-        if chatViewModel.isProcessing {
+        if mainViewModel.llm.isProcessing {
             return ColorManager.shared.orangeColor
-        } else if chatViewModel.modelLoaded {
+        } else if mainViewModel.llm.modelLoaded {
             return Color(hex: "#3EBBA5") // Success color - green
         } else {
             return ColorManager.shared.greyTextColor // Grey for disconnected
@@ -322,8 +322,8 @@ struct SystemInfoView: View {
     
     private func updateResourceInfo() {
         // Response Latency - show average from chatViewModel
-        if chatViewModel.averageResponseDuration > 0 {
-            responseLatency = String(format: NSLocalizedString("%.0f ms avg", comment: "Average response time format"), chatViewModel.averageResponseDuration * 1000)
+        if mainViewModel.llm.averageResponseDuration > 0 {
+            responseLatency = String(format: NSLocalizedString("%.0f ms avg", comment: "Average response time format"), mainViewModel.llm.averageResponseDuration * 1000)
         } else {
             responseLatency = NSLocalizedString("No data yet", comment: "Response latency when no data available")
         }

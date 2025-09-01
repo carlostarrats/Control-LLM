@@ -35,6 +35,23 @@ static inline bool should_skip_token(const struct llama_vocab * vocab, llama_tok
     return false;
 }
 
+// Helper function to determine if a model is slow based on filename patterns
+static bool isSlowModel(const char* model_path) {
+    if (!model_path) return false;
+    
+    std::string path(model_path);
+    std::string filename = path.substr(path.find_last_of("/") + 1);
+    
+    // Convert to lowercase for case-insensitive comparison
+    std::transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
+    
+    // Known slow models that need optimization
+    return (filename.find("gemma-3n") != std::string::npos ||
+            filename.find("phi-3") != std::string::npos ||
+            filename.find("phi-4") != std::string::npos ||
+            filename.find("qwen3") != std::string::npos);
+}
+
 static inline bool piece_looks_like_special(const char * piece, int32_t nbytes) {
     if (!piece || nbytes <= 0) return false;
     // Detect ASCII-style tags like <|...|>
@@ -221,15 +238,30 @@ void* llm_bridge_create_context(void* model) {
     
     struct llama_context_params ctx_params = llama_context_default_params();
     
-    // Use larger context size for better performance with all models
-    // This helps with Gemma 3N and other larger models
-    ctx_params.n_ctx = 2048; // Reduced to prevent context overflow in summarization
-    // IMPORTANT: Increase batch size so initial prompt decode can handle long prompts
-    // Default n_batch can be ~512, which caused failures like
-    // "decode: failed to find a memory slot for batch of size 523".
-    // Setting this to match our tokenization cap avoids those errors.
-    ctx_params.n_batch = 4096;
-    NSLog(@"LlamaCppBridge: Using larger context (2048) for better model performance");
+    // Get model info to determine appropriate parameters
+    struct llama_model* model_ptr = (struct llama_model*)model;
+    uint32_t n_embd = llama_model_n_embd(model_ptr);
+    uint32_t n_layer = llama_model_n_layer(model_ptr);
+    
+    // Determine if this is a large model based on parameters
+    // Large models (4B+ params): Gemma 3N, Phi 4, etc.
+    bool is_large_model = (n_embd >= 3072 || n_layer >= 32);
+    
+    if (is_large_model) {
+        // Large models need larger context for good performance
+        ctx_params.n_ctx = 2048; // Larger context for 4B+ models
+        ctx_params.n_batch = 4096; // Larger batch size for efficiency
+        ctx_params.n_threads = 6; // More threads for large models
+        ctx_params.flash_attn = true; // Enable flash attention for large models (Phi-4, Gemma 3N)
+        NSLog(@"LlamaCppBridge: Using large model parameters (ctx=2048, batch=4096, threads=6, flash_attn=true) for %dB model", n_embd * n_layer / 1000000);
+    } else {
+        // Small models (1-2B params): Gemma 3, Llama, Qwen 2.5, etc.
+        ctx_params.n_ctx = 1024; // Smaller context for 1-2B models
+        ctx_params.n_batch = 2048; // Smaller batch size
+        ctx_params.n_threads = 4; // Fewer threads
+        ctx_params.flash_attn = false; // Disable flash attention for small models (not needed)
+        NSLog(@"LlamaCppBridge: Using small model parameters (ctx=1024, batch=2048, threads=4, flash_attn=false) for %dB model", n_embd * n_layer / 1000000);
+    }
     
     s_ctx = llama_init_from_model((struct llama_model*)model, ctx_params);
     
@@ -589,6 +621,16 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
                 const std::string tag_end = "|>";
                 const std::string think_open = "<think>";
                 const std::string think_close = "</think>";
+                const std::string reasoning_open = "<reasoning>";
+                const std::string reasoning_close = "</reasoning>";
+                const std::string internal_open = "<internal>";
+                const std::string internal_close = "</internal>";
+                const std::string reflection_open = "<reflection>";
+                const std::string reflection_close = "</reflection>";
+                const std::string analysis_open = "<analysis>";
+                const std::string analysis_close = "</analysis>";
+                const std::string process_open = "<process>";
+                const std::string process_close = "</process>";
                 
                 // Remove <|...|> tags
                 size_t pos = 0;
@@ -615,6 +657,66 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
                         // This prevents getting stuck when models generate incomplete thinking content
                         clean_piece.erase(pos, think_open.length());
                         NSLog(@"LlamaCppBridge: Removed incomplete <think> tag, continuing generation");
+                    }
+                }
+                
+                // Remove <reasoning> tags (common in Qwen models)
+                pos = 0;
+                while ((pos = clean_piece.find(reasoning_open)) != std::string::npos) {
+                    size_t end_pos = clean_piece.find(reasoning_close, pos);
+                    if (end_pos != std::string::npos) {
+                        clean_piece.erase(pos, end_pos + reasoning_close.length() - pos);
+                    } else {
+                        clean_piece.erase(pos, reasoning_open.length());
+                        NSLog(@"LlamaCppBridge: Removed incomplete <reasoning> tag");
+                    }
+                }
+                
+                // Remove <internal> tags
+                pos = 0;
+                while ((pos = clean_piece.find(internal_open)) != std::string::npos) {
+                    size_t end_pos = clean_piece.find(internal_close, pos);
+                    if (end_pos != std::string::npos) {
+                        clean_piece.erase(pos, end_pos + internal_close.length() - pos);
+                    } else {
+                        clean_piece.erase(pos, internal_open.length());
+                        NSLog(@"LlamaCppBridge: Removed incomplete <internal> tag");
+                    }
+                }
+                
+                // Remove <reflection> tags
+                pos = 0;
+                while ((pos = clean_piece.find(reflection_open)) != std::string::npos) {
+                    size_t end_pos = clean_piece.find(reflection_close, pos);
+                    if (end_pos != std::string::npos) {
+                        clean_piece.erase(pos, end_pos + reflection_close.length() - pos);
+                    } else {
+                        clean_piece.erase(pos, reflection_open.length());
+                        NSLog(@"LlamaCppBridge: Removed incomplete <reflection> tag");
+                    }
+                }
+                
+                // Remove <analysis> tags
+                pos = 0;
+                while ((pos = clean_piece.find(analysis_open)) != std::string::npos) {
+                    size_t end_pos = clean_piece.find(analysis_close, pos);
+                    if (end_pos != std::string::npos) {
+                        clean_piece.erase(pos, end_pos + analysis_close.length() - pos);
+                    } else {
+                        clean_piece.erase(pos, analysis_open.length());
+                        NSLog(@"LlamaCppBridge: Removed incomplete <analysis> tag");
+                    }
+                }
+                
+                // Remove <process> tags
+                pos = 0;
+                while ((pos = clean_piece.find(process_open)) != std::string::npos) {
+                    size_t end_pos = clean_piece.find(process_close, pos);
+                    if (end_pos != std::string::npos) {
+                        clean_piece.erase(pos, end_pos + process_close.length() - pos);
+                    } else {
+                        clean_piece.erase(pos, process_open.length());
+                        NSLog(@"LlamaCppBridge: Removed incomplete <process> tag");
                     }
                 }
                 

@@ -580,14 +580,22 @@ final class LLMService: @unchecked Sendable {
             print("🔍 LLMService: Building fresh prompt (no history) for model \(currentModelFilename ?? "unknown")")
         }
         
-
+        // QWEN 3 FIX: Automatically append /no_think to disable internal reasoning
+        var processedUserText = userText
+        if let modelFilename = currentModelFilename, modelFilename.lowercased().contains("qwen3") {
+            // Only append /no_think if not already present
+            if !userText.contains("/no_think") && !userText.contains("/think") {
+                processedUserText = userText + " /no_think"
+                print("🔍 LLMService: Qwen3 detected - appended /no_think to disable internal reasoning")
+            }
+        }
         
         let systemPrompt = NSLocalizedString("LLM System Prompt", comment: "")
         
         // UNIVERSAL APPROACH: Use the standard chat template system for ALL models
         // This ensures compatibility with any model you switch to
         print("🔍 LLMService: Building prompt for model: \(currentModelFilename ?? "unknown") using universal chat template")
-        return buildPromptUsingChatTemplate(userText: userText, history: history, systemPrompt: systemPrompt)
+        return buildPromptUsingChatTemplate(userText: processedUserText, history: history, systemPrompt: systemPrompt)
     }
     
     private func buildPromptUsingChatTemplate(userText: String, history: [ChatMessage]?, systemPrompt: String) -> String {

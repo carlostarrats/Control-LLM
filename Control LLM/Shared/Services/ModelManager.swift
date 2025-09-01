@@ -59,7 +59,16 @@ struct LLMModelInfo: Identifiable {
             }
         } else if lowercaseFilename.contains("qwen") {
             self.provider = NSLocalizedString("Alibaba", comment: "")
-            if lowercaseFilename.contains("2.5") {
+            if lowercaseFilename.contains("3") {
+                self.name = NSLocalizedString("Qwen3 Model", comment: "")
+                if lowercaseFilename.contains("1.7b") {
+                    self.description = NSLocalizedString("Advanced reasoning and coding model with strong multilingual capabilities | 30 languages", comment: "")
+                    self.size = "1.0 GB"
+                } else {
+                    self.description = NSLocalizedString("Advanced reasoning and coding model with strong multilingual capabilities | 30 languages", comment: "")
+                    self.size = NSLocalizedString("Unknown", comment: "")
+                }
+            } else if lowercaseFilename.contains("2.5") {
                 self.name = NSLocalizedString("Qwen2.5 Model", comment: "")
                 // CRASH FIX: Handle different Qwen 2.5 variants with accurate sizes
                 if lowercaseFilename.contains("0.5b") {
@@ -83,7 +92,16 @@ struct LLMModelInfo: Identifiable {
             }
         } else if lowercaseFilename.contains("llama") {
             self.provider = NSLocalizedString("Meta", comment: "")
-            if lowercaseFilename.contains("3") {
+            if lowercaseFilename.contains("3.2") {
+                self.name = NSLocalizedString("Llama 3.2 Model", comment: "")
+                if lowercaseFilename.contains("1b") {
+                    self.description = NSLocalizedString("Efficient on-device model optimized for real-time conversations | 100+ languages", comment: "")
+                    self.size = "0.8 GB"
+                } else {
+                    self.description = NSLocalizedString("Efficient on-device model optimized for real-time conversations | 100+ languages", comment: "")
+                    self.size = NSLocalizedString("Unknown", comment: "")
+                }
+            } else if lowercaseFilename.contains("3") {
                 self.name = NSLocalizedString("Llama 3 Model", comment: "")
                 self.description = NSLocalizedString("Meta's latest large language model", comment: "")
                 self.size = NSLocalizedString("Unknown", comment: "")
@@ -96,6 +114,22 @@ struct LLMModelInfo: Identifiable {
                 self.description = NSLocalizedString("Meta's open source language model", comment: "")
                 self.size = NSLocalizedString("Unknown", comment: "")
             }
+        } else if lowercaseFilename.contains("smollm") {
+            self.provider = NSLocalizedString("Hugging Face", comment: "")
+            if lowercaseFilename.contains("2") {
+                self.name = NSLocalizedString("SmolLM2 Model", comment: "")
+                if lowercaseFilename.contains("1.7b") {
+                    self.description = NSLocalizedString("Compact high-performance model for mobile and edge deployment | English + 6 languages", comment: "")
+                    self.size = "1.0 GB"
+                } else {
+                    self.description = NSLocalizedString("Compact high-performance model for mobile and edge deployment | English + 6 languages", comment: "")
+                    self.size = NSLocalizedString("Unknown", comment: "")
+                }
+            } else {
+                self.name = NSLocalizedString("SmolLM Model", comment: "")
+                self.description = NSLocalizedString("Hugging Face's efficient language model", comment: "")
+                self.size = NSLocalizedString("Unknown", comment: "")
+            }
         } else {
             self.name = filename.replacingOccurrences(of: "-", with: " ").capitalized
             self.description = NSLocalizedString("Custom or specialized language model", comment: "")
@@ -103,10 +137,14 @@ struct LLMModelInfo: Identifiable {
             self.size = NSLocalizedString("Unknown", comment: "")
         }
         
-        // CRASH FIX: Special formatting for Qwen 2.5 models to add space between Qwen and 2.5
+        // CRASH FIX: Special formatting for model names to add proper spacing
         var displayName = filename.replacingOccurrences(of: "-", with: " ").capitalized
         if lowercaseFilename.contains("qwen") && lowercaseFilename.contains("2.5") {
             displayName = displayName.replacingOccurrences(of: "Qwen2.5", with: "Qwen 2.5")
+        } else if lowercaseFilename.contains("qwen") && lowercaseFilename.contains("3") {
+            displayName = displayName.replacingOccurrences(of: "Qwen3", with: "Qwen 3")
+        } else if lowercaseFilename.contains("llama") && lowercaseFilename.contains("3.2") {
+            displayName = displayName.replacingOccurrences(of: "Llama3.2", with: "Llama 3.2")
         }
         self.displayName = displayName
         

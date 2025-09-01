@@ -853,6 +853,16 @@ struct TextModalView: View {
         isClipboardMessage = false
         hasAddedFollowUpQuestions = false
 
+        // CRITICAL FIX: Check if file processing occurred - if so, skip placeholder and polling
+        if viewModel.selectedFileUrl != nil || LargeFileProcessingService.shared.hasProcessedData() {
+            print("🔍 TextModalView: File processing detected, skipping placeholder creation and polling")
+            // Clear message text and return early
+            DispatchQueue.main.async {
+                self.messageText = ""
+            }
+            return
+        }
+
         print("🔍 TextModalView: About to create placeholder message")
         // 2) placeholder assistant bubble (0.3s delay to prevent motion and allow thinking animation)
         // BUT: Don't create placeholder if file processing is happening
@@ -1140,6 +1150,31 @@ struct TextModalView: View {
     // MARK: - File upload helper --------------------------------------------
     private func handleFileUpload(_ url: URL) {
         let fileName = url.lastPathComponent.isEmpty ? NSLocalizedString("Unknown File", comment: "") : url.lastPathComponent
+        let fileExtension = url.pathExtension.lowercased()
+        
+        // Check if file type is supported
+        let supportedTypes = ["txt", "md", "rtf", "pdf", "jpg", "jpeg", "png", "heic", "doc", "docx"]
+        
+        if !supportedTypes.contains(fileExtension) {
+            // Add file message to chat
+            let fileMessage = ChatMessage(
+                content: "📎 \(fileName)",
+                isUser: true,
+                timestamp: Date(),
+                messageType: .file
+            )
+            viewModel.messages.append(fileMessage)
+            
+            // Show unsupported file type error message
+            let errorMessage = ChatMessage(
+                content: "❌ Unsupported file type: .\(fileExtension)\n\nSupported formats: .txt, .md, .rtf, .pdf, .jpg, .jpeg, .png, .heic, .doc, .docx",
+                isUser: false,
+                timestamp: Date(),
+                messageType: .text
+            )
+            viewModel.messages.append(errorMessage)
+            return
+        }
         
         // Add file message to chat
         let fileMessage = ChatMessage(

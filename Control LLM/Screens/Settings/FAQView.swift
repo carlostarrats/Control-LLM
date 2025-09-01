@@ -68,7 +68,7 @@ struct FAQView: View {
             ),
             FAQItem(
                 question: NSLocalizedString("LLM Models", comment: ""),
-                answer: NSLocalizedString("Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices.", comment: "")
+                answer: NSLocalizedString("Multiple models are available in Settings. Each model has different strengths, so you may find one works better than another depending on your specific needs.", comment: "")
             ),
             FAQItem(
                 question: NSLocalizedString("Chat History", comment: ""),
@@ -87,8 +87,8 @@ struct FAQView: View {
                 answer: NSLocalizedString("Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience.", comment: "")
             ),
             FAQItem(
-                question: NSLocalizedString("Quick Clipboard Analysis", comment: ""),
-                answer: NSLocalizedString("Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored.", comment: "")
+                question: NSLocalizedString("File Processing", comment: ""),
+                answer: NSLocalizedString("The app supports these file types: .txt, .md, .rtf, .pdf, .jpg, .jpeg, .png, .heic, .doc, .docx. For documents and images with text, the app uses rule-based text analysis and pattern matching rather than LLM processing. This approach is fast and efficient, though the analysis is limited compared to what larger cloud-based models can provide.", comment: "")
             ),
             FAQItem(
                 question: NSLocalizedString("iOS Shortcuts Integration", comment: ""),

@@ -1,6 +1,27 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Model Performance Data
+
+struct ModelPerformanceData: Codable {
+    var averageResponseTime: TimeInterval = 0.0
+    var responseCount: Int = 0
+    var totalResponseTime: TimeInterval = 0.0
+    var isFastModel: Bool = false
+    var lastUpdated: Date = Date()
+    
+    mutating func updateResponseTime(_ responseTime: TimeInterval) {
+        totalResponseTime += responseTime
+        responseCount += 1
+        averageResponseTime = totalResponseTime / Double(responseCount)
+        
+        // Mark as fast if average response time is under 3 seconds
+        isFastModel = averageResponseTime < 3.0
+        
+        lastUpdated = Date()
+    }
+}
+
 // MARK: - Error Types
 
 enum ChatViewModelError: Error, LocalizedError {
@@ -33,6 +54,9 @@ class ChatViewModel {
     private var totalResponseTime: TimeInterval = 0.0
     private var responseCount: Int = 0
     
+    // Model-specific performance tracking
+    private var modelPerformanceData: [String: ModelPerformanceData] = [:]
+    
     // MARK: - Message Management
     
     var lastSentMessage: String?
@@ -61,7 +85,15 @@ class ChatViewModel {
             print("🔍 ChatViewModel: Loaded saved average response time: \(savedAverage)s")
         }
         
+        // Load model-specific performance data
+        loadModelPerformanceData()
+        
         setupModelChangeObserver()
+        
+        // CRITICAL FIX: Check initial model state on startup
+        Task {
+            await syncModelState()
+        }
     }
     
     deinit {
@@ -201,6 +233,9 @@ class ChatViewModel {
         currentGenerationTask = Task { [weak self] in
             guard let self = self else { return }
             
+            // Start timing the response
+            let startTime = Date()
+            
             do {
                 let currentHistory = messageHistory ?? []
                 let historyToSend = buildSafeHistory(from: currentHistory)
@@ -218,10 +253,23 @@ class ChatViewModel {
                     }
                 )
 
-                // After the stream is complete, save the final message
+                // After the stream is complete, save the final message and update performance
                 if !Task.isCancelled {
                     let finalMessage = ChatMessage(content: self.transcript, isUser: false, timestamp: Date())
                     self.messageHistory?.append(finalMessage)
+                    
+                    // Update model performance tracking
+                    let responseTime = Date().timeIntervalSince(startTime)
+                    if let currentModel = await HybridLLMService.shared.currentModelFilename {
+                        await MainActor.run {
+                            self.updateModelPerformance(for: currentModel, responseTime: responseTime)
+                        }
+                    }
+                    
+                    // Clear transcript to stop thinking animation
+                    await MainActor.run {
+                        self.transcript = ""
+                    }
                 }
                 
             } catch is CancellationError {
@@ -231,10 +279,18 @@ class ChatViewModel {
                     let partialMessage = ChatMessage(content: transcript, isUser: false, timestamp: Date())
                     self.messageHistory?.append(partialMessage)
                 }
+                // Clear transcript to stop thinking animation
+                await MainActor.run {
+                    self.transcript = ""
+                }
             } catch {
                 print("❌ ChatViewModel: Llama generation failed: \(error)")
                 let errorMessage = ChatMessage(content: String(format: NSLocalizedString("Error: %@", comment: ""), error.localizedDescription), isUser: false, timestamp: Date(), messageType: .error)
                 self.messageHistory?.append(errorMessage)
+                // Clear transcript to stop thinking animation
+                await MainActor.run {
+                    self.transcript = ""
+                }
             }
             
             await MainActor.run {
@@ -324,7 +380,21 @@ class ChatViewModel {
         }
     }
     
-
+    /// CRITICAL FIX: Sync model state on startup to ensure UI shows correct status
+    private func syncModelState() async {
+        print("🔍 ChatViewModel: Syncing initial model state...")
+        
+        // Check if model is already loaded in HybridLLMService
+        let isLoaded = await HybridLLMService.shared.isModelLoaded
+        let filename = await HybridLLMService.shared.currentModelFilename
+        
+        await MainActor.run {
+            self.modelLoaded = isLoaded
+            self.lastLoadedModel = filename
+        }
+        
+        print("🔍 ChatViewModel: Initial model state synced - loaded: \(isLoaded), model: \(filename ?? "none")")
+    }
     
 
 
@@ -350,6 +420,45 @@ class ChatViewModel {
             }
         }
         return result.sorted { $0.0 < $1.0 }
+    }
+    
+    // MARK: - Model Performance Management
+    
+    private func loadModelPerformanceData() {
+        if let data = UserDefaults.standard.data(forKey: "ModelPerformanceData"),
+           let decoded = try? JSONDecoder().decode([String: ModelPerformanceData].self, from: data) {
+            modelPerformanceData = decoded
+            print("🔍 ChatViewModel: Loaded model performance data for \(decoded.count) models")
+            for (model, perf) in decoded {
+                print("   \(model): avg=\(String(format: "%.2f", perf.averageResponseTime))s, fast=\(perf.isFastModel)")
+            }
+        }
+    }
+    
+    private func saveModelPerformanceData() {
+        if let encoded = try? JSONEncoder().encode(modelPerformanceData) {
+            UserDefaults.standard.set(encoded, forKey: "ModelPerformanceData")
+            print("🔍 ChatViewModel: Saved model performance data for \(modelPerformanceData.count) models")
+        }
+    }
+    
+    func updateModelPerformance(for modelFilename: String, responseTime: TimeInterval) {
+        if modelPerformanceData[modelFilename] == nil {
+            modelPerformanceData[modelFilename] = ModelPerformanceData()
+        }
+        
+        modelPerformanceData[modelFilename]?.updateResponseTime(responseTime)
+        saveModelPerformanceData()
+        
+        print("🔍 ChatViewModel: Updated performance for \(modelFilename): \(String(format: "%.2f", responseTime))s (avg: \(String(format: "%.2f", modelPerformanceData[modelFilename]?.averageResponseTime ?? 0))s)")
+    }
+    
+    func isModelFast(_ modelFilename: String) -> Bool {
+        return modelPerformanceData[modelFilename]?.isFastModel ?? false
+    }
+    
+    func getModelPerformance(_ modelFilename: String) -> ModelPerformanceData? {
+        return modelPerformanceData[modelFilename]
     }
     
     // MARK: - Cancellation Support
