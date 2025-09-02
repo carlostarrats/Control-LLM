@@ -80,9 +80,14 @@ class ChatViewModel {
         
         // Load saved timing data from UserDefaults
         let savedAverage = UserDefaults.standard.double(forKey: "AverageResponseTime")
+        let savedTotalTime = UserDefaults.standard.double(forKey: "TotalResponseTime")
+        let savedResponseCount = UserDefaults.standard.integer(forKey: "ResponseCount")
+        
         if savedAverage > 0 {
             self.averageResponseDuration = savedAverage
-            print("🔍 ChatViewModel: Loaded saved average response time: \(savedAverage)s")
+            self.totalResponseTime = savedTotalTime
+            self.responseCount = savedResponseCount
+            print("🔍 ChatViewModel: Loaded saved timing data - avg: \(savedAverage)s, total: \(savedTotalTime)s, count: \(savedResponseCount)")
         }
         
         // Load model-specific performance data
@@ -259,6 +264,8 @@ class ChatViewModel {
                     if let currentModel = await HybridLLMService.shared.currentModelFilename {
                         await MainActor.run {
                             self.updateModelPerformance(for: currentModel, responseTime: responseTime)
+                            // Update the global average response duration for settings display
+                            self.updateGlobalResponseDuration(responseTime: responseTime)
                         }
                     }
                     
@@ -488,6 +495,19 @@ class ChatViewModel {
         saveModelPerformanceData()
         
         print("🔍 ChatViewModel: Updated performance for \(modelFilename): \(String(format: "%.2f", responseTime))s (avg: \(String(format: "%.2f", modelPerformanceData[modelFilename]?.averageResponseTime ?? 0))s)")
+    }
+    
+    func updateGlobalResponseDuration(responseTime: TimeInterval) {
+        totalResponseTime += responseTime
+        responseCount += 1
+        averageResponseDuration = totalResponseTime / Double(responseCount)
+        
+        // Save to UserDefaults for persistence
+        UserDefaults.standard.set(averageResponseDuration, forKey: "AverageResponseTime")
+        UserDefaults.standard.set(totalResponseTime, forKey: "TotalResponseTime")
+        UserDefaults.standard.set(responseCount, forKey: "ResponseCount")
+        
+        print("🔍 ChatViewModel: Updated global response duration: \(String(format: "%.2f", responseTime))s (avg: \(String(format: "%.2f", averageResponseDuration))s)")
     }
     
     func isModelFast(_ modelFilename: String) -> Bool {

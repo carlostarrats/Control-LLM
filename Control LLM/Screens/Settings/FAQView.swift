@@ -9,7 +9,7 @@ struct FAQView: View {
                 .ignoresSafeArea()
 
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 8) {
                     VStack(spacing: 0) {
                         ForEach(faqItems, id: \.question) { item in
                             FAQItemView(item: item)
@@ -106,23 +106,48 @@ struct FAQItem: Identifiable {
 
 struct FAQItemView: View {
     let item: FAQItem
+    @State private var isExpanded = false
 
     var body: some View {
         VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(item.question)
-                    .font(.custom("IBMPlexMono", size: 16))
-                    .foregroundColor(ColorManager.shared.redColor)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                Text(item.answer)
-                    .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(ColorManager.shared.greyTextColor)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .fixedSize(horizontal: false, vertical: true)
+            Button(action: {
+                isExpanded.toggle()
+            }) {
+                HStack {
+                    Text(item.question)
+                        .font(.custom("IBMPlexMono", size: 16))
+                        .foregroundColor(ColorManager.shared.whiteTextColor)
+                        .multilineTextAlignment(.leading)
+                    
+                    Spacer()
+                    
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(ColorManager.shared.whiteTextColor)
+                }
+                .padding(.horizontal, 4)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 4)
-            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity)
+            
+            // Answer content (shown when expanded)
+            if isExpanded {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(item.answer)
+                        .font(.custom("IBMPlexMono", size: 14))
+                        .foregroundColor(ColorManager.shared.orangeColor)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 4)
+                        .padding(.bottom, 12)
+                }
+            }
+            
+            // Horizontal line under the item
+            Rectangle()
+                .fill(Color(hex: "#333333"))
+                .frame(height: 1)
         }
     }
 }
