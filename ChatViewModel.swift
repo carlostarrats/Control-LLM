@@ -210,11 +210,7 @@ class ChatViewModel {
         
         // Ensure isProcessing is handled correctly, even if errors occur
         await MainActor.run { self.isProcessing = true }
-        defer {
-            Task {
-                await MainActor.run { self.isProcessing = false }
-            }
-        }
+        // CRITICAL FIX: Removed defer block - let MainViewModel handle state reset after async completion
         
         lastSentMessage = userText
         await MainActor.run { self.transcript = "" }
@@ -229,7 +225,7 @@ class ChatViewModel {
         // Cancel any existing generation task
         currentGenerationTask?.cancel()
         
-        // Create new cancellable task for generation
+        // Create new cancellable task for generation and wait for it to complete
         currentGenerationTask = Task { [weak self] in
             guard let self = self else { return }
             
@@ -296,8 +292,14 @@ class ChatViewModel {
             await MainActor.run {
                 self.requestStartTime = nil
                 self.lastSentMessage = nil // Allow sending the same message again
+                // CRITICAL FIX: Reset processing state after Task completes
+                self.isProcessing = false
+                self.transcript = ""
             }
         }
+        
+        // Wait for the task to complete
+        await currentGenerationTask?.value
     }
     
     // MARK: - History Safeguard

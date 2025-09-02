@@ -247,11 +247,21 @@ class MainViewModel: ObservableObject {
             // No file, just send text as normal
             print("🔍 MainViewModel: No file detected, sending text normally")
             
+            // CRITICAL FIX: LLM processing state is now set in TextModalView before calling this function
+            
             Task {
                 do {
                     try await llm.send(text)
+                    // CRITICAL FIX: Reset processing state and clear transcript after LLM completes
+                    llm.isProcessing = false
+                    llm.transcript = ""
+                    print("🔍 MainViewModel: Regular chat completed - isProcessing: \(llm.isProcessing), transcript: '\(llm.transcript)'")
                 } catch {
                     print("❌ MainViewModel: Error calling LLM: \(error)")
+                    // CRITICAL FIX: Reset processing state and clear transcript on error
+                    llm.isProcessing = false
+                    llm.transcript = ""
+                    print("🔍 MainViewModel: Regular chat error - isProcessing: \(llm.isProcessing), transcript: '\(llm.transcript)'")
                 }
             }
         }

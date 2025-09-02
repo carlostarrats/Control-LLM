@@ -302,9 +302,25 @@ struct TextModalView: View {
             // Also reset the ChatViewModel's duplicate detection to ensure clean state
             viewModel.llm.lastSentMessage = nil
             
+            // CRITICAL FIX: Synchronize processing state when view appears
+            syncProcessingState()
+            
+            // CRITICAL FIX: Update effective processing state on view creation
+            updateEffectiveProcessingState()
+            
             print("🔍 TextModalView: onAppear - Reset clipboard state and duplicate detection")
             
             // CRITICAL FIX: Removed clipboard message observer setup - consolidated into single message flow
+        }
+        .onChange(of: viewModel.llm.isProcessing) { _, isProcessing in
+            // CRITICAL FIX: Update effective processing state when llm.isProcessing changes
+            print("🔍 TextModalView: llm.isProcessing changed to \(isProcessing), updating effective processing state")
+            updateEffectiveProcessingState()
+        }
+        .onChange(of: isLocalProcessing) { _, _ in
+            // CRITICAL FIX: Update effective processing state when isLocalProcessing changes
+            print("🔍 TextModalView: isLocalProcessing changed, updating effective processing state")
+            updateEffectiveProcessingState()
         }
         .onDisappear {
             opacityUpdateTimer?.invalidate()
@@ -636,6 +652,22 @@ struct TextModalView: View {
                     .tint(colorManager.whiteTextColor)
                     .focused($isTextFieldFocused) // Explicitly bind focus state
                     .disabled(viewModel.llm.isProcessing || !hasModelsInstalled) // Disable during LLM response or when no models
+                    .onChange(of: viewModel.llm.isProcessing) { _, isProcessing in
+                        // CRITICAL FIX: Clear messageText when processing state changes to prevent corruption
+                        if !isProcessing && !messageText.isEmpty {
+                            print("🔍 TextModalView: Processing completed, clearing messageText to prevent corruption")
+                            messageText = ""
+                        }
+                        
+                        // CRITICAL FIX: Reset isLocalProcessing when llm.isProcessing changes to false
+                        if !isProcessing {
+                            print("🔍 TextModalView: llm.isProcessing changed to false, resetting isLocalProcessing")
+                            isLocalProcessing = false
+                        }
+                        
+                        // CRITICAL FIX: Update effective processing state when llm.isProcessing changes
+                        updateEffectiveProcessingState()
+                    }
                     .onChange(of: messageText) { _, _ in
                         if !viewModel.llm.isProcessing && hasModelsInstalled { // Only play sound if not processing and models available
                             FeedbackService.shared.playSound(.keyPress)
@@ -683,7 +715,7 @@ struct TextModalView: View {
 
     // placeholder
     @ViewBuilder private var placeholderOverlay: some View {
-        if messageText.isEmpty {
+        if messageText.isEmpty && !(viewModel.llm.isProcessing || isLocalProcessing) {
             HStack {
                 Group { // Group to apply a single transition
                     if !hasModelsInstalled {
@@ -704,12 +736,15 @@ struct TextModalView: View {
     
     // generating response overlay - always visible when processing
     @ViewBuilder private var generatingOverlay: some View {
-        if viewModel.llm.isProcessing || isLocalProcessing {
+        if effectiveIsProcessing {
             HStack {
                 Text(NSLocalizedString("Generating response...", comment: ""))
                     .font(.custom("IBMPlexMono", size: 16))
                     .foregroundColor(Color(hex: "#666666"))
                     .transition(.identity)
+                    .onAppear {
+                        print("🔍 TextModalView: generatingOverlay appeared - llm.isProcessing: \(viewModel.llm.isProcessing), isLocalProcessing: \(isLocalProcessing), effectiveIsProcessing: \(effectiveIsProcessing)")
+                    }
                 
                 Spacer()
             }
@@ -720,9 +755,9 @@ struct TextModalView: View {
     // send button overlay
     @ViewBuilder private var sendButtonOverlay: some View {
         let trimmedText = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if (!trimmedText.isEmpty || viewModel.llm.isProcessing || isLocalProcessing) && hasModelsInstalled {
+        if (!trimmedText.isEmpty || effectiveIsProcessing) && hasModelsInstalled {
             Group {
-                if viewModel.llm.isProcessing || isLocalProcessing {
+                if effectiveIsProcessing {
                     // Stop button (square icon)
                     Text(NSLocalizedString("■", comment: ""))
                         .font(.system(size: 16, weight: .bold))
@@ -873,6 +908,11 @@ struct TextModalView: View {
 
         print("🔍 TextModalView: Sending message through MainViewModel")
         
+        // CRITICAL FIX: Set LLM processing state BEFORE sending message to prevent UI state loss during view recreation
+        print("🔍 TextModalView: Setting llm.isProcessing = true before sending message")
+        viewModel.llm.isProcessing = true
+        print("🔍 TextModalView: llm.isProcessing set to: \(viewModel.llm.isProcessing)")
+        
         // CRITICAL FIX: Send through MainViewModel which handles user message creation and LLM sending
         await MainActor.run {
             viewModel.sendTextMessage(text)
@@ -885,10 +925,8 @@ struct TextModalView: View {
         // CRITICAL FIX: Check if file processing occurred - if so, skip placeholder and polling
         if viewModel.selectedFileUrl != nil || LargeFileProcessingService.shared.hasProcessedData() {
             print("🔍 TextModalView: File processing detected, skipping placeholder creation and polling")
-            // Clear message text and return early
-            DispatchQueue.main.async {
-                self.messageText = ""
-            }
+            // Clear message text synchronously to prevent corruption
+            messageText = ""
             return
         }
 
@@ -916,9 +954,7 @@ struct TextModalView: View {
         
         print("🔍 TextModalView: About to clear messageText")
         // 3) clear field + ask model (keyboard already dismissed)
-        DispatchQueue.main.async {
-            self.messageText = ""
-        }
+        messageText = ""
         print("🔍 TextModalView: LLM call already made through ChatViewModel, no duplicate call needed")
         // Note: viewModel.llm.send(text) is already called by ChatViewModel.sendTextMessage
         // No need to duplicate the LLM call here
@@ -990,6 +1026,29 @@ struct TextModalView: View {
     @State private var isPolling = false
     @State private var pollCount = 0
     @State private var isLocalProcessing = false // Local state for immediate button changes
+    
+    // CRITICAL FIX: Ensure isLocalProcessing is synchronized with llm.isProcessing on view creation
+    private func syncProcessingState() {
+        if viewModel.llm.isProcessing {
+            print("🔍 TextModalView: syncProcessingState - setting isLocalProcessing to true because llm.isProcessing is true")
+            isLocalProcessing = true
+        } else {
+            print("🔍 TextModalView: syncProcessingState - resetting isLocalProcessing from \(isLocalProcessing) to false")
+            isLocalProcessing = false
+        }
+    }
+    
+    // CRITICAL FIX: State variable to track effective processing state
+    @State private var effectiveIsProcessing = false
+    
+    // CRITICAL FIX: Function to update effective processing state
+    private func updateEffectiveProcessingState() {
+        let newValue = viewModel.llm.isProcessing || isLocalProcessing
+        if newValue != effectiveIsProcessing {
+            print("🔍 TextModalView: updateEffectiveProcessingState - changing from \(effectiveIsProcessing) to \(newValue) (llm.isProcessing: \(viewModel.llm.isProcessing), isLocalProcessing: \(isLocalProcessing))")
+            effectiveIsProcessing = newValue
+        }
+    }
     @State private var lastTranscriptLength = 0
     @State private var lastSentMessage = ""
     @State private var isDuplicateMessage = false
@@ -1087,6 +1146,13 @@ struct TextModalView: View {
                 // Stop polling when response is complete
                 isPolling = false
                 isLocalProcessing = false // Reset local processing state
+                
+                // CRITICAL FIX: Clear transcript to ensure placeholder text shows correctly
+                // This ensures the UI returns to "Ask Anything..." state
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.viewModel.llm.transcript = ""
+                    print("🔍 TextModalView: Cleared transcript after response completion")
+                }
                 return
             }
             
