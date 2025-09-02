@@ -237,17 +237,15 @@ struct TextModalView: View {
     @ObservedObject var viewModel: MainViewModel          // your existing VM
     // REMOVED: @StateObject private var llm = ChatViewModel()        // NEW: streams reply
     
-    init(viewModel: MainViewModel, isPresented: Binding<Bool>, isSheetExpanded: Binding<Bool>? = nil, messageHistory: [ChatMessage]? = nil) {
+    init(viewModel: MainViewModel, isPresented: Binding<Bool>, messageHistory: [ChatMessage]? = nil) {
         print("🔍 TextModalView init")
         self.viewModel = viewModel
         self._isPresented = isPresented
-        self._isSheetExpanded = isSheetExpanded ?? .constant(false)
         self.messageHistory = messageHistory ?? []
     }
 
     // UI state
     @Binding var isPresented: Bool
-    @Binding var isSheetExpanded: Bool
     @State private var messageText = ""
     @FocusState private var isTextFieldFocused: Bool
     @State private var showingDocumentPicker = false
@@ -280,9 +278,7 @@ struct TextModalView: View {
                 messageList
             }
 
-            if isSheetExpanded {
-                inputBar
-            }
+            inputBar
             
             // Copy toast overlay
             if showCopyToast {
@@ -500,6 +496,15 @@ struct TextModalView: View {
                 .padding(.leading, 20)
 
                 Spacer()
+
+                Button { isPresented = false } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(colorManager.whiteTextColor)
+                        .frame(width: 32, height: 32)
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing, 20)
             }
 
             Spacer().frame(height: 18)
@@ -518,7 +523,6 @@ struct TextModalView: View {
                     }
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, isSheetExpanded ? 0 : 20)
                 .padding(.bottom, 24)
             }
             .safeAreaInset(edge: .bottom) {

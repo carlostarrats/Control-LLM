@@ -31,6 +31,9 @@ struct MainView: View {
     @State private var brightnessLevel: Double = 0.3 // 0.3 = 30% brightness for non-active state
     // Page navigation: 0 = Settings, 1 = Home, 2 = Chat
     @State private var currentPage: Int = 1
+    @State private var showingChatSheet = true
+    @State private var isSheetExpanded = false
+    @State private var chatSheetView: TextModalView?
     
     var body: some View {
         // REMOVED ALL DEBUG - app is working now
@@ -64,28 +67,20 @@ struct MainView: View {
                     saturationLevel: saturationLevel,
                     brightnessLevel: brightnessLevel,
                     onSettings: { currentPage = 0 },
-                    onChat: { currentPage = 2 }
+                    isSheetPresented: $showingChatSheet,
+                    isSheetExpanded: $isSheetExpanded
                 )
                 .tag(1)
-                
-                // Page 2: Chat
-                ChatPage(currentPage: $currentPage, viewModel: viewModel)
-                    .tag(2)
             }
-            .onChange(of: viewModel.shouldNavigateToChat) { shouldNavigate in
-                if shouldNavigate {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        currentPage = 2
-                    }
-                    // Reset the flag
-                    viewModel.shouldNavigateToChat = false
-                }
-            }
+
             .onChange(of: currentPage) { _, newPage in
-                // Dismiss keyboard when navigating away from chat page
-                if newPage != 2 {
+                // Dismiss keyboard when navigating away from home page
+                if newPage != 1 {
                     // Post notification to dismiss keyboard
                     NotificationCenter.default.post(name: .dismissKeyboard, object: nil)
+                } else if newPage == 1 {
+                    // When returning to main page, ensure chat sheet is shown
+                    showingChatSheet = true
                 }
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
@@ -109,10 +104,46 @@ struct MainView: View {
             
             // Setup clipboard processing notification observer
             viewModel.setupClipboardProcessingObserver()
+            
+            // Initialize stable chat sheet view
+            if chatSheetView == nil {
+                chatSheetView = TextModalView(
+                    viewModel: viewModel,
+                    isPresented: $showingChatSheet,
+                    isSheetExpanded: $isSheetExpanded
+                )
+            }
         }
         .onDisappear {
             // Clean up notification observer
             viewModel.cleanupClipboardObserver()
+        }
+        .sheet(isPresented: Binding(
+            get: { showingChatSheet && currentPage == 1 },
+            set: { newValue in
+                if newValue {
+                    showingChatSheet = true
+                } else {
+                    showingChatSheet = false
+                }
+            }
+        )) {
+            if let chatView = chatSheetView {
+                chatView
+                .presentationDetents([.height(100), .large])
+                .presentationDragIndicator(.visible)
+                .presentationBackgroundInteraction(.enabled)
+                .interactiveDismissDisabled()
+                .onGeometryChange(for: CGFloat.self) { geometry in
+                    return geometry.size.height
+                } action: { height in
+                    // Track if sheet is expanded beyond 100 points
+                    let isExpanded = height > 200 // More than 200 points means expanded
+                    if isSheetExpanded != isExpanded {
+                        isSheetExpanded = isExpanded
+                    }
+                }
+            }
         }
     }
     
@@ -175,7 +206,8 @@ struct HomePage: View {
     let saturationLevel: Double
     let brightnessLevel: Double
     let onSettings: () -> Void
-    let onChat: () -> Void
+    @Binding var isSheetPresented: Bool
+    @Binding var isSheetExpanded: Bool
     
     var body: some View {
         // Main content
@@ -186,16 +218,19 @@ struct HomePage: View {
             }
 
             // Central visual design element with tabs - RESTORED ORIGINAL
-            VisualizerTabView(
-                hueShift: hueShift,
-                saturationLevel: saturationLevel,
-                brightnessLevel: brightnessLevel
-            )
-            .scaleEffect(blobScale)
-                            .accessibilityLabel(NSLocalizedString("Voice recording button", comment: ""))
+            // Only show animations when sheet is not expanded (per requirements)
+            if !isSheetExpanded {
+                VisualizerTabView(
+                    hueShift: hueShift,
+                    saturationLevel: saturationLevel,
+                    brightnessLevel: brightnessLevel
+                )
+                .scaleEffect(blobScale)
+                .accessibilityLabel(NSLocalizedString("Voice recording button", comment: ""))
                 .accessibilityHint(NSLocalizedString("Double tap to start or stop voice recording", comment: ""))
-            .opacity(blobColorOpacity)
-            .animation(.easeInOut(duration: 0.8), value: blobColorOpacity)
+                .opacity(blobColorOpacity)
+                .animation(.easeInOut(duration: 0.8), value: blobColorOpacity)
+            }
 
             // Bottom navigation buttons removed - main screen now has no buttons
             VStack {
@@ -209,18 +244,7 @@ struct HomePage: View {
     }
 }
 
-// MARK: - Chat Page
-struct ChatPage: View {
-    @Binding var currentPage: Int
-    @ObservedObject var viewModel: MainViewModel
-    
-    var body: some View {
-        TextModalView(
-            viewModel: viewModel,
-            isPresented: .constant(true)
-        )
-    }
-}
+
 
 // Removed OrganicRippleEffect and RippleLayer - now using Metal shader approach
 
