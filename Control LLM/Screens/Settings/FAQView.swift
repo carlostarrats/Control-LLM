@@ -88,7 +88,7 @@ struct FAQView: View {
             ),
             FAQItem(
                 question: NSLocalizedString("File Processing", comment: ""),
-                answer: NSLocalizedString("The app supports these file types: .txt, .md, .rtf, .pdf, .jpg, .jpeg, .png, .heic, .doc, .docx. For documents and images with text, the app uses rule-based text analysis and pattern matching rather than LLM processing. This approach is fast and efficient, though the analysis is limited compared to what larger cloud-based models can provide.", comment: "")
+                answer: NSLocalizedString("The app supports these file types: .txt, .md, .rtf, .pdf, .jpg, .jpeg, .png, .heic, .doc, .docx.\n\nFor documents and images with text, the app uses rule-based text analysis and pattern matching rather than LLM processing. This approach is fast and efficient, though the analysis is limited compared to what larger cloud-based models can provide.", comment: "")
             ),
             FAQItem(
                 question: NSLocalizedString("iOS Shortcuts Integration", comment: ""),

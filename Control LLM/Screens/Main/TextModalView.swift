@@ -254,6 +254,7 @@ struct TextModalView: View {
 
     @State private var inputBarHeight: CGFloat = 0
     @State private var opacityUpdateTimer: Timer?
+    @State private var showCopyToast = false
     var messageHistory: [ChatMessage]?
     @EnvironmentObject var colorManager: ColorManager
     
@@ -278,6 +279,17 @@ struct TextModalView: View {
             }
 
             inputBar
+            
+            // Copy toast overlay
+            if showCopyToast {
+                CopyToastView()
+                    .onAppear {
+                        // Auto-dismiss after 2 seconds
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                            showCopyToast = false
+                        }
+                    }
+            }
             
         }
         .onAppear {
@@ -563,10 +575,13 @@ struct TextModalView: View {
                     isFirstMessageInConversation: index == 0
                 )
                 
-                ForEach(messages) { message in
+                ForEach(Array(messages.enumerated()), id: \.element.id) { index, message in
                     MessageBubble(
                         message: message,
-                        opacity: calculateMessageOpacity(for: message)
+                        opacity: calculateMessageOpacity(for: message),
+                        messageHistory: messages,
+                        currentIndex: index,
+                        showCopyToast: $showCopyToast
                     )
                     .id(message.id)
                 }
@@ -632,6 +647,7 @@ struct TextModalView: View {
                         }
                     }
                     .overlay(placeholderOverlay.allowsHitTesting(false), alignment: .leading) // Fix placeholder tap issue
+                    .overlay(generatingOverlay.allowsHitTesting(false), alignment: .leading) // Generating response overlay
                     .overlay(sendButtonOverlay, alignment: .bottomTrailing) // Anchor to bottom-right
                     .animation(.easeInOut(duration: 0.05), value: isTextFieldFocused)
             }
@@ -672,8 +688,6 @@ struct TextModalView: View {
                 Group { // Group to apply a single transition
                     if !hasModelsInstalled {
                         Text(NSLocalizedString("Download model to chat...", comment: ""))
-                    } else if viewModel.llm.isProcessing || isLocalProcessing { // Also check local state
-                        Text(NSLocalizedString("Generating response...", comment: ""))
                     } else {
                         Text(NSLocalizedString("Ask Anything…", comment: ""))
                     }
@@ -682,6 +696,21 @@ struct TextModalView: View {
                 .foregroundColor(Color(hex: "#666666"))
                 .transition(.identity) // Use .identity for instant change to sync with button
 
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+    
+    // generating response overlay - always visible when processing
+    @ViewBuilder private var generatingOverlay: some View {
+        if viewModel.llm.isProcessing || isLocalProcessing {
+            HStack {
+                Text(NSLocalizedString("Generating response...", comment: ""))
+                    .font(.custom("IBMPlexMono", size: 16))
+                    .foregroundColor(Color(hex: "#666666"))
+                    .transition(.identity)
+                
                 Spacer()
             }
             .padding(.horizontal, 16)
@@ -1147,6 +1176,8 @@ struct TextModalView: View {
     }
 
 
+
+
     // MARK: - File upload helper --------------------------------------------
     private func handleFileUpload(_ url: URL) {
         let fileName = url.lastPathComponent.isEmpty ? NSLocalizedString("Unknown File", comment: "") : url.lastPathComponent
@@ -1201,6 +1232,59 @@ struct TextModalView: View {
         // The file content will be processed through the proper LargeFileProcessingService path
         // when the user asks follow-up questions about the file
     }
+    
+    // MARK: - Copy Button Logic --------------------------------------------
+    private func shouldShowCopyButton(for message: ChatMessage) -> Bool {
+        // Don't show copy button for excluded message types
+        if isExcludedMessage(message) {
+            return false
+        }
+        
+        // Find the index of this message
+        guard let messageHistory = self.messageHistory,
+              let messageIndex = messageHistory.firstIndex(where: { $0.id == message.id }) else {
+            return false
+        }
+        
+        // Only show copy button on the last assistant message in a sequence
+        // Look ahead to see if there's another assistant message after this one
+        for i in (messageIndex + 1)..<messageHistory.count {
+            if !messageHistory[i].isUser {
+                // There's another assistant message after this one, don't show copy button
+                return false
+            }
+        }
+        
+        return true
+    }
+    
+    private func isExcludedMessage(_ message: ChatMessage) -> Bool {
+        let content = message.content.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // Exclude "File received, what's next?" messages
+        if content.contains("file received") && content.contains("what") {
+            return true
+        }
+        
+        // Exclude hello messages (simple greetings)
+        let helloPatterns = [
+            "hello",
+            "hi",
+            "hey",
+            "good morning",
+            "good afternoon", 
+            "good evening",
+            "greetings"
+        ]
+        
+        for pattern in helloPatterns {
+            if content.hasPrefix(pattern) {
+                return true
+            }
+        }
+        
+        return false
+    }
 }
 
 // MARK: - Bubble view --------------------------------------------------------
@@ -1208,6 +1292,9 @@ struct TextModalView: View {
 struct MessageBubble: View {
     let message: ChatMessage
     let opacity: Double
+    let messageHistory: [ChatMessage]
+    let currentIndex: Int
+    @Binding var showCopyToast: Bool
     @State private var isVisible = false
     @EnvironmentObject var colorManager: ColorManager
 
@@ -1257,13 +1344,25 @@ struct MessageBubble: View {
                                     .offset(x: -31, y: -35) // Restore original positioning
                             }
 
-                            // Actual text content
-                            Text(message.content)
-                                .font(.custom("IBMPlexMono", size: 16))
-                                .lineLimit(nil)
-                                .multilineTextAlignment(.leading)
-                                .foregroundColor(colorManager.whiteTextColor)
-                                .padding(.leading, 2)
+                            // Actual text content with copy button
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(message.content)
+                                    .font(.custom("IBMPlexMono", size: 16))
+                                    .lineLimit(nil)
+                                    .multilineTextAlignment(.leading)
+                                    .foregroundColor(colorManager.whiteTextColor)
+                                    .padding(.leading, 2)
+                                
+                                // Copy button - only show if there's content and it's the last assistant message
+                                if !message.content.isEmpty && isLastAssistantMessage(message) {
+                                    HStack {
+                                        CopyButton(content: message.content) {
+                                            showCopyToast = true
+                                        }
+                                        Spacer()
+                                    }
+                                }
+                            }
                         }
                         .animation(.spring(duration: 0.4), value: message.content.isEmpty)
                     }
@@ -1279,6 +1378,53 @@ struct MessageBubble: View {
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { isVisible = true }
         }
+    }
+    
+    // MARK: - Copy Button Logic --------------------------------------------
+    private func isLastAssistantMessage(_ message: ChatMessage) -> Bool {
+        // Don't show copy button for excluded message types
+        if isExcludedMessage(message) {
+            return false
+        }
+        
+        // Look ahead to see if there's another assistant message after this one
+        for i in (currentIndex + 1)..<messageHistory.count {
+            if !messageHistory[i].isUser {
+                // There's another assistant message after this one, don't show copy button
+                return false
+            }
+        }
+        
+        // This is the last assistant message in the sequence
+        return true
+    }
+    
+    private func isExcludedMessage(_ message: ChatMessage) -> Bool {
+        let content = message.content.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // Exclude "File received, what's next?" messages
+        if content.contains("file received") && content.contains("what") {
+            return true
+        }
+        
+        // Exclude hello messages (simple greetings)
+        let helloPatterns = [
+            "hello",
+            "hi",
+            "hey",
+            "good morning",
+            "good afternoon", 
+            "good evening",
+            "greetings"
+        ]
+        
+        for pattern in helloPatterns {
+            if content.hasPrefix(pattern) {
+                return true
+            }
+        }
+        
+        return false
     }
 }
 
@@ -1400,6 +1546,99 @@ struct FileMessageView: View {
 private extension Array {
     subscript(safe index: Index) -> Element? {
         return indices.contains(index) ? self[index] : nil
+    }
+}
+
+// MARK: - Copy Button ------------------------------------------------------
+
+struct CopyButton: View {
+    let content: String
+    let onCopy: () -> Void
+    @State private var isPressed = false
+    @EnvironmentObject var colorManager: ColorManager
+    
+    var body: some View {
+        Button(action: copyToClipboard) {
+            // Apple-style copy icon: two overlapping rounded squares
+            ZStack {
+                // Back square (top-left)
+                RoundedRectangle(cornerRadius: 3)
+                    .stroke(colorManager.greenColor, lineWidth: 1.5)
+                    .frame(width: 12, height: 12)
+                    .offset(x: -2, y: -2)
+                
+                // Front square (bottom-right)
+                RoundedRectangle(cornerRadius: 3)
+                    .stroke(colorManager.greenColor, lineWidth: 1.5)
+                    .frame(width: 12, height: 12)
+                    .offset(x: 2, y: 2)
+            }
+            .frame(width: 20, height: 20)
+            .scaleEffect(isPressed ? 0.9 : 1.0)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isPressed = pressing
+            }
+        }, perform: {})
+
+    }
+    
+    private func copyToClipboard() {
+        UIPasteboard.general.string = content
+        
+        // Show toast notification
+        onCopy()
+    }
+}
+
+struct CopyToastView: View {
+    @EnvironmentObject var colorManager: ColorManager
+    @State private var isVisible = false
+    @State private var isFadingOut = false
+    @State private var hasSlidUp = false
+    
+    var body: some View {
+        ZStack {
+            // Clear background
+            Color.clear
+                .ignoresSafeArea()
+            
+            // Centered toast
+            VStack(spacing: 12) {
+                // Checkmark icon
+                Image(systemName: "checkmark")
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundColor(Color(hex: "#1D1D1D"))
+                
+                // Message text
+                Text("Copied")
+                    .font(.custom("IBMPlexMono", size: 16))
+                    .fontWeight(.medium)
+                    .foregroundColor(Color(hex: "#1D1D1D"))
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+            .background(colorManager.greenColor)
+            .cornerRadius(4)
+            .padding(.horizontal, 40)
+            .opacity(isVisible ? 1 : 0)
+            .offset(y: hasSlidUp ? 0 : 20)
+            .animation(.easeInOut(duration: 0.4), value: hasSlidUp)
+            .animation(.easeOut(duration: 0.6), value: isFadingOut)
+        }
+        .onAppear {
+            isVisible = true
+            hasSlidUp = true
+            
+            // Auto-dismiss after 1.5 seconds with slow fade out
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                isFadingOut = true
+                isVisible = false
+            }
+        }
     }
 }
 

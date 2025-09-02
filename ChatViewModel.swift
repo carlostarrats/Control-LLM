@@ -388,12 +388,47 @@ class ChatViewModel {
         let isLoaded = await HybridLLMService.shared.isModelLoaded
         let filename = await HybridLLMService.shared.currentModelFilename
         
-        await MainActor.run {
-            self.modelLoaded = isLoaded
-            self.lastLoadedModel = filename
+        if isLoaded {
+            // Model is already loaded, sync the state
+            await MainActor.run {
+                self.modelLoaded = isLoaded
+                self.lastLoadedModel = filename
+            }
+            print("🔍 ChatViewModel: Model already loaded - loaded: \(isLoaded), model: \(filename ?? "none")")
+        } else {
+            // No model loaded, check if there's a selected model and load it
+            if let selectedModelFilename = ModelManager.shared.getSelectedModelFilename() {
+                print("🔍 ChatViewModel: No model loaded, but selected model exists: \(selectedModelFilename)")
+                print("🔍 ChatViewModel: Auto-loading selected model on startup...")
+                
+                do {
+                    try await HybridLLMService.shared.loadSelectedModel()
+                    
+                    // Update state after successful loading
+                    let newIsLoaded = await HybridLLMService.shared.isModelLoaded
+                    let newFilename = await HybridLLMService.shared.currentModelFilename
+                    
+                    await MainActor.run {
+                        self.modelLoaded = newIsLoaded
+                        self.lastLoadedModel = newFilename
+                    }
+                    
+                    print("✅ ChatViewModel: Auto-loaded model on startup - loaded: \(newIsLoaded), model: \(newFilename ?? "none")")
+                } catch {
+                    print("❌ ChatViewModel: Failed to auto-load model on startup: \(error)")
+                    await MainActor.run {
+                        self.modelLoaded = false
+                        self.lastLoadedModel = nil
+                    }
+                }
+            } else {
+                print("🔍 ChatViewModel: No model loaded and no model selected")
+                await MainActor.run {
+                    self.modelLoaded = false
+                    self.lastLoadedModel = nil
+                }
+            }
         }
-        
-        print("🔍 ChatViewModel: Initial model state synced - loaded: \(isLoaded), model: \(filename ?? "none")")
     }
     
 
