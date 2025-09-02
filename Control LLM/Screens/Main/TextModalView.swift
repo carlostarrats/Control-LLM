@@ -257,6 +257,7 @@ struct TextModalView: View {
     @State private var inputBarHeight: CGFloat = 0
     @State private var opacityUpdateTimer: Timer?
     @State private var showCopyToast = false
+    @State private var showGeneratingText = false
     var messageHistory: [ChatMessage]?
     @EnvironmentObject var colorManager: ColorManager
     
@@ -320,6 +321,16 @@ struct TextModalView: View {
             // CRITICAL FIX: Update effective processing state when llm.isProcessing changes
             print("🔍 TextModalView: llm.isProcessing changed to \(isProcessing), updating effective processing state")
             updateEffectiveProcessingState()
+            
+            // Add delay for generating text and stop button
+            if isProcessing {
+                showGeneratingText = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    showGeneratingText = true
+                }
+            } else {
+                showGeneratingText = false
+            }
         }
         .onChange(of: isLocalProcessing) { _, _ in
             // CRITICAL FIX: Update effective processing state when isLocalProcessing changes
@@ -675,8 +686,14 @@ struct TextModalView: View {
                         }
                     }
                     .overlay(placeholderOverlay.allowsHitTesting(false), alignment: .leading) // Fix placeholder tap issue
-                    .overlay(generatingOverlay.allowsHitTesting(false), alignment: .leading) // Generating response overlay
-                    .overlay(sendButtonOverlay, alignment: .bottomTrailing) // Anchor to bottom-right
+                    .overlay(
+                        Group {
+                            if viewModel.llm.isProcessing && showGeneratingText {
+                                generatingOverlay.allowsHitTesting(false)
+                            }
+                        }, alignment: .leading
+                    ) // Generating response overlay - with delay
+                    .overlay(sendButtonOverlay, alignment: .bottomTrailing) // Send button - always visible
                     .animation(.easeInOut(duration: 0.05), value: isTextFieldFocused)
             }
             .padding(.horizontal, 20)
@@ -753,7 +770,7 @@ struct TextModalView: View {
         let trimmedText = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
         if (!trimmedText.isEmpty || effectiveIsProcessing) && hasModelsInstalled {
             Group {
-                if effectiveIsProcessing {
+                if showGeneratingText {
                     // Stop button (square icon)
                     Text(NSLocalizedString("■", comment: ""))
                         .font(.system(size: 16, weight: .bold))

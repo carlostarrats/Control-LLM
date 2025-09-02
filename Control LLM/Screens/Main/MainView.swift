@@ -130,18 +130,18 @@ struct MainView: View {
         )) {
             if let chatView = chatSheetView {
                 chatView
-                .presentationDetents([.height(100), .large])
+                .presentationDetents([.height(100), .large], selection: Binding(
+                    get: { isSheetExpanded ? .large : .height(100) },
+                    set: { newDetent in
+                        isSheetExpanded = (newDetent == .large)
+                        print("🔍 Sheet detent changed to: \(newDetent), isSheetExpanded: \(isSheetExpanded)")
+                    }
+                ))
                 .presentationDragIndicator(.visible)
                 .presentationBackgroundInteraction(.enabled)
                 .interactiveDismissDisabled()
-                .onGeometryChange(for: CGFloat.self) { geometry in
-                    return geometry.size.height
-                } action: { height in
-                    // Track if sheet is expanded beyond 100 points
-                    let isExpanded = height > 200 // More than 200 points means expanded
-                    if isSheetExpanded != isExpanded {
-                        isSheetExpanded = isExpanded
-                    }
+                .onChange(of: isSheetExpanded) { _, newValue in
+                    print("🔍 Sheet expansion state changed to: \(newValue)")
                 }
             }
         }
