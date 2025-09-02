@@ -613,8 +613,20 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
                 // Convert piece to string and emit directly
                 std::string piece_str(piece_buf, piece_buf + nbytes);
                 
-                // Remove any special tags from this piece before emitting
+                // QWEN GAP FIX: Keep tags visible but remove gap-causing content
+                static bool in_thinking_mode = false;
                 std::string clean_piece = piece_str;
+                
+                // Check for thinking tags
+                if (clean_piece == "<think>") {
+                    in_thinking_mode = true;
+                    // Keep the opening tag visible
+                } else if (clean_piece == "</think>") {
+                    in_thinking_mode = false;
+                    // Keep the closing tag visible
+                } else if (in_thinking_mode) {
+                    clean_piece = ""; // Don't emit content while in thinking mode
+                }
                 
                 // Remove common special tokens that might appear in pieces
                 const std::string tag_start = "<|";
