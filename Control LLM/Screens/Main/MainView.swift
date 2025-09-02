@@ -130,15 +130,21 @@ struct MainView: View {
         )) {
             if let chatView = chatSheetView {
                 chatView
-                .presentationDetents([.height(100), .large], selection: Binding(
-                    get: { isSheetExpanded ? .large : .height(100) },
+                .presentationDetents([.height(50), .large], selection: Binding(
+                    get: { isSheetExpanded ? .large : .height(50) },
                     set: { newDetent in
                         isSheetExpanded = (newDetent == .large)
                         print("🔍 Sheet detent changed to: \(newDetent), isSheetExpanded: \(isSheetExpanded)")
                     }
                 ))
-                .presentationDragIndicator(.visible)
+                .presentationDragIndicator(.hidden)
                 .presentationBackgroundInteraction(.enabled)
+                .presentationBackground(
+                    LinearGradient(
+                        colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
+                        startPoint: .top, endPoint: .bottom
+                    )
+                )
                 .interactiveDismissDisabled()
                 .onChange(of: isSheetExpanded) { _, newValue in
                     print("🔍 Sheet expansion state changed to: \(newValue)")

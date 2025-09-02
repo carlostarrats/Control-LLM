@@ -22,7 +22,7 @@ struct FAQView: View {
             .safeAreaInset(edge: .top) {
                 VStack(spacing: 0) {
                     RoundedRectangle(cornerRadius: 2.5)
-                        .fill(Color(hex: "#666666"))
+                        .fill(ColorManager.shared.greenColor)
                         .frame(width: 36, height: 5)
                         .padding(.top, 8)
                         .padding(.bottom, 20)

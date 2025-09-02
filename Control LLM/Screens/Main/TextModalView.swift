@@ -258,6 +258,11 @@ struct TextModalView: View {
     @State private var opacityUpdateTimer: Timer?
     @State private var showCopyToast = false
     @State private var showGeneratingText = false
+    @State private var timeUpdateTimer: Timer?
+    @State private var currentTime = Date()
+
+    @State private var isClipboardMessage = false
+    @State private var hasAddedFollowUpQuestions = false
     var messageHistory: [ChatMessage]?
     @EnvironmentObject var colorManager: ColorManager
     
@@ -265,40 +270,76 @@ struct TextModalView: View {
     private var hasModelsInstalled: Bool {
         !ModelManager.shared.availableModels.isEmpty
     }
+    
+    // MARK: - Helper Functions
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
 
 
     // MARK: body -------------------------------------------------------------
     var body: some View {
-        ZStack(alignment: .bottom) {
-            // Full background gradient
-            LinearGradient(
-                colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
-                startPoint: .top, endPoint: .bottom
-            )
-            .ignoresSafeArea(.all)
-            
-            VStack(spacing: 0) {
+        GeometryReader { geometry in
+            ZStack(alignment: .bottom) {
+                // Full background gradient
+                LinearGradient(
+                    colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
+                    startPoint: .top, endPoint: .bottom
+                )
+                .ignoresSafeArea(.all)
+                
+                // Purple gradient overlay - positioned behind all content
+                VStack {
+                    LinearGradient(
+                        colors: [
+                            colorManager.purpleColor.opacity(isSheetExpanded ? 0.0 : 0.8), 
+                            colorManager.purpleColor.opacity(0.0)
+                        ],
+                        startPoint: .top, endPoint: .bottom
+                    )
+                    .frame(height: 120)
+                    .allowsHitTesting(false)
+                    
+                    Spacer()
+                }
+                .allowsHitTesting(false)
+                
+                // Content layer
                 messageList
-            }
+                
+                // Transparent grabber overlay - fixed at top, above everything
+                VStack(alignment: .center) {
+                    Color.clear
+                        .frame(maxWidth: .infinity, maxHeight: 120)
+                        .contentShape(Rectangle())
+                    
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .allowsHitTesting(true)
 
-            if isSheetExpanded {
-                inputBar
-            }
-            
-            // Copy toast overlay
-            if showCopyToast {
-                CopyToastView()
-                    .onAppear {
-                        // Auto-dismiss after 2 seconds
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                            showCopyToast = false
+                if isSheetExpanded {
+                    inputBar
+                }
+                
+
+                
+                // Copy toast overlay
+                if showCopyToast {
+                    CopyToastView()
+                        .onAppear {
+                            // Auto-dismiss after 2 seconds
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                                showCopyToast = false
+                            }
                         }
-                    }
+                }
+                
             }
-            
         }
         .onAppear {
             setupOpacityUpdateTimer()
+            setupTimeUpdateTimer()
             
             // Reset clipboard message state when view appears
             isClipboardMessage = false
@@ -340,6 +381,8 @@ struct TextModalView: View {
         .onDisappear {
             opacityUpdateTimer?.invalidate()
             opacityUpdateTimer = nil
+            timeUpdateTimer?.invalidate()
+            timeUpdateTimer = nil
             
             // Dismiss keyboard when view disappears
             isTextFieldFocused = false
@@ -451,6 +494,13 @@ struct TextModalView: View {
         }
     }
     
+    private func setupTimeUpdateTimer() {
+        // Update time every minute to keep the display current
+        timeUpdateTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
+            currentTime = Date()
+        }
+    }
+    
     // MARK: - Message Synchronization -----------------------------------------
     
     // REMOVED: syncUIMessagesToLLM function - was causing context loss by overwriting ChatViewModel history
@@ -491,30 +541,39 @@ struct TextModalView: View {
         return result.sorted { $0.0 < $1.0 }
     }
     
-    // MARK: header -----------------------------------------------------------
-    private var header: some View {
-        VStack(spacing: 0) {
-            RoundedRectangle(cornerRadius: 2.5)
-                .fill(Color(hex: "#666666"))
-                .frame(width: 36, height: 5)
-                .padding(.top, 8).padding(.bottom, 20)
-
-            HStack {
-                HStack(spacing: 8) {
-                    Image(systemName: "keyboard")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundColor(colorManager.whiteTextColor)
-                    Text(NSLocalizedString("Control", comment: ""))
-                        .font(.custom("IBMPlexMono", size: 20))
-                        .foregroundColor(colorManager.whiteTextColor)
-                }
-                .padding(.leading, 20)
-
-                Spacer()
-            }
-
-            Spacer().frame(height: 18)
+    // MARK: header removed - now part of scrollable content
+    
+    // Helper function to determine if we should show "SWIPE TO CHAT"
+    private func shouldShowSwipeToChat() -> Bool {
+        // If no messages, always show "SWIPE TO CHAT"
+        if viewModel.messages.isEmpty {
+            return true
         }
+        
+        // Check if messages are older than 24 hours
+        if let firstMessage = viewModel.messages.first {
+            let now = Date()
+            let timeDifference = now.timeIntervalSince(firstMessage.timestamp)
+            let twentyFourHours: TimeInterval = 24 * 60 * 60
+            
+            // If first message is older than 24 hours, show "SWIPE TO CHAT"
+            if timeDifference > twentyFourHours {
+                return true
+            }
+        }
+        
+        // Otherwise show time
+        return false
+    }
+    
+    // Helper function to get current time
+    private func getCurrentTime() -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.timeZone = TimeZone.current
+        formatter.timeStyle = .short
+        formatter.dateStyle = .none
+        return formatter.string(from: currentTime)
     }
 
     // MARK: message list -----------------------------------------------------
@@ -522,6 +581,51 @@ struct TextModalView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 24) {
+                    // Time and arrow as first scrollable item
+                    VStack(spacing: 0) {
+                        RoundedRectangle(cornerRadius: 2.5)
+                            .fill(colorManager.greenColor)
+                            .frame(width: 36, height: 5)
+                            .padding(.top, 8).padding(.bottom, 6)
+
+                        // Show "SWIPE TO CHAT" initially, then time after first message
+                        HStack(spacing: 0) {
+                            Text(shouldShowSwipeToChat() ? "SWIPE TO CHAT" : getCurrentTime())
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .foregroundColor(ColorManager.shared.orangeColor)
+                                .padding(.leading, 0)
+                                .onChange(of: currentTime) { _, _ in
+                                    // Trigger UI update when time changes
+                                }
+                            
+                            Spacer()
+                            
+                            Image(systemName: isSheetExpanded ? "arrow.down" : "arrow.up")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(colorManager.redColor)
+                                .padding(.trailing, 0)
+                        }
+                        .padding(.bottom, isSheetExpanded ? 18 : 10)
+                    }
+                    .gesture(
+                        DragGesture()
+                            .onEnded { value in
+                                // Handle drag gesture for sheet expansion - only on end to prevent flickering
+                                let dragAmount = value.translation.height
+                                if dragAmount < -30 && !isSheetExpanded {
+                                    // Drag up to expand
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        isSheetExpanded = true
+                                    }
+                                } else if dragAmount > 30 && isSheetExpanded {
+                                    // Drag down to collapse
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        isSheetExpanded = false
+                                    }
+                                }
+                            }
+                    )
+                    
                     if !hasModelsInstalled {
                         noModelMessage
                     } else {
@@ -529,7 +633,7 @@ struct TextModalView: View {
                     }
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, isSheetExpanded ? 0 : 20)
+                .padding(.top, isSheetExpanded ? 0 : 14)
                 .padding(.bottom, 24)
             }
             .safeAreaInset(edge: .bottom) {
@@ -593,11 +697,6 @@ struct TextModalView: View {
         ForEach(Array(getMessagesGroupedByDate().enumerated()), id: \.element.0) { index, dateAndMessages in
             let (date, messages) = dateAndMessages
             VStack(spacing: 24) {
-                DateHeaderView(
-                    firstMessageTime: messages.first?.timestamp ?? date,
-                    isFirstMessageInConversation: index == 0
-                )
-                
                 ForEach(Array(messages.enumerated()), id: \.element.id) { index, message in
                     MessageBubble(
                         message: message,
@@ -1034,11 +1133,6 @@ struct TextModalView: View {
 
     
     // MARK: - STREAM POLLER --------------------------------------------------
-    // MARK: - STREAM POLLER --------------------------------------------------
-    @State private var lastRenderedTranscript = ""
-    @State private var isPolling = false
-    @State private var pollCount = 0
-    @State private var isLocalProcessing = false // Local state for immediate button changes
     
     // CRITICAL FIX: Ensure isLocalProcessing is synchronized with llm.isProcessing on view creation
     private func syncProcessingState() {
@@ -1051,8 +1145,7 @@ struct TextModalView: View {
         }
     }
     
-    // CRITICAL FIX: State variable to track effective processing state
-    @State private var effectiveIsProcessing = false
+    // CRITICAL FIX: State variable to track effective processing state (already declared above)
     
     // CRITICAL FIX: Function to update effective processing state
     private func updateEffectiveProcessingState() {
@@ -1062,22 +1155,24 @@ struct TextModalView: View {
             effectiveIsProcessing = newValue
         }
     }
-    @State private var lastTranscriptLength = 0
-    @State private var lastSentMessage = ""
-    @State private var isDuplicateMessage = false
-    @State private var lastLoadedModelForDuplicateCheck: String? = nil
-    
-    // Clipboard message tracking for follow-up questions
-    @State private var isClipboardMessage = false
-    @State private var hasAddedFollowUpQuestions = false
-    
-    // Response completion tracking for haptic feedback
-    @State private var stableTranscriptCount = 0
-    @State private var hasProvidedCompletionHaptic = false
+    // All state variables already declared above
     
     // MARK: - Error Handling State
     @State private var errorMessage: String?
     @State private var showingError = false
+    
+    // MARK: - Additional State Variables
+    @State private var lastRenderedTranscript = ""
+    @State private var isPolling = false
+    @State private var pollCount = 0
+    @State private var isLocalProcessing = false
+    @State private var lastTranscriptLength = 0
+    @State private var lastSentMessage = ""
+    @State private var isDuplicateMessage = false
+    @State private var lastLoadedModelForDuplicateCheck: String? = nil
+    @State private var stableTranscriptCount = 0
+    @State private var hasProvidedCompletionHaptic = false
+    @State private var effectiveIsProcessing = false
     
     // Voice integration state
     // Voice functionality removed
@@ -1521,59 +1616,7 @@ struct ThinkingAnimationView: View {
 
 // MARK: - Date header --------------------------------------------------------
 
-struct DateHeaderView: View {
-    let firstMessageTime: Date
-    let isFirstMessageInConversation: Bool
-    @State private var isVisible = false
-    
-    var body: some View {
-        HStack {
-            Spacer()
-            Text(formattedDateAndTime())
-                .font(.custom("IBMPlexMono", size: 12))
-                .foregroundColor(ColorManager.shared.orangeColor)
-            Spacer()
-        }
-        .padding(.top, 20).padding(.bottom, 10)
-        .opacity(isVisible ? 1 : 0)
-        .offset(y: isVisible ? 0 : 4)
-        .animation(.easeOut(duration: 0.3), value: isVisible)
-        .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { isVisible = true } }
-    }
-    
-    private func formattedDateAndTime() -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale.current
-        formatter.timeZone = TimeZone.current
-        formatter.timeStyle = .short
-        formatter.dateStyle = .none
-        let timeText = formatter.string(from: firstMessageTime)
-        
-        if isFirstMessageInConversation {
-            // For first message, show only time
-            return timeText
-        } else {
-            // For subsequent messages, show date and time
-            let dateText = Self.smart(firstMessageTime)
-            return "\(dateText) \(timeText)"
-        }
-    }
-    
-    // smart-date formatter
-    private static func smart(_ date: Date) -> String {
-        let cal = Calendar.current
-        let now = Date()
-        if cal.isDate(date, inSameDayAs: now) { return NSLocalizedString("TODAY", comment: "") }
-        if cal.isDate(date, inSameDayAs: cal.date(byAdding: .day, value: -1, to: now)!) { return NSLocalizedString("YESTERDAY", comment: "") }
-
-        let weekAgo = cal.date(byAdding: .day, value: -7, to: now)!
-        let fmt = DateFormatter()
-        fmt.locale = Locale.current
-        fmt.timeZone = TimeZone.current
-        if date > weekAgo { fmt.dateFormat = "EEEE, MMM d" } else { fmt.dateFormat = "MMM d, yyyy" }
-        return fmt.string(from: date).uppercased()
-    }
-}
+// MARK: - DateHeaderView removed - duplicate time display eliminated
 
 // MARK: - File bubble --------------------------------------------------------
 
