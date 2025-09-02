@@ -297,7 +297,7 @@ struct TextModalView: View {
                         ],
                         startPoint: .top, endPoint: .bottom
                     )
-                    .frame(height: 120)
+                    .frame(height: 300)
                     .allowsHitTesting(false)
                     
                     Spacer()
@@ -310,7 +310,7 @@ struct TextModalView: View {
                 // Transparent grabber overlay - fixed at top, above everything
                 VStack(alignment: .center) {
                     Color.clear
-                        .frame(maxWidth: .infinity, maxHeight: 120)
+                        .frame(maxWidth: .infinity, maxHeight: 300)
                         .contentShape(Rectangle())
                     
                     Spacer()
@@ -637,7 +637,7 @@ struct TextModalView: View {
                 .padding(.bottom, 24)
             }
             .safeAreaInset(edge: .bottom) {
-                Color.clear.frame(height: 120)
+                Color.clear.frame(height: 300)
             }
             .onChange(of: viewModel.messages) { _, newMessages in
                 if let last = newMessages.last, !last.content.isEmpty {
@@ -1527,8 +1527,8 @@ struct MessageBubble: View {
                                     .foregroundColor(colorManager.whiteTextColor)
                                     .padding(.leading, 2)
                                 
-                                // Copy button - only show if there's content and it's the last assistant message
-                                if !message.content.isEmpty && isLastAssistantMessage(message) {
+                                // Copy button - show for all assistant messages with content
+                                if !message.content.isEmpty {
                                     HStack {
                                         CopyButton(content: message.content) {
                                             showCopyToast = true
