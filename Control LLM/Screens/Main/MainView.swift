@@ -54,22 +54,29 @@ struct MainView: View {
         .zIndex(isSheetExpanded ? 2 : 0)
         .overlay(
             // Tap gesture overlay - only top 10% when open, full area when closed
-            Rectangle()
-                .fill(Color.clear)
-                .frame(height: isSheetExpanded ? UIScreen.main.bounds.height * 0.1 : UIScreen.main.bounds.height * 0.9)
-                .onTapGesture {
-                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                        if isSheetExpanded {
-                            // Tap to close (only top 10% tappable)
-                            isSheetExpanded = false
-                        } else {
-                            // Tap to expand (full visible area tappable)
-                            isSheetExpanded = true
-                            isSettingsSheetExpanded = false
+            GeometryReader { geometry in
+                Rectangle()
+                    .fill(Color.clear)
+                    .contentShape(Rectangle())
+                    .onTapGesture { location in
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                            if isSheetExpanded {
+                                // Only close if tap is in top 10% of screen
+                                let tapY = location.y
+                                let top10Percent = UIScreen.main.bounds.height * 0.1
+                                if tapY <= top10Percent {
+                                    isSheetExpanded = false
+                                }
+                            } else {
+                                // Tap to expand (full visible area tappable)
+                                isSheetExpanded = true
+                                isSettingsSheetExpanded = false
+                            }
                         }
                     }
-                }
+            }
         )
+
     }
     
     private var settingsSheetView: some View {
@@ -88,22 +95,29 @@ struct MainView: View {
         .zIndex(isSettingsSheetExpanded ? 2 : 1)
         .overlay(
             // Tap gesture overlay - only top 10% when open, full area when closed
-            Rectangle()
-                .fill(Color.clear)
-                .frame(height: isSettingsSheetExpanded ? UIScreen.main.bounds.height * 0.1 : 50)
-                .onTapGesture {
-                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                        if isSettingsSheetExpanded {
-                            // Tap to close (only top 10% tappable)
-                            isSettingsSheetExpanded = false
-                        } else {
-                            // Tap to expand (full visible area tappable)
-                            isSettingsSheetExpanded = true
-                            isSheetExpanded = false
+            GeometryReader { geometry in
+                Rectangle()
+                    .fill(Color.clear)
+                    .contentShape(Rectangle())
+                    .onTapGesture { location in
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                            if isSettingsSheetExpanded {
+                                // Only close if tap is in top 10% of screen
+                                let tapY = location.y
+                                let top10Percent = UIScreen.main.bounds.height * 0.1
+                                if tapY <= top10Percent {
+                                    isSettingsSheetExpanded = false
+                                }
+                            } else {
+                                // Tap to expand (full visible area tappable)
+                                isSettingsSheetExpanded = true
+                                isSheetExpanded = false
+                            }
                         }
                     }
-                }
+            }
         )
+
     }
     
     var body: some View {
@@ -216,6 +230,7 @@ struct MainView: View {
                 }
             }
         )
+
 
     }
     
