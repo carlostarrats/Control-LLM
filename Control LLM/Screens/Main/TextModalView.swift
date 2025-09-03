@@ -257,6 +257,7 @@ struct TextModalView: View {
     @State private var inputBarHeight: CGFloat = 0
     @State private var opacityUpdateTimer: Timer?
     @State private var showCopyToast = false
+    @State private var keyboardHeight: CGFloat = 0
     @State private var showGeneratingText = false
     @State private var timeUpdateTimer: Timer?
     @State private var currentTime = Date()
@@ -274,6 +275,33 @@ struct TextModalView: View {
     // MARK: - Helper Functions
     private func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+    
+    private func setupKeyboardObservers() {
+        NotificationCenter.default.addObserver(
+            forName: UIResponder.keyboardWillShowNotification,
+            object: nil,
+            queue: .main
+        ) { notification in
+            if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                keyboardHeight = keyboardFrame.height
+                print("🔍 Keyboard will show, height: \(keyboardHeight)")
+            }
+        }
+        
+        NotificationCenter.default.addObserver(
+            forName: UIResponder.keyboardWillHideNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            keyboardHeight = 0
+            print("🔍 Keyboard will hide")
+        }
+    }
+    
+    private func removeKeyboardObservers() {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
 
@@ -318,7 +346,11 @@ struct TextModalView: View {
                 .allowsHitTesting(true)
 
                 if isSheetExpanded {
-                    inputBar
+                    VStack {
+                        Spacer()
+                        inputBar
+                            .padding(.bottom, keyboardHeight > 0 ? keyboardHeight - geometry.safeAreaInsets.bottom : 0)
+                    }
                 }
                 
 
@@ -353,6 +385,9 @@ struct TextModalView: View {
             // CRITICAL FIX: Update effective processing state on view creation
             updateEffectiveProcessingState()
             
+            // Setup keyboard observers
+            setupKeyboardObservers()
+            
             print("🔍 TextModalView: onAppear - Reset clipboard state and duplicate detection")
             
             // CRITICAL FIX: Removed clipboard message observer setup - consolidated into single message flow
@@ -386,6 +421,9 @@ struct TextModalView: View {
             // Dismiss keyboard when view disappears
             isTextFieldFocused = false
             hideKeyboard()
+            
+            // Cleanup keyboard observers
+            removeKeyboardObservers()
             
             // CRITICAL FIX: Removed clipboard message observer cleanup - consolidated into single message flow
         }
@@ -633,7 +671,7 @@ struct TextModalView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, isSheetExpanded ? 0 : 14)
-                .padding(.bottom, 24)
+                .padding(.bottom, keyboardHeight > 0 ? keyboardHeight + 24 : 24)
             }
             .safeAreaInset(edge: .bottom) {
                 Color.clear.frame(height: 300)
