@@ -8,53 +8,55 @@ Shortcuts Integration Helper initialized
 🔍 MainView init
 🔍 Init check: hasSeenOnboarding = true
 🔍 ChatViewModel: init
-🔍 ChatViewModel: Continuing existing session started at 2025-09-02 05:32:43 +0000
-🔍 ChatViewModel: Loaded saved timing data - avg: 6.327234489697936s, total: 892.1400630474091s, count: 141
+🔍 ChatViewModel: Continuing existing session started at 2025-09-03 15:29:19 +0000
+🔍 ChatViewModel: Loaded saved timing data - avg: 6.294737670570612s, total: 1007.1580272912979s, count: 160
 🔍 ChatViewModel: Loaded model performance data for 7 models
+   Phi-4-mini-instruct-Q4_K_M: avg=31.49s, fast=false
    Gemma-3N-E4B-It-Q4_K_M: avg=196.60s, fast=false
    Qwen2.5-1.5B-Instruct-Q5_K_M: avg=2.40s, fast=true
-   smollm2-1.7b-instruct-q4_k_m: avg=6.70s, fast=false
-   gemma-3-1B-It-Q4_K_M: avg=7.37s, fast=false
-   Qwen3-1.7B-Q4_K_M: avg=5.67s, fast=false
-   Phi-4-mini-instruct-Q4_K_M: avg=31.49s, fast=false
-   Llama-3.2-1B-Instruct-Q4_K_M: avg=3.16s, fast=false
+   gemma-3-1B-It-Q4_K_M: avg=7.30s, fast=false
+   smollm2-1.7b-instruct-q4_k_m: avg=6.53s, fast=false
+   Qwen3-1.7B-Q4_K_M: avg=5.64s, fast=false
+   Llama-3.2-1B-Instruct-Q4_K_M: avg=5.34s, fast=false
 🔍 ChatViewModel: Syncing initial model state...
-🔍 Onboarding check: hasSeenOnboarding = true
-🔍 User has already seen onboarding, keeping modal hidden
 🔍 TextModalView init
-🔍 MainView appeared!
 ModelManager: Loading available models...
-ModelManager: Found model: smollm2-1.7b-instruct-q4_k_m
 ModelManager: Found model in bundle root: smollm2-1.7b-instruct-q4_k_m
-ModelManager: Found model: Qwen3-1.7B-Q4_K_M
 ModelManager: Found model in bundle root: Qwen3-1.7B-Q4_K_M
 ModelManager: Found model in bundle root: Llama-3.2-1B-Instruct-Q4_K_M
-ModelManager: Found model: Llama-3.2-1B-Instruct-Q4_K_M
 ModelManager: Found model in bundle root: gemma-3-1B-It-Q4_K_M
+ModelManager: Found model: smollm2-1.7b-instruct-q4_k_m
+ModelManager: Found model: Qwen3-1.7B-Q4_K_M
+ModelManager: Found model: Llama-3.2-1B-Instruct-Q4_K_M
 ModelManager: Found model: gemma-3-1B-It-Q4_K_M
 ModelManager: Loaded 4 available models
 ModelManager: Available models: ["Qwen3-1.7B-Q4_K_M", "gemma-3-1B-It-Q4_K_M", "smollm2-1.7b-instruct-q4_k_m", "Llama-3.2-1B-Instruct-Q4_K_M"]
+🔍 Onboarding check: hasSeenOnboarding = true
+🔍 User has already seen onboarding, keeping modal hidden
+🔍 MainView appeared!
 🔍 TextModalView: syncProcessingState - resetting isLocalProcessing from false to false
 🔍 TextModalView: onAppear - Reset clipboard state and duplicate detection
+🔍 TextModalView init
+🎯 TARS onAppear - Starting with animationTime: 0.0
 🔍 ChatViewModel: No model loaded, but selected model exists: Qwen3-1.7B-Q4_K_M
 🔍 ChatViewModel: Auto-loading selected model on startup...
 🔍 HybridLLMService: Loading model: Qwen3-1.7B-Q4_K_M
 🔍 HybridLLMService: Using llama.cpp for Qwen3-1.7B-Q4_K_M
 🔍 LLMService: Loading specific model: Qwen3-1.7B-Q4_K_M (previous: none)
-🔍 LLMService: Found model in Models directory: /private/var/containers/Bundle/Application/99A71485-B560-4F0F-AABD-91CE6E0291BA/Control LLM.app/Models/Qwen3-1.7B-Q4_K_M.gguf
+🔍 LLMService: Found model in Models directory: /private/var/containers/Bundle/Application/A5103A0C-ECB6-4ABA-B2D8-5A9E7FA9CE49/Control LLM.app/Models/Qwen3-1.7B-Q4_K_M.gguf
 🔍 LLMService: Clearing previous model before loading new one...
 🔍 LLMService: Unloading model and cleaning up resources
 🔍 LLMService: No model resources to free - already clean
 🔍 LLMService: Reset conversation count for new model
 🔍 LLMService: Set currentModelFilename to: Qwen3-1.7B-Q4_K_M
 🔍 LLMService: Starting llama.cpp model loading...
-LLMService: Loading model from path: /private/var/containers/Bundle/Application/99A71485-B560-4F0F-AABD-91CE6E0291BA/Control LLM.app/Models/Qwen3-1.7B-Q4_K_M.gguf
-LlamaCppBridge: Loading model (real) from /private/var/containers/Bundle/Application/99A71485-B560-4F0F-AABD-91CE6E0291BA/Control LLM.app/Models/Qwen3-1.7B-Q4_K_M.gguf
+LLMService: Loading model from path: /private/var/containers/Bundle/Application/A5103A0C-ECB6-4ABA-B2D8-5A9E7FA9CE49/Control LLM.app/Models/Qwen3-1.7B-Q4_K_M.gguf
+LlamaCppBridge: Loading model (real) from /private/var/containers/Bundle/Application/A5103A0C-ECB6-4ABA-B2D8-5A9E7FA9CE49/Control LLM.app/Models/Qwen3-1.7B-Q4_K_M.gguf
 LlamaCppBridge: Initializing llama backend
 LlamaCppBridge: Backend initialized successfully
 LlamaCppBridge: Attempting to load model with params: mmap=1, mlock=0, gpu_layers=0
-llama[2]: llama_model_load_from_file_impl: using device Metal (Apple A14 GPU) - 4095 MiB free
-llama[2]: llama_model_loader: loaded meta data with 32 key-value pairs and 310 tensors from /private/var/containers/Bundle/Application/99A71485-B560-4F0F-AABD-91CE6E0291BA/Control LLM.app/Models/Qwen3-1.7B-Q4_K_M.gguf (version GGUF V3 (latest))
+llama[2]: llama_model_load_from_file_impl: using device Metal (Apple A14 GPU) - 4089 MiB free
+llama[2]: llama_model_loader: loaded meta data with 32 key-value pairs and 310 tensors from /private/var/containers/Bundle/Application/A5103A0C-ECB6-4ABA-B2D8-5A9E7FA9CE49/Control LLM.app/Models/Qwen3-1.7B-Q4_K_M.gguf (version GGUF V3 (latest))
 llama[2]: llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
 llama[2]: llama_model_loader: - kv   0:                       general.architecture str              = qwen3
 llama[2]: llama_model_loader: - kv   1:                               general.type str              = model
@@ -286,7 +288,7 @@ llama[5]: .
 llama[5]: .
 llama[5]: .
 llama[5]:
-LlamaCppBridge: Successfully loaded model from /private/var/containers/Bundle/Application/99A71485-B560-4F0F-AABD-91CE6E0291BA/Control LLM.app/Models/Qwen3-1.7B-Q4_K_M.gguf
+LlamaCppBridge: Successfully loaded model from /private/var/containers/Bundle/Application/A5103A0C-ECB6-4ABA-B2D8-5A9E7FA9CE49/Control LLM.app/Models/Qwen3-1.7B-Q4_K_M.gguf
 LlamaCppBridge: Creating context for model
 LlamaCppBridge: Using small model parameters (ctx=1024, batch=2048, threads=4, flash_attn=false) for 0B model
 llama[2]: llama_context: constructing llama_context
@@ -315,428 +317,428 @@ llama[2]: ggml_metal_init: has bfloat            = true
 llama[2]: ggml_metal_init: use bfloat            = true
 llama[2]: ggml_metal_init: hasUnifiedMemory      = true
 llama[2]: ggml_metal_init: recommendedMaxWorkingSetSize  =  4294.98 MB
-llama[1]: ggml_metal_init: loaded kernel_add                                    0x10615bd20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_fuse_2                             0x11756c840 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_fuse_3                             0x11756d200 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_fuse_4                             0x11756dc20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_fuse_5                             0x11756e640 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_fuse_6                             0x11756f060 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_fuse_7                             0x11756fa80 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_fuse_8                             0x11759c540 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4                             0x11759cf00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_2                      0x11759d920 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_3                      0x11759e340 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_4                      0x11759ed60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_5                      0x11759f780 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_6                      0x1175c0240 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_7                      0x1175c0c00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_8                      0x1175c1620 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sub                                    0x1175c2040 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sub_row_c4                             0x1175c2a60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul                                    0x1175c3480 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_row_c4                             0x1175c3ea0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_div                                    0x1175f0960 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_div_row_c4                             0x1175f1320 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_id                                 0x1175f15c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_repeat_f32                             0x1175f1c20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_repeat_f16                             0x1175f2280 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_repeat_i32                             0x1175f28e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_repeat_i16                             0x1175f2f40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_scale                                  0x1175f3000 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_scale_4                                0x1175f3060 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_clamp                                  0x1175f30c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_tanh                                   0x1175f3120 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_relu                                   0x1175f3180 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sigmoid                                0x1175f31e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_gelu                                   0x1175f3240 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_gelu_4                                 0x1175f32a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_gelu_erf                               0x1175f3300 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_gelu_erf_4                             0x1175f3360 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_gelu_quick                             0x1175f33c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_gelu_quick_4                           0x1175f3420 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_silu                                   0x1175f3480 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_silu_4                                 0x1175f34e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_elu                                    0x1175f3540 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_abs                                    0x1175f35a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sgn                                    0x1175f3600 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_step                                   0x1175f3660 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_hardswish                              0x1175f36c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_hardsigmoid                            0x1175f3720 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_exp                                    0x1175f3780 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_soft_max_f16                           0x1175f3f00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_soft_max_f16_4                         0x117690000 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_soft_max_f32                           0x117690f00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_soft_max_f32_4                         0x1176916e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_diag_mask_inf                          0x117691860 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_diag_mask_inf_8                        0x1176919e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_f32                           0x117691d40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_f16                           0x1176920a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_bf16                          0x117692400 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q4_0                          0x117692760 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q4_1                          0x117692ac0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q5_0                          0x117692e80 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q5_1                          0x117693180 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q8_0                          0x1176934e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_mxfp4                         0x117693840 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q2_K                          0x117693ba0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q3_K                          0x117693f00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q4_K                          0x117748000 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q5_K                          0x117748600 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q6_K                          0x117748960 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq2_xxs                       0x117748cc0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq2_xs                        0x117749020 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq3_xxs                       0x117749380 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq3_s                         0x1177496e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq2_s                         0x117749a40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq1_s                         0x117749da0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq1_m                         0x11774a100 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq4_nl                        0x11774a460 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq4_xs                        0x11774a7c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_i32                           0x11774ab20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_f32                           0x11774b060 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_f16                           0x11774b5a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_bf16                          0x11774bae0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_q8_0                          0x1177fc0c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_q4_0                          0x1177fc5a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_q4_1                          0x1177fcae0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_q5_0                          0x1177fd020 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_q5_1                          0x1177fd560 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_iq4_nl                        0x1177fdaa0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rms_norm                               0x1177fdf80 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rms_norm_mul                           0x1177fe460 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rms_norm_mul_add                       0x1177fe940 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_l2_norm                                0x1177feb20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_group_norm                             0x1177fef40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_norm                                   0x1177ff060 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_ssm_conv_f32                           0x1177ff6c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_ssm_scan_f32                           0x1177fff60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_ssm_scan_f32_group                     0x11787c060 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rwkv_wkv6_f32                          0x11787c8a0 | th_max =  384 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rwkv_wkv7_f32                          0x11787c900 | th_max =  448 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_f32_f32                         0x11787cfc0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_f32_f32_c4                      0x11787d6e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32                        0x11787de00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32_c4                     0x11787e520 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32_1row                   0x11787ec40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32_l4                     0x11787f360 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_bf16                       0x11787fa80 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32                         0x1178c02a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32_c4                      0x1178c0960 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32_1row                    0x1178c1080 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32_l4                      0x1178c17a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f16                         0x1178c1ec0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q4_0_f32                        0x1178c25e0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q4_1_f32                        0x1178c2d00 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q5_0_f32                        0x1178c3420 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q5_1_f32                        0x1178c3b40 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q8_0_f32                        0x117954300 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_mxfp4_f32                       0x1179549c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_2                0x117955200 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_3                0x117955a40 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_4                0x117956280 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_5                0x117956ac0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_2               0x117957300 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_3               0x117957b40 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_4               0x1179a8420 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_5               0x1179a8c00 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_2               0x1179a9440 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_3               0x1179a9c80 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_4               0x1179aa4c0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_5               0x1179aad00 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_2               0x1179ab540 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_3               0x1179abd80 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_4               0x1179d8660 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_5               0x1179d8e40 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_2               0x1179d9680 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_3               0x1179d9ec0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_4               0x1179da700 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_5               0x1179daf40 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_2               0x1179db780 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_3               0x1179fc060 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_4               0x1179fc840 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_5               0x1179fd080 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_2              0x1179fd8c0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_3              0x1179fe100 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_4              0x1179fe940 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_5              0x1179ff180 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_2               0x1179ff9c0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_3               0x117a382a0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_4               0x117a38a80 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_5               0x117a392c0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_2               0x117a39b00 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_3               0x117a3a340 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_4               0x117a3ab80 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_5               0x117a3b3c0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_2               0x117a3bc00 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_3               0x117a604e0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_4               0x117a60cc0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_5               0x117a61500 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_2             0x117a61d40 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_3             0x117a62580 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_4             0x117a62dc0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_5             0x117a63600 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q2_K_f32                        0x117a63d20 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q3_K_f32                        0x117a944e0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q4_K_f32                        0x117a94ba0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q5_K_f32                        0x117a952c0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q6_K_f32                        0x117a959e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq2_xxs_f32                     0x117a96100 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq2_xs_f32                      0x117a96820 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq3_xxs_f32                     0x117a96f40 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq3_s_f32                       0x117a97660 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq2_s_f32                       0x117a97d80 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq1_s_f32                       0x117af8540 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq1_m_f32                       0x117af8c00 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq4_nl_f32                      0x117af9320 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq4_xs_f32                      0x117af9a40 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_f32_f32                      0x117afa1c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_f16_f32                      0x117afa940 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_bf16_f32                     0x117afb0c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q4_0_f32                     0x117afb840 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q4_1_f32                     0x117b74060 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q5_0_f32                     0x117b74780 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q5_1_f32                     0x117b74f00 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q8_0_f32                     0x117b75680 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_mxfp4_f32                    0x117b75e00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q2_K_f32                     0x117b76580 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q3_K_f32                     0x117b76d00 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q4_K_f32                     0x117b77480 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q5_K_f32                     0x117b77c00 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q6_K_f32                     0x117bfc420 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq2_xxs_f32                  0x117bfcb40 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq2_xs_f32                   0x117bfd2c0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq3_xxs_f32                  0x117bfda40 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq3_s_f32                    0x117bfe1c0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq2_s_f32                    0x117bfe940 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq1_s_f32                    0x117bff0c0 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq1_m_f32                    0x117bff840 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq4_nl_f32                   0x15ec58060 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq4_xs_f32                   0x15ec58780 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_f32_f32                         0x15ec58d20 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_f16_f32                         0x15ec592c0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_bf16_f32                        0x15ec59860 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q4_0_f32                        0x15ec59e00 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q4_1_f32                        0x15ec5a3a0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q5_0_f32                        0x15ec5a940 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q5_1_f32                        0x15ec5aee0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q8_0_f32                        0x15ec5b480 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_mxfp4_f32                       0x15ec5ba20 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_mxfp4_f32                       0x15ecec060 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q2_K_f32                        0x15ecec5a0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q3_K_f32                        0x15ececb40 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q4_K_f32                        0x15eced0e0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q5_K_f32                        0x15eced680 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q6_K_f32                        0x15ecedc20 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq2_xxs_f32                     0x15ecee1c0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq2_xs_f32                      0x15ecee760 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq3_xxs_f32                     0x15eceed00 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq3_s_f32                       0x15ecef2a0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq2_s_f32                       0x15ecef840 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq1_s_f32                       0x15ecefde0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq1_m_f32                       0x15ed9c420 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq4_nl_f32                      0x15ed9c960 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq4_xs_f32                      0x15ed9cf00 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_map0_f16                     0x15ed9d260 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_map1_f32                     0x15ed9d5c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_f32_f16                      0x15ed9db60 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_f16_f16                      0x15ed9e100 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_bf16_f16                     0x15ed9e6a0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q4_0_f16                     0x15ed9ec40 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q4_1_f16                     0x15ed9f1e0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q5_0_f16                     0x15ed9f780 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q5_1_f16                     0x15ed9fd20 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q8_0_f16                     0x15ee34360 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_mxfp4_f16                    0x15ee348a0 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q2_K_f16                     0x15ee34e40 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q3_K_f16                     0x15ee353e0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q4_K_f16                     0x15ee35980 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q5_K_f16                     0x15ee35f20 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q6_K_f16                     0x15ee364c0 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq2_xxs_f16                  0x15ee36a60 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq2_xs_f16                   0x15ee37000 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq3_xxs_f16                  0x15ee375a0 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq3_s_f16                    0x15ee37b40 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq2_s_f16                    0x15eec4180 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq1_s_f16                    0x15eec46c0 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq1_m_f16                    0x15eec4c60 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq4_nl_f16                   0x15eec5200 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq4_xs_f16                   0x15eec57a0 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_norm_f32                          0x15eec62e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_norm_f16                          0x15eec6e20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_multi_f32                         0x15eec7960 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_multi_f16                         0x15ef24540 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_vision_f32                        0x15ef25020 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_vision_f16                        0x15ef25b60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_neox_f32                          0x15ef266a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_neox_f16                          0x15ef271e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_im2col_f16                             0x15ef277e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_im2col_f32                             0x15ef27de0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_im2col_ext_f16                         0x15ef5c480 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_im2col_ext_f32                         0x15ef5ca20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_conv_transpose_1d_f32_f32              0x15ef5ccc0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_conv_transpose_1d_f16_f32              0x15ef5cf60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_upscale_f32                            0x15ef5d740 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_pad_f32                                0x15ef5dda0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_pad_reflect_1d_f32                     0x15ef5e4c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_timestep_embedding_f32                 0x15ef5e640 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_arange_f32                             0x15ef5e7c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_argsort_f32_i32_asc                    0x15ef5e880 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_argsort_f32_i32_desc                   0x15ef5e9a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_leaky_relu_f32                         0x15ef5eb20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h64                 0x15ef5f5a0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h80                 0x15effc120 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h96                 0x15effcba0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h112                0x15effd680 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h128                0x15effe160 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h192                0x15effec40 | th_max =  384 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_hk192_hv128         0x15efff720 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h256                0x15f0342a0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_hk576_hv512         0x15f034d20 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h64                0x15f035800 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h80                0x15f0362e0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h96                0x15f036dc0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h112               0x15f037960 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h128               0x15f058420 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h192               0x15f058ea0 | th_max =  384 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_hk192_hv128        0x15f059980 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h256               0x15f05a460 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_hk576_hv512        0x15f05af40 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h64                0x15f05ba20 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h80                0x15f0945a0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h96                0x15f095020 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h112               0x15f095b00 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h128               0x15f0965e0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h192               0x15f0970c0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_hk192_hv128        0x15f097ba0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h256               0x15f0bc720 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_hk576_hv512        0x15f0bd1a0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h64                0x15f0bdc80 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h80                0x15f0be760 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h96                0x15f0bf240 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h112               0x15f0bfd20 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h128               0x15f0e48a0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h192               0x15f0e5320 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_hk192_hv128        0x15f0e5e00 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h256               0x15f0e68e0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_hk576_hv512        0x15f0e73c0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h64                0x15f0e7ea0 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h80                0x15f10ca20 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h96                0x15f10d4a0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h112               0x15f10df80 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h128               0x15f10ea60 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h192               0x15f10f540 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_hk192_hv128        0x15f13c0c0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h256               0x15f13cb40 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_hk576_hv512        0x15f13d620 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h64                0x15f13e100 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h80                0x15f13ebe0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h96                0x15f13f6c0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h112               0x15f16c240 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h128               0x15f16ccc0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h192               0x15f16d7a0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_hk192_hv128        0x15f16e280 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h256               0x15f16ed60 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_hk576_hv512        0x15f16f840 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h64                0x15f1883c0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h80                0x15f188e40 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h96                0x15f189920 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h112               0x15f18a400 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h128               0x15f18aee0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h192               0x15f18b9c0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_hk192_hv128        0x15f1b4540 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h256               0x15f1b4fc0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_hk576_hv512        0x15f1b5aa0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h64             0x15f1b6580 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h64            0x15f1b7060 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h64            0x15f1b7b40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h64            0x15f1e06c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h64            0x15f1e1140 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h64            0x15f1e1c20 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h64            0x15f1e2700 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h96             0x15f1e31e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h96            0x15f1e3cc0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h96            0x15f210840 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h96            0x15f2112c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h96            0x15f211da0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h96            0x15f212880 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h96            0x15f213360 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h128            0x15f213e40 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h128           0x15f2409c0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h128           0x15f241440 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h128           0x15f241f20 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h128           0x15f242a00 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h128           0x15f2434e0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h128           0x15f260060 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h192            0x15f260ae0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h192           0x15f2615c0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h192           0x15f2620a0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h192           0x15f262b80 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h192           0x15f263660 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h192           0x15f28c1e0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h192           0x15f28cc60 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_hk192_hv128      0x15f28d740 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_hk192_hv128      0x15f28e220 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_hk192_hv128      0x15f28ed00 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_hk192_hv128      0x15f28f7e0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_hk192_hv128      0x15f2b0360 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_hk192_hv128      0x15f2b0de0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_hk192_hv128      0x15f2b18c0 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h256            0x15f2b23a0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h256           0x15f2b2e80 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h256           0x15f2b3960 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h256           0x15f2dc4e0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h256           0x15f2dcf60 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h256           0x15f2dda40 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h256           0x15f2de520 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_hk576_hv512      0x15f2df000 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_hk576_hv512      0x15f2dfae0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_hk576_hv512      0x15f300660 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_hk576_hv512      0x15f3010e0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_hk576_hv512      0x15f301bc0 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_hk576_hv512      0x15f3026a0 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_hk576_hv512      0x15f303180 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_f32                                0x15f303660 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_i32                                0x15f303b40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_f32                            0x15f34c240 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_f16                            0x15f34c840 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_bf16                           0x15f34cea0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f16_f32                            0x15f34d500 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f16_f16                            0x15f34db60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_bf16_f32                           0x15f34e1c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_bf16_bf16                          0x15f34e2e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q8_0                           0x15f34ef40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q4_0                           0x15f34f5a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q4_1                           0x15f34fc00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q5_0                           0x15f3dc240 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q5_1                           0x15f3dc840 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_iq4_nl                         0x15f3dcea0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q4_0_f32                           0x15f3dd500 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q4_0_f16                           0x15f3ddb60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q4_1_f32                           0x15f3de1c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q4_1_f16                           0x15f3de820 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q5_0_f32                           0x15f3dee80 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q5_0_f16                           0x15f3df4e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q5_1_f32                           0x15f3dfb40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q5_1_f16                           0x162480240 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q8_0_f32                           0x162480840 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q8_0_f16                           0x162480ea0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_concat                                 0x162481860 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sqr                                    0x162481920 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sqrt                                   0x162481980 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sin                                    0x1624819e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cos                                    0x162481a40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_neg                                    0x162481aa0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_reglu                                  0x162481ec0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_geglu                                  0x162482340 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_swiglu                                 0x1624827c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_swiglu_oai                             0x162482c40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_geglu_erf                              0x1624830c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_geglu_quick                            0x162483540 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sum_rows                               0x162483ea0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mean                                   0x16250c8a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_argmax                                 0x16250c900 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_pool_2d_avg_f32                        0x16250cd20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_pool_2d_max_f32                        0x16250d1a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add                                    0x1180ec0c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_fuse_2                             0x1180eca80 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_fuse_3                             0x1180ed4a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_fuse_4                             0x1180edec0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_fuse_5                             0x1180ee8e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_fuse_6                             0x1180ef300 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_fuse_7                             0x1180efd20 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_fuse_8                             0x11811c7e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4                             0x11811d1a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_2                      0x11811dbc0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_3                      0x11811e5e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_4                      0x11811f000 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_5                      0x11811fa20 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_6                      0x1181444e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_7                      0x118144ea0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_8                      0x1181458c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sub                                    0x1181462e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sub_row_c4                             0x118146d00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul                                    0x118147720 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_row_c4                             0x1181741e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_div                                    0x118174ba0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_div_row_c4                             0x1181755c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_id                                 0x118175860 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_repeat_f32                             0x118175ec0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_repeat_f16                             0x118176520 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_repeat_i32                             0x118176b80 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_repeat_i16                             0x1181771e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_scale                                  0x118177300 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_scale_4                                0x1181772a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_clamp                                  0x118177360 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_tanh                                   0x1181773c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_relu                                   0x118177420 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sigmoid                                0x118177480 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_gelu                                   0x1181774e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_gelu_4                                 0x118177540 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_gelu_erf                               0x1181775a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_gelu_erf_4                             0x118177600 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_gelu_quick                             0x118177660 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_gelu_quick_4                           0x1181776c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_silu                                   0x118177720 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_silu_4                                 0x118177780 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_elu                                    0x1181777e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_abs                                    0x118177840 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sgn                                    0x1181778a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_step                                   0x118177900 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_hardswish                              0x118177960 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_hardsigmoid                            0x1181779c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_exp                                    0x118177a20 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_soft_max_f16                           0x1182141e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_soft_max_f16_4                         0x118214960 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_soft_max_f32                           0x118215140 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_soft_max_f32_4                         0x1182159e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_diag_mask_inf                          0x118215920 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_diag_mask_inf_8                        0x118215c80 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_f32                           0x118215fe0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_f16                           0x118216340 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_bf16                          0x1182166a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q4_0                          0x118216a00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q4_1                          0x118216d60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q5_0                          0x1182170c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q5_1                          0x118217420 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q8_0                          0x118217780 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_mxfp4                         0x118217ae0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q2_K                          0x118217e40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q3_K                          0x1182ac240 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q4_K                          0x1182ac540 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q5_K                          0x1182ac8a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q6_K                          0x1182acc00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq2_xxs                       0x1182acf60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq2_xs                        0x1182ad2c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq3_xxs                       0x1182ad620 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq3_s                         0x1182ad980 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq2_s                         0x1182adce0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq1_s                         0x1182ae040 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq1_m                         0x1182ae3a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq4_nl                        0x1182ae700 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq4_xs                        0x1182aea60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_i32                           0x1182aedc0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_f32                           0x1182af300 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_f16                           0x1182af840 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_bf16                          0x1182afd80 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_q8_0                          0x118374360 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_q4_0                          0x118374840 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_q4_1                          0x118374d80 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_q5_0                          0x1183752c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_q5_1                          0x118375800 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_iq4_nl                        0x118375d40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rms_norm                               0x118376220 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rms_norm_mul                           0x118376700 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rms_norm_mul_add                       0x118376be0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_l2_norm                                0x118376dc0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_group_norm                             0x118377120 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_norm                                   0x118377300 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_ssm_conv_f32                           0x118377960 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_ssm_scan_f32                           0x1183e02a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_ssm_scan_f32_group                     0x1183e0ae0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rwkv_wkv6_f32                          0x1183e0ba0 | th_max =  384 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rwkv_wkv7_f32                          0x1183e0c00 | th_max =  448 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_f32_f32                         0x1183e12c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_f32_f32_c4                      0x1183e19e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32                        0x1183e2100 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32_c4                     0x1183e2820 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32_1row                   0x1183e2f40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32_l4                     0x1183e3660 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_bf16                       0x1183e3d80 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32                         0x11843c4e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32_c4                      0x11843cba0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32_1row                    0x11843d2c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32_l4                      0x11843d9e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f16                         0x11843e100 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q4_0_f32                        0x11843e820 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q4_1_f32                        0x11843ef40 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q5_0_f32                        0x11843f660 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q5_1_f32                        0x11843fd80 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q8_0_f32                        0x1184c0540 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_mxfp4_f32                       0x1184c0c00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_2                0x1184c1440 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_3                0x1184c1c80 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_4                0x1184c24c0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_5                0x1184c2d00 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_2               0x1184c3540 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_3               0x1184c3d80 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_4               0x1184f8660 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_5               0x1184f8ea0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_2               0x1184f96e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_3               0x1184f9f20 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_4               0x1184fa760 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_5               0x1184fafa0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_2               0x1184fb7e0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_3               0x1185340c0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_4               0x1185348a0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_5               0x1185350e0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_2               0x118535920 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_3               0x118536160 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_4               0x1185369a0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_5               0x1185371e0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_2               0x118537a20 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_3               0x118574300 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_4               0x118574ae0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_5               0x118575320 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_2              0x118575b60 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_3              0x1185763a0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_4              0x118576be0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_5              0x118577420 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_2               0x118577c60 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_3               0x118594540 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_4               0x118594d20 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_5               0x118595560 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_2               0x118595da0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_3               0x1185965e0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_4               0x118596e20 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_5               0x118597660 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_2               0x118597ea0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_3               0x1185c0720 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_4               0x1185c0f00 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_5               0x1185c1740 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_2             0x1185c1f80 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_3             0x1185c27c0 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_4             0x1185c3000 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_5             0x1185c3840 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q2_K_f32                        0x1185c3f60 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q3_K_f32                        0x118600060 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q4_K_f32                        0x118600d80 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q5_K_f32                        0x1186014a0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q6_K_f32                        0x118601bc0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq2_xxs_f32                     0x1186022e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq2_xs_f32                      0x118602a00 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq3_xxs_f32                     0x118603120 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq3_s_f32                       0x118603840 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq2_s_f32                       0x11866c060 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq1_s_f32                       0x11866c720 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq1_m_f32                       0x11866ce40 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq4_nl_f32                      0x11866d560 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq4_xs_f32                      0x11866dc80 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_f32_f32                      0x11866e400 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_f16_f32                      0x11866e5e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_bf16_f32                     0x11866f360 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q4_0_f32                     0x11866fae0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q4_1_f32                     0x1186e4300 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q5_0_f32                     0x1186e4a20 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q5_1_f32                     0x1186e51a0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q8_0_f32                     0x1186e5920 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_mxfp4_f32                    0x1186e60a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q2_K_f32                     0x1186e6820 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q3_K_f32                     0x1186e6fa0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q4_K_f32                     0x1186e7720 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q5_K_f32                     0x1186e7ea0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q6_K_f32                     0x1187546c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq2_xxs_f32                  0x118754de0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq2_xs_f32                   0x118755560 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq3_xxs_f32                  0x118755ce0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq3_s_f32                    0x118756460 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq2_s_f32                    0x118756be0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq1_s_f32                    0x118757360 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq1_m_f32                    0x118757ae0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq4_nl_f32                   0x1187bc300 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq4_xs_f32                   0x1187bca20 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_f32_f32                         0x1187bcfc0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_f16_f32                         0x1187bd560 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_bf16_f32                        0x1187bdb00 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q4_0_f32                        0x1187be0a0 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q4_1_f32                        0x1187be640 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q5_0_f32                        0x1187bebe0 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q5_1_f32                        0x1187bf180 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q8_0_f32                        0x1187bf720 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_mxfp4_f32                       0x1187bfcc0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_mxfp4_f32                       0x15bc60300 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q2_K_f32                        0x15bc60840 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q3_K_f32                        0x15bc60de0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q4_K_f32                        0x15bc61380 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q5_K_f32                        0x15bc61920 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q6_K_f32                        0x15bc61ec0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq2_xxs_f32                     0x15bc62460 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq2_xs_f32                      0x15bc62a00 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq3_xxs_f32                     0x15bc62fa0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq3_s_f32                       0x15bc63540 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq2_s_f32                       0x15bc63ae0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq1_s_f32                       0x15bcf0120 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq1_m_f32                       0x15bcf0660 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq4_nl_f32                      0x15bcf0c00 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq4_xs_f32                      0x15bcf11a0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_map0_f16                     0x15bcf1500 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_map1_f32                     0x15bcf1860 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_f32_f16                      0x15bcf1e00 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_f16_f16                      0x15bcf23a0 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_bf16_f16                     0x15bcf2940 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q4_0_f16                     0x15bcf2ee0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q4_1_f16                     0x15bcf3480 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q5_0_f16                     0x15bcf3a20 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q5_1_f16                     0x15bd80060 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q8_0_f16                     0x15bd805a0 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_mxfp4_f16                    0x15bd80b40 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q2_K_f16                     0x15bd810e0 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q3_K_f16                     0x15bd81680 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q4_K_f16                     0x15bd81c20 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q5_K_f16                     0x15bd821c0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q6_K_f16                     0x15bd82760 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq2_xxs_f16                  0x15bd82d00 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq2_xs_f16                   0x15bd832a0 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq3_xxs_f16                  0x15bd83840 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq3_s_f16                    0x15bd83de0 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq2_s_f16                    0x15be403c0 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq1_s_f16                    0x15be40900 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq1_m_f16                    0x15be40ea0 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq4_nl_f16                   0x15be41440 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq4_xs_f16                   0x15be41a40 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_norm_f32                          0x15be42580 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_norm_f16                          0x15be430c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_multi_f32                         0x15be43c00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_multi_f16                         0x15be947e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_vision_f32                        0x15be952c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_vision_f16                        0x15be95e00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_neox_f32                          0x15be96940 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_neox_f16                          0x15be97480 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_im2col_f16                             0x15be97a80 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_im2col_f32                             0x15bed0120 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_im2col_ext_f16                         0x15bed06c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_im2col_ext_f32                         0x15bed0cc0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_conv_transpose_1d_f32_f32              0x15bed0f60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_conv_transpose_1d_f16_f32              0x15bed1200 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_upscale_f32                            0x15bed19e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_pad_f32                                0x15bed2040 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_pad_reflect_1d_f32                     0x15bed2760 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_timestep_embedding_f32                 0x15bed28e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_arange_f32                             0x15bed2a60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_argsort_f32_i32_asc                    0x15bed2b20 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_argsort_f32_i32_desc                   0x15bed2c40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_leaky_relu_f32                         0x15bed2dc0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h64                 0x15bed3840 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h80                 0x15bf4c3c0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h96                 0x15bf4ce40 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h112                0x15bf4d920 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h128                0x15bf4e400 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h192                0x15bf4eee0 | th_max =  384 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_hk192_hv128         0x15bf4f9c0 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h256                0x15bf6c540 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_hk576_hv512         0x15bf6cfc0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h64                0x15bf6daa0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h80                0x15bf6e580 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h96                0x15bf6f060 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h112               0x15bf6fb40 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h128               0x15bfb06c0 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h192               0x15bfb1140 | th_max =  384 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_hk192_hv128        0x15bfb1c20 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h256               0x15bfb2700 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_hk576_hv512        0x15bfb31e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h64                0x15bfb3cc0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h80                0x15bfd4840 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h96                0x15bfd52c0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h112               0x15bfd5da0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h128               0x15bfd6880 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h192               0x15bfd7360 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_hk192_hv128        0x15bfd7e40 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h256               0x15c4049c0 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_hk576_hv512        0x15c405440 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h64                0x15c405f20 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h80                0x15c406a00 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h96                0x15c4074e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h112               0x15c41c060 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h128               0x15c41cae0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h192               0x15c41d5c0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_hk192_hv128        0x15c41e0a0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h256               0x15c41eb80 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_hk576_hv512        0x15c41f660 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h64                0x15c4441e0 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h80                0x15c444c60 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h96                0x15c445740 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h112               0x15c446220 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h128               0x15c446d00 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h192               0x15c4477e0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_hk192_hv128        0x15c46c360 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h256               0x15c46cde0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_hk576_hv512        0x15c46d8c0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h64                0x15c46e3a0 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h80                0x15c46eee0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h96                0x15c46f9c0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h112               0x15c4a04e0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h128               0x15c4a0f60 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h192               0x15c4a1a40 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_hk192_hv128        0x15c4a2520 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h256               0x15c4a3000 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_hk576_hv512        0x15c4a3ae0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h64                0x15c4bc660 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h80                0x15c4bd0e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h96                0x15c4bdbc0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h112               0x15c4be6a0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h128               0x15c4bf180 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h192               0x15c4bfc60 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_hk192_hv128        0x15c4e47e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h256               0x15c4e5260 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_hk576_hv512        0x15c4e5d40 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h64             0x15c4e6820 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h64            0x15c4e7300 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h64            0x15c4e7de0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h64            0x15c524960 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h64            0x15c5253e0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h64            0x15c525ec0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h64            0x15c5269a0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h96             0x15c527480 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h96            0x15c527f60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h96            0x15c548060 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h96            0x15c549500 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h96            0x15c549fe0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h96            0x15c54aac0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h96            0x15c54b5a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h128            0x15c568180 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h128           0x15c568c00 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h128           0x15c5696e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h128           0x15c56a1c0 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h128           0x15c56aca0 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h128           0x15c56b780 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h128           0x15c594300 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h192            0x15c594d80 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h192           0x15c595860 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h192           0x15c596340 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h192           0x15c596e20 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h192           0x15c597900 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h192           0x15c5c0480 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h192           0x15c5c0f00 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_hk192_hv128      0x15c5c1200 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_hk192_hv128      0x15c5c24c0 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_hk192_hv128      0x15c5c2fa0 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_hk192_hv128      0x15c5c3a80 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_hk192_hv128      0x15c5e8600 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_hk192_hv128      0x15c5e9080 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_hk192_hv128      0x15c5e9b60 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h256            0x15c5ea640 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h256           0x15c5eb120 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h256           0x15c5ebc00 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h256           0x15c608720 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h256           0x15c6091a0 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h256           0x15c609c80 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h256           0x15c60a760 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_hk576_hv512      0x15c60b240 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_hk576_hv512      0x15c60bd20 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_hk576_hv512      0x15c6388a0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_hk576_hv512      0x15c639320 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_hk576_hv512      0x15c639e00 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_hk576_hv512      0x15c63a8e0 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_hk576_hv512      0x15c63b3c0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_f32                                0x15c63b8a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_i32                                0x15c63bf60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_f32                            0x15c67c4e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_f16                            0x15c67cae0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_bf16                           0x15c67d1a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f16_f32                            0x15c67d800 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f16_f16                            0x15c67de60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_bf16_f32                           0x15c67e4c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_bf16_bf16                          0x15c67eb20 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q8_0                           0x15c67f180 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q4_0                           0x15c67f7e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q4_1                           0x15c67fe40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q5_0                           0x15c714540 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q5_1                           0x15c714b40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_iq4_nl                         0x15c7151a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q4_0_f32                           0x15c715800 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q4_0_f16                           0x15c715e60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q4_1_f32                           0x15c7164c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q4_1_f16                           0x15c716b20 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q5_0_f32                           0x15c717180 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q5_0_f16                           0x15c7177e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q5_1_f32                           0x15c717ea0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q5_1_f16                           0x15c7b4540 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q8_0_f32                           0x15c7b4b40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q8_0_f16                           0x15c7b51a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_concat                                 0x15c7b5b60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sqr                                    0x15c7b5c20 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sqrt                                   0x15c7b5c80 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sin                                    0x15c7b5ce0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cos                                    0x15c7b5d40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_neg                                    0x15c7b5da0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_reglu                                  0x15c7b61c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_geglu                                  0x15c7b6640 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_swiglu                                 0x15c7b6ac0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_swiglu_oai                             0x15c7b6f40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_geglu_erf                              0x15c7b73c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_geglu_quick                            0x15c7b7840 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sum_rows                               0x15d8401e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mean                                   0x15d840ae0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_argmax                                 0x15d840ba0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_pool_2d_avg_f32                        0x15d840fc0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_pool_2d_max_f32                        0x15d841440 | th_max = 1024 | th_width =   32
 llama[1]: set_abort_callback: call
 llama[2]: llama_context:        CPU  output buffer size =     0.58 MiB
 llama[1]: create_memory: n_ctx = 1024 (padded)
@@ -786,216 +788,6 @@ LlamaCppBridge: Successfully created context
 🔍 LLMService: Final state after loading:
      - currentModelFilename: Qwen3-1.7B-Q4_K_M
      - isModelLoaded: true
-     - modelPath: /private/var/containers/Bundle/Application/99A71485-B560-4F0F-AABD-91CE6E0291BA/Control LLM.app/Models/Qwen3-1.7B-Q4_K_M.gguf
+     - modelPath: /private/var/containers/Bundle/Application/A5103A0C-ECB6-4ABA-B2D8-5A9E7FA9CE49/Control LLM.app/Models/Qwen3-1.7B-Q4_K_M.gguf
 ✅ HybridLLMService: Model loaded with llama.cpp
 ✅ ChatViewModel: Auto-loaded model on startup - loaded: true, model: Qwen3-1.7B-Q4_K_M
-App is being debugged, do not track this hang
-Hang detected: 0.33s (debugger attached, not reporting)
-🔍 Sheet detent changed to: PresentationDetent(id: Large), isSheetExpanded: true
-🔍 Sheet expansion state changed to: true
-App is being debugged, do not track this hang
-Hang detected: 0.86s (debugger attached, not reporting)
-Send button pressed!
-Send button pressed!
-🔍 Setting isLocalProcessing = true for immediate button change
-🔍 TextModalView: isLocalProcessing changed, updating effective processing state
-🔍 TextModalView: updateEffectiveProcessingState - changing from false to true (llm.isProcessing: false, isLocalProcessing: true)
-Donating message sent intent: 'Hi'
-🔍 TextModalView: sendMessage called with text: 'Hi'
-🔍 TextModalView: sendMessage called with text: 'Hi'
-🔍 TextModalView: isDuplicateMessage: false
-🔍 TextModalView: Sending message through MainViewModel
-🔍 TextModalView: Setting llm.isProcessing = true before sending message
-🔍 TextModalView: llm.isProcessing set to: true
-🔍 MainViewModel: sendTextMessage called with text: Hi...
-🔍 MainViewModel: Current messages count: 0
-🔍 MainViewModel: User message added. New count: 1
-🔍 MainViewModel: No file detected, sending text normally
-🔍 TextModalView: About to create placeholder message
-🔍 TextModalView: About to clear messageText
-🔍 TextModalView: LLM call already made through ChatViewModel, no duplicate call needed
-🔍 TextModalView: About to start polling
-🔍 TextModalView: sendMessage completed successfully
-🔍 TextModalView: llm.isProcessing changed to true, updating effective processing state
-🔍 ChatViewModel: Added user message to history.
-🔍 ChatViewModel: buildSafeHistory called with 1 messages
-🔍 ChatViewModel: Full history content:
-   [0] User: Hi...
-🔍 ChatViewModel: After maxMessages trim: 1 messages
-🔍 ChatViewModel: Initial character count: 2
-🔍 ChatViewModel: Final result: 1 messages, 2 characters
-🔍 ChatViewModel: Final history content:
-   [0] User: Hi...
-🔍 HybridLLMService: Loading model: Qwen3-1.7B-Q4_K_M
-🔍 HybridLLMService: Using llama.cpp for Qwen3-1.7B-Q4_K_M
-🔍 LLMService: Model Qwen3-1.7B-Q4_K_M already loaded, skipping reload
-✅ HybridLLMService: Model loaded with llama.cpp
-🔍 HybridLLMService: generateResponse called with useRawPrompt: false
-Donating message sent intent: 'Hi'
-🔍 HybridLLMService: Generating response with llama.cpp
-🔍 HybridLLMService: useRawPrompt flag: false
-🔍 HybridLLMService: Using regular chat path
-🔍🔍🔍 LLMService.chat: ENTRY POINT - userText parameter: 'Hi...'
-🔍 LLMService.chat: History count: 1
-🔍 LLMService: Starting conversation #1 with model Qwen3-1.7B-Q4_K_M
-🔍🔍🔍 LLMService.buildPrompt: ENTRY POINT - userText parameter: 'Hi...'
-🔍 LLMService: buildPrompt called with history count: 1
-🔍 LLMService: Building prompt with 1 history messages for model Qwen3-1.7B-Q4_K_M
-  Message 0: User - Hi
-🔍 LLMService: Qwen3 detected - appended /no_think to disable internal reasoning
-🔍 LLMService: Building prompt for model: Qwen3-1.7B-Q4_K_M using universal chat template
-🔍 LLMService: Using universal chat template for model: Qwen3-1.7B-Q4_K_M
-🔧 LLMService: Calling llm_bridge_apply_chat_template_messages...
-LlamaCppBridge: Using chat template: {%- if tools %}
-    {{- '<|im_start|>system\n' }}
-    {%- if messages[0].role == 'system' %}
-        {{- messages[0].content + '\n\n' }}
-    {%- endif %}
-    {{- "# Tools\n\nYou may call one or more functions to assist with the user query.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>" }}
-    {%- for tool in tools %}
-        {{- "\n" }}
-        {{- tool | tojson }}
-    {%- endfor %}
-    {{- "\n</tools>\n\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\n<tool_call>\n{\"name\": <function-name>, \"arguments\": <args-json-object>}\n</tool_call><|im_end|>\n" }}
-{%- else %}
-    {%- if messages[0].role == 'system' %}
-        {{- '<|im_start|>system\n' + messages[0].content + '<|im_end|>\n' }}
-    {%- endif %}
-{%- endif %}
-{%- set ns = namespace(multi_step_tool=true, last_query_index=messages|length - 1) %}
-{%- for forward_message in messages %}
-    {%- set index = (messages|length - 1) - loop.index0 %}
-    {%- set message = messages[index] %}
-    {%- set current_content = message.content if message.content is not none else '' %}
-    {%- set tool_start = '<tool_response>' %}
-    {%- set tool_start_length = tool_start|length %}
-    {%- set start_of_message = current_content[:tool_start_length] %}
-    {%- set tool_end = '</tool_response>' %}
-    {%- set tool_end_length = tool_end|length %}
-    {%- set start_pos = (current_content|length) - tool_end_length %}
-    {%- if start_pos < 0 %}
-        {%- set start_pos = 0 %}
-    {%- endif %}
-    {%- set end_of_message = current_content[start_pos:] %}
-    {%- if ns.multi_step_tool and message.role == "user" and not(start_of_message == tool_start and end_of_message == tool_end) %}
-        {%- set ns.multi_step_tool = false %}
-        {%- set ns.last_query_index = index %}
-    {%- endif %}
-{%- endfor %}
-{%- for message in messages %}
-    {%- if (message.role == "user") or (message.role == "system" and not loop.first) %}
-        {{- '<|im_start|>' + message.role + '\n' + message.content + '<|im_end|>' + '\n' }}
-    {%- elif message.role == "assistant" %}
-        {%- set content = message.content %}
-        {%- set reasoning_content = '' %}
-        {%- if message.reasoning_content is defined and message.reasoning_content is not none %}
-            {%- set reasoning_content = message.reasoning_content %}
-        {%- else %}
-            {%- if '</think>' in message.content %}
-                {%- set content = (message.content.split('</think>')|last).lstrip('\n') %}
-                {%- set reasoning_content = (message.content.split('</think>')|first).rstrip('\n') %}
-                {%- set reasoning_content = (reasoning_content.split('<think>')|last).lstrip('\n') %}
-            {%- endif %}
-        {%- endif %}
-        {%- if loop.index0 > ns.last_query_index %}
-            {%- if loop.last or (not loop.last and reasoning_content) %}
-                {{- '<|im_start|>' + message.role + '\n<think>\n' + reasoning_content.strip('\n') + '\n</think>\n\n' + content.lstrip('\n') }}
-            {%- else %}
-                {{- '<|im_start|>' + message.role + '\n' + content }}
-            {%- endif %}
-        {%- else %}
-            {{- '<|im_start|>' + message.role + '\n' + content }}
-        {%- endif %}
-        {%- if message.tool_calls %}
-            {%- for tool_call in message.tool_calls %}
-                {%- if (loop.first and content) or (not loop.first) %}
-                    {{- '\n' }}
-                {%- endif %}
-                {%- if tool_call.function %}
-                    {%- set tool_call = tool_call.function %}
-                {%- endif %}
-                {{- '<tool_call>\n{"name": "' }}
-                {{- tool_call.name }}
-                {{- '", "arguments": ' }}
-                {%- if tool_call.arguments is string %}
-                    {{- tool_call.arguments }}
-                {%- else %}
-                    {{- tool_call.arguments | tojson }}
-                {%- endif %}
-                {{- '}\n</tool_call>' }}
-            {%- endfor %}
-        {%- endif %}
-        {{- '<|im_end|>\n' }}
-    {%- elif message.role == "tool" %}
-        {%- if loop.first or (messages[loop.index0 - 1].role != "tool") %}
-            {{- '<|im_start|>user' }}
-        {%- endif %}
-        {{- '\n<tool_response>\n' }}
-        {{- message.content }}
-        {{- '\n</tool_response>' }}
-        {%- if loop.last or (messages[loop.index0 + 1].role != "tool") %}
-            {{- '<|im_end|>\n' }}
-        {%- endif %}
-    {%- endif %}
-{%- endfor %}
-{%- if add_generation_prompt %}
-    {{- '<|im_start|>assistant\n' }}
-    {%- if enable_thinking is defined and enable_thinking is false %}
-        {{- '<think>\n\n</think>\n\n' }}
-    {%- endif %}
-{%- endif %}
-✅ LLMService: Applied model chat template (213 bytes)
-🔍 LLMService: Final prompt length: 213 characters
-🔍 LLMService: Final prompt preview: <|im_start|>system
-You are a helpful assistant. Give clear, accurate answers. Say "I don't know" if uncertain.<|im_end|>
-<|im_start|>user
-Hi<|im_end|>
-<|im_start|>user
-Hi /no_think<|im_end|>
-<|im_star...
-🔧 LLMService: Calling llm_bridge_generate_stream_block...
-LlamaCppBridge: Starting streaming generation with max_tokens=2048 for model Qwen3-1.7B-Q4_K_M
-LlamaCppBridge: Prompt length: 213 characters
-LlamaCppBridge: Prompt preview: <|im_start|>system
-You are a helpful assistant. Give clear, accurate answers. Say "I don't know" if uncertain.<|im_end|>
-<|im_start|>user
-Hi<|im_end|>
-<|im_start|>user
-Hi /no_think<|im_end|>
-<|im_star...
-LlamaCppBridge: Using standard tokenization (add_special=true, parse_special=true)
-LlamaCppBridge: Tokenized prompt into 46 tokens
-🔍 TextModalView: Starting monitorAssistantStream
-🔍 TextModalView: File processing completed, stopping polling
-🔍 TextModalView: isLocalProcessing changed, updating effective processing state
-🔍 TextModalView: Added empty placeholder message (0.3s delay)
-🔍 TextModalView: Placeholder added, starting polling
-✅ Lottie: Loaded animation 'thinkingAnimation' using .named()
-✅ Lottie: Animation 'thinkingAnimation' started playing
-🔍 TextModalView: generatingOverlay appeared - llm.isProcessing: true, isLocalProcessing: false, effectiveIsProcessing: true
-LlamaCppBridge: Starting generation loop for 2048 tokens
-LlamaCppBridge: Removed incomplete <think> tag, continuing generation
-LlamaCppBridge: Token 1: '<think>' -> ''
-LlamaCppBridge: Token 2: '
-
-' -> '
-
-'
-LlamaCppBridge: Token 3: '</think>' -> '</think>'
-LlamaCppBridge: Token 4: '
-
-' -> '
-
-'
-LlamaCppBridge: Token 5: 'Hello' -> 'Hello'
-LlamaCppBridge: Hit end token at position 13
-LlamaCppBridge: Generation loop completed. Generated 13 tokens.
-LlamaCppBridge: Resetting context after chunk completion to free memory
-🔍 ChatViewModel: Saved model performance data for 7 models
-🔍 ChatViewModel: Updated performance for Qwen3-1.7B-Q4_K_M: 2.63s (avg: 5.63s)
-🔍 ChatViewModel: Updated global response duration: 2.63s (avg: 6.30s)
-🔍 TextModalView: llm.isProcessing changed to false, updating effective processing state
-🔍 TextModalView: updateEffectiveProcessingState - changing from true to false (llm.isProcessing: false, isLocalProcessing: false)
-🔍 TextModalView: llm.isProcessing changed to false, resetting isLocalProcessing
-LlamaCppBridge: Streaming generation completed
-🔍 MainViewModel: Regular chat completed - isProcessing: false, transcript: ''

@@ -292,12 +292,12 @@ struct TextModalView: View {
                 VStack {
                     LinearGradient(
                         colors: [
-                            colorManager.purpleColor.opacity(isSheetExpanded ? 0.0 : 0.8), 
-                            colorManager.purpleColor.opacity(0.0)
+                            colorManager.redColor.opacity(isSheetExpanded ? 0.0 : 0.8), 
+                            colorManager.redColor.opacity(0.0)
                         ],
                         startPoint: .top, endPoint: .bottom
                     )
-                    .frame(height: 300)
+                    .frame(height: 600)
                     .allowsHitTesting(false)
                     
                     Spacer()
@@ -592,7 +592,7 @@ struct TextModalView: View {
                         HStack(spacing: 0) {
                             Text(shouldShowSwipeToChat() ? "SWIPE TO CHAT" : getCurrentTime())
                                 .font(.custom("IBMPlexMono", size: 12))
-                                .foregroundColor(ColorManager.shared.orangeColor)
+                                .foregroundColor(Color(hex: "#141414"))
                                 .padding(.leading, 0)
                                 .onChange(of: currentTime) { _, _ in
                                     // Trigger UI update when time changes
@@ -602,7 +602,7 @@ struct TextModalView: View {
                             
                             Image(systemName: isSheetExpanded ? "arrow.down" : "arrow.up")
                                 .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(colorManager.redColor)
+                                .foregroundColor(Color(hex: "#141414"))
                                 .padding(.trailing, 0)
                         }
                         .padding(.bottom, isSheetExpanded ? 18 : 10)

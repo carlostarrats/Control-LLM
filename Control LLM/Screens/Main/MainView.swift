@@ -32,15 +32,81 @@ struct MainView: View {
     // Page navigation: 0 = Settings, 1 = Home, 2 = Chat
     @State private var currentPage: Int = 1
     @State private var showingChatSheet = true
+    @State private var showingSettingsSheet = true
     @State private var isSheetExpanded = false
-    @State private var chatSheetView: TextModalView?
+    @State private var isSettingsSheetExpanded = false
+    // MARK: - Computed Properties
+    private var chatSheetView: some View {
+        TextModalView(
+            viewModel: viewModel,
+            isPresented: $showingChatSheet,
+            isSheetExpanded: $isSheetExpanded,
+            messageHistory: []
+        )
+        .background(
+            LinearGradient(
+                colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
+                startPoint: .top, endPoint: .bottom
+            )
+        )
+
+        .offset(y: isSettingsSheetExpanded ? UIScreen.main.bounds.height : 0)
+        .zIndex(isSheetExpanded ? 2 : 0)
+        .overlay(
+            // Tap gesture overlay - only top 10% when open, full area when closed
+            Rectangle()
+                .fill(Color.clear)
+                .frame(height: isSheetExpanded ? UIScreen.main.bounds.height * 0.1 : UIScreen.main.bounds.height * 0.9)
+                .onTapGesture {
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                        if isSheetExpanded {
+                            // Tap to close (only top 10% tappable)
+                            isSheetExpanded = false
+                        } else {
+                            // Tap to expand (full visible area tappable)
+                            isSheetExpanded = true
+                            isSettingsSheetExpanded = false
+                        }
+                    }
+                }
+        )
+    }
+    
+    private var settingsSheetView: some View {
+        SettingsModalView(
+            isPresented: $showingSettingsSheet,
+            isSheetExpanded: $isSettingsSheetExpanded
+        )
+        .background(
+            LinearGradient(
+                colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
+                startPoint: .top, endPoint: .bottom
+            )
+        )
+
+        .offset(y: isSheetExpanded ? UIScreen.main.bounds.height : 0)
+        .zIndex(isSettingsSheetExpanded ? 2 : 1)
+        .overlay(
+            // Tap gesture overlay - only top 10% when open, full area when closed
+            Rectangle()
+                .fill(Color.clear)
+                .frame(height: isSettingsSheetExpanded ? UIScreen.main.bounds.height * 0.1 : 50)
+                .onTapGesture {
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                        if isSettingsSheetExpanded {
+                            // Tap to close (only top 10% tappable)
+                            isSettingsSheetExpanded = false
+                        } else {
+                            // Tap to expand (full visible area tappable)
+                            isSettingsSheetExpanded = true
+                            isSheetExpanded = false
+                        }
+                    }
+                }
+        )
+    }
     
     var body: some View {
-        // REMOVED ALL DEBUG - app is working now
-        
-        // Simplified nav button visibility - always show for now
-        let shouldShowNavButtons = true
-        
         ZStack {
             // Global background gradient that covers everything
             LinearGradient(
@@ -60,7 +126,7 @@ struct MainView: View {
                 
                 // Page 1: Home
                 HomePage(
-                    shouldShowNavButtons: shouldShowNavButtons,
+                    shouldShowNavButtons: true,
                     blobScale: $blobScale,
                     blobColorOpacity: $blobColorOpacity,
                     hueShift: hueShift,
@@ -90,6 +156,17 @@ struct MainView: View {
                 OnboardingModal(isPresented: $showingOnboarding)
             }
         }
+        .background(
+            LinearGradient(
+                colors: [
+                    Color(hex: "#1D1D1D"),
+                    Color(hex: "#141414")
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea(.all)
+        )
         .onAppear {
             let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
             NSLog("🔍 Onboarding check: hasSeenOnboarding = \(hasSeenOnboarding)")
@@ -105,52 +182,41 @@ struct MainView: View {
             // Setup clipboard processing notification observer
             viewModel.setupClipboardProcessingObserver()
             
-            // Initialize stable chat sheet view
-            if chatSheetView == nil {
-                chatSheetView = TextModalView(
-                    viewModel: viewModel,
-                    isPresented: $showingChatSheet,
-                    isSheetExpanded: $isSheetExpanded
-                )
-            }
+            // Initialize any needed setup
         }
         .onDisappear {
             // Clean up notification observer
             viewModel.cleanupClipboardObserver()
         }
-        .sheet(isPresented: Binding(
-            get: { showingChatSheet && currentPage == 1 },
-            set: { newValue in
-                if newValue {
-                    showingChatSheet = true
-                } else {
-                    showingChatSheet = false
-                }
-            }
-        )) {
-            if let chatView = chatSheetView {
-                chatView
-                .presentationDetents([.height(50), .large], selection: Binding(
-                    get: { isSheetExpanded ? .large : .height(50) },
-                    set: { newDetent in
-                        isSheetExpanded = (newDetent == .large)
-                        print("🔍 Sheet detent changed to: \(newDetent), isSheetExpanded: \(isSheetExpanded)")
+        .overlay(
+            // Chat sheet (behind settings sheet, 100pt height)
+            Group {
+                if showingChatSheet && currentPage == 1 {
+                    VStack {
+                        Spacer()
+                        chatSheetView
+                            .frame(height: isSheetExpanded ? UIScreen.main.bounds.height * 0.9 : 100)
+                            .cornerRadius(16, corners: [.topLeft, .topRight])
+
                     }
-                ))
-                .presentationDragIndicator(.hidden)
-                .presentationBackgroundInteraction(.enabled)
-                .presentationBackground(
-                    LinearGradient(
-                        colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
-                        startPoint: .top, endPoint: .bottom
-                    )
-                )
-                .interactiveDismissDisabled()
-                .onChange(of: isSheetExpanded) { _, newValue in
-                    print("🔍 Sheet expansion state changed to: \(newValue)")
                 }
             }
-        }
+        )
+        .overlay(
+            // Settings sheet (in front, 50pt height)
+            Group {
+                if showingSettingsSheet && currentPage == 1 {
+                    VStack {
+                        Spacer()
+                        settingsSheetView
+                            .frame(height: isSettingsSheetExpanded ? UIScreen.main.bounds.height * 0.9 : 50)
+                            .cornerRadius(16, corners: [.topLeft, .topRight])
+
+                    }
+                }
+            }
+        )
+
     }
     
 
