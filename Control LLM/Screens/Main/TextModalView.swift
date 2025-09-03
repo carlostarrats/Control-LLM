@@ -288,19 +288,18 @@ struct TextModalView: View {
                 )
                 .ignoresSafeArea(.all)
                 
-                // Purple gradient overlay - positioned behind all content
-                VStack {
+                // Red gradient overlay - extends from sheet to bottom of screen
+                VStack(spacing: 0) {
+                    // Gradient that extends from the sheet down to the bottom
                     LinearGradient(
                         colors: [
-                            colorManager.redColor.opacity(isSheetExpanded ? 0.0 : 0.8), 
-                            colorManager.redColor.opacity(0.0)
+                            colorManager.redColor.opacity(isSheetExpanded ? 0.0 : 1.0), 
+                            colorManager.redColor.opacity(isSheetExpanded ? 0.0 : 1.0)
                         ],
                         startPoint: .top, endPoint: .bottom
                     )
                     .frame(height: 600)
                     .allowsHitTesting(false)
-                    
-                    Spacer()
                 }
                 .allowsHitTesting(false)
                 

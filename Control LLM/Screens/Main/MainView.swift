@@ -1,5 +1,7 @@
 import SwiftUI
 
+
+
 struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
     @EnvironmentObject var colorManager: ColorManager
@@ -35,6 +37,59 @@ struct MainView: View {
     @State private var showingSettingsSheet = true
     @State private var isSheetExpanded = false
     @State private var isSettingsSheetExpanded = false
+
+    // MARK: - Private Functions
+    private func updateWindowBackgroundColor() {
+        DispatchQueue.main.async {
+            // Access the window through the view's window property
+            if let window = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .flatMap({ $0.windows })
+                .first(where: { $0.isKeyWindow }) {
+                
+                let backgroundColor: UIColor
+                let colorName: String
+                if isSettingsSheetExpanded || (!isSheetExpanded && !isSettingsSheetExpanded) {
+                    // Orange when settings sheet is expanded or when both sheets are closed (settings in front)
+                    backgroundColor = UIColor(ColorManager.shared.orangeColor)
+                    colorName = "ORANGE"
+                } else {
+                    // Dark when chat sheet is expanded
+                    backgroundColor = UIColor(red: 0.11, green: 0.11, blue: 0.11, alpha: 1.0) // #1D1D1D
+                    colorName = "DARK"
+                }
+                
+                // Debug logging
+                NSLog("🔍 DEBUG: Setting window background to \(colorName)")
+                NSLog("🔍 DEBUG: isSettingsSheetExpanded: \(isSettingsSheetExpanded)")
+                NSLog("🔍 DEBUG: isSheetExpanded: \(isSheetExpanded)")
+                NSLog("🔍 DEBUG: Window found: \(window != nil)")
+                NSLog("🔍 DEBUG: Window frame: \(window.frame)")
+                NSLog("🔍 DEBUG: Window safe area: \(window.safeAreaInsets)")
+                
+                // Try multiple approaches
+                window.backgroundColor = backgroundColor
+                
+                // Also try setting root view controller background
+                if let rootVC = window.rootViewController {
+                    rootVC.view.backgroundColor = backgroundColor
+                    NSLog("🔍 DEBUG: Set root view controller background to \(colorName)")
+                }
+                
+                // Also try setting the window's root view background
+                window.rootViewController?.view.backgroundColor = backgroundColor
+                
+                // Verify the change
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    NSLog("🔍 DEBUG: Window background after change: \(window.backgroundColor?.description ?? "nil")")
+                    NSLog("🔍 DEBUG: Root VC background: \(window.rootViewController?.view.backgroundColor?.description ?? "nil")")
+                }
+            } else {
+                NSLog("🔍 DEBUG: No window found!")
+            }
+        }
+    }
+    
     // MARK: - Computed Properties
     private var chatSheetView: some View {
         TextModalView(
@@ -49,6 +104,7 @@ struct MainView: View {
                 startPoint: .top, endPoint: .bottom
             )
         )
+
 
         .offset(y: isSettingsSheetExpanded ? UIScreen.main.bounds.height : 0)
         .zIndex(isSheetExpanded ? 2 : 0)
@@ -79,6 +135,7 @@ struct MainView: View {
 
     }
     
+
     private var settingsSheetView: some View {
         SettingsModalView(
             isPresented: $showingSettingsSheet,
@@ -90,6 +147,7 @@ struct MainView: View {
                 startPoint: .top, endPoint: .bottom
             )
         )
+
 
         .offset(y: isSheetExpanded ? UIScreen.main.bounds.height : 0)
         .zIndex(isSettingsSheetExpanded ? 2 : 1)
@@ -122,16 +180,11 @@ struct MainView: View {
     
     var body: some View {
         ZStack {
-            // Global background gradient that covers everything
-            LinearGradient(
-                colors: [
-                    Color(hex: "#1D1D1D"),
-                    Color(hex: "#141414")
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea(.all)
+            // Base dark background
+            Color(hex: "#1D1D1D")
+                .ignoresSafeArea(.all)
+            
+
             
             TabView(selection: $currentPage) {
                 // Page 0: Settings
@@ -181,6 +234,19 @@ struct MainView: View {
             )
             .ignoresSafeArea(.all)
         )
+        .overlay(
+            // Dynamic safe area overlay that matches sheet colors - positioned on top
+            VStack {
+                Spacer()
+                Rectangle()
+                    .fill(isSettingsSheetExpanded || (!isSheetExpanded && !isSettingsSheetExpanded) ? 
+                        ColorManager.shared.orangeColor : Color(hex: "#141414"))
+                    .frame(height: 50) // Cover the 34pt safe area plus some buffer
+                    .allowsHitTesting(false)
+            }
+            .ignoresSafeArea(.all)
+            .zIndex(999) // Ensure it's on top of everything
+        )
         .onAppear {
             let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
             NSLog("🔍 Onboarding check: hasSeenOnboarding = \(hasSeenOnboarding)")
@@ -196,7 +262,18 @@ struct MainView: View {
             // Setup clipboard processing notification observer
             viewModel.setupClipboardProcessingObserver()
             
+            // Set window background color dynamically
+            updateWindowBackgroundColor()
+            
             // Initialize any needed setup
+        }
+        .onChange(of: isSettingsSheetExpanded) { oldValue, newValue in
+            NSLog("🔍 DEBUG: isSettingsSheetExpanded changed from \(oldValue) to \(newValue)")
+            updateWindowBackgroundColor()
+        }
+        .onChange(of: isSheetExpanded) { oldValue, newValue in
+            NSLog("🔍 DEBUG: isSheetExpanded changed from \(oldValue) to \(newValue)")
+            updateWindowBackgroundColor()
         }
         .onDisappear {
             // Clean up notification observer
@@ -209,7 +286,7 @@ struct MainView: View {
                     VStack {
                         Spacer()
                         chatSheetView
-                            .frame(height: isSheetExpanded ? UIScreen.main.bounds.height * 0.9 : 100)
+                            .frame(height: isSheetExpanded ? UIScreen.main.bounds.height * 0.9 : 126)
                             .cornerRadius(16, corners: [.topLeft, .topRight])
 
                     }
@@ -230,6 +307,9 @@ struct MainView: View {
                 }
             }
         )
+
+
+
 
 
     }
