@@ -54,8 +54,8 @@ struct MainView: View {
                     backgroundColor = UIColor(ColorManager.shared.orangeColor)
                     colorName = "ORANGE"
                 } else {
-                    // Dark when chat sheet is expanded
-                    backgroundColor = UIColor(red: 0.11, green: 0.11, blue: 0.11, alpha: 1.0) // #1D1D1D
+                    // Dark when chat sheet is expanded - match the bottom of the chat sheet
+                    backgroundColor = UIColor(red: 0.08, green: 0.08, blue: 0.08, alpha: 1.0) // #141414
                     colorName = "DARK"
                 }
                 
@@ -103,6 +103,7 @@ struct MainView: View {
                 colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
                 startPoint: .top, endPoint: .bottom
             )
+            .ignoresSafeArea(.all)
         )
 
 
@@ -237,13 +238,25 @@ struct MainView: View {
             .ignoresSafeArea(.all)
         )
         .overlay(
-            // Dynamic safe area overlay that matches sheet colors - only show when sheets are collapsed
+            // Dynamic safe area overlay that matches sheet colors
             Group {
                 if !isSheetExpanded && !isSettingsSheetExpanded {
+                    // Orange safe area when sheets are collapsed
                     VStack {
                         Spacer()
                         Rectangle()
                             .fill(ColorManager.shared.orangeColor)
+                            .frame(height: 50) // Cover the 34pt safe area plus some buffer
+                            .allowsHitTesting(false)
+                    }
+                    .ignoresSafeArea(.all)
+                    .zIndex(999) // Ensure it's on top of everything
+                } else if isSheetExpanded {
+                    // Dark safe area when chat sheet is expanded - match the bottom of the chat sheet
+                    VStack {
+                        Spacer()
+                        Rectangle()
+                            .fill(Color(hex: "#141414"))
                             .frame(height: 50) // Cover the 34pt safe area plus some buffer
                             .allowsHitTesting(false)
                     }
