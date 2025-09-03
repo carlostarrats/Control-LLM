@@ -309,16 +309,21 @@ struct TextModalView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .bottom) {
-                // Full background gradient
-                LinearGradient(
-                    colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
-                    startPoint: .top, endPoint: .bottom
-                )
-                .ignoresSafeArea(.all)
+                // Background gradient when expanded, transparent when collapsed
+                if isSheetExpanded {
+                    LinearGradient(
+                        colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
+                        startPoint: .top, endPoint: .bottom
+                    )
+                    .ignoresSafeArea(.all)
+                } else {
+                    Color.clear
+                    .ignoresSafeArea(.all)
+                }
                 
-                // Red gradient overlay - extends from sheet to bottom of screen
+                // Red gradient overlay - extends from top to bottom of screen
                 VStack(spacing: 0) {
-                    // Gradient that extends from the sheet down to the bottom
+                    // Gradient that extends from the top of the screen down to the bottom
                     LinearGradient(
                         colors: [
                             colorManager.redColor.opacity(isSheetExpanded ? 0.0 : 1.0), 
@@ -326,31 +331,54 @@ struct TextModalView: View {
                         ],
                         startPoint: .top, endPoint: .bottom
                     )
-                    .frame(height: 600)
+                    .frame(maxHeight: .infinity) // Extend to full height
                     .allowsHitTesting(false)
                 }
                 .allowsHitTesting(false)
                 
                 // Content layer
-                messageList
-                
-                // Transparent grabber overlay - fixed at top, above everything
-                VStack(alignment: .center) {
-                    Color.clear
-                        .frame(maxWidth: .infinity, maxHeight: 300)
-                        .contentShape(Rectangle())
+                VStack(spacing: 0) {
+                    // Header with close button - transparent background to allow gradient through
+                    VStack(spacing: 0) {
+                        HStack(spacing: 0) {
+                            Text("CHAT")
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .foregroundColor(isSheetExpanded ? colorManager.orangeColor : Color(hex: "#141414"))
+                                .padding(.leading, 0)
+                            
+                            Spacer()
+                            
+                            // Close button - only show when expanded
+                            if isSheetExpanded {
+                                Button(action: {
+                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                        isSheetExpanded = false
+                                    }
+                                }) {
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(colorManager.orangeColor)
+                                        .frame(width: 20, height: 20)
+                                        .contentShape(Rectangle())
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .padding(.trailing, 0)
+                            }
+                        }
+                        .padding(.bottom, isSheetExpanded ? 8 : 10)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, isSheetExpanded ? 0 : 14)
+                    .padding(.bottom, isSheetExpanded ? 12 : 24)
+                    .background(Color.clear) // Make header background transparent
                     
-                    Spacer()
+                    // Message list
+                    messageList
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .allowsHitTesting(true)
 
                 if isSheetExpanded {
-                    VStack {
-                        Spacer()
-                        inputBar
-                            .padding(.bottom, keyboardHeight > 0 ? keyboardHeight - geometry.safeAreaInsets.bottom : 0)
-                    }
+                    inputBar
+                        .padding(.bottom, keyboardHeight > 0 ? keyboardHeight - geometry.safeAreaInsets.bottom : 0)
                 }
                 
 
@@ -618,50 +646,7 @@ struct TextModalView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 24) {
-                    // Time and arrow as first scrollable item
-                    VStack(spacing: 0) {
-                        RoundedRectangle(cornerRadius: 2.5)
-                            .fill(colorManager.greenColor)
-                            .frame(width: 36, height: 5)
-                            .padding(.top, 8).padding(.bottom, 6)
-
-                        // Show "SWIPE TO CHAT" initially, then time after first message
-                        HStack(spacing: 0) {
-                            Text(shouldShowSwipeToChat() ? "SWIPE TO CHAT" : getCurrentTime())
-                                .font(.custom("IBMPlexMono", size: 12))
-                                .foregroundColor(Color(hex: "#141414"))
-                                .padding(.leading, 0)
-                                .onChange(of: currentTime) { _, _ in
-                                    // Trigger UI update when time changes
-                                }
-                            
-                            Spacer()
-                            
-                            Image(systemName: isSheetExpanded ? "arrow.down" : "arrow.up")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(Color(hex: "#141414"))
-                                .padding(.trailing, 0)
-                        }
-                        .padding(.bottom, isSheetExpanded ? 18 : 10)
-                    }
-                    .gesture(
-                        DragGesture()
-                            .onEnded { value in
-                                // Handle drag gesture for sheet expansion - only on end to prevent flickering
-                                let dragAmount = value.translation.height
-                                if dragAmount < -30 && !isSheetExpanded {
-                                    // Drag up to expand
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        isSheetExpanded = true
-                                    }
-                                } else if dragAmount > 30 && isSheetExpanded {
-                                    // Drag down to collapse
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        isSheetExpanded = false
-                                    }
-                                }
-                            }
-                    )
+                    // No grabber or time display - clean interface
                     
                     if !hasModelsInstalled {
                         noModelMessage

@@ -11,11 +11,8 @@ struct SettingsModalView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .bottom) {
-                // Full background gradient
-                LinearGradient(
-                    colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
-                    startPoint: .top, endPoint: .bottom
-                )
+                // Transparent background to allow color fading through
+                Color.clear
                 .ignoresSafeArea(.all)
                 
                 // Orange gradient overlay - extends from sheet to bottom of screen
@@ -35,25 +32,32 @@ struct SettingsModalView: View {
                 
                 // Content layer
                 VStack(spacing: 0) {
-                    // Header with grabber and text
+                    // Header with text
                     VStack(spacing: 0) {
-                        RoundedRectangle(cornerRadius: 2.5)
-                            .fill(colorManager.greenColor)
-                            .frame(width: 36, height: 5)
-                            .padding(.top, 8).padding(.bottom, 6)
-
                         HStack(spacing: 0) {
-                            Text("SWIPE UP FOR SETTINGS")
+                            Text("SETTINGS")
                                 .font(.custom("IBMPlexMono", size: 12))
-                                .foregroundColor(Color(hex: "#141414"))
+                                .foregroundColor(isSheetExpanded ? colorManager.orangeColor : Color(hex: "#141414"))
                                 .padding(.leading, 0)
                             
                             Spacer()
                             
-                            Image(systemName: isSheetExpanded ? "arrow.down" : "arrow.up")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(Color(hex: "#141414"))
+                            // Close button - only show when expanded
+                            if isSheetExpanded {
+                                Button(action: {
+                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                        isSheetExpanded = false
+                                    }
+                                }) {
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(colorManager.orangeColor)
+                                        .frame(width: 20, height: 20)
+                                        .contentShape(Rectangle())
+                                }
+                                .buttonStyle(PlainButtonStyle())
                                 .padding(.trailing, 0)
+                            }
                         }
                         .padding(.bottom, isSheetExpanded ? 18 : 10)
                     }

@@ -119,24 +119,20 @@ struct MainView: View {
                             .onTapGesture { location in
                                 withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                                     if isSheetExpanded {
-                                        // Only close if tap is in top 10% of screen
-                                        let tapY = location.y
-                                        let top10Percent = UIScreen.main.bounds.height * 0.1
-                                        if tapY <= top10Percent {
-                                            isSheetExpanded = false
-                                        }
+                                        // Do nothing when expanded - use X button to close
                                     } else {
-                                        // Tap to expand (full visible area tappable)
+                                        // Tap to expand when closed
                                         isSheetExpanded = true
                                         isSettingsSheetExpanded = false
                                     }
                                 }
                             }
                     }
-                    .allowsHitTesting(isSheetExpanded ? false : true) // Disable when expanded to allow input field taps
+                    .allowsHitTesting(!isSheetExpanded) // Only allow tap when closed
                 }
             }
         )
+
 
     }
     
@@ -167,23 +163,20 @@ struct MainView: View {
                             .onTapGesture { location in
                                 withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                                     if isSettingsSheetExpanded {
-                                        // Only close if tap is in top 10% of screen
-                                        let tapY = location.y
-                                        let top10Percent = UIScreen.main.bounds.height * 0.1
-                                        if tapY <= top10Percent {
-                                            isSettingsSheetExpanded = false
-                                        }
+                                        // Do nothing when expanded - use X button to close
                                     } else {
-                                        // Tap to expand (full visible area tappable)
+                                        // Tap to expand when closed
                                         isSettingsSheetExpanded = true
                                         isSheetExpanded = false
                                     }
                                 }
                             }
                     }
+                    .allowsHitTesting(!isSettingsSheetExpanded) // Only allow tap when closed
                 }
             }
         )
+
 
     }
     
@@ -244,17 +237,20 @@ struct MainView: View {
             .ignoresSafeArea(.all)
         )
         .overlay(
-            // Dynamic safe area overlay that matches sheet colors - positioned on top
-            VStack {
-                Spacer()
-                Rectangle()
-                    .fill(isSettingsSheetExpanded || (!isSheetExpanded && !isSettingsSheetExpanded) ? 
-                        ColorManager.shared.orangeColor : Color(hex: "#141414"))
-                    .frame(height: 50) // Cover the 34pt safe area plus some buffer
-                    .allowsHitTesting(false)
+            // Dynamic safe area overlay that matches sheet colors - only show when sheets are collapsed
+            Group {
+                if !isSheetExpanded && !isSettingsSheetExpanded {
+                    VStack {
+                        Spacer()
+                        Rectangle()
+                            .fill(ColorManager.shared.orangeColor)
+                            .frame(height: 50) // Cover the 34pt safe area plus some buffer
+                            .allowsHitTesting(false)
+                    }
+                    .ignoresSafeArea(.all)
+                    .zIndex(999) // Ensure it's on top of everything
+                }
             }
-            .ignoresSafeArea(.all)
-            .zIndex(999) // Ensure it's on top of everything
         )
         .onAppear {
             let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
