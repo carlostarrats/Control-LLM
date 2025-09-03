@@ -109,27 +109,32 @@ struct MainView: View {
         .offset(y: isSettingsSheetExpanded ? UIScreen.main.bounds.height : 0)
         .zIndex(isSheetExpanded ? 2 : 0)
         .overlay(
-            // Tap gesture overlay - only top 10% when open, full area when closed
-            GeometryReader { geometry in
-                Rectangle()
-                    .fill(Color.clear)
-                    .contentShape(Rectangle())
-                    .onTapGesture { location in
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                            if isSheetExpanded {
-                                // Only close if tap is in top 10% of screen
-                                let tapY = location.y
-                                let top10Percent = UIScreen.main.bounds.height * 0.1
-                                if tapY <= top10Percent {
-                                    isSheetExpanded = false
+            // Tap gesture overlay - only active when settings sheet is not expanded
+            Group {
+                if !isSettingsSheetExpanded {
+                    GeometryReader { geometry in
+                        Rectangle()
+                            .fill(Color.clear)
+                            .contentShape(Rectangle())
+                            .onTapGesture { location in
+                                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                    if isSheetExpanded {
+                                        // Only close if tap is in top 10% of screen
+                                        let tapY = location.y
+                                        let top10Percent = UIScreen.main.bounds.height * 0.1
+                                        if tapY <= top10Percent {
+                                            isSheetExpanded = false
+                                        }
+                                    } else {
+                                        // Tap to expand (full visible area tappable)
+                                        isSheetExpanded = true
+                                        isSettingsSheetExpanded = false
+                                    }
                                 }
-                            } else {
-                                // Tap to expand (full visible area tappable)
-                                isSheetExpanded = true
-                                isSettingsSheetExpanded = false
                             }
-                        }
                     }
+                    .allowsHitTesting(isSheetExpanded ? false : true) // Disable when expanded to allow input field taps
+                }
             }
         )
 
@@ -152,27 +157,31 @@ struct MainView: View {
         .offset(y: isSheetExpanded ? UIScreen.main.bounds.height : 0)
         .zIndex(isSettingsSheetExpanded ? 2 : 1)
         .overlay(
-            // Tap gesture overlay - only top 10% when open, full area when closed
-            GeometryReader { geometry in
-                Rectangle()
-                    .fill(Color.clear)
-                    .contentShape(Rectangle())
-                    .onTapGesture { location in
-                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                            if isSettingsSheetExpanded {
-                                // Only close if tap is in top 10% of screen
-                                let tapY = location.y
-                                let top10Percent = UIScreen.main.bounds.height * 0.1
-                                if tapY <= top10Percent {
-                                    isSettingsSheetExpanded = false
+            // Tap gesture overlay - only active when chat sheet is not expanded
+            Group {
+                if !isSheetExpanded {
+                    GeometryReader { geometry in
+                        Rectangle()
+                            .fill(Color.clear)
+                            .contentShape(Rectangle())
+                            .onTapGesture { location in
+                                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                    if isSettingsSheetExpanded {
+                                        // Only close if tap is in top 10% of screen
+                                        let tapY = location.y
+                                        let top10Percent = UIScreen.main.bounds.height * 0.1
+                                        if tapY <= top10Percent {
+                                            isSettingsSheetExpanded = false
+                                        }
+                                    } else {
+                                        // Tap to expand (full visible area tappable)
+                                        isSettingsSheetExpanded = true
+                                        isSheetExpanded = false
+                                    }
                                 }
-                            } else {
-                                // Tap to expand (full visible area tappable)
-                                isSettingsSheetExpanded = true
-                                isSheetExpanded = false
                             }
-                        }
                     }
+                }
             }
         )
 
