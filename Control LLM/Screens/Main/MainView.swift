@@ -372,6 +372,7 @@ struct HomePage: View {
                 .accessibilityHint(NSLocalizedString("Double tap to start or stop voice recording", comment: ""))
                 .opacity(blobColorOpacity)
                 .animation(.easeInOut(duration: 0.8), value: blobColorOpacity)
+                .offset(y: -60) // Move up by 60 points to center in available space
             }
 
             // Bottom navigation buttons removed - main screen now has no buttons
