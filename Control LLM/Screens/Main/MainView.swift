@@ -46,20 +46,11 @@ struct MainView: View {
                 .flatMap({ $0.windows })
                 .first(where: { $0.isKeyWindow }) {
                 
-                let backgroundColor: UIColor
-                let colorName: String
-                if isSettingsSheetExpanded || (!isSheetExpanded && !isSettingsSheetExpanded) {
-                    // Orange when settings sheet is expanded or when both sheets are closed (settings in front)
-                    backgroundColor = UIColor(ColorManager.shared.orangeColor)
-                    colorName = "ORANGE"
-                } else {
-                    // Dark when chat sheet is expanded - match the bottom of the chat sheet
-                    backgroundColor = UIColor(red: 0.08, green: 0.08, blue: 0.08, alpha: 1.0) // #141414
-                    colorName = "DARK"
-                }
+                // Always use dark background - no more orange
+                let backgroundColor = UIColor(red: 0.08, green: 0.08, blue: 0.08, alpha: 1.0) // #141414
                 
                 // Debug logging
-                NSLog("🔍 DEBUG: Setting window background to \(colorName)")
+                NSLog("🔍 DEBUG: Setting window background to DARK")
                 NSLog("🔍 DEBUG: isSettingsSheetExpanded: \(isSettingsSheetExpanded)")
                 NSLog("🔍 DEBUG: isSheetExpanded: \(isSheetExpanded)")
                 NSLog("🔍 DEBUG: Window found: \(window != nil)")
@@ -72,7 +63,7 @@ struct MainView: View {
                 // Also try setting root view controller background
                 if let rootVC = window.rootViewController {
                     rootVC.view.backgroundColor = backgroundColor
-                    NSLog("🔍 DEBUG: Set root view controller background to \(colorName)")
+                    NSLog("🔍 DEBUG: Set root view controller background to DARK")
                 }
                 
                 // Also try setting the window's root view background
@@ -225,34 +216,6 @@ struct MainView: View {
             )
             .ignoresSafeArea(.all)
         )
-        .overlay(
-            // Dynamic safe area overlay that matches sheet colors
-            Group {
-                if !isSheetExpanded && !isSettingsSheetExpanded {
-                    // Red safe area when sheets are collapsed
-                    VStack {
-                        Spacer()
-                        Rectangle()
-                            .fill(ColorManager.shared.redColor)
-                            .frame(height: 50) // Cover the 34pt safe area plus some buffer
-                            .allowsHitTesting(false)
-                    }
-                    .ignoresSafeArea(.all)
-                    .zIndex(999) // Ensure it's on top of everything
-                } else if isSheetExpanded {
-                    // Dark safe area when chat sheet is expanded - match the bottom of the chat sheet
-                    VStack {
-                        Spacer()
-                        Rectangle()
-                            .fill(Color(hex: "#141414"))
-                            .frame(height: 50) // Cover the 34pt safe area plus some buffer
-                            .allowsHitTesting(false)
-                    }
-                    .ignoresSafeArea(.all)
-                    .zIndex(999) // Ensure it's on top of everything
-                }
-            }
-        )
         .onAppear {
             let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
             NSLog("🔍 Onboarding check: hasSeenOnboarding = \(hasSeenOnboarding)")
@@ -293,7 +256,7 @@ struct MainView: View {
                         Spacer()
                         chatSheetView
                             .frame(height: isSheetExpanded ? UIScreen.main.bounds.height * 0.9 : 120)
-                            .cornerRadius(16, corners: [.topLeft, .topRight])
+                            // .cornerRadius(16, corners: [.topLeft, .topRight]) // TEST: Remove corner radius to see if it fixes safe area
 
                     }
                 }
@@ -307,9 +270,37 @@ struct MainView: View {
                         Spacer()
                         settingsSheetView
                             .frame(height: isSettingsSheetExpanded ? UIScreen.main.bounds.height * 0.9 : 50)
-                            .cornerRadius(16, corners: [.topLeft, .topRight])
+                            // .cornerRadius(16, corners: [.topLeft, .topRight]) // TEST: Remove corner radius to see if it fixes safe area
 
                     }
+                }
+            }
+        )
+        .overlay(
+            // Dynamic safe area overlay that matches sheet colors - MUST BE LAST (topmost)
+            Group {
+                if !isSheetExpanded && !isSettingsSheetExpanded {
+                    // Red safe area when sheets are collapsed
+                    VStack {
+                        Spacer()
+                        Rectangle()
+                            .fill(ColorManager.shared.redColor)
+                            .frame(height: 50) // Cover the 34pt safe area plus some buffer
+                            .allowsHitTesting(false)
+                    }
+                    .ignoresSafeArea(.all)
+                    .zIndex(999) // Ensure it's on top of everything
+                } else if isSheetExpanded {
+                    // Dark safe area when chat sheet is expanded - match the bottom of the chat sheet
+                    VStack {
+                        Spacer()
+                        Rectangle()
+                            .fill(Color(hex: "#141414"))
+                            .frame(height: 50) // Cover the 34pt safe area plus some buffer
+                            .allowsHitTesting(false)
+                    }
+                    .ignoresSafeArea(.all)
+                    .zIndex(999) // Ensure it's on top of everything
                 }
             }
         )
