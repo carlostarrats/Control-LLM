@@ -365,11 +365,13 @@ struct TextModalView: View {
                                         .foregroundColor(colorManager.orangeColor)
                                         .frame(width: 20, height: 20)
                                         .contentShape(Rectangle())
+                                        .frame(width: 44, height: 44)
+                                        .contentShape(Rectangle())
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .padding(.trailing, 0)
                             } else {
-                                Image(systemName: "cursorarrow.rays")
+                                Image(systemName: "hand.point.up.left.fill")
                                     .font(.system(size: 12, weight: .medium))
                                     .foregroundColor(Color(hex: "#141414"))
                                     .frame(width: 20, height: 20)

@@ -148,12 +148,12 @@ struct SettingsModelsView: View {
                     HStack {
                         HStack(spacing: 8) {
                             Image(systemName: "terminal")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(ColorManager.shared.whiteTextColor)
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(ColorManager.shared.purpleColor)
                             
-                            Text(NSLocalizedString("Models", comment: ""))
-                                .font(.custom("IBMPlexMono", size: 20))
-                                .foregroundColor(ColorManager.shared.whiteTextColor)
+                            Text(NSLocalizedString("MODELS", comment: ""))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .foregroundColor(ColorManager.shared.purpleColor)
                         }
                         .padding(.leading, 20)
                         
@@ -163,9 +163,11 @@ struct SettingsModelsView: View {
                             dismiss()
                         }) {
                             Image(systemName: "xmark")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(ColorManager.shared.whiteTextColor)
-                                .frame(width: 32, height: 32)
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(ColorManager.shared.orangeColor)
+                                .frame(width: 20, height: 20)
+                                .contentShape(Rectangle())
+                                .frame(width: 44, height: 44)
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(PlainButtonStyle())
@@ -516,9 +518,11 @@ struct UnusedModelsSheet: View {
                             dismiss()
                         }) {
                             Image(systemName: "xmark")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(ColorManager.shared.whiteTextColor)
-                                .frame(width: 32, height: 32)
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(ColorManager.shared.orangeColor)
+                                .frame(width: 20, height: 20)
+                                .contentShape(Rectangle())
+                                .frame(width: 44, height: 44)
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(PlainButtonStyle())
