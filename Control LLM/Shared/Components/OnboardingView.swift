@@ -6,7 +6,7 @@ struct OnboardingView: View {
     @State private var showingModelsSheet = false
     @EnvironmentObject var colorManager: ColorManager
     
-    private let totalScreens = 2
+    private let totalScreens = 1
     
     var body: some View {
         ZStack {
@@ -14,32 +14,12 @@ struct OnboardingView: View {
             Color(hex: "#1D1D1D")
                 .ignoresSafeArea()
             
-            if currentScreen == 0 {
-                DisclaimerScreen(
-                    onNext: {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            currentScreen = 1
-                        }
-                    }
-                )
-            } else if currentScreen == 1 {
-                InstructionsScreen(
-                    onNext: {
-                        // Show models sheet
-                        showingModelsSheet = true
-                    },
-                    onSkip: {
-                        // Skip to main app
-                        completeOnboarding()
-                    },
-                    onBack: {
-                        // Go back to first screen
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            currentScreen = 0
-                        }
-                    }
-                )
-            }
+            DisclaimerScreen(
+                onNext: {
+                    // Show models sheet
+                    showingModelsSheet = true
+                }
+            )
         }
         .sheet(isPresented: $showingModelsSheet) {
             ModelsSheetView(
@@ -62,34 +42,47 @@ struct OnboardingView: View {
 struct DisclaimerScreen: View {
     let onNext: () -> Void
     @EnvironmentObject var colorManager: ColorManager
+    @State private var logoRotation: Double = 0
     
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
                 .frame(height: 20) // Move everything down 20pt
             
-            // Logo
-            Image("onboarding_logo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 200, height: 200)
-                .opacity(0.8)
-                .padding(.top, 10) // Move logo down 10pt
-            
-            Spacer()
-                .frame(height: 50) // Reduce spacer to compensate for logo padding
-            
-            // Disclaimer heading
-            Text("DISCLAIMER")
-                .font(.custom("IBMPlexMono", size: 16))
-                .foregroundColor(ColorManager.shared.redColor)
-            
-            Spacer()
-                .frame(height: 30)
-            
             // Content container - fixed width
             VStack(spacing: 0) {
-                // Disclaimer text
+                Spacer()
+                    .frame(height: 10) // 10pt spacing above logo
+                
+                // Logo - 66% of original size (200pt -> 132pt) and right aligned with button
+                HStack {
+                    Spacer()
+                    Image("onboarding_logo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 160, height: 160)
+                        .opacity(0.8)
+                        .padding(.top, 10) // Move logo down 10pt
+                        .rotationEffect(.degrees(logoRotation))
+                        .onAppear {
+                            withAnimation(.linear(duration: 90).repeatForever(autoreverses: false)) {
+                                logoRotation = 360
+                            }
+                        }
+                }
+                
+                // Disclaimer heading - moved up to sit right under logo, left aligned
+                HStack {
+                    Text("DISCLAIMER")
+                        .font(.custom("IBMPlexMono", size: 16))
+                        .foregroundColor(ColorManager.shared.redColor)
+                    Spacer()
+                }
+                
+                Spacer()
+                    .frame(height: 30) // 30pt between red text and blue text
+                
+                // Disclaimer text - left aligned with button
                 VStack(alignment: .leading, spacing: 8) {
                     Text("This app uses AI models that")
                     Text("may generate incorrect,")
@@ -106,15 +99,15 @@ struct DisclaimerScreen: View {
                 .multilineTextAlignment(.leading)
                 
                 Spacer()
+                    .frame(height: 30) // 30pt between disclaimer and yellow text
                 
-                // Page indicator
-                HStack {
-                    Text("1/2")
-                        .font(.custom("IBMPlexMono", size: 14))
-                        .foregroundColor(Color(hex: "#3EBBA5")) // Specific green
-                    Spacer()
-                }
-                .padding(.bottom, 20)
+                // Green text from second screen - left aligned
+                Text("This app stores all data on your device only - nothing is saved or shared, and no account exists.")
+                    .font(.custom("IBMPlexMono", size: 14))
+                    .foregroundColor(Color(hex: "#3EBBA5")) // Specific green
+                    .multilineTextAlignment(.leading)
+                
+                Spacer()
                 
                 // I Understand button
                 Button(action: onNext) {
@@ -135,110 +128,10 @@ struct DisclaimerScreen: View {
             }
             .frame(width: 280) // Fixed width based on body copy
             .frame(maxWidth: .infinity, alignment: .center)
-            .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 }
 
-// MARK: - Screen 2: Instructions
-struct InstructionsScreen: View {
-    let onNext: () -> Void
-    let onSkip: () -> Void
-    let onBack: () -> Void
-    @EnvironmentObject var colorManager: ColorManager
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-                .frame(height: 20) // Move everything down 20pt
-            
-            // Logo
-            Image("onboarding_logo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 200, height: 200)
-                .opacity(0.8)
-                .padding(.top, 10) // Move logo down 10pt
-            
-            Spacer()
-                .frame(height: 50) // Reduce spacer to compensate for logo padding
-            
-            // Instructions heading
-            Text("INSTRUCTIONS")
-                .font(.custom("IBMPlexMono", size: 16))
-                .foregroundColor(ColorManager.shared.redColor)
-            
-            Spacer()
-                .frame(height: 30)
-            
-            // Content container - fixed width
-            VStack(spacing: 0) {
-                // Instructions text
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("1. Download a model")
-                    
-                    Spacer()
-                        .frame(height: 30)
-                    
-                    Text("2. Tap for settings")
-                    
-                    Spacer()
-                        .frame(height: 30)
-                    
-                    Text("3. Tap for chat")
-                    
-                    Spacer()
-                        .frame(height: 20)
-                    
-                    Text("This app stores all data on your device only - nothing is saved or shared, and no account exists.")
-                        .font(.custom("IBMPlexMono", size: 14))
-                }
-                .font(.custom("IBMPlexMono", size: 16))
-                .foregroundColor(Color(hex: "#F8C762")) // Specific orange
-                .multilineTextAlignment(.leading)
-                
-                Spacer()
-                
-                // Page indicator
-                HStack {
-                    Text("2/2")
-                        .font(.custom("IBMPlexMono", size: 14))
-                        .foregroundColor(Color(hex: "#3EBBA5")) // Specific green
-                    Spacer()
-                }
-                .padding(.bottom, 20)
-                
-                // Select Model button
-                Button(action: onNext) {
-                    Text("Select Model")
-                        .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(Color(hex: "#94A8E1")) // Specific purple
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color(hex: "#94A8E1").opacity(0.1)) // 10% purple fill
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 4)
-                                .stroke(Color(hex: "#94A8E1"), lineWidth: 1) // 1px purple stroke
-                        )
-                        .cornerRadius(4)
-                }
-                .buttonStyle(PlainButtonStyle())
-                .padding(.bottom, 40)
-            }
-            .frame(width: 280) // Fixed width based on body copy
-            .frame(maxWidth: .infinity, alignment: .center)
-        }
-        .gesture(
-            DragGesture()
-                .onEnded { value in
-                    // Only allow swipe right (back) gesture
-                    if value.translation.width > 100 && abs(value.translation.height) < 100 {
-                        onBack()
-                    }
-                }
-        )
-    }
-}
 
 // MARK: - Models Sheet
 struct ModelsSheetView: View {
