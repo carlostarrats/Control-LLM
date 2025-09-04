@@ -278,31 +278,22 @@ struct MainView: View {
         )
         .overlay(
             // Dynamic safe area overlay that matches sheet colors - MUST BE LAST (topmost)
-            Group {
-                if !isSheetExpanded && !isSettingsSheetExpanded {
-                    // Red safe area when sheets are collapsed
-                    VStack {
-                        Spacer()
-                        Rectangle()
-                            .fill(ColorManager.shared.redColor)
-                            .frame(height: 50) // Cover the 34pt safe area plus some buffer
-                            .allowsHitTesting(false)
-                    }
-                    .ignoresSafeArea(.all)
-                    .zIndex(999) // Ensure it's on top of everything
-                } else if isSheetExpanded {
-                    // Dark safe area when chat sheet is expanded - match the bottom of the chat sheet
-                    VStack {
-                        Spacer()
-                        Rectangle()
-                            .fill(Color(hex: "#141414"))
-                            .frame(height: 50) // Cover the 34pt safe area plus some buffer
-                            .allowsHitTesting(false)
-                    }
-                    .ignoresSafeArea(.all)
-                    .zIndex(999) // Ensure it's on top of everything
-                }
+            VStack {
+                Spacer()
+                Rectangle()
+                    .fill(
+                        // Smooth transition between red and dark based on sheet states
+                        !isSheetExpanded && !isSettingsSheetExpanded ? 
+                        ColorManager.shared.redColor : 
+                        Color(hex: "#141414")
+                    )
+                    .frame(height: 50) // Cover the 34pt safe area plus some buffer
+                    .allowsHitTesting(false)
+                    .animation(.easeInOut(duration: 0.3), value: isSheetExpanded)
+                    .animation(.easeInOut(duration: 0.3), value: isSettingsSheetExpanded)
             }
+            .ignoresSafeArea(.all)
+            .zIndex(999) // Ensure it's on top of everything
         )
 
 
