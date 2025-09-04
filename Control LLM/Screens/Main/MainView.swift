@@ -200,10 +200,6 @@ struct MainView: View {
 
             // Page navigation removed - settings now handled by sheet
             
-            // Onboarding Modal (first run only)
-            if showingOnboarding {
-                OnboardingModal(isPresented: $showingOnboarding)
-            }
         }
         .background(
             LinearGradient(
@@ -220,13 +216,9 @@ struct MainView: View {
             let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
             NSLog("🔍 Onboarding check: hasSeenOnboarding = \(hasSeenOnboarding)")
             
-            if hasSeenOnboarding {
-                NSLog("🔍 User has already seen onboarding, keeping modal hidden")
-                showingOnboarding = false
-            } else {
-                NSLog("🔍 First run, showing modal")
-                showingOnboarding = true
-            }
+            // Force show onboarding for testing
+            NSLog("🔍 FORCE SHOWING ONBOARDING FOR TESTING")
+            showingOnboarding = true
             
             // Setup clipboard processing notification observer
             viewModel.setupClipboardProcessingObserver()
@@ -277,7 +269,7 @@ struct MainView: View {
             }
         )
         .overlay(
-            // Dynamic safe area overlay that matches sheet colors - MUST BE LAST (topmost)
+            // Dynamic safe area overlay that matches sheet colors
             VStack {
                 Spacer()
                 Rectangle()
@@ -295,6 +287,11 @@ struct MainView: View {
             .ignoresSafeArea(.all)
             .zIndex(999) // Ensure it's on top of everything
         )
+        .fullScreenCover(isPresented: $showingOnboarding) {
+            // Onboarding Modal (first run only) - Full screen modal above everything
+            OnboardingView(isPresented: $showingOnboarding)
+                .transition(.identity) // No animation
+        }
 
 
 
