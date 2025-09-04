@@ -1,5 +1,6 @@
 "Settings" = "Configuración";
 "Models" = "Modelos";
+"Selected Model" = "Modelo Seleccionado";
 "Appearance" = "Apariencia";
 // Voice localization removed
 "Language" = "Idioma";
@@ -232,7 +233,7 @@
 "Network error: %@" = "Error de red: %@";
 
 // Credits
-"Michael Verges - Liquid" = "Michael Verges - Liquid";
+"Michael Verges - Liquid" = "Liquid";
 "IBM Plex Mono" = "IBM Plex Mono";
 "Control.Design" = "Control.Design";
 
@@ -263,4 +264,8 @@
 "Too intelligent for its own good, and far too intelligent for yours." = "Demasiado inteligente para su propio bien, y demasiado inteligente para el tuyo.";
 "Learned not to play the game...but it's always ready to change the rules." = "Aprendió a no jugar el juego... pero siempre está listo para cambiar las reglas.";
 "Forged in the void, ready to follow you into the unknown." = "Forjado en el vacío, listo para seguirte hacia lo desconocido.";
+
+// LLM Terms
+"LLM Terms" = "Términos de LLM";
+"LLM models within this app are subject to their respective licenses:\n\nLlama 3.2: Subject to Meta's Custom License. Users must comply with Meta's Acceptable Use Policy and license terms.\nGemma 3, Qwen 3, SmolLM2: Licensed under Apache 2.0.\n\nUsers are responsible for ensuring their use of this application complies with all applicable model licenses and terms of service.\n\nFor full license details, please refer to the original model repositories found within the Credits section in Settings." = "Los modelos LLM dentro de esta aplicación están sujetos a sus respectivas licencias:\n\nLlama 3.2: Sujeto a la Licencia Personalizada de Meta. Los usuarios deben cumplir con la Política de Uso Aceptable y los términos de licencia de Meta.\nGemma 3, Qwen 3, SmolLM2: Licenciados bajo Apache 2.0.\n\nLos usuarios son responsables de asegurar que su uso de esta aplicación cumpla con todas las licencias de modelos aplicables y términos de servicio.\n\nPara detalles completos de licencias, consulte los repositorios originales de modelos que se encuentran en la sección de Créditos en Configuración.";
 

@@ -1,5 +1,6 @@
 "Settings" = "Paramètres";
 "Models" = "Modèles";
+"Selected Model" = "Modèle Sélectionné";
 "Appearance" = "Apparence";
 // Voice localization removed
 "Language" = "Langue";
@@ -135,7 +136,7 @@
 "Network error: %@" = "Erreur réseau : %@";
 
 // Credits
-"Michael Verges - Liquid" = "Michael Verges - Liquid";
+"Michael Verges - Liquid" = "Liquid";
 "IBM Plex Mono" = "IBM Plex Mono";
 "Control.Design" = "Control.Design";
 
@@ -281,3 +282,7 @@
 "Too intelligent for its own good, and far too intelligent for yours." = "Trop intelligent pour son propre bien, et bien trop intelligent pour le vôtre.";
 "Learned not to play the game...but it's always ready to change the rules." = "A appris à ne pas jouer le jeu... mais est toujours prêt à changer les règles.";
 "Forged in the void, ready to follow you into the unknown." = "Forgé dans le vide, prêt à vous suivre vers l'inconnu.";
+
+// LLM Terms
+"LLM Terms" = "Conditions LLM";
+"LLM models within this app are subject to their respective licenses:\n\nLlama 3.2: Subject to Meta's Custom License. Users must comply with Meta's Acceptable Use Policy and license terms.\nGemma 3, Qwen 3, SmolLM2: Licensed under Apache 2.0.\n\nUsers are responsible for ensuring their use of this application complies with all applicable model licenses and terms of service.\n\nFor full license details, please refer to the original model repositories found within the Credits section in Settings." = "Les modèles LLM dans cette application sont soumis à leurs licences respectives :\n\nLlama 3.2 : Soumis à la Licence Personnalisée de Meta. Les utilisateurs doivent se conformer à la Politique d'Utilisation Acceptable et aux conditions de licence de Meta.\nGemma 3, Qwen 3, SmolLM2 : Sous licence Apache 2.0.\n\nLes utilisateurs sont responsables de s'assurer que leur utilisation de cette application est conforme à toutes les licences de modèles applicables et conditions de service.\n\nPour les détails complets des licences, veuillez vous référer aux dépôts de modèles originaux qui se trouvent dans la section Crédits des Paramètres.";

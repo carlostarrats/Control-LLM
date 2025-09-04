@@ -1,5 +1,6 @@
 "Settings" = "Settings";
 "Models" = "Models";
+"Selected Model" = "Selected Model";
 "Appearance" = "Appearance";
 // Voice localization removed
 "Language" = "Language";
@@ -165,7 +166,7 @@
 "Network error: %@" = "Network error: %@";
 
 // Credits
-"Michael Verges - Liquid" = "Michael Verges - Liquid";
+"Michael Verges - Liquid" = "Liquid";
 "IBM Plex Mono" = "IBM Plex Mono";
 "Control.Design" = "Control.Design";
 
@@ -263,4 +264,8 @@
 "Too intelligent for its own good, and far too intelligent for yours." = "Too intelligent for its own good, and far too intelligent for yours.";
 "Learned not to play the game...but it's always ready to change the rules." = "Learned not to play the game...but it's always ready to change the rules.";
 "Forged in the void, ready to follow you into the unknown." = "Forged in the void, ready to follow you into the unknown.";
+
+// LLM Terms
+"LLM Terms" = "LLM Terms";
+"LLM models within this app are subject to their respective licenses:\n\nLlama 3.2: Subject to Meta's Custom License. Users must comply with Meta's Acceptable Use Policy and license terms.\nGemma 3, Qwen 3, SmolLM2: Licensed under Apache 2.0.\n\nUsers are responsible for ensuring their use of this application complies with all applicable model licenses and terms of service.\n\nFor full license details, please refer to the original model repositories found within the Credits section in Settings." = "LLM models within this app are subject to their respective licenses:\n\nLlama 3.2: Subject to Meta's Custom License. Users must comply with Meta's Acceptable Use Policy and license terms.\nGemma 3, Qwen 3, SmolLM2: Licensed under Apache 2.0.\n\nUsers are responsible for ensuring their use of this application complies with all applicable model licenses and terms of service.\n\nFor full license details, please refer to the original model repositories found within the Credits section in Settings.";
 

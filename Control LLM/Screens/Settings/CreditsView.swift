@@ -72,10 +72,14 @@ struct CreditsView: View {
     
     private var creditsItems: [CreditsItem] {
         [
-            CreditsItem(title: "LLaMA.cpp", url: "https://github.com/ggml-org/llama.cpp"),
-            CreditsItem(title: "Michael Verges - Liquid", url: "https://github.com/maustinstar/liquid"),
+            CreditsItem(title: "Control.Design", url: "https://github.com/control-design-studio/Control-LLM"),
+            CreditsItem(title: "Gemma 3", url: "https://huggingface.co/unsloth/gemma-3-1b-it-GGUF"),
             CreditsItem(title: "IBM Plex Mono", url: "https://github.com/IBM/plex?tab=readme-ov-file"),
-            CreditsItem(title: "Control.Design", url: "https://github.com/control-design-studio/Control-LLM")
+            CreditsItem(title: "LLaMA.cpp", url: "https://github.com/ggml-org/llama.cpp"),
+            CreditsItem(title: "Liquid", url: "https://github.com/maustinstar/liquid"),
+            CreditsItem(title: "Llama 3.2", url: "https://huggingface.co/unsloth/Llama-3.2-1B-Instruct-GGUF"),
+            CreditsItem(title: "Qwen 3", url: "https://huggingface.co/unsloth/Qwen3-1.7B-GGUF"),
+            CreditsItem(title: "SmolLM2", url: "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct-GGUF")
         ]
     }
 }

@@ -191,6 +191,24 @@ final class ModelManager: ObservableObject {
         loadSelectedModel()
     }
     
+    private func getModelOrder(_ displayName: String) -> Int {
+        let lowercaseName = displayName.lowercased()
+        
+        // Custom ordering: Gemma 3, Llama 3.2, SmolLM2, Qwen 3, then alphabetically
+        if lowercaseName.contains("gemma") && lowercaseName.contains("3") {
+            return 1
+        } else if lowercaseName.contains("llama") && lowercaseName.contains("3.2") {
+            return 2
+        } else if lowercaseName.contains("smollm") && lowercaseName.contains("2") {
+            return 3
+        } else if lowercaseName.contains("qwen") && lowercaseName.contains("3") {
+            return 4
+        } else {
+            // All other models get a high priority number to sort alphabetically after the main 4
+            return 100
+        }
+    }
+    
     private func loadAvailableModels() {
         print("ModelManager: Loading available models...")
         var discovered = Set<String>()
@@ -246,10 +264,15 @@ final class ModelManager: ObservableObject {
         let infos = discovered.map { LLMModelInfo(filename: $0) }
             .filter { $0.isAvailable }
             .sorted { model1, model2 in
-                // Sort by provider first, then by name
-                if model1.provider != model2.provider {
-                    return model1.provider < model2.provider
+                // Custom ordering: Gemma 3, Llama 3.2, SmolLM2, Qwen 3, then alphabetically
+                let order1 = getModelOrder(model1.displayName)
+                let order2 = getModelOrder(model2.displayName)
+                
+                if order1 != order2 {
+                    return order1 < order2
                 }
+                
+                // If same order priority, sort alphabetically
                 return model1.displayName.lowercased() < model2.displayName.lowercased()
             }
         

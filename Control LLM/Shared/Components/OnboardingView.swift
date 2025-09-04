@@ -232,7 +232,8 @@ struct ModelsScreen: View {
                         .cornerRadius(4)
                 }
                 .buttonStyle(PlainButtonStyle())
-                .padding(.horizontal, 20)
+                .frame(width: 280) // Fixed width to match "I Understand" button
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.bottom, 40)
             }
         }

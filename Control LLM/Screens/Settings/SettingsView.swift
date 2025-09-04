@@ -179,7 +179,7 @@ struct SystemInfoView: View {
             // Active Model Section
             if let selectedModel = modelManager.selectedModel {
                 HStack(alignment: .center) {
-                    Text(NSLocalizedString("Models", comment: ""))
+                    Text(NSLocalizedString("Selected Model", comment: ""))
                         .font(.custom("IBMPlexMono", size: 14))
                         .foregroundColor(Color(hex: "#555555"))
                         .fixedSize()

@@ -65,24 +65,8 @@ struct FAQView: View {
     private var faqItems: [FAQItem] {
         [
             FAQItem(
-                question: NSLocalizedString("Privacy", comment: ""),
-                answer: NSLocalizedString("This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app.", comment: "")
-            ),
-            FAQItem(
-                question: NSLocalizedString("LLM Models", comment: ""),
-                answer: NSLocalizedString("Multiple models are available in Settings. Each model has different strengths, so you may find one works better than another depending on your specific needs.", comment: "")
-            ),
-            FAQItem(
                 question: NSLocalizedString("Chat History", comment: ""),
                 answer: NSLocalizedString("Chat history is temporary and automatically resets when you close and reopen the app. If you keep the app open in the background, your chat history will reset after 24 hours to ensure privacy.", comment: "")
-            ),
-            FAQItem(
-                question: NSLocalizedString("Language", comment: ""),
-                answer: NSLocalizedString("English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English.", comment: "")
-            ),
-            FAQItem(
-                question: NSLocalizedString("UI Color", comment: ""),
-                answer: NSLocalizedString("All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme.", comment: "")
             ),
             FAQItem(
                 question: NSLocalizedString("Control Units", comment: ""),
@@ -95,6 +79,26 @@ struct FAQView: View {
             FAQItem(
                 question: NSLocalizedString("iOS Shortcuts Integration", comment: ""),
                 answer: NSLocalizedString("Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device.", comment: "")
+            ),
+            FAQItem(
+                question: NSLocalizedString("Language", comment: ""),
+                answer: NSLocalizedString("English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English.", comment: "")
+            ),
+            FAQItem(
+                question: NSLocalizedString("LLM Models", comment: ""),
+                answer: NSLocalizedString("Multiple models are available in Settings. Each model has different strengths, so you may find one works better than another depending on your specific needs.", comment: "")
+            ),
+            FAQItem(
+                question: NSLocalizedString("LLM Terms", comment: ""),
+                answer: NSLocalizedString("LLM models within this app are subject to their respective licenses:\n\nLlama 3.2: Subject to Meta's Custom License. Users must comply with Meta's Acceptable Use Policy and license terms.\nGemma 3, Qwen 3, SmolLM2: Licensed under Apache 2.0.\n\nUsers are responsible for ensuring their use of this application complies with all applicable model licenses and terms of service.\n\nFor full license details, please refer to the original model repositories.", comment: "")
+            ),
+            FAQItem(
+                question: NSLocalizedString("Privacy", comment: ""),
+                answer: NSLocalizedString("This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app.", comment: "")
+            ),
+            FAQItem(
+                question: NSLocalizedString("UI Color", comment: ""),
+                answer: NSLocalizedString("All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme.", comment: "")
             )
         ]
     }
