@@ -148,6 +148,7 @@ struct MainView: View {
                 colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
                 startPoint: .top, endPoint: .bottom
             )
+            .ignoresSafeArea(.all)
         )
 
 
@@ -241,11 +242,11 @@ struct MainView: View {
             // Dynamic safe area overlay that matches sheet colors
             Group {
                 if !isSheetExpanded && !isSettingsSheetExpanded {
-                    // Orange safe area when sheets are collapsed
+                    // Red safe area when sheets are collapsed
                     VStack {
                         Spacer()
                         Rectangle()
-                            .fill(ColorManager.shared.orangeColor)
+                            .fill(ColorManager.shared.redColor)
                             .frame(height: 50) // Cover the 34pt safe area plus some buffer
                             .allowsHitTesting(false)
                     }
@@ -304,7 +305,7 @@ struct MainView: View {
                     VStack {
                         Spacer()
                         chatSheetView
-                            .frame(height: isSheetExpanded ? UIScreen.main.bounds.height * 0.9 : 126)
+                            .frame(height: isSheetExpanded ? UIScreen.main.bounds.height * 0.9 : 120)
                             .cornerRadius(16, corners: [.topLeft, .topRight])
 
                     }

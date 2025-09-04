@@ -11,38 +11,51 @@ struct SettingsModalView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .bottom) {
-                // Transparent background to allow color fading through
-                Color.clear
-                .ignoresSafeArea(.all)
+                // Background gradient when expanded, transparent when collapsed
+                if isSheetExpanded {
+                    LinearGradient(
+                        colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
+                        startPoint: .top, endPoint: .bottom
+                    )
+                    .ignoresSafeArea(.all)
+                } else {
+                    Color.clear
+                    .ignoresSafeArea(.all)
+                }
                 
-                // Orange gradient overlay - extends from sheet to bottom of screen
+                // Red gradient overlay - extends from top to bottom of screen
                 VStack(spacing: 0) {
-                    // Gradient that extends from the sheet down to the bottom
+                    // Gradient that extends from the top of the screen down to the bottom
                     LinearGradient(
                         colors: [
-                            colorManager.orangeColor.opacity(isSheetExpanded ? 0.0 : 1.0), 
-                            colorManager.orangeColor.opacity(isSheetExpanded ? 0.0 : 1.0)
+                            colorManager.redColor.opacity(isSheetExpanded ? 0.0 : 1.0), 
+                            colorManager.redColor.opacity(isSheetExpanded ? 0.0 : 1.0)
                         ],
                         startPoint: .top, endPoint: .bottom
                     )
-                    .frame(height: 600)
+                    .frame(maxHeight: .infinity) // Extend to full height
                     .allowsHitTesting(false)
                 }
                 .allowsHitTesting(false)
                 
                 // Content layer
                 VStack(spacing: 0) {
-                    // Header with text
+                    // Header with close button - transparent background to allow gradient through
                     VStack(spacing: 0) {
                         HStack(spacing: 0) {
+                            Image(systemName: "gearshape")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(isSheetExpanded ? colorManager.redColor : Color(hex: "#141414"))
+                                .padding(.trailing, 6)
+                            
                             Text("SETTINGS")
                                 .font(.custom("IBMPlexMono", size: 12))
-                                .foregroundColor(isSheetExpanded ? colorManager.orangeColor : Color(hex: "#141414"))
+                                .foregroundColor(settingsHeaderTextColor)
                                 .padding(.leading, 0)
                             
                             Spacer()
                             
-                            // Close button - only show when expanded
+                            // Cursor rays when collapsed, X when expanded
                             if isSheetExpanded {
                                 Button(action: {
                                     withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
@@ -57,18 +70,30 @@ struct SettingsModalView: View {
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .padding(.trailing, 0)
+                            } else {
+                                Image(systemName: "cursorarrow.rays")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(Color(hex: "#141414"))
+                                    .frame(width: 20, height: 20)
+                                    .padding(.trailing, 0)
                             }
                         }
-                        .padding(.bottom, isSheetExpanded ? 18 : 10)
+                        .padding(.bottom, isSheetExpanded ? 8 : 10)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, isSheetExpanded ? 0 : 14)
-                    .padding(.bottom, 24)
+                    .padding(.bottom, isSheetExpanded ? 12 : 24)
+                    .background(Color.clear) // Make header background transparent
                     
                     Spacer()
                 }
             }
         }
+    }
+    
+    // Computed property to break up complex expressions
+    private var settingsHeaderTextColor: Color {
+        isSheetExpanded ? colorManager.redColor : Color(hex: "#141414")
     }
 }
 

@@ -321,13 +321,13 @@ struct TextModalView: View {
                     .ignoresSafeArea(.all)
                 }
                 
-                // Red gradient overlay - extends from top to bottom of screen
+                // Purple gradient overlay - extends from top to bottom of screen
                 VStack(spacing: 0) {
                     // Gradient that extends from the top of the screen down to the bottom
                     LinearGradient(
                         colors: [
-                            colorManager.redColor.opacity(isSheetExpanded ? 0.0 : 1.0), 
-                            colorManager.redColor.opacity(isSheetExpanded ? 0.0 : 1.0)
+                            colorManager.purpleColor.opacity(isSheetExpanded ? 0.0 : 1.0), 
+                            colorManager.purpleColor.opacity(isSheetExpanded ? 0.0 : 1.0)
                         ],
                         startPoint: .top, endPoint: .bottom
                     )
@@ -341,14 +341,19 @@ struct TextModalView: View {
                     // Header with close button - transparent background to allow gradient through
                     VStack(spacing: 0) {
                         HStack(spacing: 0) {
-                            Text("CHAT")
+                            Image(systemName: "keyboard")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(isSheetExpanded ? colorManager.purpleColor : Color(hex: "#141414"))
+                                .padding(.trailing, 6)
+                            
+                            Text(headerText)
                                 .font(.custom("IBMPlexMono", size: 12))
-                                .foregroundColor(isSheetExpanded ? colorManager.orangeColor : Color(hex: "#141414"))
+                                .foregroundColor(headerTextColor)
                                 .padding(.leading, 0)
                             
                             Spacer()
                             
-                            // Close button - only show when expanded
+                            // Cursor rays when collapsed, X when expanded
                             if isSheetExpanded {
                                 Button(action: {
                                     withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
@@ -363,6 +368,12 @@ struct TextModalView: View {
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .padding(.trailing, 0)
+                            } else {
+                                Image(systemName: "cursorarrow.rays")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(Color(hex: "#141414"))
+                                    .frame(width: 20, height: 20)
+                                    .padding(.trailing, 0)
                             }
                         }
                         .padding(.bottom, isSheetExpanded ? 8 : 10)
@@ -639,6 +650,38 @@ struct TextModalView: View {
         formatter.timeStyle = .short
         formatter.dateStyle = .none
         return formatter.string(from: currentTime)
+    }
+    
+    // Helper function to determine if we should show time in header
+    private func shouldShowTimeInHeader() -> Bool {
+        // If no messages, show "CONTROL LLM"
+        if viewModel.messages.isEmpty {
+            return false
+        }
+        
+        // Check if messages are older than 24 hours
+        if let firstMessage = viewModel.messages.first {
+            let now = Date()
+            let timeDifference = now.timeIntervalSince(firstMessage.timestamp)
+            let twentyFourHours: TimeInterval = 24 * 60 * 60
+            
+            // If first message is older than 24 hours, show "CONTROL LLM"
+            if timeDifference > twentyFourHours {
+                return false
+            }
+        }
+        
+        // Otherwise show time
+        return true
+    }
+    
+    // Computed properties to break up complex expressions
+    private var headerText: String {
+        shouldShowTimeInHeader() ? getCurrentTime() : "CONTROL LLM"
+    }
+    
+    private var headerTextColor: Color {
+        isSheetExpanded ? colorManager.purpleColor : Color(hex: "#141414")
     }
 
     // MARK: message list -----------------------------------------------------
