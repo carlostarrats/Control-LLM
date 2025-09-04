@@ -31,8 +31,7 @@ struct MainView: View {
     @State private var hueShift: Double = 0.90 // 0.90 = current configuration
     @State private var saturationLevel: Double = 0.12 // 0.12 = current configuration
     @State private var brightnessLevel: Double = 0.3 // 0.3 = 30% brightness for non-active state
-    // Page navigation: 0 = Settings, 1 = Home, 2 = Chat
-    @State private var currentPage: Int = 1
+    // Page navigation removed - settings now handled by sheet
     @State private var showingChatSheet = true
     @State private var showingSettingsSheet = true
     @State private var isSheetExpanded = false
@@ -141,7 +140,8 @@ struct MainView: View {
     private var settingsSheetView: some View {
         SettingsModalView(
             isPresented: $showingSettingsSheet,
-            isSheetExpanded: $isSettingsSheetExpanded
+            isSheetExpanded: $isSettingsSheetExpanded,
+            mainViewModel: viewModel
         )
         .background(
             LinearGradient(
@@ -190,37 +190,24 @@ struct MainView: View {
             
 
             
-            TabView(selection: $currentPage) {
-                // Page 0: Settings
-                SettingsPage(currentPage: $currentPage, viewModel: viewModel)
-                    .tag(0)
-                
-                // Page 1: Home
-                HomePage(
-                    shouldShowNavButtons: true,
-                    blobScale: $blobScale,
-                    blobColorOpacity: $blobColorOpacity,
-                    hueShift: hueShift,
-                    saturationLevel: saturationLevel,
-                    brightnessLevel: brightnessLevel,
-                    onSettings: { currentPage = 0 },
-                    isSheetPresented: $showingChatSheet,
-                    isSheetExpanded: $isSheetExpanded
-                )
-                .tag(1)
-            }
+            // Home page only - settings now handled by sheet
+            HomePage(
+                shouldShowNavButtons: true,
+                blobScale: $blobScale,
+                blobColorOpacity: $blobColorOpacity,
+                hueShift: hueShift,
+                saturationLevel: saturationLevel,
+                brightnessLevel: brightnessLevel,
+                onSettings: { 
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                        isSettingsSheetExpanded = true
+                    }
+                },
+                isSheetPresented: $showingChatSheet,
+                isSheetExpanded: $isSheetExpanded
+            )
 
-            .onChange(of: currentPage) { _, newPage in
-                // Dismiss keyboard when navigating away from home page
-                if newPage != 1 {
-                    // Post notification to dismiss keyboard
-                    NotificationCenter.default.post(name: .dismissKeyboard, object: nil)
-                } else if newPage == 1 {
-                    // When returning to main page, ensure chat sheet is shown
-                    showingChatSheet = true
-                }
-            }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            // Page navigation removed - settings now handled by sheet
             
             // Onboarding Modal (first run only)
             if showingOnboarding {
@@ -301,7 +288,7 @@ struct MainView: View {
         .overlay(
             // Chat sheet (behind settings sheet, 100pt height)
             Group {
-                if showingChatSheet && currentPage == 1 {
+                if showingChatSheet {
                     VStack {
                         Spacer()
                         chatSheetView
@@ -315,7 +302,7 @@ struct MainView: View {
         .overlay(
             // Settings sheet (in front, 50pt height)
             Group {
-                if showingSettingsSheet && currentPage == 1 {
+                if showingSettingsSheet {
                     VStack {
                         Spacer()
                         settingsSheetView
@@ -367,20 +354,7 @@ struct MainView: View {
     }
 }
 
-// MARK: - Settings Page
-struct SettingsPage: View {
-    @Binding var currentPage: Int
-    let viewModel: MainViewModel
-    
-    var body: some View {
-        VStack {
-            SettingsView(
-                showingTextModal: .constant(false),
-                mainViewModel: viewModel
-            )
-        }
-    }
-}
+// SettingsPage removed - functionality moved to SettingsModalView
 
 // MARK: - Home Page
 struct HomePage: View {

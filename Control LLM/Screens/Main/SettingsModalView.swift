@@ -7,6 +7,13 @@ struct SettingsModalView: View {
     @Binding var isPresented: Bool
     @Binding var isSheetExpanded: Bool
     @EnvironmentObject var colorManager: ColorManager
+    @ObservedObject var mainViewModel: MainViewModel
+    
+    // Sheet state variables for settings sub-sheets
+    @State private var showingModels = false
+    @State private var showingAppearance = false
+    @State private var showingFAQ = false
+    @State private var showingCredits = false
     
     var body: some View {
         GeometryReader { geometry in
@@ -85,9 +92,43 @@ struct SettingsModalView: View {
                     .padding(.bottom, isSheetExpanded ? 12 : 24)
                     .background(Color.clear) // Make header background transparent
                     
-                    Spacer()
-                }
+                    // Settings content - only show when expanded
+                    if isSheetExpanded {
+                        ScrollView {
+                            VStack(spacing: 8) {
+                                // Settings list
+                                VStack(spacing: 0) {
+                                    ForEach(settingsItems, id: \.title) { item in
+                                        SettingsItemView(item: item)
+                                    }
+                                }
+                                .padding(.top, 0)
+                                .padding(.horizontal, 20)
+                                
+                                // System Information Section
+                                SystemInfoView(mainViewModel: mainViewModel)
+                                    .padding(.horizontal, 20)
+                                    .padding(.top, 40)
+                                    .padding(.bottom, 60)
+                            }
+                        }
+                    } else {
+                        Spacer()
+                                    }
             }
+        }
+    }
+        .sheet(isPresented: $showingModels) {
+            SettingsModelsView()
+        }
+        .sheet(isPresented: $showingAppearance) {
+            AppearanceView()
+        }
+        .sheet(isPresented: $showingFAQ) {
+            FAQView()
+        }
+        .sheet(isPresented: $showingCredits) {
+            CreditsView()
         }
     }
     
@@ -95,9 +136,20 @@ struct SettingsModalView: View {
     private var settingsHeaderTextColor: Color {
         isSheetExpanded ? colorManager.redColor : Color(hex: "#141414")
     }
+    
+    private var settingsItems: [SettingsItem] {
+        [
+            SettingsItem(title: NSLocalizedString("Models", comment: ""), symbol: "terminal", action: { showingModels = true }),
+            SettingsItem(title: NSLocalizedString("Appearance", comment: ""), symbol: "eye", action: { showingAppearance = true }),
+            SettingsItem(title: NSLocalizedString("FAQ", comment: ""), symbol: "questionmark.circle", action: { showingFAQ = true }),
+            SettingsItem(title: NSLocalizedString("Credits", comment: ""), symbol: "text.page", action: { showingCredits = true })
+        ]
+    }
 }
 
+// SettingsItem, SettingsItemView, and SystemInfoView are imported from SettingsView.swift
+
 #Preview {
-    SettingsModalView(isPresented: .constant(true), isSheetExpanded: .constant(false))
+    SettingsModalView(isPresented: .constant(true), isSheetExpanded: .constant(false), mainViewModel: MainViewModel())
         .preferredColorScheme(.dark)
 }
