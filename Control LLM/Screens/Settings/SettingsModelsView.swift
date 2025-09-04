@@ -131,7 +131,7 @@ struct SettingsModelsView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
                 
-                .padding(.bottom, 20)
+                .padding(.bottom, 12)
             }
         }
             .safeAreaInset(edge: .top) {
@@ -142,7 +142,7 @@ struct SettingsModelsView: View {
                         .fill(ColorManager.shared.greenColor)
                         .frame(width: 36, height: 5)
                         .padding(.top, 8)
-                        .padding(.bottom, 20)
+                        .padding(.bottom, 12)
                     
                     // Header
                     HStack {
@@ -173,7 +173,7 @@ struct SettingsModelsView: View {
                         .buttonStyle(PlainButtonStyle())
                         .padding(.trailing, 20)
                     }
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 12)
                 }
                 .background(
                     Color(hex: "#1D1D1D")
@@ -320,7 +320,7 @@ struct AvailableDownloadModelView: View {
                         .foregroundColor(ColorManager.shared.greyTextColor)
                 }
                 .padding(.horizontal, 4)
-                .padding(.bottom, 16)
+                .padding(.bottom, 12)
             }
             
             // Divider
@@ -494,7 +494,7 @@ struct UnusedModelsSheet: View {
                 }
             }
         }
-            .padding(.bottom, 20)
+            .padding(.bottom, 12)
             .safeAreaInset(edge: .top) {
                 // Header
                 VStack(spacing: 0) {
@@ -503,7 +503,7 @@ struct UnusedModelsSheet: View {
                         .fill(ColorManager.shared.greenColor)
                         .frame(width: 36, height: 5)
                         .padding(.top, 8)
-                        .padding(.bottom, 20)
+                        .padding(.bottom, 12)
                     
                     // Header
                     HStack {
@@ -528,7 +528,7 @@ struct UnusedModelsSheet: View {
                         .buttonStyle(PlainButtonStyle())
                         .padding(.trailing, 20)
                     }
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 12)
                 }
                 .background(
                     Color(hex: "#1D1D1D")

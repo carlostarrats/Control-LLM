@@ -17,7 +17,7 @@ struct FAQView: View {
                     }
                     .padding(.horizontal, 20)
                 }
-                .padding(.bottom, 20)
+                .padding(.bottom, 10)
             }
             .safeAreaInset(edge: .top) {
                 VStack(spacing: 0) {
@@ -25,7 +25,7 @@ struct FAQView: View {
                         .fill(ColorManager.shared.greenColor)
                         .frame(width: 36, height: 5)
                         .padding(.top, 8)
-                        .padding(.bottom, 20)
+                        .padding(.bottom, 10)
 
                     HStack {
                         HStack(spacing: 8) {
@@ -53,7 +53,7 @@ struct FAQView: View {
                         .buttonStyle(PlainButtonStyle())
                         .padding(.trailing, 20)
                     }
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 10)
                 }
                 .background(
                     Color(hex: "#1D1D1D")

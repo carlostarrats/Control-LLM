@@ -287,11 +287,17 @@ struct MainView: View {
             .ignoresSafeArea(.all)
             .zIndex(999) // Ensure it's on top of everything
         )
-        .fullScreenCover(isPresented: $showingOnboarding) {
+        .overlay(
             // Onboarding Modal (first run only) - Full screen modal above everything
-            OnboardingView(isPresented: $showingOnboarding)
-                .transition(.identity) // No animation
-        }
+            Group {
+                if showingOnboarding {
+                    OnboardingView(isPresented: $showingOnboarding)
+                        .zIndex(1000) // Ensure it's on top of everything
+                        .transition(.identity) // No animation
+                        .animation(.none, value: showingOnboarding) // Disable implicit animations
+                }
+            }
+        )
 
 
 

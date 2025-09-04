@@ -441,7 +441,7 @@ struct AppearanceView: View {
                         .fill(ColorManager.shared.greenColor)
                         .frame(width: 36, height: 5)
                         .padding(.top, 8)
-                        .padding(.bottom, 20)
+                        .padding(.bottom, 6)
                     
                     // Header
                     HStack {
@@ -472,7 +472,7 @@ struct AppearanceView: View {
                         .buttonStyle(PlainButtonStyle())
                         .padding(.trailing, 20)
                     }
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 6)
                 }
                 .background(Color(hex: "#1D1D1D"))
             }

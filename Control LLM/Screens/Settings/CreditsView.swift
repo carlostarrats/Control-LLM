@@ -20,7 +20,7 @@ struct CreditsView: View {
                     }
                     .padding(.horizontal, 20)
                 }
-                .padding(.bottom, 20)
+                .padding(.bottom, 10)
             }
             .safeAreaInset(edge: .top) {
                 // Header
@@ -30,7 +30,7 @@ struct CreditsView: View {
                         .fill(ColorManager.shared.greenColor)
                         .frame(width: 36, height: 5)
                         .padding(.top, 8)
-                        .padding(.bottom, 20)
+                        .padding(.bottom, 10)
                     
                     // Header
                     HStack {
@@ -61,7 +61,7 @@ struct CreditsView: View {
                         .buttonStyle(PlainButtonStyle())
                         .padding(.trailing, 20)
                     }
-                    .padding(.bottom, 20)
+                    .padding(.bottom, 10)
                 }
                 .background(
                     Color(hex: "#1D1D1D")
@@ -72,9 +72,10 @@ struct CreditsView: View {
     
     private var creditsItems: [CreditsItem] {
         [
+            CreditsItem(title: "LLaMA.cpp", url: "https://github.com/ggml-org/llama.cpp"),
             CreditsItem(title: "Michael Verges - Liquid", url: "https://github.com/maustinstar/liquid"),
             CreditsItem(title: "IBM Plex Mono", url: "https://github.com/IBM/plex?tab=readme-ov-file"),
-            CreditsItem(title: "Control.Design", url: "https://control.design") // Placeholder URL
+            CreditsItem(title: "Control.Design", url: "https://github.com/control-design-studio/Control-LLM")
         ]
     }
 }
