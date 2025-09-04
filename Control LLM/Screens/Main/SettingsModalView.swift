@@ -80,7 +80,7 @@ struct SettingsModalView: View {
                                 .buttonStyle(PlainButtonStyle())
                                 .padding(.trailing, 0)
                             } else {
-                                Image(systemName: "hand.point.up.left.fill")
+                                Image(systemName: "chevron.up.chevron.down")
                                     .font(.system(size: 12, weight: .medium))
                                     .foregroundColor(Color(hex: "#141414"))
                                     .frame(width: 20, height: 20)

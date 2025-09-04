@@ -22,12 +22,10 @@ struct OnboardingView: View {
             )
         }
         .sheet(isPresented: $showingModelsSheet) {
-            ModelsSheetView(
-                isPresented: $showingModelsSheet,
-                onComplete: {
+            SettingsModelsView()
+                .onDisappear {
                     completeOnboarding()
                 }
-            )
         }
     }
     
@@ -64,11 +62,11 @@ struct DisclaimerScreen: View {
                         .opacity(0.8)
                         .padding(.top, 10) // Move logo down 10pt
                         .rotationEffect(.degrees(logoRotation))
-                        .onAppear {
-                            withAnimation(.linear(duration: 90).repeatForever(autoreverses: false)) {
-                                logoRotation = 360
-                            }
-                        }
+                                        .onAppear {
+                    withAnimation(.linear(duration: 120).repeatForever(autoreverses: false)) {
+                        logoRotation = 360
+                    }
+                }
                 }
                 
                 // Disclaimer heading - moved up to sit right under logo, left aligned
@@ -133,155 +131,6 @@ struct DisclaimerScreen: View {
 }
 
 
-// MARK: - Models Sheet
-struct ModelsSheetView: View {
-    @Binding var isPresented: Bool
-    let onComplete: () -> Void
-    @StateObject private var viewModel = ModelsViewModel()
-    
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                // Header
-                VStack(spacing: 0) {
-                    // Grab bar
-                    RoundedRectangle(cornerRadius: 2.5)
-                        .fill(Color(hex: "#3EBBA5"))
-                        .frame(width: 36, height: 5)
-                        .padding(.top, 8)
-                        .padding(.bottom, 20)
-                    
-                    // Header content
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("SELECT MODEL")
-                                .font(.custom("IBMPlexMono-Bold", size: 18))
-                                .foregroundColor(Color(hex: "#EEEEEE"))
-                            
-                            Text("Choose a model to get started")
-                                .font(.custom("IBMPlexMono", size: 14))
-                                .foregroundColor(Color(hex: "#BBBBBB"))
-                        }
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            onComplete()
-                        }) {
-                            Text("Skip")
-                                .font(.custom("IBMPlexMono-Medium", size: 16))
-                                .foregroundColor(Color(hex: "#F8C762"))
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 20)
-                }
-                .background(Color(hex: "#1D1D1D"))
-                
-                // Models list
-                ScrollView {
-                    LazyVStack(spacing: 12) {
-                        ForEach(viewModel.availableModels) { model in
-                            OnboardingModelRow(
-                                model: model,
-                                isSelected: viewModel.selectedModel?.id == model.id
-                            ) {
-                                viewModel.selectModel(model)
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 20)
-                }
-                .background(Color(hex: "#1D1D1D"))
-                
-                // Continue button
-                VStack {
-                    Button(action: {
-                        onComplete()
-                    }) {
-                        Text("Continue")
-                            .font(.custom("IBMPlexMono-Medium", size: 16))
-                            .foregroundColor(Color(hex: "#EEEEEE"))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color(hex: "#3EBBA5"))
-                            .cornerRadius(4)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 20)
-                }
-                .background(Color(hex: "#1D1D1D"))
-            }
-        }
-        .preferredColorScheme(.dark)
-    }
-}
-
-// MARK: - Onboarding Model Row for Sheet
-struct OnboardingModelRow: View {
-    let model: LLMModelInfo
-    let isSelected: Bool
-    let onSelect: () -> Void
-    
-    var body: some View {
-        Button(action: onSelect) {
-            HStack {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text(model.name)
-                            .font(.custom("IBMPlexMono-Medium", size: 16))
-                            .foregroundColor(Color(hex: "#EEEEEE"))
-                        Text("•")
-                            .font(.custom("IBMPlexMono", size: 16))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                        Text(model.provider)
-                            .font(.custom("IBMPlexMono", size: 14))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                    }
-                    
-                    Text(model.description)
-                        .font(.custom("IBMPlexMono", size: 14))
-                        .foregroundColor(Color(hex: "#BBBBBB"))
-                        .lineLimit(2)
-                    
-                    HStack {
-                        Text(model.size)
-                            .font(.custom("IBMPlexMono-Regular", size: 12))
-                            .foregroundColor(Color(hex: "#94A8E1"))
-                        Text("•")
-                            .font(.custom("IBMPlexMono-Regular", size: 12))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
-                        Text("Available")
-                            .font(.custom("IBMPlexMono-Regular", size: 12))
-                            .foregroundColor(Color(hex: "#3EBBA5"))
-                    }
-                }
-                
-                Spacer()
-                
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 20))
-                        .foregroundColor(Color(hex: "#3EBBA5"))
-                }
-            }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(isSelected ? Color(hex: "#2A2A2A") : Color(hex: "#1A1A1A"))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(isSelected ? Color(hex: "#3EBBA5") : Color(hex: "#333333"), lineWidth: 1)
-                    )
-            )
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
 
 #Preview {
     OnboardingView(isPresented: .constant(true))
