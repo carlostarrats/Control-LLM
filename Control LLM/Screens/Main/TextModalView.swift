@@ -704,7 +704,7 @@ struct TextModalView: View {
                 .padding(.bottom, keyboardHeight > 0 ? keyboardHeight + 24 : 24)
             }
             .safeAreaInset(edge: .bottom) {
-                Color.clear.frame(height: 300)
+                Color.clear.frame(height: 200)
             }
             .onChange(of: viewModel.messages) { _, newMessages in
                 if let last = newMessages.last, !last.content.isEmpty {
