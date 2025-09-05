@@ -1777,7 +1777,7 @@ struct CopyToastView: View {
                     .foregroundColor(Color(hex: "#1D1D1D"))
                 
                 // Message text
-                Text("Copied")
+                Text(NSLocalizedString("Copied", comment: ""))
                     .font(.custom("IBMPlexMono", size: 16))
                     .fontWeight(.medium)
                     .foregroundColor(Color(hex: "#1D1D1D"))

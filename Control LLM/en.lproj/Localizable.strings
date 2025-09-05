@@ -269,3 +269,25 @@
 "LLM Terms" = "LLM Terms";
 "LLM models within this app are subject to their respective licenses:\n\nLlama 3.2: Subject to Meta's Custom License. Users must comply with Meta's Acceptable Use Policy and license terms.\nGemma 3, Qwen 3, SmolLM2: Licensed under Apache 2.0.\n\nUsers are responsible for ensuring their use of this application complies with all applicable model licenses and terms of service.\n\nFor full license details, please refer to the original model repositories found within the Credits section in Settings." = "LLM models within this app are subject to their respective licenses:\n\nLlama 3.2: Subject to Meta's Custom License. Users must comply with Meta's Acceptable Use Policy and license terms.\nGemma 3, Qwen 3, SmolLM2: Licensed under Apache 2.0.\n\nUsers are responsible for ensuring their use of this application complies with all applicable model licenses and terms of service.\n\nFor full license details, please refer to the original model repositories found within the Credits section in Settings.";
 
+// Onboarding
+"DISCLAIMER" = "DISCLAIMER";
+"This app uses AI models that" = "This app uses AI models that";
+"may generate incorrect," = "may generate incorrect,";
+"inappropriate, or misleading" = "inappropriate, or misleading";
+"content. Do not rely on AI-" = "content. Do not rely on AI-";
+"generated content for legal," = "generated content for legal,";
+"financial, or medical advice." = "financial, or medical advice.";
+"This software is provided \"as" = "This software is provided \"as";
+"is\" without warranties. For" = "is\" without warranties. For";
+"personal use only." = "personal use only.";
+"This app stores all data on your device only - nothing is saved or shared, and no account exists." = "This app stores all data on your device only - nothing is saved or shared, and no account exists.";
+"I Understand" = "I Understand";
+"Begin..." = "Begin...";
+
+// Error Messages and Toasts
+"Clipboard Processing" = "Clipboard Processing";
+"OK" = "OK";
+"Retry" = "Retry";
+"Copied" = "Copied";
+"Toggle Animation" = "Toggle Animation";
+

@@ -73,7 +73,7 @@ struct DisclaimerScreen: View {
                 
                 // Disclaimer heading - moved up to sit right under logo, left aligned
                 HStack {
-                    Text("DISCLAIMER")
+                    Text(NSLocalizedString("DISCLAIMER", comment: ""))
                         .font(.custom("IBMPlexMono", size: 16))
                         .foregroundColor(ColorManager.shared.redColor)
                     Spacer()
@@ -84,15 +84,15 @@ struct DisclaimerScreen: View {
                 
                 // Disclaimer text - left aligned with button
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("This app uses AI models that")
-                    Text("may generate incorrect,")
-                    Text("inappropriate, or misleading")
-                    Text("content. Do not rely on AI-")
-                    Text("generated content for legal,")
-                    Text("financial, or medical advice.")
-                    Text("This software is provided \"as")
-                    Text("is\" without warranties. For")
-                    Text("personal use only.")
+                    Text(NSLocalizedString("This app uses AI models that", comment: ""))
+                    Text(NSLocalizedString("may generate incorrect,", comment: ""))
+                    Text(NSLocalizedString("inappropriate, or misleading", comment: ""))
+                    Text(NSLocalizedString("content. Do not rely on AI-", comment: ""))
+                    Text(NSLocalizedString("generated content for legal,", comment: ""))
+                    Text(NSLocalizedString("financial, or medical advice.", comment: ""))
+                    Text(NSLocalizedString("This software is provided \"as", comment: ""))
+                    Text(NSLocalizedString("is\" without warranties. For", comment: ""))
+                    Text(NSLocalizedString("personal use only.", comment: ""))
                 }
                 .font(.custom("IBMPlexMono", size: 16))
                 .foregroundColor(Color(hex: "#94A8E1")) // Specific purple
@@ -102,7 +102,7 @@ struct DisclaimerScreen: View {
                     .frame(height: 30) // 30pt between disclaimer and yellow text
                 
                 // Green text from second screen - left aligned
-                Text("This app stores all data on your device only - nothing is saved or shared, and no account exists.")
+                Text(NSLocalizedString("This app stores all data on your device only - nothing is saved or shared, and no account exists.", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#3EBBA5")) // Specific green
                     .multilineTextAlignment(.leading)
@@ -111,7 +111,7 @@ struct DisclaimerScreen: View {
                 
                 // I Understand button
                 Button(action: onNext) {
-                    Text("I Understand")
+                    Text(NSLocalizedString("I Understand", comment: ""))
                         .font(.custom("IBMPlexMono", size: 16))
                         .foregroundColor(Color(hex: "#F8C762")) // Specific orange
                         .frame(maxWidth: .infinity)
@@ -219,7 +219,7 @@ struct ModelsScreen: View {
                 
                 // Begin button instead of Manage Unused Models
                 Button(action: onNext) {
-                    Text("Begin...")
+                    Text(NSLocalizedString("Begin...", comment: ""))
                         .font(.custom("IBMPlexMono", size: 16))
                         .foregroundColor(Color(hex: "#F8C762"))
                         .frame(maxWidth: .infinity)

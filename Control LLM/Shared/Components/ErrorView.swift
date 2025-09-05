@@ -40,7 +40,7 @@ struct ErrorView: View {
                     .padding(.horizontal)
                 
                 if let retryAction = retryAction {
-                    Button("Retry") {
+                    Button(NSLocalizedString("Retry", comment: "")) {
                         retryAction()
                     }
                     .font(.custom("IBMPlexMono-Medium", size: 16))
