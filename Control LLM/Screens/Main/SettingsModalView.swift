@@ -55,7 +55,7 @@ struct SettingsModalView: View {
                                 .foregroundColor(isSheetExpanded ? colorManager.redColor : Color(hex: "#141414"))
                                 .padding(.trailing, 6)
                             
-                            Text("SETTINGS")
+                            Text(NSLocalizedString("SETTINGS", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .foregroundColor(settingsHeaderTextColor)
                                 .padding(.leading, 0)

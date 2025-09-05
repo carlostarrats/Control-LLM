@@ -90,7 +90,7 @@ struct FAQView: View {
             ),
             FAQItem(
                 question: NSLocalizedString("LLM Terms", comment: ""),
-                answer: NSLocalizedString("LLM models within this app are subject to their respective licenses:\n\nLlama 3.2: Subject to Meta's Custom License. Users must comply with Meta's Acceptable Use Policy and license terms.\nGemma 3, Qwen 3, SmolLM2: Licensed under Apache 2.0.\n\nUsers are responsible for ensuring their use of this application complies with all applicable model licenses and terms of service.\n\nFor full license details, please refer to the original model repositories.", comment: "")
+                answer: NSLocalizedString("LLM models within this app are subject to their respective licenses:\n\nLlama 3.2: Subject to Meta's Custom License. Users must comply with Meta's Acceptable Use Policy and license terms.\nGemma 3, Qwen 3, SmolLM2: Licensed under Apache 2.0.\n\nUsers are responsible for ensuring their use of this application complies with all applicable model licenses and terms of service.\n\nFor full license details, please refer to the original model repositories found within the Credits section in Settings.", comment: "")
             ),
             FAQItem(
                 question: NSLocalizedString("Privacy", comment: ""),
