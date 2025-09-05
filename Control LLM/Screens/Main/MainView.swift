@@ -18,7 +18,7 @@ struct MainView: View {
     }
     @State private var showingTextModal = false
     @State private var showingSettingsView = false // Added state for Settings sheet
-    @State private var showingOnboarding = false // Will be set to true in onAppear if first run
+    @State private var showingOnboarding = false // Will be set based on whether user has seen onboarding
     @State private var showingLoadingScreen = true // Show loading screen on app startup
     @State private var loadingScreenDuration: Double = 2.0 // 2 seconds duration
     @State private var isChatMode = false
@@ -175,6 +175,26 @@ struct MainView: View {
 
     }
     
+    private var mainContent: some View {
+        // Home page only - settings now handled by sheet
+        HomePage(
+            shouldShowNavButtons: true,
+            blobScale: $blobScale,
+            blobColorOpacity: $blobColorOpacity,
+            hueShift: hueShift,
+            saturationLevel: saturationLevel,
+            brightnessLevel: brightnessLevel,
+            onSettings: { 
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                    isSettingsSheetExpanded = true
+                }
+            },
+            isSheetPresented: $showingChatSheet,
+            isSheetExpanded: $isSheetExpanded,
+            isSettingsSheetExpanded: $isSettingsSheetExpanded
+        )
+    }
+    
     var body: some View {
         ZStack {
             // Base dark background
@@ -183,23 +203,10 @@ struct MainView: View {
             
 
             
-            // Home page only - settings now handled by sheet
-            HomePage(
-                shouldShowNavButtons: true,
-                blobScale: $blobScale,
-                blobColorOpacity: $blobColorOpacity,
-                hueShift: hueShift,
-                saturationLevel: saturationLevel,
-                brightnessLevel: brightnessLevel,
-                onSettings: { 
-                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
-                        isSettingsSheetExpanded = true
-                    }
-                },
-                isSheetPresented: $showingChatSheet,
-                isSheetExpanded: $isSheetExpanded,
-                isSettingsSheetExpanded: $isSettingsSheetExpanded
-            )
+            // Only show main content if onboarding is not showing
+            if !showingOnboarding {
+                mainContent
+            }
 
             // Page navigation removed - settings now handled by sheet
             
@@ -216,18 +223,20 @@ struct MainView: View {
             .ignoresSafeArea(.all)
         )
         .onAppear {
-            let hasSeenOnboarding = false // Reset for testing
+            let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
             NSLog("🔍 Onboarding check: hasSeenOnboarding = \(hasSeenOnboarding)")
             NSLog("🔍 Loading screen showing: \(showingLoadingScreen)")
             NSLog("🔍 MainView onAppear called")
+            NSLog("🔍 Initial showingOnboarding: \(showingOnboarding)")
             
             // Show onboarding after loading screen finishes (only if first run)
-            DispatchQueue.main.asyncAfter(deadline: .now() + loadingScreenDuration) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
                 if !hasSeenOnboarding {
                     NSLog("🔍 Showing onboarding - first run")
                     showingOnboarding = true
                 } else {
                     NSLog("🔍 Skipping onboarding - already seen")
+                    showingOnboarding = false
                 }
             }
             
