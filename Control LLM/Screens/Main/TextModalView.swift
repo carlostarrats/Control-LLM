@@ -1474,58 +1474,6 @@ struct TextModalView: View {
         // when the user asks follow-up questions about the file
     }
     
-    // MARK: - Copy Button Logic --------------------------------------------
-    private func shouldShowCopyButton(for message: ChatMessage) -> Bool {
-        // Don't show copy button for excluded message types
-        if isExcludedMessage(message) {
-            return false
-        }
-        
-        // Find the index of this message
-        guard let messageHistory = self.messageHistory,
-              let messageIndex = messageHistory.firstIndex(where: { $0.id == message.id }) else {
-            return false
-        }
-        
-        // Only show copy button on the last assistant message in a sequence
-        // Look ahead to see if there's another assistant message after this one
-        for i in (messageIndex + 1)..<messageHistory.count {
-            if !messageHistory[i].isUser {
-                // There's another assistant message after this one, don't show copy button
-                return false
-            }
-        }
-        
-        return true
-    }
-    
-    private func isExcludedMessage(_ message: ChatMessage) -> Bool {
-        let content = message.content.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        // Exclude "File received, what's next?" messages
-        if content.contains("file received") && content.contains("what") {
-            return true
-        }
-        
-        // Exclude hello messages (simple greetings)
-        let helloPatterns = [
-            "hello",
-            "hi",
-            "hey",
-            "good morning",
-            "good afternoon", 
-            "good evening",
-            "greetings"
-        ]
-        
-        for pattern in helloPatterns {
-            if content.hasPrefix(pattern) {
-                return true
-            }
-        }
-        
-        return false
-    }
 }
 
 // MARK: - Bubble view --------------------------------------------------------
@@ -1594,8 +1542,8 @@ struct MessageBubble: View {
                                     .foregroundColor(colorManager.whiteTextColor)
                                     .padding(.leading, 2)
                                 
-                                // Copy button - show for all assistant messages with content
-                                if !message.content.isEmpty {
+                                // Copy button - show only for complete responses (excluding hello messages and progress updates)
+                                if shouldShowCopyButton(for: message) {
                                     HStack {
                                         CopyButton(content: message.content) {
                                             showCopyToast = true
@@ -1648,6 +1596,29 @@ struct MessageBubble: View {
             return true
         }
         
+        // Exclude progress messages (temporary status updates)
+        if content.hasPrefix("🔄") || content.hasPrefix("⏳") || content.hasPrefix("📊") {
+            return true
+        }
+        
+        // Exclude processing status messages
+        let progressPatterns = [
+            "processing",
+            "analyzing",
+            "loading",
+            "extracting",
+            "generating",
+            "part ",
+            "chunk ",
+            "step "
+        ]
+        
+        for pattern in progressPatterns {
+            if content.contains(pattern) {
+                return true
+            }
+        }
+        
         // Exclude hello messages (simple greetings)
         let helloPatterns = [
             "hello",
@@ -1666,6 +1637,18 @@ struct MessageBubble: View {
         }
         
         return false
+    }
+    
+    // MARK: - Copy Button Logic --------------------------------------------
+    private func shouldShowCopyButton(for message: ChatMessage) -> Bool {
+        // Don't show copy button for excluded message types (hello messages, etc.)
+        if isExcludedMessage(message) {
+            return false
+        }
+        
+        // Show copy button for all complete assistant responses (not just the last one)
+        // This allows users to copy each individual response in a conversation
+        return true
     }
 }
 
@@ -1748,22 +1731,11 @@ struct CopyButton: View {
     
     var body: some View {
         Button(action: copyToClipboard) {
-            // Apple-style copy icon: two overlapping rounded squares
-            ZStack {
-                // Back square (top-left)
-                RoundedRectangle(cornerRadius: 3)
-                    .stroke(colorManager.greenColor, lineWidth: 1.5)
-                    .frame(width: 12, height: 12)
-                    .offset(x: -2, y: -2)
-                
-                // Front square (bottom-right)
-                RoundedRectangle(cornerRadius: 3)
-                    .stroke(colorManager.greenColor, lineWidth: 1.5)
-                    .frame(width: 12, height: 12)
-                    .offset(x: 2, y: 2)
-            }
-            .frame(width: 20, height: 20)
-            .scaleEffect(isPressed ? 0.9 : 1.0)
+            Image(systemName: "square.filled.on.square")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(Color(hex: "#6b6b6b"))
+                .frame(width: 20, height: 20)
+                .scaleEffect(isPressed ? 0.9 : 1.0)
         }
         .buttonStyle(PlainButtonStyle())
         .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in

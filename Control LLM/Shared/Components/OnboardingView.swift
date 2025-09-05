@@ -66,7 +66,7 @@ struct DisclaimerScreen: View {
                         .rotationEffect(.degrees(logoRotation))
                         .onAppear {
                             withAnimation(.linear(duration: 170).repeatForever(autoreverses: false)) {
-                                logoRotation = 360
+                                logoRotation = -360
                             }
                         }
                 }
