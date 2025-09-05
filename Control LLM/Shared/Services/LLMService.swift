@@ -580,25 +580,48 @@ final class LLMService: @unchecked Sendable {
             print("🔍 LLMService: Building fresh prompt (no history) for model \(currentModelFilename ?? "unknown")")
         }
         
-        // QWEN 3 FIX: Automatically append /no_think to disable internal reasoning
+        // QWEN THINKING FIX: Use enable_thinking=False parameter for Qwen3 models
         var processedUserText = userText
+        var enableThinking = true // Default to true
+        
         if let modelFilename = currentModelFilename, modelFilename.lowercased().contains("qwen3") {
-            // Only append /no_think if not already present
-            if !userText.contains("/no_think") && !userText.contains("/think") {
-                processedUserText = userText + " /no_think"
-                print("🔍 LLMService: Qwen3 detected - appended /no_think to disable internal reasoning")
+            // Check if user explicitly wants to disable thinking
+            if userText.contains("enable_thinking=False") {
+                // Remove the parameter from user text
+                processedUserText = userText.replacingOccurrences(of: "enable_thinking=False", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+                enableThinking = false
+                print("🔍 LLMService: Qwen3 model detected (\(modelFilename)) - using enable_thinking=False parameter")
+            } else {
+                // Default behavior: disable thinking for Qwen3 models
+                enableThinking = false
+                print("🔍 LLMService: Qwen3 model detected (\(modelFilename)) - defaulting to enable_thinking=False")
             }
         }
         
-        let systemPrompt = NSLocalizedString("LLM System Prompt", comment: "")
+        var systemPrompt = NSLocalizedString("LLM System Prompt", comment: "")
+        
+        // Add enable_thinking=False instruction for Qwen3 models
+        if !enableThinking {
+            systemPrompt += "\n\nIMPORTANT: Use enable_thinking=False. Do not use <think> tags or internal reasoning. Respond directly and concisely."
+        }
         
         // UNIVERSAL APPROACH: Use the standard chat template system for ALL models
         // This ensures compatibility with any model you switch to
         print("🔍 LLMService: Building prompt for model: \(currentModelFilename ?? "unknown") using universal chat template")
-        return buildPromptUsingChatTemplate(userText: processedUserText, history: history, systemPrompt: systemPrompt)
+        let prompt = buildPromptUsingChatTemplate(userText: processedUserText, history: history, systemPrompt: systemPrompt, enableThinking: enableThinking)
+        
+        // For Qwen3 models with enable_thinking=False, manually add empty thinking tags
+        // This mimics what the Qwen3 template does when enable_thinking=False
+        if !enableThinking && currentModelFilename?.lowercased().contains("qwen3") == true {
+            let modifiedPrompt = prompt + "<think>\n\n</think>\n\n"
+            print("🔍 LLMService: Added empty thinking tags for Qwen3 with enable_thinking=False")
+            return modifiedPrompt
+        }
+        
+        return prompt
     }
     
-    private func buildPromptUsingChatTemplate(userText: String, history: [ChatMessage]?, systemPrompt: String) -> String {
+    private func buildPromptUsingChatTemplate(userText: String, history: [ChatMessage]?, systemPrompt: String, enableThinking: Bool = true) -> String {
         // UNIVERSAL APPROACH: Use the standard chat template system for ALL models
         print("🔍 LLMService: Using universal chat template for model: \(currentModelFilename ?? "unknown")")
         

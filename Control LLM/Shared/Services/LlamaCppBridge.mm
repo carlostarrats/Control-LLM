@@ -613,19 +613,24 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
                 // Convert piece to string and emit directly
                 std::string piece_str(piece_buf, piece_buf + nbytes);
                 
-                // QWEN GAP FIX: Keep tags visible but remove gap-causing content
+                // QWEN THINKING FIX: Completely hide thinking tags and their content
                 static bool in_thinking_mode = false;
                 std::string clean_piece = piece_str;
                 
-                // Check for thinking tags
-                if (clean_piece == "<think>") {
+                // Check for thinking tags - completely hide them (more robust detection)
+                if (clean_piece.find("<think>") != std::string::npos) {
                     in_thinking_mode = true;
-                    // Keep the opening tag visible
-                } else if (clean_piece == "</think>") {
+                    clean_piece = ""; // Don't emit the opening tag
+                } else if (clean_piece.find("</think>") != std::string::npos) {
                     in_thinking_mode = false;
-                    // Keep the closing tag visible
+                    clean_piece = ""; // Don't emit the closing tag
                 } else if (in_thinking_mode) {
                     clean_piece = ""; // Don't emit content while in thinking mode
+                }
+                
+                // Skip emitting if piece is empty (prevents blank spaces)
+                if (clean_piece.empty()) {
+                    continue;
                 }
                 
                 // Remove common special tokens that might appear in pieces
@@ -643,6 +648,10 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
                 const std::string analysis_close = "</analysis>";
                 const std::string process_open = "<process>";
                 const std::string process_close = "</process>";
+                const std::string thought_open = "<thought>";
+                const std::string thought_close = "</thought>";
+                const std::string thinking_open = "<thinking>";
+                const std::string thinking_close = "</thinking>";
                 
                 // Remove <|...|> tags
                 size_t pos = 0;
@@ -729,6 +738,30 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
                     } else {
                         clean_piece.erase(pos, process_open.length());
                         NSLog(@"LlamaCppBridge: Removed incomplete <process> tag");
+                    }
+                }
+                
+                // Remove <thought> tags (additional Qwen thinking tags)
+                pos = 0;
+                while ((pos = clean_piece.find(thought_open)) != std::string::npos) {
+                    size_t end_pos = clean_piece.find(thought_close, pos);
+                    if (end_pos != std::string::npos) {
+                        clean_piece.erase(pos, end_pos + thought_close.length() - pos);
+                    } else {
+                        clean_piece.erase(pos, thought_open.length());
+                        NSLog(@"LlamaCppBridge: Removed incomplete <thought> tag");
+                    }
+                }
+                
+                // Remove <thinking> tags (additional Qwen thinking tags)
+                pos = 0;
+                while ((pos = clean_piece.find(thinking_open)) != std::string::npos) {
+                    size_t end_pos = clean_piece.find(thinking_close, pos);
+                    if (end_pos != std::string::npos) {
+                        clean_piece.erase(pos, end_pos + thinking_close.length() - pos);
+                    } else {
+                        clean_piece.erase(pos, thinking_open.length());
+                        NSLog(@"LlamaCppBridge: Removed incomplete <thinking> tag");
                     }
                 }
                 
