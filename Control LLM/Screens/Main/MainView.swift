@@ -9,7 +9,7 @@ struct MainView: View {
     init() {
         NSLog("🔍 MainView init")
         // Check for first run immediately
-        let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
+        let hasSeenOnboarding = false // Reset for testing
         NSLog("🔍 Init check: hasSeenOnboarding = \(hasSeenOnboarding)")
         if !hasSeenOnboarding {
             NSLog("🔍 First run detected in init")
@@ -19,6 +19,8 @@ struct MainView: View {
     @State private var showingTextModal = false
     @State private var showingSettingsView = false // Added state for Settings sheet
     @State private var showingOnboarding = false // Will be set to true in onAppear if first run
+    @State private var showingLoadingScreen = true // Show loading screen on app startup
+    @State private var loadingScreenDuration: Double = 2.0 // 2 seconds duration
     @State private var isChatMode = false
     @State private var blobScale: CGFloat = 1.0
     @State private var textOpacity: Double = 1.0
@@ -214,12 +216,20 @@ struct MainView: View {
             .ignoresSafeArea(.all)
         )
         .onAppear {
-            let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
+            let hasSeenOnboarding = false // Reset for testing
             NSLog("🔍 Onboarding check: hasSeenOnboarding = \(hasSeenOnboarding)")
+            NSLog("🔍 Loading screen showing: \(showingLoadingScreen)")
+            NSLog("🔍 MainView onAppear called")
             
-            // Force show onboarding for testing
-            NSLog("🔍 FORCE SHOWING ONBOARDING FOR TESTING")
-            showingOnboarding = true
+            // Show onboarding after loading screen finishes (only if first run)
+            DispatchQueue.main.asyncAfter(deadline: .now() + loadingScreenDuration) {
+                if !hasSeenOnboarding {
+                    NSLog("🔍 Showing onboarding - first run")
+                    showingOnboarding = true
+                } else {
+                    NSLog("🔍 Skipping onboarding - already seen")
+                }
+            }
             
             // Setup clipboard processing notification observer
             viewModel.setupClipboardProcessingObserver()
@@ -287,6 +297,27 @@ struct MainView: View {
             }
             .ignoresSafeArea(.all)
             .zIndex(999) // Ensure it's on top of everything
+        )
+        .overlay(
+            // Loading Screen (app startup) - Full screen modal above everything
+            Group {
+                if showingLoadingScreen {
+                    LoadingScreenView()
+                        .zIndex(1001) // Ensure it's on top of everything including onboarding
+                        .transition(.identity) // No animation
+                        .animation(.none, value: showingLoadingScreen) // Disable implicit animations
+                        .onAppear {
+                            NSLog("🔍 Loading screen appeared!")
+                            // Hide loading screen after logo expansion has time to be visible (after 1.7 seconds)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
+                                NSLog("🔍 Hiding loading screen - after expansion")
+                                withAnimation(.easeOut(duration: 0.3)) {
+                                    showingLoadingScreen = false
+                                }
+                            }
+                        }
+                }
+            }
         )
         .overlay(
             // Onboarding Modal (first run only) - Full screen modal above everything
