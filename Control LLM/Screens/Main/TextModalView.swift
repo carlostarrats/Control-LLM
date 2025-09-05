@@ -409,6 +409,10 @@ struct TextModalView: View {
             // Also reset the ChatViewModel's duplicate detection to ensure clean state
             viewModel.llm.lastSentMessage = nil
             
+            // CRITICAL FIX: Reset showGeneratingText FIRST to ensure clean state
+            showGeneratingText = false
+            print("🔍 TextModalView: onAppear - Reset showGeneratingText to false")
+            
             // CRITICAL FIX: Synchronize processing state when view appears
             syncProcessingState()
             
@@ -427,14 +431,20 @@ struct TextModalView: View {
             print("🔍 TextModalView: llm.isProcessing changed to \(isProcessing), updating effective processing state")
             updateEffectiveProcessingState()
             
+            // CRITICAL FIX: Cancel any pending timer
+            showGeneratingTextTimer?.invalidate()
+            showGeneratingTextTimer = nil
+            
             // Add delay for generating text and stop button
             if isProcessing {
                 showGeneratingText = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                showGeneratingTextTimer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: false) { _ in
                     showGeneratingText = true
+                    print("🔍 TextModalView: Delay completed, set showGeneratingText to true")
                 }
             } else {
                 showGeneratingText = false
+                print("🔍 TextModalView: llm.isProcessing changed to false, reset showGeneratingText to false")
             }
         }
         .onChange(of: isLocalProcessing) { _, _ in
@@ -442,11 +452,20 @@ struct TextModalView: View {
             print("🔍 TextModalView: isLocalProcessing changed, updating effective processing state")
             updateEffectiveProcessingState()
         }
+        .onChange(of: viewModel.isFileProcessing) { _, isFileProcessing in
+            // CRITICAL FIX: Reset showGeneratingText when file processing completes
+            if !isFileProcessing {
+                showGeneratingText = false
+                print("🔍 TextModalView: isFileProcessing changed to false, reset showGeneratingText to false")
+            }
+        }
         .onDisappear {
             opacityUpdateTimer?.invalidate()
             opacityUpdateTimer = nil
             timeUpdateTimer?.invalidate()
             timeUpdateTimer = nil
+            showGeneratingTextTimer?.invalidate()
+            showGeneratingTextTimer = nil
             
             // Dismiss keyboard when view disappears
             isTextFieldFocused = false
@@ -956,7 +975,7 @@ struct TextModalView: View {
                         isSendButtonPressed = false
                     }
 
-                    if viewModel.llm.isProcessing {
+                    if showGeneratingText {
                         // Stop button pressed - cancel ongoing generation
                         print("Stop button pressed!")
                         NSLog("Stop button pressed!")
@@ -1200,10 +1219,15 @@ struct TextModalView: View {
         } else {
             print("🔍 TextModalView: syncProcessingState - resetting isLocalProcessing from \(isLocalProcessing) to false")
             isLocalProcessing = false
+            // CRITICAL FIX: Also reset showGeneratingText when not processing
+            showGeneratingText = false
         }
     }
     
     // CRITICAL FIX: State variable to track effective processing state (already declared above)
+    
+    // CRITICAL FIX: Timer to cancel delayed showGeneratingText updates
+    @State private var showGeneratingTextTimer: Timer?
     
     // CRITICAL FIX: Function to update effective processing state
     private func updateEffectiveProcessingState() {
@@ -1211,6 +1235,12 @@ struct TextModalView: View {
         if newValue != effectiveIsProcessing {
             print("🔍 TextModalView: updateEffectiveProcessingState - changing from \(effectiveIsProcessing) to \(newValue) (llm.isProcessing: \(viewModel.llm.isProcessing), isLocalProcessing: \(isLocalProcessing))")
             effectiveIsProcessing = newValue
+        }
+        
+        // CRITICAL FIX: Reset showGeneratingText when not processing
+        if !effectiveIsProcessing {
+            showGeneratingText = false
+            print("🔍 TextModalView: updateEffectiveProcessingState - reset showGeneratingText to false")
         }
     }
     // All state variables already declared above
@@ -1259,6 +1289,9 @@ struct TextModalView: View {
             print("🔍 TextModalView: File processing completed, stopping polling")
             isPolling = false
             isLocalProcessing = false
+            // CRITICAL FIX: Reset showGeneratingText when file processing completes
+            showGeneratingText = false
+            print("🔍 TextModalView: File processing completed, reset showGeneratingText to false")
             return
         }
         
@@ -1312,6 +1345,10 @@ struct TextModalView: View {
                 // Stop polling when response is complete
                 isPolling = false
                 isLocalProcessing = false // Reset local processing state
+                
+                // CRITICAL FIX: Reset showGeneratingText when response is complete
+                showGeneratingText = false
+                print("🔍 TextModalView: Response complete, reset showGeneratingText to false")
                 
                 // CRITICAL FIX: Clear transcript to ensure placeholder text shows correctly
                 // This ensures the UI returns to "Ask Anything..." state
@@ -1506,8 +1543,8 @@ struct MessageBubble: View {
                     }
                 } else {
                     if message.isUser {
-                        // User messages: dark bubble, purple text
-                        Text(message.content)
+                        // User messages: dark bubble, purple text with formatting
+                        Text(TextFormatter.formatText(message.content))
                             .font(.custom("IBMPlexMono", size: 14))
                             .foregroundColor(colorManager.purpleColor)
                             .multilineTextAlignment(.leading)
@@ -1525,8 +1562,8 @@ struct MessageBubble: View {
                                     .offset(x: -31, y: -35) // Restore original positioning
                             }
 
-                            // Actual text content
-                            Text(message.content)
+                            // Actual text content with formatting
+                            Text(TextFormatter.formatText(message.content))
                                 .font(.custom("IBMPlexMono", size: 16))
                                 .lineLimit(nil)
                                 .multilineTextAlignment(.leading)
