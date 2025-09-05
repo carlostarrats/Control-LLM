@@ -679,7 +679,7 @@ struct TextModalView: View {
     
     // Computed properties to break up complex expressions
     private var headerText: String {
-        shouldShowTimeInHeader() ? getCurrentTime() : "CONTROL LLM"
+        shouldShowTimeInHeader() ? getCurrentTime() : "CONTROL"
     }
     
     private var headerTextColor: Color {
