@@ -472,7 +472,7 @@ struct AppearanceView: View {
                         .buttonStyle(PlainButtonStyle())
                         .padding(.trailing, 20)
                     }
-                    .padding(.bottom, 6)
+                    .padding(.bottom, 10)
                 }
                 .background(Color(hex: "#1D1D1D"))
             }

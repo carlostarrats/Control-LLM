@@ -87,11 +87,11 @@ struct SettingsModalView: View {
                                     .padding(.trailing, 0)
                             }
                         }
-                        .padding(.bottom, isSheetExpanded ? 8 : 10)
+                        .padding(.bottom, 10)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, isSheetExpanded ? 0 : 14)
-                    .padding(.bottom, isSheetExpanded ? 12 : 24)
+                    .padding(.bottom, 10)
                     .background(Color.clear) // Make header background transparent
                     
                     // Settings content - only show when expanded
