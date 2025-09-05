@@ -195,7 +195,8 @@ struct MainView: View {
                     }
                 },
                 isSheetPresented: $showingChatSheet,
-                isSheetExpanded: $isSheetExpanded
+                isSheetExpanded: $isSheetExpanded,
+                isSettingsSheetExpanded: $isSettingsSheetExpanded
             )
 
             // Page navigation removed - settings now handled by sheet
@@ -353,6 +354,7 @@ struct HomePage: View {
     let onSettings: () -> Void
     @Binding var isSheetPresented: Bool
     @Binding var isSheetExpanded: Bool
+    @Binding var isSettingsSheetExpanded: Bool
     
     var body: some View {
         // Main content
@@ -363,8 +365,8 @@ struct HomePage: View {
             }
 
             // Central visual design element with tabs - RESTORED ORIGINAL
-            // Only show animations when sheet is not expanded (per requirements)
-            if !isSheetExpanded {
+            // Only show animations when neither sheet is expanded (per requirements)
+            if !isSheetExpanded && !isSettingsSheetExpanded {
                 VisualizerTabView(
                     hueShift: hueShift,
                     saturationLevel: saturationLevel,
