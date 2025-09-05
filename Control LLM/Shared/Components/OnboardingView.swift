@@ -42,47 +42,31 @@ struct OnboardingView: View {
 struct DisclaimerScreen: View {
     let onNext: () -> Void
     @EnvironmentObject var colorManager: ColorManager
-    @State private var logoRotation: Double = 0
+    @State private var isBlinking = false
     
     var body: some View {
         VStack(spacing: 0) {
-            Spacer()
-                .frame(height: 20) // Move everything down 20pt
-            
             // Content container - fixed width
             VStack(spacing: 0) {
-                Spacer()
-                    .frame(height: 10) // 10pt spacing above logo
-                
-                // Logo - 66% of original size (200pt -> 132pt) and right aligned with button
-                HStack {
-                    Spacer()
-                    Image("onboarding_logo")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 160, height: 160)
-                        .opacity(0.8)
-                        .padding(.top, 10) // Move logo down 10pt
-                        .rotationEffect(.degrees(logoRotation))
-                        .onAppear {
-                            withAnimation(.linear(duration: 170).repeatForever(autoreverses: false)) {
-                                logoRotation = -360
-                            }
-                        }
-                }
-                
-                // Disclaimer heading - moved up to sit right under logo, left aligned
+                // Disclaimer heading - 70pts from top
                 HStack {
                     Text(NSLocalizedString("DISCLAIMER", comment: ""))
                         .font(.custom("IBMPlexMono", size: 16))
                         .foregroundColor(ColorManager.shared.redColor)
+                        .opacity(isBlinking ? 0.3 : 1.0)
+                        .onAppear {
+                            withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+                                isBlinking = true
+                            }
+                        }
                     Spacer()
                 }
+                .padding(.top, 70)
                 
                 Spacer()
-                    .frame(height: 30) // 30pt between red text and blue text
+                    .frame(height: 150) // 150pts space
                 
-                // Disclaimer text - left aligned with button
+                // Disclaimer text - blue body text
                 VStack(alignment: .leading, spacing: 8) {
                     Text(NSLocalizedString("This app uses AI models that", comment: ""))
                     Text(NSLocalizedString("may generate incorrect,", comment: ""))
@@ -95,21 +79,21 @@ struct DisclaimerScreen: View {
                     Text(NSLocalizedString("personal use only.", comment: ""))
                 }
                 .font(.custom("IBMPlexMono", size: 16))
-                .foregroundColor(Color(hex: "#94A8E1")) // Specific purple
+                .foregroundColor(Color(hex: "#94A8E1")) // Blue color
                 .multilineTextAlignment(.leading)
                 
                 Spacer()
-                    .frame(height: 30) // 30pt between disclaimer and yellow text
+                    .frame(height: 40) // 40pts space
                 
-                // Green text from second screen - left aligned
+                // Green text
                 Text(NSLocalizedString("This app stores all data on your device only - nothing is saved or shared, and no account exists.", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#3EBBA5")) // Specific green
+                    .foregroundColor(Color(hex: "#3EBBA5")) // Green color
                     .multilineTextAlignment(.leading)
                 
                 Spacer()
                 
-                // I Understand button
+                // I Understand button - keep at same exact spot
                 Button(action: onNext) {
                     Text(NSLocalizedString("I Understand", comment: ""))
                         .font(.custom("IBMPlexMono", size: 16))
