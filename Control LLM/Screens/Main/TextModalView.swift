@@ -391,7 +391,7 @@ struct TextModalView: View {
 
                 if isSheetExpanded {
                     inputBar
-                        .padding(.bottom, keyboardHeight > 0 ? keyboardHeight - geometry.safeAreaInsets.bottom : 0)
+                        .padding(.bottom, keyboardHeight > 0 ? keyboardHeight - geometry.safeAreaInsets.bottom : geometry.safeAreaInsets.bottom)
                 }
                 
 
@@ -781,7 +781,7 @@ struct TextModalView: View {
     // MARK: input bar --------------------------------------------------------
     private var inputBar: some View {
         VStack {
-            HStack(alignment: .bottom, spacing: 12) {
+            HStack(alignment: .center, spacing: 12) {
                 // Plus button with full-height background matching input bar
                 ZStack {
                     Color(hex: "#0f0f0f")
@@ -812,6 +812,7 @@ struct TextModalView: View {
                     }
                 }
                 .frame(width: 44, height: 44)
+                .cornerRadius(4)
 
                 // Text field
                 TextField("", text: $messageText, axis: .vertical)
@@ -859,7 +860,7 @@ struct TextModalView: View {
                             }
                         }, alignment: .leading
                     ) // Generating response overlay - with delay
-                    .overlay(sendButtonOverlay, alignment: .bottomTrailing) // Send button - always visible
+                    .overlay(sendButtonOverlay, alignment: .trailing) // Send button - always visible
                     .animation(.easeInOut(duration: 0.05), value: isTextFieldFocused)
             }
             .padding(.horizontal, 20)
@@ -935,74 +936,76 @@ struct TextModalView: View {
     @ViewBuilder private var sendButtonOverlay: some View {
         let trimmedText = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
         if (!trimmedText.isEmpty || effectiveIsProcessing) && hasModelsInstalled {
-            Group {
-                if showGeneratingText {
-                    // Stop button (square icon)
-                    Text(NSLocalizedString("■", comment: ""))
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(Color(hex: "#1D1D1D"))
-                        .frame(width: 32, height: 32)
-                        .background(colorManager.redColor)
-                        .cornerRadius(4)
-                        .transition(.identity) // Instant in, instant out
-                } else {
-                    // Send button (arrow icon)
-                    Image(systemName: "arrow.up")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(Color(hex: "#1D1D1D"))
-                        .frame(width: 32, height: 32)
-                        .background(colorManager.purpleColor)
-                        .cornerRadius(4)
-                        .transition(.identity) // Reverted: Instant in, instant out
+            HStack {
+                Spacer()
+                Group {
+                    if showGeneratingText {
+                        // Stop button (square icon)
+                        Text(NSLocalizedString("■", comment: ""))
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(Color(hex: "#1D1D1D"))
+                            .frame(width: 32, height: 32)
+                            .background(colorManager.redColor)
+                            .cornerRadius(4)
+                            .transition(.identity) // Instant in, instant out
+                    } else {
+                        // Send button (arrow icon)
+                        Image(systemName: "arrow.up")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(Color(hex: "#1D1D1D"))
+                            .frame(width: 32, height: 32)
+                            .background(colorManager.purpleColor)
+                            .cornerRadius(4)
+                            .transition(.identity) // Reverted: Instant in, instant out
+                    }
                 }
-            }
-            .scaleEffect(isSendButtonPressed ? 0.95 : 1.0)
-            .opacity(isSendButtonPressed ? 0.8 : 1.0)
-            .animation(.easeInOut(duration: 0.1), value: isSendButtonPressed)
-            .onTapGesture {
-                isSendButtonPressed = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    isSendButtonPressed = false
-                }
+                .scaleEffect(isSendButtonPressed ? 0.95 : 1.0)
+                .opacity(isSendButtonPressed ? 0.8 : 1.0)
+                .animation(.easeInOut(duration: 0.1), value: isSendButtonPressed)
+                .onTapGesture {
+                    isSendButtonPressed = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        isSendButtonPressed = false
+                    }
 
-                if viewModel.llm.isProcessing {
-                    // Stop button pressed - cancel ongoing generation
-                    print("Stop button pressed!")
-                    NSLog("Stop button pressed!")
-                    
-                    // Cancel both LLM generation and PDF processing
-                    viewModel.llm.stopGeneration()
-                    viewModel.cancelFileProcessing()
-                } else {
-                    // Send button pressed - send new message
-                    print("Send button pressed!")
-                    NSLog("Send button pressed!")
-                    
-                    // Immediately change button state and dismiss keyboard for instant UI response
-                    print("🔍 Setting isLocalProcessing = true for immediate button change")
-                    isLocalProcessing = true
-                    isTextFieldFocused = false
-                    
-                    // Force keyboard dismissal using multiple methods for reliability
-                    hideKeyboard()
-                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    
-                    // Force TextField to lose focus completely
-                    DispatchQueue.main.async {
-                        self.isTextFieldFocused = false
-                        self.hideKeyboard()
-                        // Additional force dismissal
+                    if viewModel.llm.isProcessing {
+                        // Stop button pressed - cancel ongoing generation
+                        print("Stop button pressed!")
+                        NSLog("Stop button pressed!")
+                        
+                        // Cancel both LLM generation and PDF processing
+                        viewModel.llm.stopGeneration()
+                        viewModel.cancelFileProcessing()
+                    } else {
+                        // Send button pressed - send new message
+                        print("Send button pressed!")
+                        NSLog("Send button pressed!")
+                        
+                        // Immediately change button state and dismiss keyboard for instant UI response
+                        print("🔍 Setting isLocalProcessing = true for immediate button change")
+                        isLocalProcessing = true
+                        isTextFieldFocused = false
+                        
+                        // Force keyboard dismissal using multiple methods for reliability
+                        hideKeyboard()
                         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    }
-                    
-                    Task {
-                        await sendMessage()
+                        
+                        // Force TextField to lose focus completely
+                        DispatchQueue.main.async {
+                            self.isTextFieldFocused = false
+                            self.hideKeyboard()
+                            // Additional force dismissal
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        }
+                        
+                        Task {
+                            await sendMessage()
+                        }
                     }
                 }
+                .transition(.opacity.animation(.easeInOut(duration: 0.2)))
+                .padding(.trailing, 8)
             }
-            .transition(.opacity.animation(.easeInOut(duration: 0.2)))
-            .padding(.trailing, 8)
-            .padding(.bottom, 6) // keep anchored but visually centered for single-line height
         }
     }
 
