@@ -122,7 +122,7 @@ class LargeFileProcessingService {
     
     // Security: Track data creation time for automatic cleanup
     private var dataCreationTime: Date?
-    private let dataRetentionInterval: TimeInterval = 24 * 60 * 60 // 24 hours
+    private let dataRetentionInterval: TimeInterval = 5 * 60 // 5 minutes
 
     private init() {}
     

@@ -768,8 +768,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/maustinstar/liquid";
 			requirement = {
-				branch = master;
-				kind = branch;
+				kind = revision;
+				revision = "master";
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

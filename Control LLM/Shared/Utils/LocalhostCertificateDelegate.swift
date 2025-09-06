@@ -21,7 +21,7 @@ class LocalhostCertificateDelegate: NSObject, URLSessionDelegate {
     private let pinnedCertificateData: Data? = nil
     
     /// Security: For development, we'll accept self-signed certificates but log warnings
-    private let isDevelopmentMode = true
+    private let isDevelopmentMode = false
     
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         
@@ -70,9 +70,6 @@ class LocalhostCertificateDelegate: NSObject, URLSessionDelegate {
     /// - Parameter serverTrust: Server trust object
     /// - Returns: True if certificate pinning validation passes
     private func validateCertificatePinning(serverTrust: SecTrust) -> Bool {
-        // For localhost, we'll implement a basic validation
-        // In production, this should validate against a pinned certificate
-        
         // Get the certificate count
         let certificateCount = SecTrustGetCertificateCount(serverTrust)
         guard certificateCount > 0 else {
@@ -86,11 +83,7 @@ class LocalhostCertificateDelegate: NSObject, URLSessionDelegate {
             return false
         }
         
-        // For localhost, we'll allow self-signed certificates but log a warning
-        // In production, you should implement proper certificate pinning
-        print("⚠️ LocalhostCertificateDelegate: Using permissive certificate validation for localhost")
-        
-        // Basic validation: check if it's a valid certificate
+        // For localhost, use standard SSL validation
         let policy = SecPolicyCreateSSL(true, "localhost" as CFString)
         var result: SecTrustResultType = .invalid
         
@@ -105,8 +98,8 @@ class LocalhostCertificateDelegate: NSObject, URLSessionDelegate {
                 print("❌ LocalhostCertificateDelegate: Certificate validation failed")
                 return false
             case .recoverableTrustFailure:
-                print("⚠️ LocalhostCertificateDelegate: Recoverable trust failure - allowing for localhost")
-                return true
+                print("❌ LocalhostCertificateDelegate: Recoverable trust failure - rejecting for security")
+                return false
             @unknown default:
                 print("❌ LocalhostCertificateDelegate: Unknown trust result")
                 return false

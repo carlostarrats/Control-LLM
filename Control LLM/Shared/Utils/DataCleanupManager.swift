@@ -151,8 +151,10 @@ class DataCleanupManager {
     private func clearCppBridgeMemory() {
         print("🧹 DataCleanupManager: Clearing C++ bridge memory")
         
-        // This would call into the C++ bridge to clear memory
-        // For now, we'll rely on the app lifecycle to handle this
+        // Call the C++ bridge reset context function to clear memory
+        llm_bridge_reset_context(nil)
+        
+        // Also post notification for any other cleanup handlers
         NotificationCenter.default.post(name: .clearCppBridgeMemory, object: nil)
     }
     
