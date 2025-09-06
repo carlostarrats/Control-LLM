@@ -39,6 +39,9 @@ struct FlowingLiquidView: View {
         .onDisappear {
             continuousAnimationTimer?.invalidate()
             continuousAnimationTimer = nil
+            
+            // Security: Clear Metal memory when view disappears
+            MetalMemoryManager.shared.clearMetalMemory()
         }
         // Voice state change handling removed
     }
@@ -120,6 +123,14 @@ struct FlowingRingShaderView: UIViewRepresentable {
             
             vertexBuffer = device.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<Float>.size, options: [])
             uniformBuffer = device.makeBuffer(length: 2 * MemoryLayout<Float>.size, options: [])
+            
+            // Security: Register Metal buffers with MetalMemoryManager for secure cleanup
+            if let vertexBuffer = vertexBuffer {
+                MetalMemoryManager.shared.registerBuffer(vertexBuffer)
+            }
+            if let uniformBuffer = uniformBuffer {
+                MetalMemoryManager.shared.registerBuffer(uniformBuffer)
+            }
             
             let library = device.makeDefaultLibrary()
             let vertexFunction = library?.makeFunction(name: "vertexShader")

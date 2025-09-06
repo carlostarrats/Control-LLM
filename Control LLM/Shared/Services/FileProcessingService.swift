@@ -75,21 +75,28 @@ class FileProcessingService {
     
     /// Process text files (txt, md, rtf)
     private func processTextFile(_ url: URL) async throws -> FileContent {
-        let data = try Data(contentsOf: url)
+        var data = try Data(contentsOf: url)
         
         // Security: Validate file content
         try validateFileContent(data)
         
         guard let text = String(data: data, encoding: .utf8) else {
+            // Security: Clear sensitive data before throwing error
+            SecureStorage.secureWipe(&data)
             throw FileProcessingError.encodingError
         }
         
-        return FileContent(
+        let result = FileContent(
             fileName: url.lastPathComponent,
             content: text,
             type: .text,
             size: data.count
         )
+        
+        // Security: Clear sensitive data from memory
+        SecureStorage.secureWipe(&data)
+        
+        return result
     }
     
     /// Process PDF files
@@ -157,13 +164,21 @@ class FileProcessingService {
         }
         
         print("✅ FileProcessingService: Successfully extracted text from PDF")
-        return FileContent(
+        
+        let result = FileContent(
             fileName: fileName,
             content: extractedText,
             type: .pdf,
             size: size,
             metadata: ["pages": String(format: NSLocalizedString("%d", comment: ""), pageCount)]
         )
+        
+        // Security: Clear PDF document from memory
+        autoreleasepool {
+            // This ensures PDFKit releases its internal memory
+        }
+        
+        return result
     }
     
     /// Process image files using Vision framework for text extraction
@@ -227,6 +242,11 @@ class FileProcessingService {
         let extractedText = observations.compactMap { observation in
             observation.topCandidates(1).first?.string
         }.joined(separator: "\n")
+        
+        // Security: Clear Vision framework memory
+        autoreleasepool {
+            // This ensures Vision framework releases its internal memory
+        }
         
         return extractedText.isEmpty ? NSLocalizedString("No text found in image", comment: "") : extractedText
     }

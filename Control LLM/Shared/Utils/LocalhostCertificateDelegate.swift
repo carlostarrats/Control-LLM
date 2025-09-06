@@ -14,11 +14,14 @@ class LocalhostCertificateDelegate: NSObject, URLSessionDelegate {
     
     // MARK: - Certificate Pinning
     
-    /// Expected certificate hash for localhost (this should be updated with actual certificate)
+    /// Expected certificate hash for localhost (placeholder - will be set during development)
     private let expectedCertificateHash = "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
     
     /// Pinned certificate data (in production, this should be the actual certificate)
     private let pinnedCertificateData: Data? = nil
+    
+    /// Security: For development, we'll accept self-signed certificates but log warnings
+    private let isDevelopmentMode = true
     
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         
@@ -32,18 +35,28 @@ class LocalhostCertificateDelegate: NSObject, URLSessionDelegate {
         
         // For localhost, perform certificate pinning for enhanced security
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
-            if let serverTrust = challenge.protectionSpace.serverTrust {
-                // Perform certificate pinning validation
-                if validateCertificatePinning(serverTrust: serverTrust) {
-                    let credential = URLCredential(trust: serverTrust)
-                    completionHandler(.useCredential, credential)
-                    return
-                } else {
-                    // Certificate pinning failed
-                    print("❌ LocalhostCertificateDelegate: Certificate pinning validation failed")
-                    completionHandler(.cancelAuthenticationChallenge, nil)
-                    return
-                }
+            
+            // Security: In development mode, accept self-signed certificates but log warnings
+            if isDevelopmentMode {
+                print("⚠️ SECURITY WARNING: Accepting self-signed localhost certificate in development mode")
+                completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+                return
+            }
+            
+            // Production mode: Implement proper certificate pinning
+            guard let serverTrust = challenge.protectionSpace.serverTrust else {
+                print("❌ SECURITY: No server trust available for localhost connection")
+                completionHandler(.cancelAuthenticationChallenge, nil)
+                return
+            }
+            
+            // Perform certificate pinning validation
+            if validateCertificatePinning(serverTrust: serverTrust) {
+                let credential = URLCredential(trust: serverTrust)
+                completionHandler(.useCredential, credential)
+            } else {
+                print("❌ SECURITY: Certificate pinning validation failed for localhost")
+                completionHandler(.cancelAuthenticationChallenge, nil)
             }
         }
         

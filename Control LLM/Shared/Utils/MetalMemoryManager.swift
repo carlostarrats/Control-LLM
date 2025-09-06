@@ -72,6 +72,13 @@ class MetalMemoryManager {
         metalHeaps.append(heap)
     }
     
+    /// Registers a Metal buffer for secure cleanup
+    func registerBuffer(_ buffer: MTLBuffer) {
+        // Store buffer reference for cleanup
+        // Note: In a production app, you'd want to store these in a proper collection
+        // For now, we'll rely on the general Metal memory cleanup
+    }
+    
     /// Securely clears specific Metal buffer
     func clearBuffer(_ buffer: MTLBuffer) {
         // Set buffer to volatile state

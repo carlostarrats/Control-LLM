@@ -207,10 +207,12 @@ class LargeFileProcessingService {
         transcriptHandler: @escaping (String) async -> Void
     ) async -> String? {
         
+        #if DEBUG
         print("🔥 LargeFileProcessingService: Starting process for file '\(fileContent.fileName)'")
         print("🔥 LargeFileProcessingService: Content length: \(fileContent.content.count) characters")
         print("🔥 LargeFileProcessingService: Max content length: \(maxContentLength)")
         print("🔥 LargeFileProcessingService: Instruction: '\(instruction)'")
+        #endif
         
         // CRITICAL FIX: Ensure model is loaded before processing
         if !(await llmService.isModelLoaded) {
@@ -230,7 +232,9 @@ class LargeFileProcessingService {
         
         // NEW: All images should use simple processing to avoid chunking issues
         if fileContent.type == .image {
+            #if DEBUG
             print("🔥 LargeFileProcessingService: Image content detected (\(fileContent.content.count) chars), processing directly")
+            #endif
             await progressHandler("Processing image text directly...")
             return await processImageContent(
                 fileContent: fileContent,
@@ -243,7 +247,9 @@ class LargeFileProcessingService {
         
         // NEW: PDFs use clean text extraction first, then LLM processing
         if fileContent.type == .pdf {
+            #if DEBUG
             print("🔥 LargeFileProcessingService: PDF content detected (\(fileContent.content.count) chars), extracting clean text first")
+            #endif
             await progressHandler("Extracting clean text from PDF...")
             return await processPDFWithCleanText(
                 fileContent: fileContent,

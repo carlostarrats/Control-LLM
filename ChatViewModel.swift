@@ -195,7 +195,9 @@ class ChatViewModel {
                 if let history = self.messageHistory {
                     print("🔍 ChatViewModel: Final history verification:")
                     for (index, message) in history.enumerated() {
+                        #if DEBUG
                         print("   [\(index)] \(message.isUser ? "User" : "Assistant"): \(message.content.prefix(100))...")
+                        #endif
                     }
                 }
                 
