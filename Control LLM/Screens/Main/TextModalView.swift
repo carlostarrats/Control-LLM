@@ -1103,16 +1103,15 @@ struct TextModalView: View {
         print("🔍 TextModalView: llm.isProcessing set to: \(viewModel.llm.isProcessing)")
         
         // CRITICAL FIX: Send through MainViewModel which handles user message creation and LLM sending
-        await MainActor.run {
-            viewModel.sendTextMessage(text)
-        }
+        await viewModel.sendTextMessage(text)
 
         // Reset clipboard message state for normal chat messages
         isClipboardMessage = false
         hasAddedFollowUpQuestions = false
 
         // CRITICAL FIX: Check if file processing occurred - if so, skip placeholder and polling
-        if viewModel.selectedFileUrl != nil || LargeFileProcessingService.shared.hasProcessedData() {
+        let hasProcessedData = await LargeFileProcessingService.shared.hasProcessedData()
+        if viewModel.selectedFileUrl != nil || hasProcessedData {
             print("🔍 TextModalView: File processing detected, skipping placeholder creation and polling")
             // Clear message text synchronously to prevent corruption
             messageText = ""

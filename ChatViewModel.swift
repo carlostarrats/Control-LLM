@@ -109,6 +109,9 @@ class ChatViewModel {
         }
         // Clean up timers
         updateTimer?.invalidate()
+        // PERFORMANCE FIX: Cancel any ongoing generation tasks
+        currentGenerationTask?.cancel()
+        currentGenerationTask = nil
     }
     
     private func setupModelChangeObserver() {

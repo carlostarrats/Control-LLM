@@ -183,6 +183,18 @@ final class ModelManager: ObservableObject {
     @Published var availableModels: [LLMModelInfo] = []
     @Published var selectedModel: LLMModelInfo?
     
+    // PERFORMANCE FIX: Lazy loading for better performance
+    private lazy var sortedModels: [LLMModelInfo] = {
+        return availableModels.sorted { model1, model2 in
+            let order1 = getModelOrder(model1.displayName)
+            let order2 = getModelOrder(model2.displayName)
+            if order1 != order2 {
+                return order1 < order2
+            }
+            return model1.displayName.lowercased() < model2.displayName.lowercased()
+        }
+    }()
+    
     private let userDefaults = UserDefaults.standard
     private let selectedModelKey = "selectedLLMModel"
     
@@ -214,7 +226,7 @@ final class ModelManager: ObservableObject {
         var discovered = Set<String>()
         let discoveredQueue = DispatchQueue(label: "discovered.serial")
         
-        // OPTIMIZATION: Use concurrent dispatch for faster model discovery
+        // PERFORMANCE FIX: Use concurrent dispatch for faster model discovery
         let group = DispatchGroup()
         let queue = DispatchQueue(label: "model.discovery", attributes: .concurrent)
         

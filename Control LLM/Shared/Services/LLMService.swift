@@ -30,6 +30,12 @@ final class LLMService: @unchecked Sendable {
         // Reset the operation in progress flag to allow new operations
         isModelOperationInProgress = false
         
+        // PERFORMANCE FIX: Add proper resource cleanup
+        if let context = llamaContext {
+            llm_bridge_free_context(context)
+            llamaContext = nil
+        }
+        
         print("🔍 LLMService: PHASE 4 - Cancellation flag set and operation flags reset")
     }
     

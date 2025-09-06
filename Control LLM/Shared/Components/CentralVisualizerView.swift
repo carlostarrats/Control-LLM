@@ -9,6 +9,11 @@ struct CentralVisualizerView: View {
     var hueShift: Double = 0.0 // 0.0 = original, 1.0 = full spectrum rotation
     var saturationLevel: Double = 1.0 // 1.0 = full saturation, 0.0 = black and white
     var brightnessLevel: Double = 1.0 // 1.0 = full brightness, 0.0 = black
+    
+    // PERFORMANCE FIX: Cache expensive calculations
+    @State private var cachedColors: [Color] = []
+    @State private var cachedGradients: [RadialGradient] = []
+    @State private var isCacheValid = false
 
 
     
@@ -49,6 +54,28 @@ struct CentralVisualizerView: View {
         }
         
         return colors.map { applyHueShift(to: $0) }
+    }
+    
+    // PERFORMANCE FIX: Pre-calculate expensive color transformations
+    private func precalculateColors() {
+        let baseColors = [
+            Color(hex: "#5D0C14"),
+            Color(hex: "#D20001"),
+            Color(hex: "#FF00D0"),
+            Color(hex: "#8B0000"),
+            Color(hex: "#2D0000")
+        ]
+        
+        cachedColors = applyHueShift(to: baseColors)
+        isCacheValid = true
+    }
+    
+    // PERFORMANCE FIX: Get cached color by index
+    private func getCachedColor(_ index: Int) -> Color {
+        if !isCacheValid || cachedColors.isEmpty {
+            precalculateColors()
+        }
+        return cachedColors.indices.contains(index) ? cachedColors[index] : Color.clear
     }
 
     var body: some View {
@@ -425,6 +452,9 @@ struct CentralVisualizerView: View {
         )
         .animation(.easeInOut(duration: 0.4), value: animationPhase)
         .onAppear {
+            // PERFORMANCE FIX: Pre-calculate expensive color transformations
+            precalculateColors()
+            
             // Start the speech animation cycle smoothly
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 withAnimation(.easeInOut(duration: 3.0).repeatForever(autoreverses: true)) {
@@ -441,6 +471,12 @@ struct CentralVisualizerView: View {
         .onDisappear {
             stopContinuousAnimation()
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
+            stopContinuousAnimation()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            startContinuousAnimation()
+        }
         // Speech animation disabled - keep visualizer in default state
         // .onChange(of: isSpeaking) { _, newValue in
         //     if newValue {
@@ -454,8 +490,8 @@ struct CentralVisualizerView: View {
     
     // Function to start continuous animation timer
     func startContinuousAnimation() {
-        continuousAnimationTimer = Timer.scheduledTimer(withTimeInterval: 1.0/30.0, repeats: true) { _ in
-            animationPhase += 0.08  // Doubled from 0.04 to compensate for 30 FPS
+        continuousAnimationTimer = Timer.scheduledTimer(withTimeInterval: 1.0/15.0, repeats: true) { _ in
+            animationPhase += 0.16  // Adjusted for 15 FPS (visually imperceptible change)
         }
     }
     

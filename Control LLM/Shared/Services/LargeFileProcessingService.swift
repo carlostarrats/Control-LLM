@@ -1,5 +1,76 @@
 import Foundation
 
+// MARK: - Performance Actors for Better Concurrency
+actor ProgressActor {
+    private var pendingProgressUpdates: [String] = []
+    private var lastProgressUpdate: Date = Date()
+    
+    func updateProgress(_ message: String) {
+        pendingProgressUpdates.append(message)
+        lastProgressUpdate = Date()
+    }
+    
+    func getPendingUpdates() -> [String] {
+        let updates = pendingProgressUpdates
+        pendingProgressUpdates.removeAll()
+        return updates
+    }
+}
+
+actor TranscriptActor {
+    private var transcript: String = ""
+    
+    func updateTranscript(_ text: String) {
+        transcript = text
+    }
+    
+    func getTranscript() -> String {
+        return transcript
+    }
+}
+
+actor FinalSynthesisActor {
+    private var finalSynthesisResult: String?
+    private var sequentialFinalSynthesisResult: String?
+    
+    func setFinalSynthesisResult(_ result: String?) {
+        finalSynthesisResult = result
+    }
+    
+    func setSequentialFinalSynthesisResult(_ result: String?) {
+        sequentialFinalSynthesisResult = result
+    }
+    
+    func getFinalSynthesisResult() -> String? {
+        return finalSynthesisResult
+    }
+    
+    func getSequentialFinalSynthesisResult() -> String? {
+        return sequentialFinalSynthesisResult
+    }
+}
+
+actor ProcessedDataActor {
+    private var processedFileContent: FileContent?
+    private var processedSummaries: [String] = []
+    
+    func setProcessedData(fileContent: FileContent, summaries: [String]) {
+        processedFileContent = fileContent
+        processedSummaries = summaries
+    }
+    
+    func getProcessedData() -> (fileContent: FileContent, summaries: [String])? {
+        guard let fileContent = processedFileContent, !processedSummaries.isEmpty else {
+            return nil
+        }
+        return (fileContent, processedSummaries)
+    }
+    
+    func hasProcessedData() -> Bool {
+        return processedFileContent != nil && !processedSummaries.isEmpty
+    }
+}
+
 // MARK: - AsyncSemaphore for controlling concurrent LLM access
 actor AsyncSemaphore {
     private var value: Int
@@ -35,38 +106,30 @@ class LargeFileProcessingService {
     static let shared = LargeFileProcessingService()
     
     // MARK: - Properties
-    private let progressLock = NSLock()
-    private let transcriptLock = NSLock()
-    private var pendingProgressUpdates: [String] = []
-    private var lastProgressUpdate: Date = Date()
+    // PERFORMANCE FIX: Use actor-based concurrency instead of locks
+    private let progressActor = ProgressActor()
+    private let transcriptActor = TranscriptActor()
     
     // NEW: Store final synthesis results for both parallel and sequential processing
     private var finalSynthesisResult: String?
     private var sequentialFinalSynthesisResult: String?
-    private let finalSynthesisLock = NSLock()
+    private let finalSynthesisActor = FinalSynthesisActor()
     
     // CRITICAL FIX: Store processed PDF data for subsequent questions
     private var processedFileContent: FileContent?
     private var processedSummaries: [String] = []
-    private let processedDataLock = NSLock()
+    private let processedDataActor = ProcessedDataActor()
 
     private init() {}
     
     // CRITICAL FIX: Check if processed PDF data is available for questions
-    func hasProcessedData() -> Bool {
-        processedDataLock.lock()
-        defer { processedDataLock.unlock() }
-        return processedFileContent != nil && !processedSummaries.isEmpty
+    func hasProcessedData() async -> Bool {
+        return await processedDataActor.hasProcessedData()
     }
     
     // CRITICAL FIX: Get processed PDF data for answering questions
-    func getProcessedData() -> (fileContent: FileContent, summaries: [String])? {
-        processedDataLock.lock()
-        defer { processedDataLock.unlock() }
-        guard let fileContent = processedFileContent, !processedSummaries.isEmpty else {
-            return nil
-        }
-        return (fileContent, processedSummaries)
+    func getProcessedData() async -> (fileContent: FileContent, summaries: [String])? {
+        return await processedDataActor.getProcessedData()
     }
     
     // CRITICAL FIX: Answer questions using stored processed PDF data
@@ -77,7 +140,7 @@ class LargeFileProcessingService {
         transcriptHandler: @escaping (String) async -> Void
     ) async -> String? {
         
-        guard let (fileContent, summaries) = getProcessedData() else {
+        guard let (fileContent, summaries) = await getProcessedData() else {
             await transcriptHandler("❌ No processed PDF data available. Please upload and process a PDF first.")
             return nil
         }
@@ -491,10 +554,7 @@ class LargeFileProcessingService {
         }
         
         // CRITICAL FIX: Store processed data for subsequent questions
-        processedDataLock.lock()
-        processedFileContent = fileContent
-        processedSummaries = summaries
-        processedDataLock.unlock()
+        await processedDataActor.setProcessedData(fileContent: fileContent, summaries: summaries)
         print("🔥 LargeFileProcessingService: Stored processed data for future questions")
         
         // CRITICAL FIX: Focus on PROBLEM_STATEMENT - ensure LLM actually answers the user's question
@@ -619,10 +679,7 @@ class LargeFileProcessingService {
     }
     
     // CRITICAL FIX: Store processed data for subsequent questions
-    processedDataLock.lock()
-    processedFileContent = fileContent
-    processedSummaries = summaries
-    processedDataLock.unlock()
+    await processedDataActor.setProcessedData(fileContent: fileContent, summaries: summaries)
     print("🔥 LargeFileProcessingService: Stored processed data for future questions")
     
             // CRITICAL FIX: Focus on PROBLEM_STATEMENT - ensure LLM actually answers the user's question

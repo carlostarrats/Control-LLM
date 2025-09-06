@@ -25,7 +25,7 @@ class MainViewModel: ObservableObject {
     
     // Speaking functionality removed
     
-    func sendTextMessage(_ text: String) {
+    func sendTextMessage(_ text: String) async {
         print("🔍 MainViewModel: sendTextMessage called with text: \(text.prefix(50))...")
         print("🔍 MainViewModel: Current messages count: \(messages.count)")
         
@@ -39,14 +39,13 @@ class MainViewModel: ObservableObject {
         messages.append(userMessage)
         print("🔍 MainViewModel: User message added. New count: \(messages.count)")
         
-        // Force UI update to show user message immediately
-        DispatchQueue.main.async {
-            // Trigger UI refresh
-            self.objectWillChange.send()
+        // PERFORMANCE FIX: Batch UI updates to reduce main thread blocking
+        DispatchQueue.main.async { [weak self] in
+            self?.objectWillChange.send()
         }
         
         // CRITICAL FIX: Check if there's processed PDF data available for questions
-        if LargeFileProcessingService.shared.hasProcessedData() {
+        if await LargeFileProcessingService.shared.hasProcessedData() {
             print("🔍 MainViewModel: Processed PDF data available, answering question")
             
             // Answer the question using stored processed data
@@ -311,8 +310,8 @@ class MainViewModel: ObservableObject {
                 Task { @MainActor in
                     self?.handleClipboardTextProcessing(clipboardText)
                 }
-                    }
-    }
+            }
+        }
 }
     
     func cleanupClipboardObserver() {
@@ -320,6 +319,16 @@ class MainViewModel: ObservableObject {
             NotificationCenter.default.removeObserver(observer)
             clipboardObserver = nil
         }
+    }
+    
+    deinit {
+        // PERFORMANCE FIX: Clean up resources without main actor isolation
+        if let observer = clipboardObserver {
+            NotificationCenter.default.removeObserver(observer)
+            clipboardObserver = nil
+        }
+        currentFileProcessingTask?.cancel()
+        currentFileProcessingTask = nil
     }
     
     private func handleClipboardTextProcessing(_ text: String) {

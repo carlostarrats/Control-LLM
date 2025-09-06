@@ -71,6 +71,10 @@ final class HybridLLMService: ObservableObject {
     func forceUnloadModel() async throws {
         print("🔍 HybridLLMService: Force unloading model")
         
+        // PERFORMANCE FIX: Cancel any ongoing generation before unloading
+        currentGenerationTask?.cancel()
+        currentGenerationTask = nil
+        
         switch currentEngine {
         case .llamaCpp:
             try await llamaCppService.forceUnloadModel()
@@ -82,6 +86,12 @@ final class HybridLLMService: ObservableObject {
             self.currentModelFilename = nil
             self.isModelLoaded = false
         }
+    }
+    
+    // PERFORMANCE FIX: Add proper cleanup method
+    func cleanup() {
+        currentGenerationTask?.cancel()
+        currentGenerationTask = nil
     }
     
     // MARK: - Text Generation

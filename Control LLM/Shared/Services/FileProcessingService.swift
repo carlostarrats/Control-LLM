@@ -3,6 +3,23 @@ import UIKit
 import PDFKit
 import Vision
 
+// MARK: - Performance StringBuilder for Better String Processing
+struct StringBuilder {
+    private var buffer: [String] = []
+    
+    var count: Int {
+        return buffer.joined().count
+    }
+    
+    mutating func append(_ string: String) {
+        buffer.append(string)
+    }
+    
+    func toString() -> String {
+        return buffer.joined()
+    }
+}
+
 class FileProcessingService {
     static let shared = FileProcessingService()
     
@@ -58,9 +75,9 @@ class FileProcessingService {
     private func processPDFFile(_ url: URL) async throws -> FileContent {
         print("🔍 FileProcessingService: Starting PDF processing for URL: \(url.path)")
         
-        // CRITICAL FIX: Run all file I/O and parsing in a detached background task
+        // PERFORMANCE FIX: Run all file I/O and parsing in a detached background task
         // to prevent any possibility of blocking the main thread during UI transitions (e.g., file picker dismissal).
-        return try await Task.detached {
+        return try await Task.detached(priority: .userInitiated) {
             // First try to create PDFDocument from URL (for files with direct access)
             if let pdfDocument = PDFDocument(url: url) {
                 print("✅ FileProcessingService: Successfully created PDFDocument from URL.")
@@ -130,35 +147,38 @@ class FileProcessingService {
     
     /// Process image files using Vision framework for text extraction
     private func processImageFile(_ url: URL) async throws -> FileContent {
-        // First try to load image from file path (for files with direct access)
-        if let image = UIImage(contentsOfFile: url.path) {
-            let extractedText = try await extractTextFromImage(image)
-            return FileContent(
-                fileName: url.lastPathComponent,
-                content: extractedText,
-                type: .image,
-                size: url.fileSize ?? 0
-            )
-        }
-        
-        // If file path access fails, try to read the file data and create image from data
-        do {
-            let fileData = try Data(contentsOf: url)
-            guard let image = UIImage(data: fileData) else {
-                throw FileProcessingError.imageError
+        // PERFORMANCE FIX: Run image processing on background thread
+        return try await Task.detached(priority: .userInitiated) {
+            // First try to load image from file path (for files with direct access)
+            if let image = UIImage(contentsOfFile: url.path) {
+                let extractedText = try await FileProcessingService.shared.extractTextFromImage(image)
+                return FileContent(
+                    fileName: url.lastPathComponent,
+                    content: extractedText,
+                    type: .image,
+                    size: url.fileSize ?? 0
+                )
             }
             
-            let extractedText = try await extractTextFromImage(image)
-            return FileContent(
-                fileName: url.lastPathComponent,
-                content: extractedText,
-                type: .image,
-                size: fileData.count
-            )
-        } catch {
-            print("❌ FileProcessingService: Failed to read image data: \(error)")
-            throw FileProcessingError.imageError
-        }
+            // If file path access fails, try to read the file data and create image from data
+            do {
+                let fileData = try Data(contentsOf: url)
+                guard let image = UIImage(data: fileData) else {
+                    throw FileProcessingError.imageError
+                }
+                
+                let extractedText = try await FileProcessingService.shared.extractTextFromImage(image)
+                return FileContent(
+                    fileName: url.lastPathComponent,
+                    content: extractedText,
+                    type: .image,
+                    size: fileData.count
+                )
+            } catch {
+                print("❌ FileProcessingService: Failed to read image data: \(error)")
+                throw FileProcessingError.imageError
+            }
+        }.value
     }
     
     /// Extract text from image using Vision framework
@@ -335,15 +355,17 @@ class FileProcessingService {
         let reserveForSummary = 150
         let actualMaxLength = maxLength - reserveForSummary
         
+        // PERFORMANCE FIX: Use StringBuilder pattern for better performance
+        var result = StringBuilder()
+        var includedParagraphs = 0
+        
         // Try to split by paragraphs or sentences to preserve structure
         let paragraphs = content.components(separatedBy: "\n\n")
-        var result = ""
-        var includedParagraphs = 0
         
         for paragraph in paragraphs {
             let paragraphWithNewlines = paragraph + "\n\n"
             if result.count + paragraphWithNewlines.count <= actualMaxLength {
-                result += paragraphWithNewlines
+                result.append(paragraphWithNewlines)
                 includedParagraphs += 1
             } else {
                 break
@@ -351,17 +373,17 @@ class FileProcessingService {
         }
         
         // If we couldn't fit any complete paragraphs, fall back to character truncation
-        if result.isEmpty && !paragraphs.isEmpty {
-            result = String(content.prefix(actualMaxLength))
+        if result.count == 0 && !paragraphs.isEmpty {
+            result.append(String(content.prefix(actualMaxLength)))
         }
         
         // Add summary information
         let totalParagraphs = paragraphs.count
         if includedParagraphs < totalParagraphs {
-            result += "\n[Showing \(includedParagraphs) of \(totalParagraphs) sections. Original length: \(content.count) characters. This is a preview - ask follow-up questions about specific sections if needed.]"
+            result.append("\n[Showing \(includedParagraphs) of \(totalParagraphs) sections. Original length: \(content.count) characters. This is a preview - ask follow-up questions about specific sections if needed.]")
         }
         
-        return result
+        return result.toString()
     }
     
     /// Chunk image-extracted content
