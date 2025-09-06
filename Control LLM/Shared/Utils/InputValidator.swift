@@ -21,27 +21,36 @@ class InputValidator {
     private static let dangerousPatterns = [
         // XSS patterns
         "<script", "</script>", "javascript:", "vbscript:", "onload=", "onerror=",
-        "onclick=", "onmouseover=", "onfocus=", "onblur=",
+        "onclick=", "onmouseover=", "onfocus=", "onblur=", "onchange=", "onsubmit=",
         
         // Data URI patterns
         "data:text/html", "data:application/javascript", "data:image/svg+xml",
+        "data:text/css", "data:application/xml",
         
         // HTML injection patterns
         "<iframe", "</iframe>", "<object", "</object>", "<embed", "</embed>",
         "<link", "</link>", "<meta", "</meta>", "<style", "</style>",
+        "<form", "</form>", "<input", "<textarea", "<select",
         
         // Command injection patterns (only dangerous combinations)
-        "&&", "||", ">>", "<<", "$(", "${", "`",
+        "&&", "||", ">>", "<<", "$(", "${", "`", "|", "&", ";",
         
         // SQL injection patterns (though we don't use SQL)
         "union", "select", "insert", "update", "delete", "drop", "create",
-        "alter", "exec", "execute", "sp_", "xp_",
+        "alter", "exec", "execute", "sp_", "xp_", "declare", "cast",
         
         // Path traversal patterns
         "../", "..\\", "..%2f", "..%5c", "%2e%2e%2f", "%2e%2e%5c",
+        "....//", "....\\\\", "%2e%2e%2f%2e%2e%2f",
         
         // Null byte patterns
-        "\0", "%00", "\\x00", "\\u0000"
+        "\0", "%00", "\\x00", "\\u0000", "\\0",
+        
+        // Additional dangerous patterns
+        "eval(", "function(", "setTimeout(", "setInterval(",
+        "document.", "window.", "location.", "history.",
+        "localStorage.", "sessionStorage.", "indexedDB.",
+        "XMLHttpRequest", "fetch(", "WebSocket"
     ]
     
     private static let promptInjectionPatterns = [

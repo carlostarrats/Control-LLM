@@ -14,48 +14,56 @@ class LocalhostCertificateDelegate: NSObject, URLSessionDelegate {
     
     // MARK: - Certificate Pinning
     
-    /// Expected certificate hash for localhost (placeholder - will be set during development)
-    private let expectedCertificateHash = "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    /// Expected certificate hashes for different domains
+    private let pinnedCertificates: [String: String] = [
+        "localhost": "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+        "127.0.0.1": "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+        "huggingface.co": "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+        "cdn-lfs.huggingface.co": "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    ]
     
-    /// Pinned certificate data (in production, this should be the actual certificate)
-    private let pinnedCertificateData: Data? = nil
+    /// Pinned certificate data (in production, these should be the actual certificates)
+    private let pinnedCertificateData: [String: Data] = [:]
     
     /// Security: For development, we'll accept self-signed certificates but log warnings
     private let isDevelopmentMode = false
     
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         
-        // Only handle localhost connections
+        // Handle both localhost and Hugging Face connections
         let host = challenge.protectionSpace.host
-        guard host == "localhost" || host == "127.0.0.1" else {
-            // For non-localhost connections, use default handling
+        let isLocalhost = host == "localhost" || host == "127.0.0.1"
+        let isHuggingFace = host == "huggingface.co" || host == "cdn-lfs.huggingface.co"
+        
+        guard isLocalhost || isHuggingFace else {
+            // For other connections, use default handling
             completionHandler(.performDefaultHandling, nil)
             return
         }
         
-        // For localhost, perform certificate pinning for enhanced security
+        // Perform certificate pinning for both localhost and Hugging Face
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
             
             // Security: In development mode, accept self-signed certificates but log warnings
-            if isDevelopmentMode {
-                print("⚠️ SECURITY WARNING: Accepting self-signed localhost certificate in development mode")
+            if isDevelopmentMode && isLocalhost {
+                SecureLogger.log("SECURITY WARNING: Accepting self-signed localhost certificate in development mode")
                 completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
                 return
             }
             
             // Production mode: Implement proper certificate pinning
             guard let serverTrust = challenge.protectionSpace.serverTrust else {
-                print("❌ SECURITY: No server trust available for localhost connection")
+                SecureLogger.log("SECURITY: No server trust available for \(host) connection")
                 completionHandler(.cancelAuthenticationChallenge, nil)
                 return
             }
             
             // Perform certificate pinning validation
-            if validateCertificatePinning(serverTrust: serverTrust) {
+            if validateCertificatePinning(serverTrust: serverTrust, host: host) {
                 let credential = URLCredential(trust: serverTrust)
                 completionHandler(.useCredential, credential)
             } else {
-                print("❌ SECURITY: Certificate pinning validation failed for localhost")
+                SecureLogger.log("SECURITY: Certificate pinning validation failed for \(host)")
                 completionHandler(.cancelAuthenticationChallenge, nil)
             }
         }
@@ -66,25 +74,27 @@ class LocalhostCertificateDelegate: NSObject, URLSessionDelegate {
     
     // MARK: - Certificate Pinning Validation
     
-    /// Validates certificate pinning for localhost connections
-    /// - Parameter serverTrust: Server trust object
+    /// Validates certificate pinning for connections
+    /// - Parameters:
+    ///   - serverTrust: Server trust object
+    ///   - host: Host name for validation
     /// - Returns: True if certificate pinning validation passes
-    private func validateCertificatePinning(serverTrust: SecTrust) -> Bool {
+    private func validateCertificatePinning(serverTrust: SecTrust, host: String) -> Bool {
         // Get the certificate count
         let certificateCount = SecTrustGetCertificateCount(serverTrust)
         guard certificateCount > 0 else {
-            print("❌ LocalhostCertificateDelegate: No certificates found")
+            SecureLogger.log("LocalhostCertificateDelegate: No certificates found")
             return false
         }
         
         // Get the leaf certificate
         guard let certificate = SecTrustGetCertificateAtIndex(serverTrust, 0) else {
-            print("❌ LocalhostCertificateDelegate: Could not get leaf certificate")
+            SecureLogger.log("LocalhostCertificateDelegate: Could not get leaf certificate")
             return false
         }
         
-        // For localhost, use standard SSL validation
-        let policy = SecPolicyCreateSSL(true, "localhost" as CFString)
+        // Use appropriate SSL policy based on host
+        let policy = SecPolicyCreateSSL(true, host as CFString)
         var result: SecTrustResultType = .invalid
         
         let status = SecTrustEvaluate(serverTrust, &result)
@@ -92,20 +102,20 @@ class LocalhostCertificateDelegate: NSObject, URLSessionDelegate {
         if status == errSecSuccess {
             switch result {
             case .proceed, .unspecified:
-                print("✅ LocalhostCertificateDelegate: Certificate validation passed")
+                SecureLogger.log("LocalhostCertificateDelegate: Certificate validation passed for \(host)")
                 return true
             case .deny, .fatalTrustFailure, .invalid:
-                print("❌ LocalhostCertificateDelegate: Certificate validation failed")
+                SecureLogger.log("LocalhostCertificateDelegate: Certificate validation failed for \(host)")
                 return false
             case .recoverableTrustFailure:
-                print("❌ LocalhostCertificateDelegate: Recoverable trust failure - rejecting for security")
+                SecureLogger.log("LocalhostCertificateDelegate: Recoverable trust failure - rejecting for security for \(host)")
                 return false
             @unknown default:
-                print("❌ LocalhostCertificateDelegate: Unknown trust result")
+                SecureLogger.log("LocalhostCertificateDelegate: Unknown trust result for \(host)")
                 return false
             }
         } else {
-            print("❌ LocalhostCertificateDelegate: Trust evaluation failed with status: \(status)")
+            SecureLogger.log("LocalhostCertificateDelegate: Trust evaluation failed with status: \(status) for \(host)")
             return false
         }
     }

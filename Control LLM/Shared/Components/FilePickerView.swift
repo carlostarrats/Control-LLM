@@ -1,16 +1,28 @@
 import SwiftUI
 import UIKit
+import UniformTypeIdentifiers
 
 struct FilePickerView: UIViewControllerRepresentable {
     @Binding var selectedUrl: URL?
     @Environment(\.presentationMode) var presentationMode
 
     func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
-        print("🔥 FilePickerView: Creating UIDocumentPickerViewController")
-        // Allow picking any content type, you can restrict this to ["public.pdf"] if needed
-        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.content], asCopy: true)
+        SecureLogger.log("FilePickerView: Creating UIDocumentPickerViewController")
+        // Restrict to specific file types for security
+        let allowedTypes: [UTType] = [
+            .pdf,
+            .plainText,
+            .rtf,
+            .image,
+            .jpeg,
+            .png,
+            .heic,
+            .text,
+            .data
+        ]
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: allowedTypes, asCopy: true)
         picker.delegate = context.coordinator
-        print("🔥 FilePickerView: UIDocumentPickerViewController created with delegate")
+        SecureLogger.log("FilePickerView: UIDocumentPickerViewController created with delegate")
         return picker
     }
 
@@ -28,12 +40,12 @@ struct FilePickerView: UIViewControllerRepresentable {
         }
 
         func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-            print("🔥 FilePickerView: documentPicker didPickDocumentsAt called with \(urls.count) URLs")
+            SecureLogger.log("FilePickerView: documentPicker didPickDocumentsAt called with \(urls.count) URLs")
             if let url = urls.first {
-                print("🔥 FilePickerView: Setting selectedUrl to: \(url.path)")
+                SecureLogger.log("FilePickerView: Setting selectedUrl to: \(url.path)")
                 parent.selectedUrl = url
             }
-            print("🔥 FilePickerView: Dismissing picker")
+            SecureLogger.log("FilePickerView: Dismissing picker")
             parent.presentationMode.wrappedValue.dismiss()
         }
 

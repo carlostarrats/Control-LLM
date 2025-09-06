@@ -102,7 +102,12 @@ class DataCleanupManager {
         ]
         
         for key in conversationKeys {
-            SecureStorage.remove(forKey: key)
+            do {
+                SecureStorage.remove(forKey: key)
+                SecureLogger.log("DataCleanupManager: Removed conversation key: \(key)")
+            } catch {
+                SecureLogger.logError(error, context: "DataCleanupManager: Failed to remove conversation key: \(key)")
+            }
         }
     }
     
@@ -118,7 +123,12 @@ class DataCleanupManager {
         ]
         
         for key in performanceKeys {
-            SecureStorage.remove(forKey: key)
+            do {
+                SecureStorage.remove(forKey: key)
+                SecureLogger.log("DataCleanupManager: Removed performance key: \(key)")
+            } catch {
+                SecureLogger.logError(error, context: "DataCleanupManager: Failed to remove performance key: \(key)")
+            }
         }
     }
     
@@ -134,7 +144,14 @@ class DataCleanupManager {
                 if file.pathExtension == "tmp" || 
                    file.pathExtension == "log" ||
                    file.lastPathComponent.contains("conversation") ||
-                   file.lastPathComponent.contains("chat") {
+                   file.lastPathComponent.contains("chat") ||
+                   file.lastPathComponent.contains("llm") ||
+                   file.lastPathComponent.contains("model") ||
+                   file.lastPathComponent.contains("secure") {
+                    // Use secure wiping for sensitive files
+                    secureWipeFile(at: file)
+                } else {
+                    // Regular deletion for non-sensitive files
                     try FileManager.default.removeItem(at: file)
                 }
             }
@@ -173,7 +190,12 @@ class DataCleanupManager {
         
         for key in dictionary.keys {
             if key.hasPrefix("Secure_") && !essentialKeys.contains(key) {
-                SecureStorage.remove(forKey: key)
+                do {
+                    SecureStorage.remove(forKey: key)
+                    SecureLogger.log("DataCleanupManager: Removed secure storage key: \(key)")
+                } catch {
+                    SecureLogger.logError(error, context: "DataCleanupManager: Failed to remove secure storage key: \(key)")
+                }
             }
         }
     }
@@ -192,7 +214,12 @@ class DataCleanupManager {
         
         for key in dictionary.keys {
             if !essentialKeys.contains(key) {
-                defaults.removeObject(forKey: key)
+                do {
+                    defaults.removeObject(forKey: key)
+                    SecureLogger.log("DataCleanupManager: Removed UserDefaults key: \(key)")
+                } catch {
+                    SecureLogger.logError(error, context: "DataCleanupManager: Failed to remove UserDefaults key: \(key)")
+                }
             }
         }
     }

@@ -30,14 +30,14 @@ class MetalMemoryManager {
     
     private func setupMetal() {
         guard let device = MTLCreateSystemDefaultDevice() else {
-            print("❌ MetalMemoryManager: Metal not supported on this device")
+            SecureLogger.log("MetalMemoryManager: Metal not supported on this device")
             return
         }
         
         self.device = device
         self.commandQueue = device.makeCommandQueue()
         
-        print("✅ MetalMemoryManager: Metal setup completed")
+        SecureLogger.log("MetalMemoryManager: Metal setup completed")
     }
     
     // MARK: - Memory Management
@@ -46,7 +46,7 @@ class MetalMemoryManager {
     func clearMetalMemory() {
         guard let device = device else { return }
         
-        print("🔒 MetalMemoryManager: Clearing Metal memory for security")
+        SecureLogger.log("MetalMemoryManager: Clearing Metal memory for security")
         
         // Clear all heaps
         for heap in metalHeaps {
@@ -64,7 +64,7 @@ class MetalMemoryManager {
         // Clear any cached resources
         device.makeCommandQueue()?.makeCommandBuffer()?.commit()
         
-        print("✅ MetalMemoryManager: Metal memory cleared successfully")
+        SecureLogger.log("MetalMemoryManager: Metal memory cleared successfully")
     }
     
     /// Registers a Metal heap for secure cleanup
@@ -109,7 +109,7 @@ class MetalMemoryManager {
     
     /// Performs comprehensive Metal memory cleanup
     func performSecurityCleanup() {
-        print("🔒 MetalMemoryManager: Performing security cleanup")
+        SecureLogger.log("MetalMemoryManager: Performing security cleanup")
         
         // Clear all registered heaps
         clearMetalMemory()
@@ -129,18 +129,18 @@ class MetalMemoryManager {
             }
         }
         
-        print("✅ MetalMemoryManager: Security cleanup completed")
+        SecureLogger.log("MetalMemoryManager: Security cleanup completed")
     }
     
     /// Clears Metal memory when app backgrounds
     func handleAppBackgrounding() {
-        print("🔒 MetalMemoryManager: App backgrounding - clearing Metal memory")
+        SecureLogger.log("MetalMemoryManager: App backgrounding - clearing Metal memory")
         performSecurityCleanup()
     }
     
     /// Clears Metal memory when app terminates
     func handleAppTermination() {
-        print("🔒 MetalMemoryManager: App termination - clearing Metal memory")
+        SecureLogger.log("MetalMemoryManager: App termination - clearing Metal memory")
         performSecurityCleanup()
     }
 }

@@ -23,7 +23,7 @@ final class OllamaService: ObservableObject {
     // MARK: - Model Management
     
     func loadModel(_ modelName: String) async throws {
-        print("🔍 OllamaService: Loading model: \(modelName)")
+        SecureLogger.log("OllamaService: Loading model: \(modelName)")
         
         // Convert filename to Ollama model name
         let ollamaModelName = convertToOllamaModelName(modelName)
@@ -33,17 +33,17 @@ final class OllamaService: ObservableObject {
         let modelExists = availableModels.contains { $0.name.contains(ollamaModelName) }
         
         if !modelExists {
-            print("🔍 OllamaService: Model not found, pulling: \(ollamaModelName)")
+            SecureLogger.log("OllamaService: Model not found, pulling: \(ollamaModelName)")
             try await pullModel(ollamaModelName)
         }
         
         // Pre-warm the model with a quick single-token generation to load it into memory
         do {
-            print("🔍 OllamaService: Pre-warming model: \(ollamaModelName)")
+            SecureLogger.log("OllamaService: Pre-warming model: \(ollamaModelName)")
             _ = try await preWarmModel(ollamaModelName)
-            print("✅ OllamaService: Model pre-warmed successfully: \(ollamaModelName)")
+            SecureLogger.log("OllamaService: Model pre-warmed successfully: \(ollamaModelName)")
         } catch {
-            print("❌ OllamaService: Model pre-warm failed for: \(ollamaModelName), error: \(error)")
+            SecureLogger.logError(error, context: "OllamaService: Model pre-warm failed for: \(ollamaModelName)")
             throw error
         }
         
@@ -101,7 +101,7 @@ final class OllamaService: ObservableObject {
             throw OllamaError.invalidResponse
         }
         
-        print("✅ OllamaService: Pre-warm response received (length: \(responseText.count))")
+        SecureLogger.log("OllamaService: Pre-warm response received (length: \(responseText.count))")
         return responseText
     }
     
