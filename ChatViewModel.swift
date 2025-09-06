@@ -75,19 +75,19 @@ class ChatViewModel {
     private var currentGenerationTask: Task<Void, Never>?
     
     init() {
-        print("🔍 ChatViewModel: init")
+        debugPrint("ChatViewModel: init", category: .general)
         initializeSession()
         
-        // Load saved timing data from UserDefaults
-        let savedAverage = UserDefaults.standard.double(forKey: "AverageResponseTime")
-        let savedTotalTime = UserDefaults.standard.double(forKey: "TotalResponseTime")
-        let savedResponseCount = UserDefaults.standard.integer(forKey: "ResponseCount")
+        // Load saved timing data from secure storage
+        let savedAverage = SecureStorage.retrieveDouble(forKey: "AverageResponseTime") ?? 0.0
+        let savedTotalTime = SecureStorage.retrieveDouble(forKey: "TotalResponseTime") ?? 0.0
+        let savedResponseCount = SecureStorage.retrieveInt(forKey: "ResponseCount") ?? 0
         
         if savedAverage > 0 {
             self.averageResponseDuration = savedAverage
             self.totalResponseTime = savedTotalTime
             self.responseCount = savedResponseCount
-            print("🔍 ChatViewModel: Loaded saved timing data - avg: \(savedAverage)s, total: \(savedTotalTime)s, count: \(savedResponseCount)")
+            SecureLogger.log("Loaded saved timing data - avg: \(savedAverage)s, total: \(savedTotalTime)s, count: \(savedResponseCount)")
         }
         
         // Load model-specific performance data
@@ -212,7 +212,7 @@ class ChatViewModel {
         
         // Prevent duplicate messages if already sent
         if lastSentMessage == userText, isProcessing {
-            print("🔍 ChatViewModel: ⚠️ Duplicate message detected while processing, skipping send.")
+            debugPrint("ChatViewModel: ⚠️ Duplicate message detected while processing, skipping send.", category: .general)
             return
         }
         
@@ -227,7 +227,7 @@ class ChatViewModel {
             let userMessage = ChatMessage(content: userText, isUser: true, timestamp: Date())
             if messageHistory == nil { messageHistory = [] }
             messageHistory?.append(userMessage)
-            print("🔍 ChatViewModel: Added user message to history.")
+            debugPrint("ChatViewModel: Added user message to history.", category: .general)
         }
 
         // Cancel any existing generation task
@@ -314,11 +314,8 @@ class ChatViewModel {
     
     // MARK: - History Safeguard
     private func buildSafeHistory(from fullHistory: [ChatMessage]) -> [ChatMessage] {
-        print("🔍 ChatViewModel: buildSafeHistory called with \(fullHistory.count) messages")
-        print("🔍 ChatViewModel: Full history content:")
-        for (index, message) in fullHistory.enumerated() {
-            print("   [\(index)] \(message.isUser ? "User" : "Assistant"): \(message.content.prefix(100))...")
-        }
+        SecureLogger.log("buildSafeHistory called - \(fullHistory.count) messages")
+        SecureLogger.log("Full history content", sensitiveData: fullHistory.map { $0.content }.joined(separator: "\n"))
         
         // FIXED: More reasonable limits that preserve conversation context
         let maxMessages = 8  // Keep last 8 messages (4 exchanges) for better context
@@ -341,11 +338,8 @@ class ChatViewModel {
         }
 
         let finalChars = totalChars(trimmed)
-        print("🔍 ChatViewModel: Final result: \(trimmed.count) messages, \(finalChars) characters")
-        print("🔍 ChatViewModel: Final history content:")
-        for (index, message) in trimmed.enumerated() {
-            print("   [\(index)] \(message.isUser ? "User" : "Assistant"): \(message.content.prefix(100))...")
-        }
+        SecureLogger.log("Final result - \(trimmed.count) messages, \(finalChars) characters")
+        SecureLogger.log("Final history content", sensitiveData: trimmed.map { $0.content }.joined(separator: "\n"))
 
         return trimmed
     }
@@ -472,21 +466,18 @@ class ChatViewModel {
     // MARK: - Model Performance Management
     
     private func loadModelPerformanceData() {
-        if let data = UserDefaults.standard.data(forKey: "ModelPerformanceData"),
-           let decoded = try? JSONDecoder().decode([String: ModelPerformanceData].self, from: data) {
+        if let decoded = SecureStorage.retrieve([String: ModelPerformanceData].self, forKey: "ModelPerformanceData") {
             modelPerformanceData = decoded
-            print("🔍 ChatViewModel: Loaded model performance data for \(decoded.count) models")
+            SecureLogger.log("Loaded model performance data - \(decoded.count) models")
             for (model, perf) in decoded {
-                print("   \(model): avg=\(String(format: "%.2f", perf.averageResponseTime))s, fast=\(perf.isFastModel)")
+                SecureLogger.log("Model performance - \(model): avg=\(String(format: "%.2f", perf.averageResponseTime))s, fast=\(perf.isFastModel)")
             }
         }
     }
     
     private func saveModelPerformanceData() {
-        if let encoded = try? JSONEncoder().encode(modelPerformanceData) {
-            UserDefaults.standard.set(encoded, forKey: "ModelPerformanceData")
-            print("🔍 ChatViewModel: Saved model performance data for \(modelPerformanceData.count) models")
-        }
+        SecureStorage.store(modelPerformanceData, forKey: "ModelPerformanceData")
+        SecureLogger.log("Saved model performance data - \(modelPerformanceData.count) models")
     }
     
     func updateModelPerformance(for modelFilename: String, responseTime: TimeInterval) {
@@ -505,12 +496,12 @@ class ChatViewModel {
         responseCount += 1
         averageResponseDuration = totalResponseTime / Double(responseCount)
         
-        // Save to UserDefaults for persistence
-        UserDefaults.standard.set(averageResponseDuration, forKey: "AverageResponseTime")
-        UserDefaults.standard.set(totalResponseTime, forKey: "TotalResponseTime")
-        UserDefaults.standard.set(responseCount, forKey: "ResponseCount")
+        // Save to secure storage for persistence
+        SecureStorage.storeDouble(averageResponseDuration, forKey: "AverageResponseTime")
+        SecureStorage.storeDouble(totalResponseTime, forKey: "TotalResponseTime")
+        SecureStorage.storeInt(responseCount, forKey: "ResponseCount")
         
-        print("🔍 ChatViewModel: Updated global response duration: \(String(format: "%.2f", responseTime))s (avg: \(String(format: "%.2f", averageResponseDuration))s)")
+        SecureLogger.log("Updated global response duration - \(String(format: "%.2f", responseTime))s (avg: \(String(format: "%.2f", averageResponseDuration))s)")
     }
     
     func isModelFast(_ modelFilename: String) -> Bool {
@@ -539,20 +530,18 @@ class ChatViewModel {
     
     private func initializeSession() {
         // Check if we need to start a new session
-        if let savedTimeData = UserDefaults.standard.data(forKey: sessionDurationKey),
-           let savedTime = try? JSONDecoder().decode(Date.self, from: savedTimeData) {
-            
+        if let savedTime = SecureStorage.retrieveDate(forKey: sessionDurationKey) {
             let timeSinceOpen = Date().timeIntervalSince(savedTime)
             let twentyFourHours: TimeInterval = 24 * 60 * 60 // 24 hours in seconds
             
             if timeSinceOpen >= twentyFourHours {
                 // 24 hours have passed, start fresh session
-                print("🔍 ChatViewModel: 24 hours passed, starting fresh session")
+                SecureLogger.log("24 hours passed, starting fresh session")
                 startNewSession()
             } else {
                 // Continue existing session
                 appOpenTime = savedTime
-                print("🔍 ChatViewModel: Continuing existing session started at \(savedTime)")
+                SecureLogger.log("Continuing existing session started at \(savedTime)")
             }
         } else {
             // First time or no saved session, start fresh
@@ -564,12 +553,10 @@ class ChatViewModel {
         appOpenTime = Date()
         messageHistory = []
         
-        // Save new session start time
-        if let encodedTime = try? JSONEncoder().encode(appOpenTime) {
-            UserDefaults.standard.set(encodedTime, forKey: sessionDurationKey)
-        }
+        // Save new session start time securely
+        SecureStorage.storeDate(appOpenTime, forKey: sessionDurationKey)
         
-        print("🔍 ChatViewModel: Started new session at \(appOpenTime)")
+        SecureLogger.log("Started new session at \(appOpenTime)")
     }
     
     private func checkSessionExpiry() {
@@ -577,7 +564,7 @@ class ChatViewModel {
         let twentyFourHours: TimeInterval = 24 * 60 * 60
         
         if timeSinceOpen >= twentyFourHours {
-            print("🔍 ChatViewModel: Session expired, resetting history")
+            SecureLogger.log("Session expired, resetting history")
             startNewSession()
         }
     }

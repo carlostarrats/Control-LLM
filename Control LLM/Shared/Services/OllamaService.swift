@@ -4,7 +4,7 @@ import Foundation
 final class OllamaService: ObservableObject {
     static let shared = OllamaService()
     
-    private let baseURL = "http://localhost:11434"
+    private let baseURL = "https://localhost:11434"
     private var session: URLSession
     
     @Published var isModelLoaded = false
@@ -14,7 +14,10 @@ final class OllamaService: ObservableObject {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
         config.timeoutIntervalForResource = 300
-        self.session = URLSession(configuration: config)
+        
+        // Create secure session with localhost certificate handling
+        let delegate = LocalhostCertificateDelegate()
+        self.session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
     }
     
     // MARK: - Model Management
@@ -63,7 +66,7 @@ final class OllamaService: ObservableObject {
     private func preWarmModel(_ modelName: String) async throws -> String {
         print("🔍 OllamaService: Pre-warming model with minimal generation: \(modelName)")
         
-        guard let url = URL(string: "http://localhost:11434/api/generate") else {
+        guard let url = URL(string: "https://localhost:11434/api/generate") else {
             throw OllamaError.invalidURL
         }
         
@@ -107,8 +110,8 @@ final class OllamaService: ObservableObject {
     func generateText(prompt: String, modelName: String? = nil) async throws -> String {
         let model = modelName ?? currentModelName ?? "gemma2:2b"
         
-        print("🔍 OllamaService: Generating text with model: \(model)")
-        print("🔍 OllamaService: Prompt: \(String(prompt.prefix(100)))")
+        SecureLogger.logModelOperation("Generating text", modelName: model)
+        SecureLogger.log("Prompt", sensitiveData: prompt)
         
         guard let url = URL(string: "\(baseURL)/api/generate") else {
             throw OllamaError.invalidURL
@@ -137,7 +140,7 @@ final class OllamaService: ObservableObject {
         
         let ollamaResponse = try JSONDecoder().decode(OllamaGenerateResponse.self, from: data)
         
-        print("✅ OllamaService: Generated response: \(String(ollamaResponse.response.prefix(100)))")
+        SecureLogger.log("Generated response", sensitiveData: ollamaResponse.response)
         return ollamaResponse.response
     }
     

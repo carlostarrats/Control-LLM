@@ -469,15 +469,13 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     // Unified path for all models
 
     NSLog(@"LlamaCppBridge: Prompt length: %zu characters", strlen(prompt));
-    // Log first 200 chars of prompt for debugging
-    const int preview_len = 200;
-    if (strlen(prompt) > preview_len) {
-        char preview[preview_len + 1];
-        strncpy(preview, prompt, preview_len);
-        preview[preview_len] = '\0';
-        NSLog(@"LlamaCppBridge: Prompt preview: %s...", preview);
-    } else {
-        NSLog(@"LlamaCppBridge: Full prompt: %s", prompt);
+    // SECURITY FIX: Don't log sensitive prompt content
+    NSLog(@"LlamaCppBridge: Prompt received (length: %zu chars) - content redacted for security", strlen(prompt));
+    
+    // SECURITY FIX: Create a copy of the prompt for processing to avoid modifying the original
+    char* promptCopy = (char*)malloc(strlen(prompt) + 1);
+    if (promptCopy) {
+        strcpy(promptCopy, prompt);
     }
 
     // tokenize prompt
@@ -486,7 +484,7 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     int32_t n_prompt;
 
     NSLog(@"LlamaCppBridge: Using standard tokenization (add_special=true, parse_special=true)");
-    n_prompt = llama_tokenize(vocab, prompt, (int32_t)strlen(prompt), prompt_tokens, max_prompt_tokens, /*add_special*/ true, /*parse_special*/ true);
+    n_prompt = llama_tokenize(vocab, promptCopy ? promptCopy : prompt, (int32_t)strlen(prompt), prompt_tokens, max_prompt_tokens, /*add_special*/ true, /*parse_special*/ true);
 
     if (n_prompt <= 0) {
         NSLog(@"❌ CRITICAL ERROR: LlamaCppBridge: Tokenization failed for streaming generation (returned %d tokens)", n_prompt);
@@ -807,6 +805,13 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     llama_memory_clear(llama_get_memory(ctx), true);
     
     NSLog(@"LlamaCppBridge: Streaming generation completed");
+    
+    // SECURITY FIX: Securely clear the prompt copy from memory
+    if (promptCopy) {
+        memset(promptCopy, 0, strlen(promptCopy));
+        free(promptCopy);
+    }
+    
     pthread_mutex_unlock(&s_bridge_mutex);
 }
 

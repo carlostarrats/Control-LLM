@@ -22,7 +22,7 @@ final class LLMService: @unchecked Sendable {
     
     /// Cancel ongoing LLM generation (Phase 4: Enhanced Reliability)
     func cancelGeneration() {
-        print("🔍 LLMService: PHASE 4 - Cancelling ongoing generation with enhanced reliability")
+        debugPrint("LLMService: PHASE 4 - Cancelling ongoing generation with enhanced reliability", category: .model)
         
         // Set the cancellation flag in the C bridge
         llm_bridge_cancel_generation()
@@ -36,7 +36,7 @@ final class LLMService: @unchecked Sendable {
             llamaContext = nil
         }
         
-        print("🔍 LLMService: PHASE 4 - Cancellation flag set and operation flags reset")
+        debugPrint("LLMService: PHASE 4 - Cancellation flag set and operation flags reset", category: .model)
     }
     
     /// Enable multi-pass mode to prevent concurrency errors during multi-pass processing
@@ -256,23 +256,17 @@ final class LLMService: @unchecked Sendable {
             self.llamaModel = nil
             self.llamaContext = nil
             
-            // CRASH PROTECTION: Validate model path exists
-            let fileManager = FileManager.default
-            guard fileManager.fileExists(atPath: modelPath) else {
-                print("❌ LLMService: Model file does not exist at path: \(modelPath)")
-                throw NSError(domain: "LLMService", code: 13, userInfo: [NSLocalizedDescriptionKey: "Model file not found at specified path"])
-            }
-            
-            // CRASH PROTECTION: Check file size to ensure it's not corrupted
+            // SECURITY: Comprehensive model integrity validation
             do {
-                let attributes = try fileManager.attributesOfItem(atPath: modelPath)
-                let fileSize = attributes[.size] as? Int64 ?? 0
-                if fileSize < 1000000 { // Less than 1MB
-                    print("❌ LLMService: Model file appears too small (\(fileSize) bytes), may be corrupted")
-                    throw NSError(domain: "LLMService", code: 14, userInfo: [NSLocalizedDescriptionKey: "Model file appears corrupted or too small"])
-                }
+                try ModelIntegrityChecker.validateModel(modelPath)
+                try ModelIntegrityChecker.performSecurityChecks(modelPath)
+                print("✅ LLMService: Model integrity validation passed")
+            } catch let error as ModelIntegrityError {
+                print("❌ LLMService: Model integrity validation failed: \(error.localizedDescription)")
+                throw NSError(domain: "LLMService", code: 13, userInfo: [NSLocalizedDescriptionKey: "Model integrity validation failed: \(error.localizedDescription)"])
             } catch {
-                print("⚠️ LLMService: Could not validate model file attributes: \(error)")
+                print("❌ LLMService: Model validation error: \(error)")
+                throw NSError(domain: "LLMService", code: 14, userInfo: [NSLocalizedDescriptionKey: "Model validation failed: \(error.localizedDescription)"])
             }
             
             modelPath.withCString { cString in
@@ -338,8 +332,8 @@ final class LLMService: @unchecked Sendable {
 
     /// Stream tokens for a user prompt, optionally with chat history
     func chat(user text: String, history: [ChatMessage]? = nil, maxTokens: Int = 2048, onToken: @escaping (String) async -> Void) async throws {
-        print("🔍🔍🔍 LLMService.chat: ENTRY POINT - userText parameter: '\(text.prefix(100))...'")
-        print("🔍 LLMService.chat: History count: \(history?.count ?? 0)")
+        SecureLogger.log("LLMService.chat: ENTRY POINT", sensitiveData: text)
+        SecureLogger.log("LLMService.chat: History count - \(history?.count ?? 0)")
         // Safety mechanism: if the flag has been stuck for more than 5 minutes, reset it
         if isChatOperationInProgress {
             let timeSinceLastOperation = Date().timeIntervalSince(lastOperationTime)
@@ -369,28 +363,23 @@ final class LLMService: @unchecked Sendable {
         
         // Increment conversation counter
         conversationCount += 1
-        print("🔍 LLMService: Starting conversation #\(conversationCount) with model \(currentModelFilename ?? "unknown")")
+        SecureLogger.logModelOperation("Starting conversation #\(conversationCount)", modelName: currentModelFilename ?? "unknown")
         
-        // Validate input text
-        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            throw NSError(domain: "LLMService",
-                          code: 23,
-                          userInfo: [NSLocalizedDescriptionKey: "Empty or whitespace-only input"])
+        // SECURITY: Validate and sanitize input
+        let processedText: String
+        do {
+            processedText = try InputValidator.validateAndSanitizeInput(text)
+        } catch let error as ValidationError {
+            throw NSError(domain: "LLMService", code: 23, userInfo: [NSLocalizedDescriptionKey: error.localizedDescription])
         }
         
-        // Check input length to prevent memory issues
-        let maxInputLength = Constants.maxInputLength // Increased limit for file uploads - allows ~2-3 pages of content
-        var processedText = text
-        if processedText.count > maxInputLength {
-            print("⚠️ WARNING: Input text too long (\(processedText.count) chars), truncating to \(maxInputLength)")
-            let truncatedText = String(processedText.prefix(maxInputLength))
-            print("🔍 DEBUG: Truncated text: '\(truncatedText)'")
-            processedText = truncatedText
-            
-            // Throw error to inform user about truncation
-            throw NSError(domain: "LLMService",
-                          code: 26,
-                          userInfo: [NSLocalizedDescriptionKey: "Input text was too long (\(processedText.count) characters) and was truncated to \(maxInputLength) characters. Please shorten your message to avoid losing important information."])
+        // SECURITY: Validate conversation history
+        if let history = history {
+            do {
+                try InputValidator.validateHistory(history)
+            } catch let error as ValidationError {
+                throw NSError(domain: "LLMService", code: 24, userInfo: [NSLocalizedDescriptionKey: error.localizedDescription])
+            }
         }
         
         // IMPROVEMENT: Only reset context if we've had too many conversations with THIS model
@@ -434,8 +423,8 @@ final class LLMService: @unchecked Sendable {
             // Build the prompt using the new helper
             let prompt = buildPrompt(userText: processedText, history: history)
             
-            print("🔍 LLMService: Final prompt length: \(prompt.count) characters")
-            print("🔍 LLMService: Final prompt preview: \(String(prompt.prefix(200)))...")
+            SecureLogger.log("Final prompt length - \(prompt.count) characters")
+            SecureLogger.log("Final prompt preview", sensitiveData: String(prompt.prefix(200)))
             
             // Safety check for extremely long prompts
             // Increased to match maxInputLength and model's actual context window (32768 tokens)
@@ -575,15 +564,14 @@ final class LLMService: @unchecked Sendable {
     }
     
     private func buildPrompt(userText: String, history: [ChatMessage]?) -> String {
-        print("🔍🔍🔍 LLMService.buildPrompt: ENTRY POINT - userText parameter: '\(userText.prefix(100))...'")
-        print("🔍 LLMService: buildPrompt called with history count: \(history?.count ?? 0)")
+        SecureLogger.log("LLMService.buildPrompt: ENTRY POINT", sensitiveData: userText)
+        SecureLogger.log("buildPrompt called with history count - \(history?.count ?? 0)")
         if let history = history, !history.isEmpty {
-            print("🔍 LLMService: Building prompt with \(history.count) history messages for model \(currentModelFilename ?? "unknown")")
-            for (index, message) in history.enumerated() {
-                print("  Message \(index): \(message.isUser ? "User" : "Assistant") - \(String(message.content.prefix(50)))")
-            }
+            SecureLogger.log("Building prompt with \(history.count) history messages for model \(currentModelFilename ?? "unknown")")
+            let historyContent = history.map { "\($0.isUser ? "User" : "Assistant"): \($0.content)" }.joined(separator: "\n")
+            SecureLogger.log("History messages", sensitiveData: historyContent)
         } else {
-            print("🔍 LLMService: Building fresh prompt (no history) for model \(currentModelFilename ?? "unknown")")
+            SecureLogger.log("Building fresh prompt (no history) for model \(currentModelFilename ?? "unknown")")
         }
         
         // QWEN THINKING FIX: Use enable_thinking=False parameter for Qwen3 models
@@ -605,6 +593,9 @@ final class LLMService: @unchecked Sendable {
         }
         
         var systemPrompt = NSLocalizedString("LLM System Prompt", comment: "")
+        
+        // SECURITY: Sanitize system prompt to prevent injection
+        systemPrompt = InputValidator.sanitizeSystemPrompt(systemPrompt)
         
         // Add enable_thinking=False instruction for Qwen3 models
         if !enableThinking {

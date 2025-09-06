@@ -10,6 +10,7 @@ import os.log
 import AppIntents
 
 // MARK: - Console Flooding Prevention
+#if DEBUG
 private func disableConsoleFlooding() {
     // Disable SwiftUI's excessive logging that causes console flooding
     UserDefaults.standard.set(false, forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
@@ -26,6 +27,12 @@ private func disableConsoleFlooding() {
     
     print("🔇 Console flooding prevention enabled")
 }
+#else
+private func disableConsoleFlooding() {
+    // In production, only disable the most critical logging
+    UserDefaults.standard.set(false, forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
+}
+#endif
 
 @main
 struct Control_LLMApp: App {
@@ -61,13 +68,15 @@ struct Control_LLMApp: App {
     
     var body: some Scene {
         WindowGroup {
-            MainView()
-                .environmentObject(ColorManager.shared)
-                .onAppear {
-                    // Refresh colors on appear to apply saved settings
-                    ColorManager.shared.refreshColors()
-                    print("🔍 MainView appeared!")
-                }
+            BackgroundSecurityView {
+                MainView()
+                    .environmentObject(ColorManager.shared)
+                    .onAppear {
+                        // Refresh colors on appear to apply saved settings
+                        ColorManager.shared.refreshColors()
+                        debugPrint("MainView appeared!", category: .ui)
+                    }
+            }
         }
     }
     
