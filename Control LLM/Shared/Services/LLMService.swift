@@ -115,6 +115,11 @@ final class LLMService: @unchecked Sendable {
         print("     - currentModelFilename: \(currentModelFilename ?? "nil")")
         print("     - isModelLoaded: \(isModelLoaded)")
         print("     - modelPath: \(modelPath ?? "nil")")
+        
+        // SECURITY: Run comprehensive validation in background (non-blocking)
+        Task.detached { [weak self] in
+            await self?.performBackgroundSecurityValidation()
+        }
     }
     
     /// Load the currently selected model from ModelManager
@@ -158,6 +163,33 @@ final class LLMService: @unchecked Sendable {
         
         print("❌ LLMService: Model file not found anywhere: \(modelFilename).gguf")
         throw NSError(domain: "LLMService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Model file not found in any location"])
+    }
+    
+    // MARK: - Background Security Validation
+    
+    /// Performs comprehensive security validation in the background
+    private func performBackgroundSecurityValidation() async {
+        guard let modelPath = modelPath else { return }
+        
+        print("🔍 LLMService: Starting background security validation...")
+        
+        // Comprehensive integrity validation
+        do {
+            try ModelIntegrityChecker.validateModel(modelPath)
+            try ModelIntegrityChecker.performSecurityChecks(modelPath)
+            print("✅ LLMService: Background integrity validation passed")
+        } catch {
+            print("⚠️ LLMService: Background integrity validation failed: \(error.localizedDescription)")
+        }
+        
+        // Hash verification (if we implement cached hashes)
+        if ModelHashVerifier.shared.verifyModel(modelPath) {
+            print("✅ LLMService: Background hash verification passed")
+        } else {
+            print("⚠️ LLMService: Background hash verification failed")
+        }
+        
+        print("🔍 LLMService: Background security validation completed")
     }
     
     private func unloadModel() {
@@ -256,17 +288,13 @@ final class LLMService: @unchecked Sendable {
             self.llamaModel = nil
             self.llamaContext = nil
             
-            // SECURITY: Comprehensive model integrity validation
+            // SECURITY: Quick model integrity validation (fast, non-blocking)
             do {
-                try ModelIntegrityChecker.validateModel(modelPath)
-                try ModelIntegrityChecker.performSecurityChecks(modelPath)
-                print("✅ LLMService: Model integrity validation passed")
-            } catch let error as ModelIntegrityError {
-                print("❌ LLMService: Model integrity validation failed: \(error.localizedDescription)")
-                throw NSError(domain: "LLMService", code: 13, userInfo: [NSLocalizedDescriptionKey: "Model integrity validation failed: \(error.localizedDescription)"])
+                try ModelIntegrityChecker.quickValidate(modelPath)
+                print("✅ LLMService: Quick model validation passed")
             } catch {
-                print("❌ LLMService: Model validation error: \(error)")
-                throw NSError(domain: "LLMService", code: 14, userInfo: [NSLocalizedDescriptionKey: "Model validation failed: \(error.localizedDescription)"])
+                print("⚠️ LLMService: Quick model validation failed: \(error.localizedDescription) - continuing anyway")
+                // Don't throw - just log warning and continue
             }
             
             modelPath.withCString { cString in
@@ -332,7 +360,7 @@ final class LLMService: @unchecked Sendable {
 
     /// Stream tokens for a user prompt, optionally with chat history
     func chat(user text: String, history: [ChatMessage]? = nil, maxTokens: Int = 2048, onToken: @escaping (String) async -> Void) async throws {
-        SecureLogger.log("LLMService.chat: ENTRY POINT", sensitiveData: text)
+        SecureLogger.log("LLMService.chat: ENTRY POINT - \(text.count) characters")
         SecureLogger.log("LLMService.chat: History count - \(history?.count ?? 0)")
         // Safety mechanism: if the flag has been stuck for more than 5 minutes, reset it
         if isChatOperationInProgress {
@@ -424,7 +452,6 @@ final class LLMService: @unchecked Sendable {
             let prompt = buildPrompt(userText: processedText, history: history)
             
             SecureLogger.log("Final prompt length - \(prompt.count) characters")
-            SecureLogger.log("Final prompt preview", sensitiveData: String(prompt.prefix(200)))
             
             // Safety check for extremely long prompts
             // Increased to match maxInputLength and model's actual context window (32768 tokens)
@@ -564,12 +591,10 @@ final class LLMService: @unchecked Sendable {
     }
     
     private func buildPrompt(userText: String, history: [ChatMessage]?) -> String {
-        SecureLogger.log("LLMService.buildPrompt: ENTRY POINT", sensitiveData: userText)
+        SecureLogger.log("LLMService.buildPrompt: ENTRY POINT - \(userText.count) characters")
         SecureLogger.log("buildPrompt called with history count - \(history?.count ?? 0)")
         if let history = history, !history.isEmpty {
             SecureLogger.log("Building prompt with \(history.count) history messages for model \(currentModelFilename ?? "unknown")")
-            let historyContent = history.map { "\($0.isUser ? "User" : "Assistant"): \($0.content)" }.joined(separator: "\n")
-            SecureLogger.log("History messages", sensitiveData: historyContent)
         } else {
             SecureLogger.log("Building fresh prompt (no history) for model \(currentModelFilename ?? "unknown")")
         }

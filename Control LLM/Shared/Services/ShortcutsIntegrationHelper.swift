@@ -115,7 +115,7 @@ class ShortcutsIntegrationHelper: NSObject {
         logger.error("Error in \(context): \(error.localizedDescription)")
         
         // Return user-friendly error messages for Shortcuts
-        let errorMessage = ShortcutsService.shared.handleError(error, context: context)
+        let errorMessage = "Failed to \(context): \(error.localizedDescription)"
         return "❌ \(errorMessage)"
     }
     

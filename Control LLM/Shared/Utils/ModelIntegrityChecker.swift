@@ -19,6 +19,26 @@ class ModelIntegrityChecker {
     
     // MARK: - Model Validation
     
+    /// Quick validation for performance-critical scenarios
+    /// - Parameter modelPath: Path to the model file
+    /// - Throws: ModelIntegrityError if validation fails
+    static func quickValidate(_ modelPath: String) throws {
+        debugPrint("ModelIntegrityChecker: Quick validating model at \(modelPath)", category: .security)
+        
+        // Check if file exists
+        guard FileManager.default.fileExists(atPath: modelPath) else {
+            throw ModelIntegrityError.fileNotFound
+        }
+        
+        // Validate file extension (fast)
+        try validateFileExtension(modelPath)
+        
+        // Validate file size (fast)
+        try validateFileSize(modelPath)
+        
+        debugPrint("ModelIntegrityChecker: Quick validation passed", category: .security)
+    }
+    
     /// Validates a model file for integrity and security
     /// - Parameter modelPath: Path to the model file
     /// - Throws: ModelIntegrityError if validation fails

@@ -14,6 +14,47 @@
 #if __has_include("llama.h")
 #include "llama.h"
 
+// MARK: - Secure Memory Clearing Functions
+
+/// Securely clears memory to prevent data leakage
+/// - Parameters:
+///   - ptr: Pointer to memory to clear
+///   - size: Size of memory to clear
+void secure_clear_memory(void* ptr, size_t size) {
+    if (ptr && size > 0) {
+        // Clear memory with zeros
+        memset(ptr, 0, size);
+        
+        // Force memory barrier to ensure clearing is complete
+        __asm__ __volatile__("" ::: "memory");
+        
+        // Additional clearing with pattern to prevent recovery
+        memset(ptr, 0xFF, size);
+        memset(ptr, 0x00, size);
+        memset(ptr, 0xAA, size);
+        memset(ptr, 0x00, size);
+        
+        // Final memory barrier
+        __asm__ __volatile__("" ::: "memory");
+    }
+}
+
+/// Securely clears context memory to prevent conversation data leakage
+/// - Parameter ctx: LLM context to clear
+void secure_clear_context_memory(struct llama_context* ctx) {
+    if (!ctx) return;
+    
+    // Clear the context's memory pool
+    llama_memory_clear(llama_get_memory(ctx), true);
+    
+    // Force garbage collection
+    llama_memory_clear(llama_get_memory(ctx), false);
+    
+    // Additional security: clear any cached data
+    // This is a best-effort approach since we can't access internal llama.cpp structures
+    NSLog(@"LlamaCppBridge: Context memory securely cleared");
+}
+
 // NOTE: These are simplified glue calls. Configure params as needed.
 static struct llama_model* s_model = NULL;
 static struct llama_context* s_ctx = NULL;
@@ -195,9 +236,10 @@ void llm_bridge_free_model(void* model) {
     
     NSLog(@"LlamaCppBridge: Freeing model");
     
-    // CRASH FIX: Free context first if it exists
+    // SECURITY FIX: Securely clear context memory before freeing
     if (s_ctx) {
-        NSLog(@"LlamaCppBridge: Freeing context before freeing model");
+        NSLog(@"LlamaCppBridge: Securely clearing context memory before freeing");
+        secure_clear_context_memory(s_ctx);
         llama_free(s_ctx);
         s_ctx = NULL;
     }
@@ -214,7 +256,11 @@ void llm_bridge_free_model(void* model) {
         s_model = NULL;
     }
     
-    NSLog(@"LlamaCppBridge: Model freed successfully");
+    // SECURITY FIX: Clear any remaining sensitive data
+    secure_clear_memory(&s_model, sizeof(s_model));
+    secure_clear_memory(&s_ctx, sizeof(s_ctx));
+    
+    NSLog(@"LlamaCppBridge: Model freed successfully with secure memory clearing");
     pthread_mutex_unlock(&s_bridge_mutex);
 }
 
@@ -808,9 +854,12 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
     
     // SECURITY FIX: Securely clear the prompt copy from memory
     if (promptCopy) {
-        memset(promptCopy, 0, strlen(promptCopy));
+        secure_clear_memory(promptCopy, strlen(promptCopy));
         free(promptCopy);
     }
+    
+    // SECURITY FIX: Clear any remaining sensitive data in the context
+    secure_clear_context_memory(ctx);
     
     pthread_mutex_unlock(&s_bridge_mutex);
 }

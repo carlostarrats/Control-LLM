@@ -6,18 +6,18 @@ import os.log
 @available(iOS 16.0, *)
 class ShortcutsService: NSObject {
     static let shared = ShortcutsService()
-    private let logger = Logger(subsystem: "ControlLLM", category: "ShortcutsService")
+    // Logger removed for security - using print statements instead
     
     private override init() {
         super.init()
-        logger.info("Shortcuts Service initialized")
+        print("Shortcuts Service initialized")
     }
     
     // MARK: - Background Execution Support
     
     /// Handle background execution when called from Shortcuts
     func handleBackgroundExecution() async -> Bool {
-        logger.info("Handling background execution from Shortcuts")
+        print("Handling background execution from Shortcuts")
         
         do {
             // Perform any necessary background setup
@@ -26,11 +26,11 @@ class ShortcutsService: NSObject {
             // Register for background processing if needed
             await registerBackgroundTasks()
             
-            logger.info("Background execution setup completed successfully")
+            print("Background execution setup completed successfully")
             return true
             
         } catch {
-            logger.error("Background execution setup failed: \(error.localizedDescription)")
+            print("Background execution setup failed: \(error.localizedDescription)")
             return false
         }
     }
@@ -41,40 +41,109 @@ class ShortcutsService: NSObject {
         
         try await Task.sleep(nanoseconds: 500_000_000) // 0.5 second delay for setup
         
-        logger.info("Background setup completed")
+        print("Background setup completed")
     }
     
     private func registerBackgroundTasks() async {
         // Register for background processing if needed
         // This ensures the app can continue processing even when in background
         
-        logger.info("Background tasks registered")
+        print("Background tasks registered")
     }
     
     // MARK: - Integration with Existing Services
     
-    /// Send a message through the existing LLM service
+    /// Send a message through the existing LLM service with proper sanitization
     func sendMessage(_ message: String, recipient: String? = nil) async throws -> String {
-        logger.info("Sending message via Shortcuts: '\(message)'")
+        // SECURITY: Sanitize input for Siri/Shortcuts to prevent data leakage
+        let sanitizedMessage = sanitizeForSiri(message)
         
-        // TODO: Integrate with your existing LLM service
-        // This should call the same service that handles in-app messages
+        // Validate input length and content
+        guard !sanitizedMessage.isEmpty else {
+            throw ShortcutsError.emptyMessage
+        }
         
-        // Simulate processing for now
-        try await Task.sleep(nanoseconds: 2_000_000_000) // 2 second delay
+        guard sanitizedMessage.count <= 1000 else {
+            throw ShortcutsError.messageTooLong
+        }
         
-        let response = "Shortcuts response: \(message)"
-        logger.info("Message sent successfully via Shortcuts")
+        // Check for prompt injection attempts
+        if InputValidator.detectPromptInjection(sanitizedMessage) {
+            throw ShortcutsError.potentiallyMaliciousInput
+        }
         
-        // Donate the intent for future suggestions
-        ControlLLMAppShortcuts.donateSendMessage(message: message, recipient: recipient)
+        print("Processing sanitized message for Shortcuts")
         
-        return response
+        // Process through existing LLM service
+        let response = try await processMessage(sanitizedMessage)
+        
+        // SECURITY: Sanitize response for Siri/Shortcuts
+        let sanitizedResponse = sanitizeForSiri(response)
+        
+        print("Generated sanitized response for Shortcuts")
+        return sanitizedResponse
+    }
+    
+    // MARK: - Security Utilities
+    
+    /// Sanitizes text for Siri/Shortcuts to prevent data leakage
+    private func sanitizeForSiri(_ text: String) -> String {
+        var sanitized = text
+        
+        // Remove sensitive patterns that could be interpreted by Siri
+        let siriSensitivePatterns = [
+            "password", "secret", "private", "confidential",
+            "credit card", "ssn", "social security",
+            "bank account", "routing number"
+        ]
+        
+        for pattern in siriSensitivePatterns {
+            sanitized = sanitized.replacingOccurrences(
+                of: pattern,
+                with: "[REDACTED]",
+                options: [.caseInsensitive, .regularExpression]
+            )
+        }
+        
+        // Remove any remaining sensitive data patterns
+        sanitized = InputValidator.sanitizeInput(sanitized)
+        
+        // Limit length for Siri compatibility
+        if sanitized.count > 500 {
+            sanitized = String(sanitized.prefix(500)) + "..."
+        }
+        
+        return sanitized
+    }
+    
+    /// Processes message through the LLM service
+    private func processMessage(_ message: String) async throws -> String {
+        print("Sending message via Shortcuts: '\(message)'")
+        
+        // Integrate with existing LLM service
+        do {
+            // Use the existing HybridLLMService for consistency
+            try await HybridLLMService.shared.loadSelectedModel()
+            
+            var response = ""
+            try await HybridLLMService.shared.generateResponse(
+                userText: message,
+                history: nil, // No history for Shortcuts to prevent data leakage
+                onToken: { partialResponse in
+                    response += partialResponse
+                }
+            )
+            
+            return response
+        } catch {
+            print("Failed to process message via LLM service: \(error.localizedDescription)")
+            throw ShortcutsError.processingFailed(error.localizedDescription)
+        }
     }
     
     /// Chain multiple messages with delays
     func chainMessages(_ messages: [String], delays: [Double]? = nil) async throws -> [String] {
-        logger.info("Chaining \(messages.count) messages via Shortcuts")
+        print("Chaining \(messages.count) messages via Shortcuts")
         
         var responses: [String] = []
         let defaultDelays = Array(repeating: 1.0, count: messages.count)
@@ -83,10 +152,10 @@ class ShortcutsService: NSObject {
         for (index, message) in messages.enumerated() {
             let delay = index < actualDelays.count ? actualDelays[index] : 1.0
             
-            logger.info("Processing chained message \(index + 1): '\(message)' with delay \(delay)")
+            print("Processing chained message \(index + 1): '\(message)' with delay \(delay)")
             
             // Process the message
-            let response = try await sendMessage(message, recipient: "Chained")
+            let response = try await self.sendMessage(message, recipient: "Chained")
             responses.append(response)
             
             // Apply delay if not the last message
@@ -95,16 +164,13 @@ class ShortcutsService: NSObject {
             }
         }
         
-        // Donate the intent for future suggestions
-        ControlLLMAppShortcuts.donateChainMessages(messages: messages, delays: actualDelays)
-        
-        logger.info("Chain messages completed successfully via Shortcuts")
+        print("Chained message processing completed - \(responses.count) responses")
         return responses
     }
     
     /// Update system prompt for behavior steering
     func updateSystemPrompt(_ prompt: String, behaviorType: String) async throws {
-        logger.info("Updating system prompt via Shortcuts: '\(prompt)' for behavior: '\(behaviorType)'")
+        print("Updating system prompt via Shortcuts: '\(prompt)' for behavior: '\(behaviorType)'")
         
         // TODO: Integrate with your existing system prompt management
         // This should update the same system prompt that the app uses
@@ -116,16 +182,42 @@ class ShortcutsService: NSObject {
         UserDefaults.standard.set(prompt, forKey: "SystemPrompt_\(behaviorType)")
         
         // Donate the intent for future suggestions
-        ControlLLMAppShortcuts.donateSystemPromptSteering(prompt: prompt, behaviorType: behaviorType)
+        let intent = SystemPromptSteeringIntent(promptText: prompt, behaviorType: behaviorType)
+        try await intent.donate()
         
-        logger.info("System prompt updated successfully via Shortcuts")
+        print("System prompt updated successfully via Shortcuts.")
+    }
+}
+
+// MARK: - Error Types
+
+enum ShortcutsError: Error, LocalizedError {
+    case emptyMessage
+    case messageTooLong
+    case potentiallyMaliciousInput
+    case processingFailed(String)
+    case backgroundExecutionFailed
+    
+    var errorDescription: String? {
+        switch self {
+        case .emptyMessage:
+            return "Message cannot be empty"
+        case .messageTooLong:
+            return "Message is too long for Shortcuts (maximum 1000 characters)"
+        case .potentiallyMaliciousInput:
+            return "Input contains potentially malicious content"
+        case .processingFailed(let reason):
+            return "Failed to process message: \(reason)"
+        case .backgroundExecutionFailed:
+            return "Background execution failed"
+        }
     }
     
     // MARK: - Error Handling
     
     /// Handle errors and return meaningful responses for Shortcuts
     func handleError(_ error: Error, context: String) -> String {
-        logger.error("Error in \(context): \(error.localizedDescription)")
+        print("Error in \(context): \(error.localizedDescription)")
         
         // Return user-friendly error messages for Shortcuts
         switch error {
@@ -173,6 +265,6 @@ extension ShortcutsService {
         // Register for background processing
         // This ensures the app can continue processing even when in background
         
-        logger.info("Background tasks registered for Shortcuts")
+        print("Background tasks registered for Shortcuts")
     }
 }

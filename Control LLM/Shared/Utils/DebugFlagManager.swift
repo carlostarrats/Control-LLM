@@ -91,12 +91,16 @@ class DebugFlagManager {
         function: String = #function,
         line: Int = #line
     ) {
+        #if DEBUG
         guard isDebugEnabled else { return }
         
         let fileName = URL(fileURLWithPath: file).lastPathComponent
         let timestamp = DateFormatter.debugTimestamp.string(from: Date())
         
         print("🔍 [\(timestamp)] [\(category.rawValue)] [\(fileName):\(line)] \(function): \(message)")
+        #else
+        // No debug printing in production builds
+        #endif
     }
     
     /// Debug print with sensitive data handling
@@ -115,6 +119,7 @@ class DebugFlagManager {
         function: String = #function,
         line: Int = #line
     ) {
+        #if DEBUG
         guard isDebugEnabled else { return }
         
         let fileName = URL(fileURLWithPath: file).lastPathComponent
@@ -126,6 +131,9 @@ class DebugFlagManager {
         } else {
             print("🔍 [\(timestamp)] [\(category.rawValue)] [\(fileName):\(line)] \(function): \(message)")
         }
+        #else
+        // No debug printing in production builds
+        #endif
     }
     
     // MARK: - Conditional Execution
@@ -301,13 +309,17 @@ extension DateFormatter {
 
 // MARK: - Debug Print Macros
 
-/// Debug print macro that automatically includes file, function, and line
-/// - Parameters:
-///   - message: Message to print
-///   - category: Debug category
-func debugPrint(_ message: String, category: DebugCategory = .general) {
-    DebugFlagManager.debugPrint(message, category: category)
-}
+    /// Debug print macro that automatically includes file, function, and line
+    /// - Parameters:
+    ///   - message: Message to print
+    ///   - category: Debug category
+    func debugPrint(_ message: String, category: DebugCategory = .general) {
+        #if DEBUG
+        DebugFlagManager.debugPrint(message, category: category)
+        #else
+        // No debug printing in production builds
+        #endif
+    }
 
 /// Debug print macro with sensitive data
 /// - Parameters:

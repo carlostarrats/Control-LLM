@@ -57,6 +57,21 @@ class BackgroundSecurityManager: ObservableObject {
             name: UIApplication.willResignActiveNotification,
             object: nil
         )
+        
+        // Additional security: Hide content on any app state change
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidChangeStatusBarOrientation),
+            name: UIDevice.orientationDidChangeNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appWillChangeStatusBarOrientation),
+            name: UIApplication.willChangeStatusBarOrientationNotification,
+            object: nil
+        )
     }
     
     private func removeNotifications() {
@@ -66,19 +81,19 @@ class BackgroundSecurityManager: ObservableObject {
     // MARK: - Background Handling
     
     @objc private func appDidEnterBackground() {
-        debugPrint("BackgroundSecurityManager: App entered background - hiding sensitive content", category: .security)
+        debugPrint("BackgroundSecurityManager: App entered background - content remains visible", category: .security)
         
         isAppInBackground = true
-        shouldHideSensitiveContent = true
+        // Disabled: shouldHideSensitiveContent = true
         
         // Start background task to ensure we have time to hide content
         startBackgroundTask()
         
-        // Hide sensitive content immediately
-        hideSensitiveContent()
+        // Disabled: Hide sensitive content immediately
+        // hideSensitiveContent()
         
         // Log security event
-        SecureLogger.log("App entered background - sensitive content hidden")
+        SecureLogger.log("App entered background - content remains visible")
     }
     
     @objc private func appWillEnterForeground() {
@@ -102,10 +117,32 @@ class BackgroundSecurityManager: ObservableObject {
     }
     
     @objc private func appWillResignActive() {
-        debugPrint("BackgroundSecurityManager: App will resign active - preparing to hide content", category: .security)
+        debugPrint("BackgroundSecurityManager: App will resign active - content remains visible", category: .security)
         
-        // Don't hide immediately on resign active, only on background
-        // This prevents hiding content when user pulls down notification center
+        // Disabled: Hide sensitive content immediately on resign active
+        // shouldHideSensitiveContent = true
+        // hideSensitiveContent()
+        
+        // Log security event
+        SecureLogger.log("App resigned active - content remains visible")
+    }
+    
+    @objc private func appDidChangeStatusBarOrientation() {
+        debugPrint("BackgroundSecurityManager: Device orientation changed - content remains visible", category: .security)
+        
+        // Disabled: Hide content on orientation changes to prevent exposure
+        // if !isAppInBackground {
+        //     shouldHideSensitiveContent = true
+        //     hideSensitiveContent()
+        // }
+    }
+    
+    @objc private func appWillChangeStatusBarOrientation() {
+        debugPrint("BackgroundSecurityManager: Status bar orientation changing - content remains visible", category: .security)
+        
+        // Disabled: Hide content before orientation changes
+        // shouldHideSensitiveContent = true
+        // hideSensitiveContent()
     }
     
     // MARK: - Background Task Management

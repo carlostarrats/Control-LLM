@@ -57,6 +57,9 @@ struct Control_LLMApp: App {
             let _ = ModelManager.shared
         }
         
+        // Initialize security components
+        initializeSecurityComponents()
+        
         // Initialize Shortcuts integration if available
         if #available(iOS 16.0, *) {
             initializeShortcutsIntegration()
@@ -89,6 +92,21 @@ struct Control_LLMApp: App {
                 CTFontManagerRegisterFontsForURL(fontURL as CFURL, .process, &error)
             }
         }
+    }
+    
+    private func initializeSecurityComponents() {
+        print("🔒 Initializing security components...")
+        
+        // Initialize Metal memory manager
+        let _ = MetalMemoryManager.shared
+        
+        // Initialize background security manager
+        let _ = BackgroundSecurityManager.shared
+        
+        // Initialize data cleanup manager
+        let _ = DataCleanupManager.shared
+        
+        print("🔒 Security components initialized")
     }
     
     @available(iOS 16.0, *)

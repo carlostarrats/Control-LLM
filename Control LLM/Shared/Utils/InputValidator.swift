@@ -58,6 +58,55 @@ class InputValidator {
         "in a fictional scenario", "in a made-up scenario"
     ]
     
+    // Enhanced regex patterns for better detection
+    private static let promptInjectionRegexPatterns = [
+        "ignore.*previous.*instruction",
+        "forget.*all.*previous",
+        "you.*are.*now.*a",
+        "pretend.*to.*be",
+        "act.*as.*if",
+        "system.*prompt",
+        "override.*instruction",
+        "jailbreak.*character",
+        "new.*instruction",
+        "disregard.*above",
+        "ignore.*system",
+        "you.*must.*now",
+        "roleplay.*as",
+        "simulate.*scenario",
+        "hypothetical.*situation",
+        "fictional.*scenario",
+        "made.*up.*scenario",
+        "test.*scenario",
+        "ignore.*everything.*before",
+        "forget.*everything.*before",
+        "disregard.*everything.*before",
+        "you.*are.*now.*different",
+        "change.*your.*behavior",
+        "modify.*your.*instructions",
+        "update.*your.*prompt",
+        "revise.*your.*system",
+        "override.*your.*programming",
+        "bypass.*your.*safety",
+        "ignore.*your.*training",
+        "forget.*your.*training"
+    ]
+    
+    // URL encoding patterns that could bypass detection
+    private static let encodedInjectionPatterns = [
+        "ignore%20previous%20instructions",
+        "ignore+previous+instructions",
+        "ignore%2Bprevious%2Binstructions",
+        "forget%20everything",
+        "forget+everything",
+        "you%20are%20now",
+        "you+are+now",
+        "system%20prompt",
+        "system+prompt",
+        "override%20instructions",
+        "override+instructions"
+    ]
+    
     // MARK: - Input Validation
     
     /// Validates and sanitizes user input
@@ -130,7 +179,7 @@ class InputValidator {
     /// Sanitizes input by removing dangerous patterns
     /// - Parameter input: Raw input to sanitize
     /// - Returns: Sanitized input
-    private static func sanitizeInput(_ input: String) -> String {
+    static func sanitizeInput(_ input: String) -> String {
         var sanitized = input
         
         // Remove dangerous patterns
@@ -168,29 +217,68 @@ class InputValidator {
     
     // MARK: - Prompt Injection Detection
     
-    /// Detects potential prompt injection attempts
+    /// Detects potential prompt injection attempts using enhanced patterns
     /// - Parameter input: Input to check
     /// - Returns: True if prompt injection is detected
     static func detectPromptInjection(_ input: String) -> Bool {
         let lowercasedInput = input.lowercased()
         
-        // Check for prompt injection patterns
+        // Check for basic prompt injection patterns
         for pattern in promptInjectionPatterns {
             if lowercasedInput.contains(pattern) {
                 return true
             }
         }
         
-        // Check for instruction override patterns
+        // Check for URL-encoded injection patterns
+        for pattern in encodedInjectionPatterns {
+            if lowercasedInput.contains(pattern) {
+                return true
+            }
+        }
+        
+        // Check for regex-based injection patterns
+        for pattern in promptInjectionRegexPatterns {
+            if lowercasedInput.range(of: pattern, options: .regularExpression) != nil {
+                return true
+            }
+        }
+        
+        // Check for instruction override patterns with enhanced regex
         let instructionPatterns = [
             "ignore.*instruction",
             "forget.*instruction",
             "new.*instruction",
             "override.*instruction",
-            "disregard.*instruction"
+            "disregard.*instruction",
+            "bypass.*safety",
+            "jailbreak.*character",
+            "break.*character",
+            "modify.*behavior",
+            "change.*behavior",
+            "update.*prompt",
+            "revise.*system"
         ]
         
         for pattern in instructionPatterns {
+            if lowercasedInput.range(of: pattern, options: .regularExpression) != nil {
+                return true
+            }
+        }
+        
+        // Check for obfuscated patterns (common obfuscation techniques)
+        let obfuscatedPatterns = [
+            "1gn0r3.*pr3v10us",  // leetspeak
+            "f0rg3t.*3v3ryth1ng",  // leetspeak
+            "y0u.*4r3.*n0w",  // leetspeak
+            "syst3m.*pr0mpt",  // leetspeak
+            "0v3rr1d3.*1nstruct10ns",  // leetspeak
+            "\\bi\\s*g\\s*n\\s*o\\s*r\\s*e",  // spaced out
+            "\\bf\\s*o\\s*r\\s*g\\s*e\\s*t",  // spaced out
+            "\\by\\s*o\\s*u\\s*\\s*a\\s*r\\s*e\\s*\\s*n\\s*o\\s*w"  // spaced out
+        ]
+        
+        for pattern in obfuscatedPatterns {
             if lowercasedInput.range(of: pattern, options: .regularExpression) != nil {
                 return true
             }

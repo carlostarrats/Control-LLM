@@ -123,6 +123,15 @@ class ChatViewModel {
         ) { [weak self] _ in
             self?.handleModelChange()
         }
+        
+        // Listen for data cleanup notifications
+        NotificationCenter.default.addObserver(
+            forName: .clearAllConversationData,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.clearAllConversationData()
+        }
     }
     
     private func handleModelChange() {
@@ -315,7 +324,6 @@ class ChatViewModel {
     // MARK: - History Safeguard
     private func buildSafeHistory(from fullHistory: [ChatMessage]) -> [ChatMessage] {
         SecureLogger.log("buildSafeHistory called - \(fullHistory.count) messages")
-        SecureLogger.log("Full history content", sensitiveData: fullHistory.map { $0.content }.joined(separator: "\n"))
         
         // FIXED: More reasonable limits that preserve conversation context
         let maxMessages = 8  // Keep last 8 messages (4 exchanges) for better context
@@ -339,7 +347,6 @@ class ChatViewModel {
 
         let finalChars = totalChars(trimmed)
         SecureLogger.log("Final result - \(trimmed.count) messages, \(finalChars) characters")
-        SecureLogger.log("Final history content", sensitiveData: trimmed.map { $0.content }.joined(separator: "\n"))
 
         return trimmed
     }
