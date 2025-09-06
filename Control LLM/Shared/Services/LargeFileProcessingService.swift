@@ -115,16 +115,56 @@ class LargeFileProcessingService {
     private var sequentialFinalSynthesisResult: String?
     private let finalSynthesisActor = FinalSynthesisActor()
     
-    // CRITICAL FIX: Store processed PDF data for subsequent questions
+    // CRITICAL FIX: Store processed PDF data for subsequent questions with automatic cleanup
     private var processedFileContent: FileContent?
     private var processedSummaries: [String] = []
     private let processedDataActor = ProcessedDataActor()
+    
+    // Security: Track data creation time for automatic cleanup
+    private var dataCreationTime: Date?
+    private let dataRetentionInterval: TimeInterval = 24 * 60 * 60 // 24 hours
 
     private init() {}
     
+    deinit {
+        // Security: Clear all data when service is deallocated
+        Task {
+            await clearProcessedData()
+        }
+    }
+    
     // CRITICAL FIX: Check if processed PDF data is available for questions
     func hasProcessedData() async -> Bool {
+        // Security: Check if data has expired and clean up if necessary
+        await checkAndCleanupExpiredData()
         return await processedDataActor.hasProcessedData()
+    }
+    
+    // Security: Check and cleanup expired data
+    private func checkAndCleanupExpiredData() async {
+        guard let creationTime = dataCreationTime else { return }
+        
+        let timeSinceCreation = Date().timeIntervalSince(creationTime)
+        if timeSinceCreation >= dataRetentionInterval {
+            print("🧹 LargeFileProcessingService: Data expired after 24 hours, cleaning up")
+            await clearProcessedData()
+        }
+    }
+    
+    // Security: Clear all processed data from memory
+    private func clearProcessedData() async {
+        processedFileContent = nil
+        processedSummaries.removeAll()
+        finalSynthesisResult = nil
+        sequentialFinalSynthesisResult = nil
+        dataCreationTime = nil
+        
+        // Clear actor data
+        await processedDataActor.setProcessedData(fileContent: FileContent(fileName: "", content: "", type: .text), summaries: [])
+        await finalSynthesisActor.setFinalSynthesisResult(nil)
+        await finalSynthesisActor.setSequentialFinalSynthesisResult(nil)
+        
+        print("✅ LargeFileProcessingService: All processed data cleared from memory")
     }
     
     // CRITICAL FIX: Get processed PDF data for answering questions
@@ -555,6 +595,10 @@ class LargeFileProcessingService {
         
         // CRITICAL FIX: Store processed data for subsequent questions
         await processedDataActor.setProcessedData(fileContent: fileContent, summaries: summaries)
+        
+        // Security: Track data creation time for automatic cleanup
+        dataCreationTime = Date()
+        
         print("🔥 LargeFileProcessingService: Stored processed data for future questions")
         
         // CRITICAL FIX: Focus on PROBLEM_STATEMENT - ensure LLM actually answers the user's question
@@ -680,6 +724,10 @@ class LargeFileProcessingService {
     
     // CRITICAL FIX: Store processed data for subsequent questions
     await processedDataActor.setProcessedData(fileContent: fileContent, summaries: summaries)
+    
+    // Security: Track data creation time for automatic cleanup
+    dataCreationTime = Date()
+    
     print("🔥 LargeFileProcessingService: Stored processed data for future questions")
     
             // CRITICAL FIX: Focus on PROBLEM_STATEMENT - ensure LLM actually answers the user's question

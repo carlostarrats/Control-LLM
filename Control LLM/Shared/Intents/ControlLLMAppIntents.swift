@@ -25,15 +25,21 @@ struct SendMessageIntent: AppIntent {
     
     func perform() async throws -> some IntentResult {
         let logger = Logger(subsystem: "ControlLLM", category: "SendMessageIntent")
-        logger.info("Executing SendMessage intent: '\(messageText)' for recipient: '\(recipient)'")
+        logger.info("Executing SendMessage intent for recipient: '\(recipient)'")
         
         do {
+            // Security: Validate input before processing
+            let sanitizedMessage = try InputValidator.validateAndSanitizeInput(messageText)
+            
             // Process the message through the Shortcuts service
-            let response = try await ShortcutsService.shared.sendMessage(messageText, recipient: recipient)
+            let response = try await ShortcutsService.shared.sendMessage(sanitizedMessage, recipient: recipient)
             
             logger.info("SendMessage intent completed successfully")
             return .result(value: response)
             
+        } catch let error as ValidationError {
+            logger.error("SendMessage intent failed validation: \(error.localizedDescription)")
+            return .result(value: "❌ Input validation failed: \(error.localizedDescription)")
         } catch {
             logger.error("SendMessage intent failed: \(error.localizedDescription)")
             throw error
@@ -65,12 +71,22 @@ struct ChainMessagesIntent: AppIntent {
         logger.info("Executing ChainMessages intent with \(messages.count) messages")
         
         do {
+            // Security: Validate all messages before processing
+            var sanitizedMessages: [String] = []
+            for message in messages {
+                let sanitizedMessage = try InputValidator.validateAndSanitizeInput(message)
+                sanitizedMessages.append(sanitizedMessage)
+            }
+            
             // Process the chained messages through the Shortcuts service
-            let responses = try await ShortcutsService.shared.chainMessages(messages, delays: delays)
+            let responses = try await ShortcutsService.shared.chainMessages(sanitizedMessages, delays: delays)
             
             logger.info("ChainMessages intent completed successfully")
             return .result(value: responses.joined(separator: "\n"))
             
+        } catch let error as ValidationError {
+            logger.error("ChainMessages intent failed validation: \(error.localizedDescription)")
+            return .result(value: "❌ Input validation failed: \(error.localizedDescription)")
         } catch {
             logger.error("ChainMessages intent failed: \(error.localizedDescription)")
             throw error
@@ -99,15 +115,21 @@ struct SystemPromptSteeringIntent: AppIntent {
     
     func perform() async throws -> some IntentResult {
         let logger = Logger(subsystem: "ControlLLM", category: "SystemPromptSteeringIntent")
-        logger.info("Executing SystemPromptSteering intent: '\(promptText)' for behavior: '\(behaviorType)'")
+        logger.info("Executing SystemPromptSteering intent for behavior: '\(behaviorType)'")
         
         do {
+            // Security: Validate system prompt input
+            let sanitizedPrompt = try InputValidator.validateAndSanitizeInput(promptText)
+            
             // Update the system prompt through the Shortcuts service
-            try await ShortcutsService.shared.updateSystemPrompt(promptText, behaviorType: behaviorType)
+            try await ShortcutsService.shared.updateSystemPrompt(sanitizedPrompt, behaviorType: behaviorType)
             
             logger.info("SystemPromptSteering intent completed successfully")
             return .result(value: "System prompt updated successfully")
             
+        } catch let error as ValidationError {
+            logger.error("SystemPromptSteering intent failed validation: \(error.localizedDescription)")
+            return .result(value: "❌ Input validation failed: \(error.localizedDescription)")
         } catch {
             logger.error("SystemPromptSteering intent failed: \(error.localizedDescription)")
             throw error

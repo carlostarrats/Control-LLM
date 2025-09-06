@@ -29,6 +29,20 @@ class FileProcessingService {
     // PHASE 1: Temporary debug flag to force multi-pass processing
     static let forceMultiPassForDebugging = true // Set to true to force multi-pass regardless of file size
     
+    // Security: File size limits by type
+    private static let maxFileSizes: [String: Int] = [
+        "pdf": 25 * 1024 * 1024,      // 25MB
+        "jpg": 10 * 1024 * 1024,      // 10MB
+        "jpeg": 10 * 1024 * 1024,     // 10MB
+        "png": 10 * 1024 * 1024,      // 10MB
+        "heic": 10 * 1024 * 1024,     // 10MB
+        "txt": 5 * 1024 * 1024,       // 5MB
+        "md": 5 * 1024 * 1024,        // 5MB
+        "rtf": 5 * 1024 * 1024,       // 5MB
+        "doc": 15 * 1024 * 1024,      // 15MB
+        "docx": 15 * 1024 * 1024      // 15MB
+    ]
+    
     private init() {}
     
     /// Process a file and extract its content for LLM processing
@@ -41,6 +55,9 @@ class FileProcessingService {
         }
         
         let fileExtension = url.pathExtension.lowercased()
+        
+        // Security: Validate file size before processing
+        try validateFileSize(url, fileExtension: fileExtension)
         
         switch fileExtension {
         case "txt", "md", "rtf":
@@ -59,6 +76,10 @@ class FileProcessingService {
     /// Process text files (txt, md, rtf)
     private func processTextFile(_ url: URL) async throws -> FileContent {
         let data = try Data(contentsOf: url)
+        
+        // Security: Validate file content
+        try validateFileContent(data)
+        
         guard let text = String(data: data, encoding: .utf8) else {
             throw FileProcessingError.encodingError
         }
@@ -399,7 +420,41 @@ class FileProcessingService {
     
     /// Get supported file types
     var supportedFileTypes: [String] {
-        return ["txt", "md", "rtf", "pdf", "jpg", "jpeg", "png", "heic"]
+        return ["txt", "md", "rtf", "pdf", "jpg", "jpeg", "png", "heic", "doc", "docx"]
+    }
+    
+    // MARK: - Security Validation
+    
+    /// Validates file size against security limits
+    private func validateFileSize(_ url: URL, fileExtension: String) throws {
+        guard let maxSize = Self.maxFileSizes[fileExtension] else {
+            throw FileProcessingError.unsupportedFormat
+        }
+        
+        let fileSize = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+        
+        guard fileSize <= maxSize else {
+            let maxMB = maxSize / (1024 * 1024)
+            let actualMB = fileSize / (1024 * 1024)
+            throw FileProcessingError.fileTooLarge(maxSize: maxMB, actualSize: actualMB, fileType: fileExtension.uppercased())
+        }
+    }
+    
+    /// Validates file content for suspicious patterns
+    private func validateFileContent(_ data: Data) throws {
+        // Check for zip bomb indicators
+        if data.count > 1024 {
+            let content = String(data: data.prefix(1024), encoding: .utf8) ?? ""
+            if content.count < 100 {
+                throw FileProcessingError.suspiciousContent
+            }
+            
+            // Check for excessive compression
+            let compressionRatio = Double(data.count) / Double(content.count)
+            if compressionRatio > 100 {
+                throw FileProcessingError.suspiciousContent
+            }
+        }
     }
     
     // MARK: - Data-based Processing Methods
@@ -521,6 +576,8 @@ enum FileProcessingError: Error, LocalizedError {
     case imageError
     case fileNotFound
     case emptyContent
+    case fileTooLarge(maxSize: Int, actualSize: Int, fileType: String)
+    case suspiciousContent
     
     var errorDescription: String? {
         switch self {
@@ -536,6 +593,10 @@ enum FileProcessingError: Error, LocalizedError {
             return NSLocalizedString("File not found", comment: "")
         case .emptyContent:
             return NSLocalizedString("The file contains no readable text", comment: "")
+        case .fileTooLarge(let maxSize, let actualSize, let fileType):
+            return "📁 File too large! Your \(fileType) file is \(actualSize)MB, but the maximum allowed size for \(fileType) files is \(maxSize)MB.\n\n💡 Please try:\n• Compressing your file using built-in tools\n• Splitting large documents into smaller sections\n• Using a different file format if possible\n\nFile size limits:\n• PDF files: 25MB max\n• Images (JPG, PNG, HEIC): 10MB max\n• Text files (TXT, MD, RTF): 5MB max\n• Word documents (DOC, DOCX): 15MB max"
+        case .suspiciousContent:
+            return "⚠️ Security Alert: This file appears to contain suspicious or potentially malicious content. For your security, I cannot process this file.\n\n💡 Please try:\n• Using a different, trusted file\n• Scanning the file with antivirus software\n• Re-creating the document from a clean source"
         }
     }
 }

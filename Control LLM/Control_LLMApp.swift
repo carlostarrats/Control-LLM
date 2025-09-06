@@ -40,12 +40,14 @@ struct Control_LLMApp: App {
         // FIRST: Stop console flooding immediately
         disableConsoleFlooding()
         
-        // Write to a file to test if the app is actually running
+        #if DEBUG
+        // Only write to file in debug builds for security
         let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let logFile = documentsPath.appendingPathComponent("app_log.txt")
         let timestamp = Date().description
         let logMessage = "🔍 App starting... at \(timestamp)\n"
         try? logMessage.write(to: logFile, atomically: true, encoding: .utf8)
+        #endif
         
         print("🔍 App starting...")
         // Register custom fonts
@@ -65,8 +67,10 @@ struct Control_LLMApp: App {
             initializeShortcutsIntegration()
         }
         
+        #if DEBUG
         let successMessage = "🔍 App started successfully at \(timestamp)\n"
         try? successMessage.write(to: logFile, atomically: false, encoding: .utf8)
+        #endif
     }
     
     var body: some Scene {

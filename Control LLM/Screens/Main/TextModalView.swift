@@ -1464,9 +1464,9 @@ struct TextModalView: View {
             )
             viewModel.messages.append(fileMessage)
             
-            // Show unsupported file type error message
+            // Show unsupported file type error message as LLM response
             let errorMessage = ChatMessage(
-                content: "❌ Unsupported file type: .\(fileExtension)\n\nSupported formats: .txt, .md, .rtf, .pdf, .jpg, .jpeg, .png, .heic, .doc, .docx",
+                content: "❌ I can't process .\(fileExtension) files yet!\n\n📋 Here are the file types I can help you with:\n\n📄 **Documents:**\n• PDF files (.pdf) - up to 25MB\n• Word documents (.doc, .docx) - up to 15MB\n• Text files (.txt, .md, .rtf) - up to 5MB\n\n🖼️ **Images:**\n• Photos (.jpg, .jpeg, .png, .heic) - up to 10MB\n\nPlease try uploading one of these supported file types, and I'll be happy to help analyze it! 😊",
                 isUser: false,
                 timestamp: Date(),
                 messageType: .text

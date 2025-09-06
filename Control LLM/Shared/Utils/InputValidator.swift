@@ -89,7 +89,81 @@ class InputValidator {
         "override.*your.*programming",
         "bypass.*your.*safety",
         "ignore.*your.*training",
-        "forget.*your.*training"
+        "forget.*your.*training",
+        
+        // Advanced obfuscation patterns
+        "1gn0r3.*pr3v10us.*1nstruct10ns?",  // leetspeak
+        "f0rg3t.*3v3ryth1ng",               // leetspeak
+        "y0u.*4r3.*n0w",                    // leetspeak
+        "syst3m.*pr0mpt",                   // leetspeak
+        "0v3rr1d3.*1nstruct10ns?",          // leetspeak
+        "j41lbr34k.*ch4r4ct3r",             // leetspeak
+        "m0d1fy.*b3h4v10r",                 // leetspeak
+        
+        // Unicode and special character obfuscation
+        "i\\u0067nore.*previous",           // unicode 'g'
+        "i\\u006enore.*previous",           // unicode 'n'  
+        "forgℯt.*everything",               // mathematical script e
+        "systëm.*prompt",                   // diacritic e
+        "ignøre.*instructions",             // slashed o
+        
+        // Base64 encoded attempts
+        "aWdub3Jl.*cHJldmlvdXM=",          // "ignore previous" in base64
+        "Zm9yZ2V0.*ZXZlcnl0aGluZw==",      // "forget everything" in base64
+        
+        // ROT13 and Caesar cipher attempts
+        "vtaber.*ceriviuf",                 // "ignore previous" in ROT13
+        "sbetrg.*rirelguvat",               // "forget everything" in ROT13
+        
+        // Homograph attacks (visually similar characters)
+        "іgnоrе.*рrеvіоuѕ",                // Cyrillic characters
+        "fοrgеt.*еvеrуthіng",               // Greek/Cyrillic mix
+        
+        // Whitespace and invisible character attacks
+        "i\\s*g\\s*n\\s*o\\s*r\\s*e.*p\\s*r\\s*e\\s*v\\s*i\\s*o\\s*u\\s*s", // spaced out
+        "f\\s*o\\s*r\\s*g\\s*e\\s*t.*e\\s*v\\s*e\\s*r\\s*y\\s*t\\s*h\\s*i\\s*n\\s*g", // spaced out
+        
+        // Zero-width character obfuscation
+        "i\\u200Bgnore.*previous",          // zero-width space
+        "ignore\\u200C.*previous",          // zero-width non-joiner
+        "ignore\\u200D.*previous",          // zero-width joiner
+        "ignore\\uFEFF.*previous",          // byte order mark
+        
+        // Mixed case obfuscation
+        "iGnOrE.*pReViOuS",
+        "FoRgEt.*EvErYtHiNg",
+        "YoU.*aRe.*NoW",
+        
+        // Character substitution attacks
+        "ign0re.*previ0us",                 // 'o' replaced with '0'
+        "f0rget.*everything",               // 'o' replaced with '0'
+        "y0u.*are.*n0w",                    // 'o' replaced with '0'
+        "igno12e.*previous",                // character insertion
+        "forg3t.*3v3rything",               // '3' for 'e'
+        
+        // Markdown and formatting attacks
+        "\\*\\*ignore\\*\\*.*previous",     // bold formatting
+        "__ignore__.*previous",             // underline formatting
+        "~~ignore~~.*previous",             // strikethrough formatting
+        "`ignore`.*previous",               // code formatting
+        
+        // HTML entity encoding
+        "&ig;nore.*previous",               // partial HTML entity
+        "&#105;gnore.*previous",            // numeric HTML entity for 'i'
+        "&#x69;gnore.*previous",            // hex HTML entity for 'i'
+        
+        // URL encoding
+        "%69gnore.*previous",               // URL encoded 'i'
+        "ignore%20.*previous",              // URL encoded space
+        "ignore%2E.*previous",              // URL encoded period
+        
+        // JSON and escape sequence attacks
+        "\"ignore\".*previous",
+        "\\'ignore\\'.*previous",
+        "\\\\ignore.*previous",
+        "\\nignore.*previous",
+        "\\rignore.*previous",
+        "\\tignore.*previous"
     ]
     
     // URL encoding patterns that could bypass detection
