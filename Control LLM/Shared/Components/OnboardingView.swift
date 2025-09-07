@@ -2,10 +2,7 @@ import SwiftUI
 
 struct OnboardingView: View {
     @Binding var isPresented: Bool
-    @State private var currentScreen = 0
     @EnvironmentObject var colorManager: ColorManager
-    
-    private let totalScreens = 2
     
     var body: some View {
         ZStack {
@@ -13,21 +10,11 @@ struct OnboardingView: View {
             Color(hex: "#1D1D1D")
                 .ignoresSafeArea()
             
-            if currentScreen == 0 {
-                DisclaimerScreen(
-                    onNext: {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            currentScreen = 1
-                        }
-                    }
-                )
-            } else {
-                ModelsScreen(
-                    onNext: {
-                        completeOnboarding()
-                    }
-                )
-            }
+            DisclaimerScreen(
+                onNext: {
+                    completeOnboarding()
+                }
+            )
         }
     }
     
@@ -116,8 +103,8 @@ struct DisclaimerScreen: View {
     }
 }
 
-// MARK: - Screen 2: Models Selection
-struct ModelsScreen: View {
+// MARK: - UNUSED: Models Selection (Saved for future use)
+struct UnusedModelsScreen: View {
     let onNext: () -> Void
     @EnvironmentObject var colorManager: ColorManager
     @StateObject private var modelManager = ModelManager.shared
@@ -125,11 +112,9 @@ struct ModelsScreen: View {
     @State private var selectedModelsToDownload: Set<String> = []
     @State private var showingUnusedModelsSheet = false
     @State private var selectedUnusedModels: Set<String> = []
-    @State private var hasDownloadedModel = false
-    
     // Check if any models are available (either pre-installed or downloaded during onboarding)
     private var hasAvailableModels: Bool {
-        return hasDownloadedModel || !modelManager.availableModels.isEmpty
+        return !modelManager.availableModels.isEmpty
     }
     
     var body: some View {
@@ -166,11 +151,6 @@ struct ModelsScreen: View {
                                 .padding(.horizontal, 4)
                                 .padding(.vertical, 16)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                
-                                // Horizontal line under the item
-                                Rectangle()
-                                    .fill(Color(hex: "#333333"))
-                                    .frame(height: 1)
                             } else {
                                 ForEach(modelManager.availableModels, id: \.filename) { model in
                                     InstalledLLMModelView(
@@ -231,17 +211,20 @@ struct ModelsScreen: View {
                                     AvailableDownloadModelView(
                                         model: model,
                                         isDownloading: downloadService.isDownloading(model.filename),
+                                        isQueued: downloadService.isQueued(model.filename),
                                         downloadProgress: downloadService.getDownloadProgress(model.filename),
                                         onDownload: {
                                             if downloadService.isDownloading(model.filename) {
                                                 // Stop download
+                                                downloadService.cancelDownload(model.filename)
+                                            } else if downloadService.isQueued(model.filename) {
+                                                // Cancel queued download
                                                 downloadService.cancelDownload(model.filename)
                                             } else {
                                                 // Start download
                                                 Task {
                                                     do {
                                                         try await downloadService.downloadModel(model.filename)
-                                                        hasDownloadedModel = true
                                                     } catch {
                                                         print("Download failed: \(error.localizedDescription)")
                                                     }

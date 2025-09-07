@@ -255,6 +255,8 @@ class ChatViewModel {
                 let currentHistory = messageHistory ?? []
                 let historyToSend = buildSafeHistory(from: currentHistory)
 
+                // SIMPLIFIED: LLMService now handles concurrent loading automatically
+                // Multiple requests for the same model will queue and share the result
                 try await HybridLLMService.shared.loadSelectedModel()
                 
                 try await HybridLLMService.shared.generateResponse(

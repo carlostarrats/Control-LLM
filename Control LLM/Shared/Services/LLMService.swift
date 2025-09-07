@@ -1,6 +1,23 @@
 import Foundation
 import SwiftUI
 
+// CONCURRENT LOADING FIX: Thread-safe actor for managing loading operations
+actor LoadingQueueActor {
+    private var loadingOperations: [String: Task<Void, Error>] = [:]
+    
+    func getExistingTask(for modelFilename: String) -> Task<Void, Error>? {
+        return loadingOperations[modelFilename]
+    }
+    
+    func setTask(_ task: Task<Void, Error>, for modelFilename: String) {
+        loadingOperations[modelFilename] = task
+    }
+    
+    func removeTask(for modelFilename: String) {
+        loadingOperations.removeValue(forKey: modelFilename)
+    }
+}
+
 // MARK: - Performance Optimization: Memory Pressure Monitor
 class MemoryPressureMonitor {
     private var memoryPressureSource: DispatchSourceMemoryPressure?
@@ -73,6 +90,9 @@ final class LLMService: @unchecked Sendable {
     private var isChatOperationInProgress = false   // For chat generation
     private var _isMultiPassMode = false             // For multi-pass processing
     private var lastOperationTime: Date = Date()  // Track when operations start
+    
+    // CONCURRENT LOADING FIX: Thread-safe actor for managing loading operations per model
+    private let loadingQueueActor = LoadingQueueActor()
     
     // PERFORMANCE OPTIMIZATION: Model warmup cache
     private var modelWarmupCache: [String: Date] = [:]
@@ -209,6 +229,39 @@ final class LLMService: @unchecked Sendable {
     
     /// Load a specific model by filename with optimized performance
     func loadModel(_ modelFilename: String) async throws {
+        // CONCURRENT LOADING FIX: Check if we're already loading this specific model
+        if let existingTask = await loadingQueueActor.getExistingTask(for: modelFilename) {
+            print("🔍 LLMService: Model \(modelFilename) already loading, waiting for completion...")
+            
+            do {
+                try await existingTask.value
+                print("✅ LLMService: Waited for existing load of \(modelFilename) - success")
+                return
+            } catch {
+                print("❌ LLMService: Existing load of \(modelFilename) failed: \(error)")
+                throw error
+            }
+        }
+        
+        // Create new loading task for this model
+        let loadingTask = Task<Void, Error> {
+            try await performActualModelLoad(modelFilename)
+        }
+        
+        await loadingQueueActor.setTask(loadingTask, for: modelFilename)
+        
+        // Execute the loading and clean up when done
+        defer {
+            Task {
+                await loadingQueueActor.removeTask(for: modelFilename)
+            }
+        }
+        
+        try await loadingTask.value
+    }
+    
+    /// Perform the actual model loading (internal method)
+    private func performActualModelLoad(_ modelFilename: String) async throws {
         // Safety mechanism: if the flag has been stuck for more than 5 minutes, reset it
         if isModelOperationInProgress {
             let timeSinceLastOperation = Date().timeIntervalSince(lastOperationTime)
@@ -218,7 +271,7 @@ final class LLMService: @unchecked Sendable {
             }
         }
         
-        // Prevent concurrent model operations
+        // Prevent concurrent model operations for DIFFERENT models
         guard !isModelOperationInProgress else {
             throw NSError(domain: "LLMService", code: 11, userInfo: [NSLocalizedDescriptionKey: "Another model operation is in progress"])
         }
