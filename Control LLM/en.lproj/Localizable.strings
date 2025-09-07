@@ -62,7 +62,7 @@
 "Info" = "Info";
 "Warning" = "Warning";
 "Error" = "Error";
-"Control LLM" = "Control LLM";
+"Control LLM" = "Control";
 "A text-based AI assistant with custom UI and MVVM architecture." = "A text-based AI assistant with custom UI and MVVM architecture.";
 
 // Model Management
