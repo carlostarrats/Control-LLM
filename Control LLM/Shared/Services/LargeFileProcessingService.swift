@@ -348,6 +348,60 @@ class LargeFileProcessingService {
         print("🔥 LargeFileProcessingService: Instruction: '\(instruction)'")
         #endif
         
+        // PERFORMANCE OPTIMIZATION: Process file with background task support
+        // Use background task for long-running operations but wait for completion
+        var taskId: String?
+        var result: String?
+        
+        taskId = BackgroundTaskManager.shared.startFileProcessingTask {
+            Task {
+                result = await self.processFileInBackground(
+                    fileContent: fileContent,
+                    instruction: instruction,
+                    maxContentLength: maxContentLength,
+                    llmService: llmService,
+                    progressHandler: progressHandler,
+                    transcriptHandler: transcriptHandler
+                )
+                
+                // End the background task
+                if let taskId = taskId {
+                    BackgroundTaskManager.shared.endBackgroundTask(taskId: taskId)
+                }
+            }
+        }
+        
+        if taskId == nil {
+            print("⚠️ LargeFileProcessingService: Could not start background task, processing on main thread")
+            // Fallback to immediate processing if background task unavailable
+            return await processFileInBackground(
+                fileContent: fileContent,
+                instruction: instruction,
+                maxContentLength: maxContentLength,
+                llmService: llmService,
+                progressHandler: progressHandler,
+                transcriptHandler: transcriptHandler
+            )
+        }
+        
+        // Wait for background processing to complete
+        while result == nil {
+            try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+        }
+        
+        return result // Result will be handled in the background task
+    }
+    
+    /// Process file in background with all the original logic
+    private func processFileInBackground(
+        fileContent: FileContent,
+        instruction: String,
+        maxContentLength: Int,
+        llmService: HybridLLMService,
+        progressHandler: @escaping (String) async -> Void,
+        transcriptHandler: @escaping (String) async -> Void
+    ) async -> String? {
+        
         // CRITICAL FIX: Ensure model is loaded before processing
         if !(await llmService.isModelLoaded) {
             print("🔥 LargeFileProcessingService: Model not loaded, loading model first...")

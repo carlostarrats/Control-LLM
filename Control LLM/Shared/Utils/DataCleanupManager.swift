@@ -64,34 +64,48 @@ class DataCleanupManager {
     func performComprehensiveCleanup() {
         print("🧹 DataCleanupManager: Starting comprehensive data cleanup")
         
-        // 1. Clear conversation data
-        clearConversationData()
+        // PERFORMANCE OPTIMIZATION: Use background task for cleanup
+        let taskId = BackgroundTaskManager.shared.startDataCleanupTask {
+            // 1. Clear conversation data
+            self.clearConversationData()
+            
+            // 2. Clear performance data
+            self.clearPerformanceData()
+            
+            // 3. Clear temporary files
+            self.clearTemporaryFiles()
+            
+            // 4. Clear Metal memory
+            self.clearMetalMemory()
+            
+            // 5. Clear C++ bridge memory
+            self.clearCppBridgeMemory()
+            
+            // 6. Clear secure storage
+            self.clearSecureStorage()
+            
+            // 7. Clear UserDefaults
+            self.clearUserDefaults()
+            
+            // 8. Clear system caches
+            self.clearSystemCaches()
+            
+            // Update last cleanup time
+            SecureStorage.storeDate(Date(), forKey: self.lastCleanupKey)
+            
+            print("✅ DataCleanupManager: Comprehensive cleanup completed")
+        }
         
-        // 2. Clear performance data
-        clearPerformanceData()
+        // End the background task after completion
+        if let taskId = taskId {
+            BackgroundTaskManager.shared.endBackgroundTask(taskId: taskId)
+        }
         
-        // 3. Clear temporary files
-        clearTemporaryFiles()
-        
-        // 4. Clear Metal memory
-        clearMetalMemory()
-        
-        // 5. Clear C++ bridge memory
-        clearCppBridgeMemory()
-        
-        // 6. Clear secure storage
-        clearSecureStorage()
-        
-        // 7. Clear UserDefaults
-        clearUserDefaults()
-        
-        // 8. Clear system caches
-        clearSystemCaches()
-        
-        // Update last cleanup time
-        SecureStorage.storeDate(Date(), forKey: lastCleanupKey)
-        
-        print("✅ DataCleanupManager: Comprehensive cleanup completed")
+        if taskId == nil {
+            print("⚠️ DataCleanupManager: Could not start background task, performing cleanup on main thread")
+            // Fallback to immediate cleanup if background task unavailable
+            performImmediateCleanup()
+        }
     }
     
     // MARK: - Specific Cleanup Methods

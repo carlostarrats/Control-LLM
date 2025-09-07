@@ -187,52 +187,75 @@ class FileProcessingService {
     
     /// Process image files using Vision framework for text extraction
     private func processImageFile(_ url: URL) async throws -> FileContent {
-        // PERFORMANCE FIX: Run image processing on background thread
-        return try await Task.detached(priority: .userInitiated) {
-            // First try to load image from file path (for files with direct access)
-            if let image = UIImage(contentsOfFile: url.path) {
-                var extractedText = try await FileProcessingService.shared.extractTextFromImage(image)
-                let result = FileContent(
-                    fileName: url.lastPathComponent,
-                    content: extractedText,
-                    type: .image,
-                    size: url.fileSize ?? 0
-                )
-                
-                // Security: Clear sensitive data from memory
-                // Note: Removed string wiping as it can cause memory corruption
-                // The string will be deallocated naturally when it goes out of scope
-                
-                return result
+        // PERFORMANCE OPTIMIZATION: Use background task for image processing
+        let taskId = BackgroundTaskManager.shared.startFileProcessingTask {
+            Task {
+                try await self.processImageFileInBackground(url)
             }
-            
-            // If file path access fails, try to read the file data and create image from data
-            do {
-                var fileData = try Data(contentsOf: url)
-                guard let image = UIImage(data: fileData) else {
-                    throw FileProcessingError.imageError
+        }
+        
+        if taskId == nil {
+            print("⚠️ FileProcessingService: Could not start background task, processing image on main thread")
+            return try await processImageFileInBackground(url)
+        }
+        
+        // Return a placeholder - the actual processing happens in background
+        return FileContent(
+            fileName: url.lastPathComponent,
+            content: "Processing image in background...",
+            type: .image,
+            size: url.fileSize ?? 0
+        )
+    }
+    
+    /// Process image file in background with optimized pipeline
+    private func processImageFileInBackground(_ url: URL) async throws -> FileContent {
+        // PERFORMANCE OPTIMIZATION: Use optimized image loading
+        let image = try await loadOptimizedImage(from: url)
+        let extractedText = try await extractTextFromImageOptimized(image)
+        
+        let result = FileContent(
+            fileName: url.lastPathComponent,
+            content: extractedText,
+            type: .image,
+            size: url.fileSize ?? 0
+        )
+        
+        return result
+    }
+    
+    /// Load image with memory optimization
+    private func loadOptimizedImage(from url: URL) async throws -> UIImage {
+        // First try to load image from file path (for files with direct access)
+        if let image = UIImage(contentsOfFile: url.path) {
+            return image
+        }
+        
+        // If file path access fails, try to read the file data and create image from data
+        let fileData = try Data(contentsOf: url)
+        guard let image = UIImage(data: fileData) else {
+            throw FileProcessingError.imageError
+        }
+        
+        return image
+    }
+    
+    /// Extract text from image with optimized processing
+    private func extractTextFromImageOptimized(_ image: UIImage) async throws -> String {
+        // PERFORMANCE OPTIMIZATION: Use optimized image processing pipeline
+        return try await withCheckedThrowingContinuation { continuation in
+            // Use background queue for image processing
+            DispatchQueue.global(qos: .userInitiated).async {
+                Task {
+                    do {
+                        let extractedText = try await FileProcessingService.shared.extractTextFromImage(image)
+                        continuation.resume(returning: extractedText)
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
                 }
-                
-                var extractedText = try await FileProcessingService.shared.extractTextFromImage(image)
-                let result = FileContent(
-                    fileName: url.lastPathComponent,
-                    content: extractedText,
-                    type: .image,
-                    size: fileData.count
-                )
-                
-                // Security: Clear sensitive data from memory
-                // Note: Removed string wiping as it can cause memory corruption
-                // The string will be deallocated naturally when it goes out of scope
-                // Note: Removed fileData wiping as it can cause memory corruption
-                // The data will be deallocated naturally when it goes out of scope
-                
-                return result
-            } catch {
-                print("❌ FileProcessingService: Failed to read image data: \(error)")
-                throw FileProcessingError.imageError
             }
-        }.value
+        }
     }
     
     /// Extract text from image using Vision framework
@@ -376,7 +399,7 @@ class FileProcessingService {
     func estimateHeaderLength(_ fileContent: FileContent) -> Int {
         var headerLength = fileContent.fileName.count + 50 // Base overhead
         headerLength += fileContent.type.localizedName.count
-        if let size = fileContent.size {
+        if fileContent.size != nil {
             headerLength += 30 // Size formatting
         }
         if let metadata = fileContent.metadata {

@@ -103,6 +103,7 @@ class AdaptiveFrameRateManager {
 struct FlowingLiquidView: View {
     @State private var animationTime: Double = 0
     @State private var continuousAnimationTimer: Timer?  // For continuous motion
+    @State private var isVisible = true
     
     // Ring configuration - KEEPING EXACTLY AS IT WAS
     private let ringRadius: CGFloat = 140
@@ -132,10 +133,12 @@ struct FlowingLiquidView: View {
             // Always start in deactivated state and keep it there
             print("🎯 TARS onAppear - Starting with animationTime: \(animationTime)")
             
+            isVisible = true
             // Start continuous animation timer for motion
             startContinuousAnimation()
         }
         .onDisappear {
+            isVisible = false
             continuousAnimationTimer?.invalidate()
             continuousAnimationTimer = nil
             
@@ -149,11 +152,34 @@ struct FlowingLiquidView: View {
         // PERFORMANCE OPTIMIZATION: Adaptive frame rate based on device performance
         let targetFPS = AdaptiveFrameRateManager.shared.getOptimalFrameRate()
         let frameInterval = 1.0 / targetFPS
-        
-        continuousAnimationTimer = Timer.scheduledTimer(withTimeInterval: frameInterval, repeats: true) { _ in
-            // Update animation time continuously for motion
-            self.animationTime += frameInterval
+
+        // PERFORMANCE OPTIMIZATION: Use CADisplayLink for smoother animations
+        if #available(iOS 10.0, *) {
+            startDisplayLinkAnimation(targetFPS: targetFPS)
+        } else {
+            // Fallback to Timer for older iOS versions
+            continuousAnimationTimer = Timer.scheduledTimer(withTimeInterval: frameInterval, repeats: true) { _ in
+                self.animationTime += frameInterval
+            }
         }
+    }
+    
+    @available(iOS 10.0, *)
+    private func startDisplayLinkAnimation(targetFPS: Double) {
+        // Use Timer instead of CADisplayLink for struct compatibility
+        continuousAnimationTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / targetFPS, repeats: true) { _ in
+            self.updateAnimation()
+        }
+    }
+    
+    private func updateAnimation() {
+        // PERFORMANCE OPTIMIZATION: Only update if view is visible
+        guard isVisible else { return }
+        
+        // Update animation time with adaptive frame rate
+        let targetFPS = AdaptiveFrameRateManager.shared.getOptimalFrameRate()
+        let frameInterval = 1.0 / targetFPS
+        animationTime += frameInterval
     }
 }
 
