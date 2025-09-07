@@ -309,7 +309,7 @@ struct MainView: View {
                     VStack {
                         Spacer()
                         chatSheetView
-                            .frame(height: isSheetExpanded ? UIScreen.main.bounds.height * 0.9 : 120)
+                            .frame(height: isSheetExpanded ? UIScreen.main.bounds.height * 0.9 : 104)
                             // .cornerRadius(16, corners: [.topLeft, .topRight]) // TEST: Remove corner radius to see if it fixes safe area
 
                     }
