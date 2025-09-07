@@ -186,11 +186,6 @@ final class ModelManager: ObservableObject {
     // PERFORMANCE FIX: Lazy loading for better performance
     private lazy var sortedModels: [LLMModelInfo] = {
         return availableModels.sorted { model1, model2 in
-            let order1 = getModelOrder(model1.displayName)
-            let order2 = getModelOrder(model2.displayName)
-            if order1 != order2 {
-                return order1 < order2
-            }
             return model1.displayName.lowercased() < model2.displayName.lowercased()
         }
     }()
@@ -203,23 +198,6 @@ final class ModelManager: ObservableObject {
         loadSelectedModel()
     }
     
-    private func getModelOrder(_ displayName: String) -> Int {
-        let lowercaseName = displayName.lowercased()
-        
-        // Custom ordering: Gemma 3, Llama 3.2, SmolLM2, Qwen 3, then alphabetically
-        if lowercaseName.contains("gemma") && lowercaseName.contains("3") {
-            return 1
-        } else if lowercaseName.contains("llama") && lowercaseName.contains("3.2") {
-            return 2
-        } else if lowercaseName.contains("smollm") && lowercaseName.contains("2") {
-            return 3
-        } else if lowercaseName.contains("qwen") && lowercaseName.contains("3") {
-            return 4
-        } else {
-            // All other models get a high priority number to sort alphabetically after the main 4
-            return 100
-        }
-    }
     
     private func loadAvailableModels() {
         print("ModelManager: Loading available models...")
@@ -269,29 +247,62 @@ final class ModelManager: ObservableObject {
             group.leave()
         }
         
+        // Check Documents/Models directory for downloaded models
+        group.enter()
+        queue.async {
+            if let docsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+                let modelsDir = docsDir.appendingPathComponent("Models", isDirectory: true)
+                do {
+                    let modelFiles = try FileManager.default.contentsOfDirectory(at: modelsDir, includingPropertiesForKeys: nil)
+                    for url in modelFiles {
+                        if url.pathExtension == "gguf" {
+                            let filename = url.deletingPathExtension().lastPathComponent
+                            discoveredQueue.sync {
+                                discovered.insert(filename)
+                            }
+                            print("ModelManager: Found downloaded model: \(filename)")
+                        }
+                    }
+                } catch {
+                    print("ModelManager: Error reading Documents/Models directory: \(error)")
+                }
+            }
+            group.leave()
+        }
+        
         // Wait for discovery to complete
         group.wait()
         
-        // OPTIMIZATION: Build model infos with better sorting
+        // OPTIMIZATION: Build model infos with custom alphabetical sorting (G, L, S, Q)
         let infos = discovered.map { LLMModelInfo(filename: $0) }
             .filter { $0.isAvailable }
             .sorted { model1, model2 in
-                // Custom ordering: Gemma 3, Llama 3.2, SmolLM2, Qwen 3, then alphabetically
-                let order1 = getModelOrder(model1.displayName)
-                let order2 = getModelOrder(model2.displayName)
+                // Custom alphabetical order: Gemma, Llama, Smol, Qwen
+                let name1 = model1.name.lowercased()
+                let name2 = model2.name.lowercased()
                 
-                if order1 != order2 {
-                    return order1 < order2
+                // Define order priorities
+                func getOrderPriority(_ name: String) -> Int {
+                    if name.contains("gemma") { return 1 }
+                    if name.contains("llama") { return 2 }
+                    if name.contains("smol") { return 3 }
+                    if name.contains("qwen") { return 4 }
+                    return 5 // Unknown models go last
                 }
                 
-                // If same order priority, sort alphabetically
-                return model1.displayName.lowercased() < model2.displayName.lowercased()
+                let priority1 = getOrderPriority(name1)
+                let priority2 = getOrderPriority(name2)
+                
+                return priority1 < priority2
             }
         
         availableModels = infos
+        objectWillChange.send()
         
         print("ModelManager: Loaded \(availableModels.count) available models")
         print("ModelManager: Available models: \(availableModels.map { $0.filename })")
+        print("ModelManager: Sorted by name: \(availableModels.map { $0.name })")
+        print("ModelManager: Alphabetical order should be: G, L, S, Q")
     }
     
     private func loadSelectedModel() {
@@ -341,5 +352,164 @@ final class ModelManager: ObservableObject {
     
     func getSelectedModelFilename() -> String? {
         return selectedModel?.filename
+    }
+    
+    // MARK: - Model Refresh
+    
+    func refreshAvailableModels() async {
+        await MainActor.run {
+            loadAvailableModels()
+            
+            // If no model is selected but we have available models, select the first one
+            if selectedModel == nil && !availableModels.isEmpty {
+                if let firstModel = availableModels.first {
+                    print("🔍 ModelManager: Auto-selecting first available model: \(firstModel.filename)")
+                    selectModel(firstModel)
+                }
+            }
+        }
+    }
+    
+    // DEBUG: Force refresh to see sorting debug output
+    func debugRefreshModels() {
+        print("🔍 DEBUG: Forcing model refresh to check sorting...")
+        loadAvailableModels()
+    }
+    
+    // MARK: - Model Deletion
+    
+    func deleteModel(_ model: LLMModelInfo) async throws {
+        print("🗑️ ModelManager: Deleting model: \(model.filename)")
+        
+        // If this is the currently selected model, clear the selection first
+        if selectedModel?.filename == model.filename {
+            print("⚠️ ModelManager: Deleting currently selected model, clearing selection")
+            selectedModel = nil
+            saveSelectedModel()
+        }
+        
+        // Find the model file and delete it
+        var deleted = false
+        
+        // Check Documents/Models directory first (downloaded models)
+        if let docsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let modelsDir = docsDir.appendingPathComponent("Models", isDirectory: true)
+            let modelURL = modelsDir.appendingPathComponent("\(model.filename).gguf")
+            
+            if FileManager.default.fileExists(atPath: modelURL.path) {
+                do {
+                    // Get file size before deletion for verification
+                    let fileAttributes = try FileManager.default.attributesOfItem(atPath: modelURL.path)
+                    let fileSize = fileAttributes[.size] as? Int64 ?? 0
+                    print("🗑️ ModelManager: About to delete file: \(modelURL.path)")
+                    print("🗑️ ModelManager: File size: \(fileSize) bytes")
+                    
+                    try FileManager.default.removeItem(at: modelURL)
+                    
+                    // Verify deletion
+                    let stillExists = FileManager.default.fileExists(atPath: modelURL.path)
+                    if stillExists {
+                        print("❌ ModelManager: File still exists after deletion attempt!")
+                        throw ModelDeletionError.deletionFailed("File still exists after deletion")
+                    } else {
+                        print("✅ ModelManager: Successfully deleted downloaded model: \(model.filename)")
+                        print("✅ ModelManager: File confirmed deleted: \(modelURL.path)")
+                    }
+                    deleted = true
+                } catch {
+                    print("❌ ModelManager: Failed to delete downloaded model: \(error)")
+                    throw ModelDeletionError.deletionFailed(error.localizedDescription)
+                }
+            }
+        }
+        
+        // Check bundle Models directory
+        if !deleted, let modelsDir = Bundle.main.url(forResource: "Models", withExtension: nil) {
+            let modelURL = modelsDir.appendingPathComponent("\(model.filename).gguf")
+            
+            if FileManager.default.fileExists(atPath: modelURL.path) {
+                do {
+                    // Get file size before deletion for verification
+                    let fileAttributes = try FileManager.default.attributesOfItem(atPath: modelURL.path)
+                    let fileSize = fileAttributes[.size] as? Int64 ?? 0
+                    print("🗑️ ModelManager: About to delete bundled file: \(modelURL.path)")
+                    print("🗑️ ModelManager: File size: \(fileSize) bytes")
+                    
+                    try FileManager.default.removeItem(at: modelURL)
+                    
+                    // Verify deletion
+                    let stillExists = FileManager.default.fileExists(atPath: modelURL.path)
+                    if stillExists {
+                        print("❌ ModelManager: Bundled file still exists after deletion attempt!")
+                        throw ModelDeletionError.deletionFailed("Bundled file still exists after deletion")
+                    } else {
+                        print("✅ ModelManager: Successfully deleted bundled model: \(model.filename)")
+                        print("✅ ModelManager: Bundled file confirmed deleted: \(modelURL.path)")
+                    }
+                    deleted = true
+                } catch {
+                    print("❌ ModelManager: Failed to delete bundled model: \(error)")
+                    throw ModelDeletionError.deletionFailed(error.localizedDescription)
+                }
+            }
+        }
+        
+        // Check bundle root
+        if !deleted, let bundleURLs = Bundle.main.urls(forResourcesWithExtension: "gguf", subdirectory: nil) {
+            for url in bundleURLs {
+                if url.lastPathComponent == "\(model.filename).gguf" {
+                    do {
+                        // Get file size before deletion for verification
+                        let fileAttributes = try FileManager.default.attributesOfItem(atPath: url.path)
+                        let fileSize = fileAttributes[.size] as? Int64 ?? 0
+                        print("🗑️ ModelManager: About to delete bundle root file: \(url.path)")
+                        print("🗑️ ModelManager: File size: \(fileSize) bytes")
+                        
+                        try FileManager.default.removeItem(at: url)
+                        
+                        // Verify deletion
+                        let stillExists = FileManager.default.fileExists(atPath: url.path)
+                        if stillExists {
+                            print("❌ ModelManager: Bundle root file still exists after deletion attempt!")
+                            throw ModelDeletionError.deletionFailed("Bundle root file still exists after deletion")
+                        } else {
+                            print("✅ ModelManager: Successfully deleted model from bundle root: \(model.filename)")
+                            print("✅ ModelManager: Bundle root file confirmed deleted: \(url.path)")
+                        }
+                        deleted = true
+                        break
+                    } catch {
+                        print("❌ ModelManager: Failed to delete model from bundle root: \(error)")
+                        throw ModelDeletionError.deletionFailed(error.localizedDescription)
+                    }
+                }
+            }
+        }
+        
+        if !deleted {
+            print("❌ ModelManager: Model file not found: \(model.filename)")
+            throw ModelDeletionError.modelNotFound
+        }
+        
+        // Refresh the available models list
+        await refreshAvailableModels()
+        
+        print("✅ ModelManager: Model deletion completed: \(model.filename)")
+    }
+}
+
+// MARK: - Model Deletion Errors
+
+enum ModelDeletionError: LocalizedError {
+    case modelNotFound
+    case deletionFailed(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .modelNotFound:
+            return "Model file not found"
+        case .deletionFailed(let message):
+            return "Failed to delete model: \(message)"
+        }
     }
 }

@@ -4,9 +4,8 @@ struct SettingsModelsView: View {
     @EnvironmentObject var colorManager: ColorManager
     @Environment(\.dismiss) private var dismiss
     @StateObject private var modelManager = ModelManager.shared
+    @StateObject private var downloadService = ModelDownloadService.shared
     @State private var selectedModelsToDownload: Set<String> = []
-    @State private var downloadingModel: String? = nil
-    @State private var downloadProgress: Double = 0.0
     @State private var showingUnusedModelsSheet = false
     @State private var selectedUnusedModels: Set<String> = []
     
@@ -31,24 +30,43 @@ struct SettingsModelsView: View {
                             .padding(.horizontal, 24)
                         
                         VStack(spacing: 0) {
-                            ForEach(modelManager.availableModels, id: \.filename) { model in
-                                InstalledLLMModelView(
-                                    model: model,
-                                    isActive: modelManager.selectedModel?.filename == model.filename,
-                                    onSelect: {
-                                        modelManager.selectModel(model)
-                                    },
-                                    onDelete: {
-                                        // Only allow deletion if not active
-                                        if modelManager.selectedModel?.filename != model.filename {
-                                            // TODO: Implement actual deletion
+                            if modelManager.availableModels.isEmpty {
+                                // Show "No Installed Models" when no models are installed
+                                HStack {
+                                    Text(NSLocalizedString("No Installed Models", comment: ""))
+                                        .font(.custom("IBMPlexMono", size: 16))
+                                        .foregroundColor(Color(hex: "#666666"))
+                                        .multilineTextAlignment(.leading)
+                                    
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 16)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            } else {
+                                ForEach(modelManager.availableModels, id: \.filename) { model in
+                                    InstalledLLMModelView(
+                                        model: model,
+                                        isActive: modelManager.selectedModel?.filename == model.filename,
+                                        onSelect: {
+                                            modelManager.selectModel(model)
+                                        },
+                                        onDelete: {
+                                            Task {
+                                                do {
+                                                    try await modelManager.deleteModel(model)
+                                                    print("✅ Successfully deleted model: \(model.filename)")
+                                                } catch {
+                                                    print("❌ Failed to delete model: \(error.localizedDescription)")
+                                                }
+                                            }
                                         }
-                                    }
-                                )
+                                    )
+                                }
                             }
                         }
-                    .padding(.horizontal, 20)
-                }
+                        .padding(.horizontal, 20)
+                    }
                 
                 // 30px spacing between sections
                 Spacer()
@@ -84,20 +102,21 @@ struct SettingsModelsView: View {
                                 ForEach(availableDownloadModels, id: \.filename) { model in
                                     AvailableDownloadModelView(
                                         model: model,
-                                        isDownloading: downloadingModel == model.filename,
-                                        downloadProgress: downloadProgress,
+                                        isDownloading: downloadService.isDownloading(model.filename),
+                                        downloadProgress: downloadService.getDownloadProgress(model.filename),
                                         onDownload: {
-                                            if downloadingModel == model.filename {
+                                            if downloadService.isDownloading(model.filename) {
                                                 // Stop download
-                                                downloadingModel = nil
-                                                downloadProgress = 0.0
-                                            } else if downloadingModel == nil {
+                                                downloadService.cancelDownload(model.filename)
+                                            } else {
                                                 // Start download
-                                                downloadingModel = model.filename
-                                                downloadProgress = 0.0
-                                                
-                                                // Simulate download progress
-                                                simulateDownload(for: model.filename)
+                                                Task {
+                                                    do {
+                                                        try await downloadService.downloadModel(model.filename)
+                                                    } catch {
+                                                        print("Download failed: \(error.localizedDescription)")
+                                                    }
+                                                }
                                             }
                                         }
                                     )
@@ -110,10 +129,6 @@ struct SettingsModelsView: View {
                 // 30px spacing between sections
                 Spacer()
                     .frame(height: 30)
-                
-                // 60px spacing from Available Downloads section
-                Spacer()
-                    .frame(height: 60)
                 
                 // Manage Unused Models text
                 Button(action: {
@@ -187,11 +202,19 @@ struct SettingsModelsView: View {
                 selectedModels: $selectedUnusedModels,
                 onDelete: {
                     // Delete selected unused models
-                    for modelFilename in selectedUnusedModels {
-                        // TODO: Implement actual model deletion from bundle
-                        print("Would delete model: \(modelFilename)")
+                    Task {
+                        for modelFilename in selectedUnusedModels {
+                            if let model = modelManager.availableModels.first(where: { $0.filename == modelFilename }) {
+                                do {
+                                    try await modelManager.deleteModel(model)
+                                    print("✅ Successfully deleted unused model: \(modelFilename)")
+                                } catch {
+                                    print("❌ Failed to delete unused model \(modelFilename): \(error.localizedDescription)")
+                                }
+                            }
+                        }
+                        selectedUnusedModels.removeAll()
                     }
-                    selectedUnusedModels.removeAll()
                 }
             )
             .presentationDetents(unusedModelsCount == 0 ? [.height(200)] : [.medium])
@@ -199,41 +222,13 @@ struct SettingsModelsView: View {
     }
     
     private var availableDownloadModels: [LLMModelInfo] {
-        // For now, show no available downloads since all models are installed
-        // This will be updated when actual download functionality is implemented
-        return []
+        return downloadService.getAvailableDownloadModels()
     }
     
     private var unusedModelsCount: Int {
-        modelManager.availableModels.filter { $0.filename != (modelManager.selectedModel?.filename ?? "") }.count
+        modelManager.availableModels.count
     }
     
-    private func simulateDownload(for modelName: String) {
-        // Simulate download progress
-        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            if downloadingModel == modelName {
-                downloadProgress += 0.01
-                
-                if downloadProgress >= 1.0 {
-                    // Download complete
-                    FeedbackService.shared.playHaptic(.light)
-                    timer.invalidate()
-                    downloadingModel = nil
-                    downloadProgress = 0.0
-                    
-                    // Move model from available to installed
-                    if availableDownloadModels.contains(where: { $0.filename == modelName }) {
-                        // TODO: Actually download and install the model
-                        print("Downloaded model: \(modelName)")
-                        // Remove from selected (no longer needed since we're not using selection)
-                        selectedModelsToDownload.remove(modelName)
-                    }
-                }
-            } else {
-                timer.invalidate()
-            }
-        }
-    }
 }
 
 
@@ -289,7 +284,7 @@ struct AvailableDownloadModelView: View {
                 
                 // Download button
                 Button(action: onDownload) {
-                    Image(systemName: isDownloading ? "stop.square" : "arrow.down.square")
+                    Image(systemName: isDownloading ? "square.inset.filled" : "arrow.down.square")
                         .font(.system(size: 20))
                         .foregroundColor(isDownloading ? colorManager.redColor : Color(hex: "#BBBBBB"))
                 }
@@ -356,6 +351,14 @@ struct InstalledLLMModelView: View {
                                 .multilineTextAlignment(.leading)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
+                        
+                        // "In Use" indicator for active model
+                        if isActive {
+                            Text("In Use")
+                                .font(.custom("IBMPlexMono", size: 10))
+                                .foregroundColor(ColorManager.shared.greenColor)
+                                .multilineTextAlignment(.leading)
+                        }
 
                         // Voice capabilities text removed
 
@@ -413,7 +416,7 @@ struct UnusedModelsSheet: View {
     let onDelete: () -> Void
     
     private var unusedModels: [LLMModelInfo] {
-        availableModels.filter { $0.filename != activeModel }
+        availableModels
     }
     
     var body: some View {
@@ -428,7 +431,7 @@ struct UnusedModelsSheet: View {
                     // Description
                     Text(unusedModels.isEmpty ? NSLocalizedString("No Unused Models", comment: "") : NSLocalizedString("Delete your unused models.", comment: ""))
                         .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(unusedModels.isEmpty ? ColorManager.shared.redColor : ColorManager.shared.greyTextColor)
+                        .foregroundColor(unusedModels.isEmpty ? Color(hex: "#666666") : ColorManager.shared.greyTextColor)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 20)
@@ -445,6 +448,7 @@ struct UnusedModelsSheet: View {
                                         model: model,
                                         isSelected: selectedModels.contains(model.filename),
                                         isLastItem: index == unusedModels.count - 1,
+                                        isActive: model.filename == activeModel,
                                         onToggle: {
                                             if selectedModels.contains(model.filename) {
                                                 selectedModels.remove(model.filename)
@@ -507,10 +511,16 @@ struct UnusedModelsSheet: View {
                     
                     // Header
                     HStack {
-                        Text(NSLocalizedString("Unused Models", comment: ""))
-                            .font(.custom("IBMPlexMono", size: 20))
-                            .foregroundColor(ColorManager.shared.whiteTextColor)
-                            .padding(.leading, 20)
+                        HStack(spacing: 8) {
+                            Image(systemName: "checklist")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(ColorManager.shared.redColor)
+                            
+                            Text(NSLocalizedString("UNUSED MODELS", comment: ""))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .foregroundColor(ColorManager.shared.redColor)
+                        }
+                        .padding(.leading, 20)
                         
                         Spacer()
 
@@ -542,17 +552,28 @@ struct UnusedLLMModelRowView: View {
     let model: LLMModelInfo
     let isSelected: Bool
     let isLastItem: Bool
+    let isActive: Bool
     let onToggle: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
             Button(action: onToggle) {
                 HStack(alignment: .top) {
-                    Text(model.displayName)
-                        .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(ColorManager.shared.whiteTextColor)
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(2)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(model.displayName)
+                            .font(.custom("IBMPlexMono", size: 16))
+                            .foregroundColor(ColorManager.shared.whiteTextColor)
+                            .multilineTextAlignment(.leading)
+                            .lineLimit(2)
+                        
+                        // "In Use" indicator for active model
+                        if isActive {
+                            Text("In Use")
+                                .font(.custom("IBMPlexMono", size: 10))
+                                .foregroundColor(ColorManager.shared.greenColor)
+                                .multilineTextAlignment(.leading)
+                        }
+                    }
                     
                     Spacer()
                     

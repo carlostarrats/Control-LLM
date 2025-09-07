@@ -121,9 +121,8 @@ struct ModelsScreen: View {
     let onNext: () -> Void
     @EnvironmentObject var colorManager: ColorManager
     @StateObject private var modelManager = ModelManager.shared
+    @StateObject private var downloadService = ModelDownloadService.shared
     @State private var selectedModelsToDownload: Set<String> = []
-    @State private var downloadingModel: String? = nil
-    @State private var downloadProgress: Double = 0.0
     @State private var showingUnusedModelsSheet = false
     @State private var selectedUnusedModels: Set<String> = []
     @State private var hasDownloadedModel = false
@@ -146,7 +145,62 @@ struct ModelsScreen: View {
                     Spacer()
                         .frame(height: 5)
                     
-                    // Available Downloads section
+                    // INSTALLED section
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(NSLocalizedString("INSTALLED", comment: ""))
+                            .font(.custom("IBMPlexMono", size: 12))
+                            .foregroundColor(colorManager.orangeColor)
+                            .padding(.horizontal, 24)
+                        
+                        VStack(spacing: 0) {
+                            if modelManager.availableModels.isEmpty {
+                                // Show "No Installed Models" when no models are installed
+                                HStack {
+                                    Text(NSLocalizedString("No Installed Models", comment: ""))
+                                        .font(.custom("IBMPlexMono", size: 16))
+                                        .foregroundColor(Color(hex: "#666666"))
+                                        .multilineTextAlignment(.leading)
+                                    
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 16)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                
+                                // Horizontal line under the item
+                                Rectangle()
+                                    .fill(Color(hex: "#333333"))
+                                    .frame(height: 1)
+                            } else {
+                                ForEach(modelManager.availableModels, id: \.filename) { model in
+                                    InstalledLLMModelView(
+                                        model: model,
+                                        isActive: modelManager.selectedModel?.filename == model.filename,
+                                        onSelect: {
+                                            modelManager.selectModel(model)
+                                        },
+                                        onDelete: {
+                                            Task {
+                                                do {
+                                                    try await modelManager.deleteModel(model)
+                                                    print("✅ Successfully deleted model: \(model.filename)")
+                                                } catch {
+                                                    print("❌ Failed to delete model: \(error.localizedDescription)")
+                                                }
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                
+                // 30px spacing between sections
+                Spacer()
+                    .frame(height: 30)
+                
+                // Available Downloads section
                     VStack(alignment: .leading, spacing: 4) {
                         Text(NSLocalizedString("AVAILABLE DOWNLOADS", comment: ""))
                             .font(.custom("IBMPlexMono", size: 12))
@@ -176,20 +230,22 @@ struct ModelsScreen: View {
                                 ForEach(availableDownloadModels, id: \.filename) { model in
                                     AvailableDownloadModelView(
                                         model: model,
-                                        isDownloading: downloadingModel == model.filename,
-                                        downloadProgress: downloadProgress,
+                                        isDownloading: downloadService.isDownloading(model.filename),
+                                        downloadProgress: downloadService.getDownloadProgress(model.filename),
                                         onDownload: {
-                                            if downloadingModel == model.filename {
+                                            if downloadService.isDownloading(model.filename) {
                                                 // Stop download
-                                                downloadingModel = nil
-                                                downloadProgress = 0.0
-                                            } else if downloadingModel == nil {
+                                                downloadService.cancelDownload(model.filename)
+                                            } else {
                                                 // Start download
-                                                downloadingModel = model.filename
-                                                downloadProgress = 0.0
-                                                
-                                                // Simulate download progress
-                                                simulateDownload(for: model.filename)
+                                                Task {
+                                                    do {
+                                                        try await downloadService.downloadModel(model.filename)
+                                                        hasDownloadedModel = true
+                                                    } catch {
+                                                        print("Download failed: \(error.localizedDescription)")
+                                                    }
+                                                }
                                             }
                                         }
                                     )
@@ -268,37 +324,15 @@ struct ModelsScreen: View {
     }
     
     private var availableDownloadModels: [LLMModelInfo] {
-        // Check which models are available for download (not already installed)
-        let potentialModels = [
-            LLMModelInfo(filename: "gemma-3-1B-It-Q4_K_M"),
-            LLMModelInfo(filename: "Llama-3.2-1B-Instruct-Q4_K_M"),
-            LLMModelInfo(filename: "Qwen3-1.7B-Q4_K_M"),
-            LLMModelInfo(filename: "smollm2-1.7b-instruct-q4_k_m")
-        ]
-        
-        // Filter out models that are already installed (isAvailable = true)
-        return potentialModels.filter { !$0.isAvailable }
+        return downloadService.getAvailableDownloadModels()
     }
     
     private var unusedModelsCount: Int {
         modelManager.availableModels.filter { $0.filename != (modelManager.selectedModel?.filename ?? "") }.count
     }
     
-    private func simulateDownload(for modelName: String) {
-        // Simulate download progress
-        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            downloadProgress += 0.1
-            if downloadProgress >= 1.0 {
-                timer.invalidate()
-                downloadingModel = nil
-                downloadProgress = 0.0
-                
-                // Mark that a model has been downloaded
-                hasDownloadedModel = true
-            }
-        }
-    }
 }
+
 
 #Preview {
     OnboardingView(isPresented: .constant(true))
