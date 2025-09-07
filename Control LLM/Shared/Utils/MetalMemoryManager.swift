@@ -72,6 +72,13 @@ class MetalMemoryManager {
         metalHeaps.append(heap)
     }
     
+    /// Registers a Metal texture for secure cleanup
+    func registerTexture(_ texture: MTLTexture) {
+        // Store texture reference for cleanup
+        // Note: In a production app, you'd want to store these in a proper collection
+        // For now, we rely on the Metal framework's automatic cleanup
+    }
+    
     /// Registers a Metal buffer for secure cleanup
     func registerBuffer(_ buffer: MTLBuffer) {
         // Store buffer reference for cleanup

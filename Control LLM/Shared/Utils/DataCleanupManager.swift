@@ -8,6 +8,15 @@
 import Foundation
 import Security
 
+// MARK: - Notification Names
+extension Notification.Name {
+    static let clearAllConversationData = Notification.Name("clearAllConversationData")
+    static let clearPerformanceData = Notification.Name("clearPerformanceData")
+    static let clearCppBridgeMemory = Notification.Name("clearCppBridgeMemory")
+    static let clearCoreDataCache = Notification.Name("clearCoreDataCache")
+    static let clearSystemCaches = Notification.Name("clearSystemCaches")
+}
+
 /// Manages comprehensive data cleanup to ensure 24-hour retention policy compliance
 class DataCleanupManager {
     static let shared = DataCleanupManager()
@@ -114,12 +123,13 @@ class DataCleanupManager {
     private func clearPerformanceData() {
         print("🧹 DataCleanupManager: Clearing performance data")
         
-        // Clear performance metrics that may contain sensitive data
+        // Clear performance tracking data
         let performanceKeys = [
-            "AverageResponseTime",
-            "TotalResponseTime",
-            "ResponseCount",
-            "ModelPerformanceData"
+            "totalResponseTime",
+            "responseCount", 
+            "averageResponseDuration",
+            "modelPerformanceData",
+            "lastResponseTime"
         ]
         
         for key in performanceKeys {
@@ -130,6 +140,11 @@ class DataCleanupManager {
                 SecureLogger.logError(error, context: "DataCleanupManager: Failed to remove performance key: \(key)")
             }
         }
+        
+        // Clear any cached performance metrics
+        NotificationCenter.default.post(name: .clearPerformanceData, object: nil)
+        
+        print("✅ DataCleanupManager: Performance data cleared")
     }
     
     private func clearTemporaryFiles() {
@@ -140,24 +155,27 @@ class DataCleanupManager {
         do {
             let tempFiles = try FileManager.default.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
             for file in tempFiles {
-                // Only delete files that might contain sensitive data
-                if file.pathExtension == "tmp" || 
-                   file.pathExtension == "log" ||
-                   file.lastPathComponent.contains("conversation") ||
-                   file.lastPathComponent.contains("chat") ||
-                   file.lastPathComponent.contains("llm") ||
-                   file.lastPathComponent.contains("model") ||
-                   file.lastPathComponent.contains("secure") {
-                    // Use secure wiping for sensitive files
-                    secureWipeFile(at: file)
-                } else {
-                    // Regular deletion for non-sensitive files
-                    try FileManager.default.removeItem(at: file)
-                }
+                try FileManager.default.removeItem(at: file)
+                SecureLogger.log("DataCleanupManager: Removed temporary file: \(file.lastPathComponent)")
             }
         } catch {
-            print("⚠️ DataCleanupManager: Error clearing temporary files: \(error)")
+            SecureLogger.logError(error, context: "DataCleanupManager: Failed to clear temporary files")
         }
+        
+        // Clear app-specific temp directory
+        if let appTempDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
+            do {
+                let cacheFiles = try FileManager.default.contentsOfDirectory(at: appTempDir, includingPropertiesForKeys: nil)
+                for file in cacheFiles {
+                    try FileManager.default.removeItem(at: file)
+                    SecureLogger.log("DataCleanupManager: Removed cache file: \(file.lastPathComponent)")
+                }
+            } catch {
+                SecureLogger.logError(error, context: "DataCleanupManager: Failed to clear cache files")
+            }
+        }
+        
+        print("✅ DataCleanupManager: Temporary files cleared")
     }
     
     private func clearMetalMemory() {
@@ -203,40 +221,70 @@ class DataCleanupManager {
     private func clearUserDefaults() {
         print("🧹 DataCleanupManager: Clearing UserDefaults")
         
-        // Clear non-essential UserDefaults
-        let essentialKeys = [
-            "selectedLLMModel",
-            "LastDataCleanup"
-        ]
-        
         let defaults = UserDefaults.standard
         let dictionary = defaults.dictionaryRepresentation()
         
+        // Clear all non-essential UserDefaults
+        let essentialKeys = [
+            "LastDataCleanup",
+            "selectedLLMModel",
+            "AppSessionStartTime",
+            "NSUbiquitousKeyValueStore"
+        ]
+        
         for key in dictionary.keys {
             if !essentialKeys.contains(key) {
-                do {
-                    defaults.removeObject(forKey: key)
-                    SecureLogger.log("DataCleanupManager: Removed UserDefaults key: \(key)")
-                } catch {
-                    SecureLogger.logError(error, context: "DataCleanupManager: Failed to remove UserDefaults key: \(key)")
-                }
+                defaults.removeObject(forKey: key)
+                SecureLogger.log("DataCleanupManager: Removed UserDefaults key: \(key)")
             }
         }
+        
+        // Force synchronization
+        defaults.synchronize()
+        
+        print("✅ DataCleanupManager: UserDefaults cleared")
     }
     
     private func clearSystemCaches() {
         print("🧹 DataCleanupManager: Clearing system caches")
         
-        // Clear any cached data in the app's cache directory
-        if let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
-            do {
-                let cacheFiles = try FileManager.default.contentsOfDirectory(at: cacheDir, includingPropertiesForKeys: nil)
-                for file in cacheFiles {
-                    try FileManager.default.removeItem(at: file)
-                }
-            } catch {
-                print("⚠️ DataCleanupManager: Error clearing cache files: \(error)")
+        // Clear URL cache
+        URLCache.shared.removeAllCachedResponses()
+        
+        // Clear image cache
+        if let imageCache = URLCache.shared as? URLCache {
+            imageCache.removeAllCachedResponses()
+        }
+        
+        // Clear any Core Data caches
+        NotificationCenter.default.post(name: .clearCoreDataCache, object: nil)
+        
+        // Clear any other system caches
+        NotificationCenter.default.post(name: .clearSystemCaches, object: nil)
+        
+        print("✅ DataCleanupManager: System caches cleared")
+    }
+    
+    // MARK: - Helper Methods
+    
+    /// Securely wipes a file by overwriting it with random data
+    private func secureWipeFile(at url: URL) {
+        do {
+            // Read file data
+            let data = try Data(contentsOf: url)
+            
+            // Overwrite with random data multiple times
+            for _ in 0..<3 {
+                let randomData = Data((0..<data.count).map { _ in UInt8.random(in: 0...255) })
+                try randomData.write(to: url)
             }
+            
+            // Delete the file
+            try FileManager.default.removeItem(at: url)
+            
+            SecureLogger.log("DataCleanupManager: Securely wiped file: \(url.lastPathComponent)")
+        } catch {
+            SecureLogger.logError(error, context: "DataCleanupManager: Failed to securely wipe file: \(url.lastPathComponent)")
         }
     }
     
@@ -274,41 +322,6 @@ class DataCleanupManager {
         print("✅ DataCleanupManager: All data cleared")
     }
     
-    // MARK: - Security Utilities
-    
-    /// Securely wipes a file by overwriting it multiple times
-    private func secureWipeFile(at url: URL) {
-        do {
-            let fileSize = try FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int64 ?? 0
-            
-            if fileSize > 0 {
-                let fileHandle = try FileHandle(forWritingTo: url)
-                
-                // Overwrite with multiple patterns
-                let patterns: [UInt8] = [0x00, 0xFF, 0xAA, 0x55]
-                
-                for pattern in patterns {
-                    let data = Data(repeating: pattern, count: Int(fileSize))
-                    try fileHandle.write(contentsOf: data)
-                    try fileHandle.synchronize()
-                }
-                
-                try fileHandle.close()
-            }
-            
-            // Finally delete the file
-            try FileManager.default.removeItem(at: url)
-        } catch {
-            print("⚠️ DataCleanupManager: Error securely wiping file \(url): \(error)")
-        }
-    }
-}
-
-// MARK: - Notification Names
-
-extension Notification.Name {
-    static let clearAllConversationData = Notification.Name("clearAllConversationData")
-    static let clearCppBridgeMemory = Notification.Name("clearCppBridgeMemory")
 }
 
 // MARK: - ChatViewModel Integration

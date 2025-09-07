@@ -105,6 +105,19 @@ final class OllamaService: ObservableObject {
         return responseText
     }
     
+    // MARK: - Security Helpers
+    
+    /// Adds security headers to URLRequest
+    /// - Parameter request: The request to add headers to
+    private func addSecurityHeaders(to request: inout URLRequest) {
+        request.setValue("no-cache, no-store, must-revalidate", forHTTPHeaderField: "Cache-Control")
+        request.setValue("no-cache", forHTTPHeaderField: "Pragma")
+        request.setValue("0", forHTTPHeaderField: "Expires")
+        request.setValue("ControlLLM/1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("no-sniff", forHTTPHeaderField: "X-Content-Type-Options")
+        request.setValue("1; mode=block", forHTTPHeaderField: "X-XSS-Protection")
+    }
+    
     // MARK: - Text Generation
     
     func generateText(prompt: String, modelName: String? = nil) async throws -> String {
@@ -126,6 +139,7 @@ final class OllamaService: ObservableObject {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        addSecurityHeaders(to: &request)
         request.httpBody = try JSONEncoder().encode(requestBody)
         
         let (data, response) = try await session.data(for: request)
@@ -273,4 +287,5 @@ enum OllamaError: Error {
             return String(format: NSLocalizedString("Network error: %@", comment: ""), error.localizedDescription)
         }
     }
+    
 }

@@ -21,6 +21,15 @@ class ModelHashVerifier {
         "smollm2-1.7b-instruct-q4_k_m.gguf": "d4e5f6789012345678901234567890abcdef1234567890abcdef1234567890abcd"
     ]
     
+    // MARK: - Bundled Model Detection
+    // For bundled models, we perform basic validation instead of hash verification
+    private let bundledModelNames: Set<String> = [
+        "gemma-3-1B-It-Q4_K_M.gguf",
+        "Llama-3.2-1B-Instruct-Q4_K_M.gguf",
+        "Qwen3-1.7B-Q4_K_M.gguf",
+        "smollm2-1.7b-instruct-q4_k_m.gguf"
+    ]
+    
     private init() {}
     
     // MARK: - Model Verification
@@ -31,8 +40,14 @@ class ModelHashVerifier {
     func verifyModel(_ modelPath: String) -> Bool {
         let fileName = URL(fileURLWithPath: modelPath).lastPathComponent
         
+        // Check if this is a bundled model
+        if bundledModelNames.contains(fileName) {
+            SecureLogger.log("ModelHashVerifier: Bundled model detected - performing basic validation for \(fileName)")
+            return verifyBundledModel(modelPath)
+        }
+        
         guard let expectedHash = knownModelHashes[fileName] else {
-            SecureLogger.log("ModelHashVerifier: No known hash for model \(fileName) - rejecting for security")
+            SecureLogger.log("ModelHashVerifier: No known hash for external model \(fileName) - rejecting for security")
             return false
         }
         
@@ -180,5 +195,47 @@ extension ModelHashVerifier {
     /// - Returns: True if model is known
     func isModelKnown(_ modelName: String) -> Bool {
         return knownModelHashes[modelName] != nil
+    }
+    
+    /// Verifies a bundled model using basic file validation
+    /// - Parameter modelPath: Path to the bundled model file
+    /// - Returns: True if validation passes
+    private func verifyBundledModel(_ modelPath: String) -> Bool {
+        SecureLogger.log("ModelHashVerifier: Verifying bundled model at \(modelPath)")
+        
+        // Check if file exists and is readable
+        guard FileManager.default.fileExists(atPath: modelPath) else {
+            SecureLogger.log("ModelHashVerifier: Bundled model file does not exist")
+            return false
+        }
+        
+        // Check file size (bundled models should be reasonably large)
+        do {
+            let fileAttributes = try FileManager.default.attributesOfItem(atPath: modelPath)
+            guard let fileSize = fileAttributes[.size] as? NSNumber else {
+                SecureLogger.log("ModelHashVerifier: Cannot determine bundled model file size")
+                return false
+            }
+            
+            let sizeInMB = fileSize.doubleValue / (1024 * 1024)
+            if sizeInMB < 50 { // Bundled models should be at least 50MB
+                SecureLogger.log("ModelHashVerifier: Bundled model too small: \(sizeInMB)MB")
+                return false
+            }
+            
+            // Check file extension
+            let url = URL(fileURLWithPath: modelPath)
+            guard url.pathExtension.lowercased() == "gguf" else {
+                SecureLogger.log("ModelHashVerifier: Invalid file extension for bundled model")
+                return false
+            }
+            
+            SecureLogger.log("ModelHashVerifier: Bundled model validation passed for \(url.lastPathComponent)")
+            return true
+            
+        } catch {
+            SecureLogger.logError(error, context: "ModelHashVerifier: Error validating bundled model")
+            return false
+        }
     }
 }

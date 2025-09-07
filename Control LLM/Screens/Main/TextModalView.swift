@@ -271,6 +271,16 @@ struct TextModalView: View {
         !ModelManager.shared.availableModels.isEmpty
     }
     
+    // MARK: - Force Reset Function
+    private func forceResetProcessingState() {
+        print("🔍 TextModalView: Force resetting processing state")
+        viewModel.llm.isProcessing = false
+        viewModel.llm.transcript = ""
+        isLocalProcessing = false
+        effectiveIsProcessing = false
+        showGeneratingText = false
+    }
+    
     // MARK: - Helper Functions
     private func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
@@ -409,6 +419,9 @@ struct TextModalView: View {
             // Also reset the ChatViewModel's duplicate detection to ensure clean state
             viewModel.llm.lastSentMessage = nil
             
+            // CRITICAL FIX: Force reset processing state to ensure clean start
+            forceResetProcessingState()
+            
             // CRITICAL FIX: Reset showGeneratingText FIRST to ensure clean state
             showGeneratingText = false
             print("🔍 TextModalView: onAppear - Reset showGeneratingText to false")
@@ -522,7 +535,7 @@ struct TextModalView: View {
             
             // If there was a follow-up question, we need to re-send it to the new model
             if hasFollowUpQuestion {
-                print("🔍 TextModalView: Preserving follow-up question for new model: '\(lastUserMessage!.content.prefix(100))...'")
+                SecureLogger.log("TextModalView: Preserving follow-up question for new model", sensitiveData: lastUserMessage!.content)
                 // The question will be automatically re-sent by the ChatViewModel
             }
             
@@ -548,7 +561,7 @@ struct TextModalView: View {
         }
         .onChange(of: viewModel.pendingClipboardPrompt) { _, newPrompt in
             if let prompt = newPrompt {
-                print("🔍 TextModalView: Processing pending clipboard prompt: \(prompt.prefix(50))...")
+                SecureLogger.log("TextModalView: Processing pending clipboard prompt", sensitiveData: prompt)
                 
                 // Clear the pending prompt immediately to prevent re-processing
                 viewModel.pendingClipboardPrompt = nil
@@ -1297,7 +1310,7 @@ struct TextModalView: View {
         let currentTranscriptLength = viewModel.llm.transcript.count
         let currentTranscript = viewModel.llm.transcript
         
-        print("🔍 TextModalView: Polling transcript - length: \(currentTranscriptLength), content: '\(currentTranscript)'")
+        SecureLogger.log("TextModalView: Polling transcript", sensitiveData: "length: \(currentTranscriptLength), content: \(currentTranscript)")
         
         // Check if we should stop polling - give clipboard messages more time for analysis
         let maxPolls = isClipboardMessage ? 300 : 150  // 30 seconds for clipboard, 15 seconds for regular messages
@@ -1386,13 +1399,13 @@ struct TextModalView: View {
             if let idx = viewModel.messages.lastIndex(where: { !$0.isUser }),
                idx < viewModel.messages.count {
                 print("🔍 TextModalView: Updating existing assistant message at index \(idx)")
-                print("🔍 TextModalView: Setting message content to: '\(viewModel.llm.transcript)'")
+                SecureLogger.log("TextModalView: Setting message content", sensitiveData: viewModel.llm.transcript)
                 // Mutate the last assistant bubble in place (no array replacement)
                 viewModel.messages[idx].content = viewModel.llm.transcript
                 print("🔍 TextModalView: Message updated successfully")
             } else {
                 print("🔍 TextModalView: Creating new assistant message")
-                print("🔍 TextModalView: New message content: '\(viewModel.llm.transcript)'")
+                SecureLogger.log("TextModalView: New message content", sensitiveData: viewModel.llm.transcript)
                 // Create initial assistant bubble
                 let bot = ChatMessage(
                     content: viewModel.llm.transcript,

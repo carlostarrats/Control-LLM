@@ -51,12 +51,73 @@ class ShortcutsService: NSObject {
         print("Background tasks registered")
     }
     
+    // MARK: - Security Helpers
+    
+    /// Sanitizes input specifically for Shortcuts context
+    /// - Parameter input: Input string to sanitize
+    /// - Returns: Sanitized string safe for Shortcuts
+    private func sanitizeForShortcutsContext(_ input: String) -> String {
+        var sanitized = input
+        
+        // Remove any potential Shortcuts injection patterns
+        let shortcutsPatterns = [
+            "shortcuts://", "shortcuts.app://", "x-shortcuts://",
+            "intent://", "appintent://", "siri://",
+            "workflow://", "automation://", "x-callback-url://"
+        ]
+        
+        for pattern in shortcutsPatterns {
+            sanitized = sanitized.replacingOccurrences(of: pattern, with: "", options: .caseInsensitive)
+        }
+        
+        // Remove any potential URL schemes that could be executed
+        sanitized = sanitized.replacingOccurrences(
+            of: "\\b[a-zA-Z][a-zA-Z0-9+.-]*://[^\\s]+",
+            with: "[URL_REDACTED]",
+            options: .regularExpression
+        )
+        
+        // Remove any potential file paths
+        sanitized = sanitized.replacingOccurrences(
+            of: "\\b/[^\\s]+",
+            with: "[PATH_REDACTED]",
+            options: .regularExpression
+        )
+        
+        // Remove any potential system commands
+        let commandPatterns = [
+            "rm ", "del ", "format ", "shutdown ", "restart ",
+            "sudo ", "su ", "chmod ", "chown ", "kill "
+        ]
+        
+        for pattern in commandPatterns {
+            sanitized = sanitized.replacingOccurrences(of: pattern, with: "[COMMAND_REDACTED] ", options: .caseInsensitive)
+        }
+        
+        // Limit length for Shortcuts safety
+        if sanitized.count > 1000 {
+            sanitized = String(sanitized.prefix(1000)) + "..."
+        }
+        
+        return sanitized
+    }
+    
     // MARK: - Integration with Existing Services
     
     /// Send a message through the existing LLM service with proper sanitization
     func sendMessage(_ message: String, recipient: String? = nil) async throws -> String {
-        // SECURITY: Sanitize input for Siri/Shortcuts to prevent data leakage
-        let sanitizedMessage = sanitizeForSiri(message)
+        // Security: Additional validation for Shortcuts context
+        guard !message.isEmpty else {
+            throw NSError(domain: "ShortcutsService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Message cannot be empty"])
+        }
+        
+        // Security: Check message length for Shortcuts safety
+        guard message.count <= 50000 else {
+            throw NSError(domain: "ShortcutsService", code: 2, userInfo: [NSLocalizedDescriptionKey: "Message too long for Shortcuts"])
+        }
+        
+        // Security: Additional sanitization for Shortcuts
+        let sanitizedMessage = sanitizeForShortcutsContext(message)
         
         // Validate input length and content
         guard !sanitizedMessage.isEmpty else {
@@ -170,7 +231,7 @@ class ShortcutsService: NSObject {
     
     /// Update system prompt for behavior steering
     func updateSystemPrompt(_ prompt: String, behaviorType: String) async throws {
-        print("Updating system prompt via Shortcuts: '\(prompt)' for behavior: '\(behaviorType)'")
+        SecureLogger.log("Updating system prompt via Shortcuts for behavior: \(behaviorType)", sensitiveData: prompt)
         
         // TODO: Integrate with your existing system prompt management
         // This should update the same system prompt that the app uses

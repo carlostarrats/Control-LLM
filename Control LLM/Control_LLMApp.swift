@@ -41,12 +41,9 @@ struct Control_LLMApp: App {
         disableConsoleFlooding()
         
         #if DEBUG
-        // Only write to file in debug builds for security
-        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let logFile = documentsPath.appendingPathComponent("app_log.txt")
+        // Debug logging only - no filesystem writes for security
         let timestamp = Date().description
-        let logMessage = "🔍 App starting... at \(timestamp)\n"
-        try? logMessage.write(to: logFile, atomically: true, encoding: .utf8)
+        print("🔍 App starting... at \(timestamp)")
         #endif
         
         print("🔍 App starting...")
@@ -68,8 +65,8 @@ struct Control_LLMApp: App {
         }
         
         #if DEBUG
-        let successMessage = "🔍 App started successfully at \(timestamp)\n"
-        try? successMessage.write(to: logFile, atomically: false, encoding: .utf8)
+        let successMessage = "🔍 App started successfully at \(timestamp)"
+        print(successMessage)
         #endif
     }
     

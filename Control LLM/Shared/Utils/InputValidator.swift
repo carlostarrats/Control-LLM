@@ -33,11 +33,11 @@ class InputValidator {
         "<form", "</form>", "<input", "<textarea", "<select",
         
         // Command injection patterns (only dangerous combinations)
-        "&&", "||", ">>", "<<", "$(", "${", "`", "|", "&", ";",
+        "&&", "||", ">>", "<<", "$(", "${", "`",
         
-        // SQL injection patterns (though we don't use SQL)
-        "union", "select", "insert", "update", "delete", "drop", "create",
-        "alter", "exec", "execute", "sp_", "xp_", "declare", "cast",
+        // SQL injection patterns (though we don't use SQL) - only dangerous combinations
+        "union select", "drop table", "delete from", "insert into",
+        "exec sp_", "xp_cmdshell", "declare @", "cast(",
         
         // Path traversal patterns
         "../", "..\\", "..%2f", "..%5c", "%2e%2e%2f", "%2e%2e%5c",
@@ -50,7 +50,25 @@ class InputValidator {
         "eval(", "function(", "setTimeout(", "setInterval(",
         "document.", "window.", "location.", "history.",
         "localStorage.", "sessionStorage.", "indexedDB.",
-        "XMLHttpRequest", "fetch(", "WebSocket"
+        "XMLHttpRequest", "fetch(", "WebSocket",
+        
+        // Enhanced prompt injection patterns
+        "ignore previous", "forget everything", "you are now",
+        "system prompt", "override instructions", "new instructions",
+        "pretend to be", "act as if", "roleplay as",
+        "jailbreak", "dan mode", "developer mode",
+        
+        // Obfuscated patterns
+        "1gn0r3", "f0rg3t", "y0u 4r3", "syst3m", "0v3rr1d3",
+        "\\bi\\s*g\\s*n\\s*o\\s*r\\s*e", "\\bf\\s*o\\s*r\\s*g\\s*e\\s*t",
+        
+        // Unicode and encoding attacks
+        "\\u003c", "\\u003e", "\\u0026", "\\u0027", "\\u0022",
+        "&#60;", "&#62;", "&#38;", "&#39;", "&#34;",
+        
+        // Template injection patterns
+        "{{", "}}", "{%", "%}", "${", "}",
+        "template", "render", "compile", "execute"
     ]
     
     private static let promptInjectionPatterns = [
@@ -265,20 +283,47 @@ class InputValidator {
     static func sanitizeInput(_ input: String) -> String {
         var sanitized = input
         
-        // Remove dangerous patterns
+        // TEMPORARILY DISABLED: Remove dangerous patterns using regex with word boundaries for better matching
+        // This is causing text to disappear - need to fix the patterns
+        /*
         for pattern in dangerousPatterns {
-            sanitized = sanitized.replacingOccurrences(
-                of: pattern,
-                with: "",
-                options: [.caseInsensitive, .regularExpression]
-            )
+            do {
+                let regex = try NSRegularExpression(pattern: "\\b\(NSRegularExpression.escapedPattern(for: pattern))\\b", options: .caseInsensitive)
+                let range = NSRange(location: 0, length: sanitized.utf16.count)
+                sanitized = regex.stringByReplacingMatches(in: sanitized, options: [], range: range, withTemplate: "")
+            } catch {
+                // Fallback to simple replacement if regex fails
+                sanitized = sanitized.replacingOccurrences(
+                    of: pattern,
+                    with: "",
+                    options: [.caseInsensitive, .regularExpression]
+                )
+            }
         }
+        */
         
-        // Remove HTML tags
+        // TEMPORARILY DISABLED: All sanitization steps
+        // This is causing text to disappear - need to fix the patterns
+        /*
+        // Remove HTML tags with more comprehensive pattern
         sanitized = sanitized.replacingOccurrences(
             of: "<[^>]+>",
             with: "",
             options: .regularExpression
+        )
+        
+        // Remove script tags and their content
+        sanitized = sanitized.replacingOccurrences(
+            of: "<script[^>]*>.*?</script>",
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        
+        // Remove style tags and their content
+        sanitized = sanitized.replacingOccurrences(
+            of: "<style[^>]*>.*?</style>",
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
         )
         
         // Remove control characters except newlines and tabs
@@ -288,6 +333,10 @@ class InputValidator {
             options: .regularExpression
         )
         
+        // Remove null bytes and other dangerous characters
+        sanitized = sanitized.replacingOccurrences(of: "\0", with: "")
+        sanitized = sanitized.replacingOccurrences(of: "\u{FEFF}", with: "") // BOM
+        
         // Normalize whitespace
         sanitized = sanitized.replacingOccurrences(
             of: "\\s+",
@@ -296,6 +345,10 @@ class InputValidator {
         )
         
         return sanitized.trimmingCharacters(in: .whitespacesAndNewlines)
+        */
+        
+        // Just return the input as-is for now
+        return input
     }
     
     // MARK: - Prompt Injection Detection

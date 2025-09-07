@@ -8,6 +8,7 @@
 import Foundation
 import Network
 import Security
+import CommonCrypto
 
 /// URLSession delegate that handles localhost HTTPS certificates securely with certificate pinning
 class LocalhostCertificateDelegate: NSObject, URLSessionDelegate {
@@ -16,10 +17,10 @@ class LocalhostCertificateDelegate: NSObject, URLSessionDelegate {
     
     /// Expected certificate hashes for different domains
     private let pinnedCertificates: [String: String] = [
-        "localhost": "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-        "127.0.0.1": "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-        "huggingface.co": "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-        "cdn-lfs.huggingface.co": "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+        "localhost": "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", // Placeholder - replace with actual localhost cert
+        "127.0.0.1": "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", // Placeholder - replace with actual localhost cert
+        "huggingface.co": "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", // Placeholder - replace with actual HF cert
+        "cdn-lfs.huggingface.co": "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" // Placeholder - replace with actual HF CDN cert
     ]
     
     /// Pinned certificate data (in production, these should be the actual certificates)
@@ -65,21 +66,23 @@ class LocalhostCertificateDelegate: NSObject, URLSessionDelegate {
             } else {
                 SecureLogger.log("SECURITY: Certificate pinning validation failed for \(host)")
                 completionHandler(.cancelAuthenticationChallenge, nil)
+                return
             }
+        } else {
+            completionHandler(.performDefaultHandling, nil)
         }
-        
-        // Fallback to default handling
-        completionHandler(.performDefaultHandling, nil)
     }
     
-    // MARK: - Certificate Pinning Validation
+    // MARK: - Certificate Validation
     
-    /// Validates certificate pinning for connections
-    /// - Parameters:
-    ///   - serverTrust: Server trust object
-    ///   - host: Host name for validation
-    /// - Returns: True if certificate pinning validation passes
+    /// Validates certificate pinning for the given server trust and host
     private func validateCertificatePinning(serverTrust: SecTrust, host: String) -> Bool {
+        // For development, accept all certificates but log warnings
+        if isDevelopmentMode {
+            SecureLogger.log("SECURITY WARNING: Accepting certificate without pinning validation for \(host)")
+            return true
+        }
+        
         // Get the certificate count
         let certificateCount = SecTrustGetCertificateCount(serverTrust)
         guard certificateCount > 0 else {
@@ -103,7 +106,8 @@ class LocalhostCertificateDelegate: NSObject, URLSessionDelegate {
             switch result {
             case .proceed, .unspecified:
                 SecureLogger.log("LocalhostCertificateDelegate: Certificate validation passed for \(host)")
-                return true
+                // Additional hash validation for production
+                return validateCertificateHash(certificate: certificate, host: host)
             case .deny, .fatalTrustFailure, .invalid:
                 SecureLogger.log("LocalhostCertificateDelegate: Certificate validation failed for \(host)")
                 return false
@@ -120,13 +124,42 @@ class LocalhostCertificateDelegate: NSObject, URLSessionDelegate {
         }
     }
     
-    /// Validates certificate hash against expected hash
-    /// - Parameter certificate: Certificate to validate
-    /// - Returns: True if hash matches expected hash
-    private func validateCertificateHash(certificate: SecCertificate) -> Bool {
-        // In production, implement proper certificate hash validation
-        // For now, we'll return true for localhost
-        print("⚠️ LocalhostCertificateDelegate: Certificate hash validation not implemented - allowing for localhost")
-        return true
+    /// Validates certificate hash against pinned certificates
+    private func validateCertificateHash(certificate: SecCertificate, host: String) -> Bool {
+        guard let expectedHash = pinnedCertificates[host] else {
+            SecureLogger.log("SECURITY: No pinned certificate found for host: \(host)")
+            return false
+        }
+        
+        // Extract certificate data
+        let certificateData = SecCertificateCopyData(certificate)
+        let data = CFDataCreateCopy(nil, certificateData)
+        let certificateBytes = CFDataGetBytePtr(data)
+        let certificateLength = CFDataGetLength(data)
+        
+        // Calculate SHA-256 hash
+        var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+        CC_SHA256(certificateBytes, CC_LONG(certificateLength), &hash)
+        
+        // Convert to base64
+        let hashData = Data(hash)
+        let hashString = "SHA256:" + hashData.base64EncodedString()
+        
+        // Compare with expected hash
+        let isValid = hashString == expectedHash
+        if !isValid {
+            SecureLogger.log("SECURITY: Certificate hash mismatch for \(host). Expected: \(expectedHash), Got: \(hashString)")
+        }
+        
+        return isValid
+    }
+    
+    /// Imports certificate from data
+    private func importCertificate(from data: Data) -> SecCertificate? {
+        guard let certificate = SecCertificateCreateWithData(nil, data as CFData) else {
+            SecureLogger.log("SECURITY: Failed to create certificate from data")
+            return nil
+        }
+        return certificate
     }
 }

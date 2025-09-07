@@ -2,6 +2,49 @@ import Foundation
 import AppIntents
 import os.log
 
+// MARK: - Shortcuts Security Helper
+@available(iOS 16.0, *)
+struct ShortcutsSecurityHelper {
+    /// Sanitizes data specifically for Shortcuts context
+    /// - Parameter input: Input string to sanitize
+    /// - Returns: Sanitized string safe for Shortcuts
+    static func sanitizeForShortcuts(_ input: String) -> String {
+        var sanitized = input
+        
+        // Remove any potential Shortcuts injection patterns
+        let shortcutsPatterns = [
+            "shortcuts://", "shortcuts.app://", "x-shortcuts://",
+            "intent://", "appintent://", "siri://",
+            "workflow://", "automation://"
+        ]
+        
+        for pattern in shortcutsPatterns {
+            sanitized = sanitized.replacingOccurrences(of: pattern, with: "", options: .caseInsensitive)
+        }
+        
+        // Remove any potential URL schemes that could be executed
+        sanitized = sanitized.replacingOccurrences(
+            of: "\\b[a-zA-Z][a-zA-Z0-9+.-]*://[^\\s]+",
+            with: "[URL_REDACTED]",
+            options: .regularExpression
+        )
+        
+        // Remove any potential file paths
+        sanitized = sanitized.replacingOccurrences(
+            of: "\\b/[^\\s]+",
+            with: "[PATH_REDACTED]",
+            options: .regularExpression
+        )
+        
+        // Limit length for Shortcuts safety
+        if sanitized.count > 1000 {
+            sanitized = String(sanitized.prefix(1000)) + "..."
+        }
+        
+        return sanitized
+    }
+}
+
 // MARK: - Control LLM App Intents for Shortcuts Integration
 
 // MARK: - Send Message Intent
@@ -28,14 +71,20 @@ struct SendMessageIntent: AppIntent {
         logger.info("Executing SendMessage intent for recipient: '\(recipient)'")
         
         do {
-            // Security: Validate input before processing
+            // Security: Enhanced input validation for Shortcuts
             let sanitizedMessage = try InputValidator.validateAndSanitizeInput(messageText)
             
+            // Additional sanitization for Shortcuts context
+            let shortcutsSanitizedMessage = ShortcutsSecurityHelper.sanitizeForShortcuts(sanitizedMessage)
+            
             // Process the message through the Shortcuts service
-            let response = try await ShortcutsService.shared.sendMessage(sanitizedMessage, recipient: recipient)
+            let response = try await ShortcutsService.shared.sendMessage(shortcutsSanitizedMessage, recipient: recipient)
+            
+            // Sanitize response before returning to Shortcuts
+            let sanitizedResponse = ShortcutsSecurityHelper.sanitizeForShortcuts(response)
             
             logger.info("SendMessage intent completed successfully")
-            return .result(value: response)
+            return .result(value: sanitizedResponse)
             
         } catch let error as ValidationError {
             logger.error("SendMessage intent failed validation: \(error.localizedDescription)")

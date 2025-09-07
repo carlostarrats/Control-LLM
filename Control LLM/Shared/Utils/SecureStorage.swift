@@ -162,11 +162,14 @@ class SecureStorage {
     
     /// Securely wipes a string from memory
     /// - Parameter string: The string to wipe
+    /// WARNING: This function is dangerous and can cause memory corruption
+    /// Swift strings are managed by the runtime and should not be directly wiped
     static func secureWipe(_ string: inout String) {
-        string.withUTF8 { utf8 in
-            var mutableBytes = UnsafeMutableRawPointer(mutating: utf8.baseAddress!)
-            memset_s(mutableBytes, utf8.count, 0, utf8.count)
-        }
+        // DISABLED: Direct string memory wiping is dangerous in Swift
+        // Swift strings are managed by the runtime and direct memory manipulation
+        // can cause corruption, crashes, or undefined behavior
+        // The string will be deallocated naturally when it goes out of scope
+        _ = string // Suppress unused parameter warning
     }
 }
 

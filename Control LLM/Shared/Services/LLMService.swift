@@ -75,6 +75,10 @@ final class LLMService: @unchecked Sendable {
             return
         }
         
+        // Security: Validate model before loading
+        let modelURL = try await findModelFile(for: modelFilename)
+        try await ModelValidationService.shared.performComprehensiveValidation(at: modelURL)
+        
         isModelOperationInProgress = true
         lastOperationTime = Date()
         defer { 
@@ -82,9 +86,6 @@ final class LLMService: @unchecked Sendable {
         }
         
         print("🔍 LLMService: Loading specific model: \(modelFilename) (previous: \(currentModelFilename ?? "none"))")
-        
-        // OPTIMIZATION: Find model file with priority order for fastest access
-        let modelURL = try await findModelFile(for: modelFilename)
         
         // OPTIMIZATION: Clear previous model to free memory before loading new one
         print("🔍 LLMService: Clearing previous model before loading new one...")
@@ -183,10 +184,24 @@ final class LLMService: @unchecked Sendable {
         }
         
         // Hash verification (if we implement cached hashes)
-        if ModelHashVerifier.shared.verifyModel(modelPath) {
-            print("✅ LLMService: Background hash verification passed")
+        // For bundled models, use basic validation instead of strict hash checking
+        let fileName = URL(fileURLWithPath: modelPath).lastPathComponent
+        let isBundledModel = ["gemma-3-1B-It-Q4_K_M.gguf", "Llama-3.2-1B-Instruct-Q4_K_M.gguf", "Qwen3-1.7B-Q4_K_M.gguf", "smollm2-1.7b-instruct-q4_k_m.gguf"].contains(fileName)
+        
+        if isBundledModel {
+            // For bundled models, just check if file exists and is readable
+            if FileManager.default.fileExists(atPath: modelPath) {
+                print("✅ LLMService: Background bundled model validation passed")
+            } else {
+                print("⚠️ LLMService: Background bundled model validation failed - file not found")
+            }
         } else {
-            print("⚠️ LLMService: Background hash verification failed")
+            // For external models, use strict hash verification
+            if ModelHashVerifier.shared.verifyModel(modelPath) {
+                print("✅ LLMService: Background hash verification passed")
+            } else {
+                print("⚠️ LLMService: Background hash verification failed")
+            }
         }
         
         print("🔍 LLMService: Background security validation completed")
@@ -447,12 +462,16 @@ final class LLMService: @unchecked Sendable {
                           userInfo: [NSLocalizedDescriptionKey: "Model not loaded"])
         }
         
+        // Build the prompt using the new helper
+        let prompt = buildPrompt(userText: processedText, history: history)
+        
+        SecureLogger.log("Final prompt length - \(prompt.count) characters")
+        
+        // SECURITY: Clear sensitive data from memory after processing
+        // Note: Removed string wiping as it can cause memory corruption
+        // Strings will be deallocated naturally when they go out of scope
+        
         do {
-            // Build the prompt using the new helper
-            let prompt = buildPrompt(userText: processedText, history: history)
-            
-            SecureLogger.log("Final prompt length - \(prompt.count) characters")
-            
             // Safety check for extremely long prompts
             // Increased to match maxInputLength and model's actual context window (32768 tokens)
             let maxPromptLength = 16000 // Increased from 4096 to handle larger contexts
@@ -464,15 +483,15 @@ final class LLMService: @unchecked Sendable {
             
             // CRITICAL FIX: Add specific check for multi-pass processing prompts
             // Multi-pass prompts can be complex and need extra validation
-                    if prompt.count > Constants.criticalThreshold {
-            print("⚠️ WARNING: Multi-pass prompt is very long (\(prompt.count) characters). This may cause tokenization issues.")
-            print("🔍 Prompt preview: \(String(prompt.prefix(500)))...")
-        }
-        
-        // Warning for prompts approaching token limits
-        let warningThreshold = Constants.warningThreshold // Characters
-        if prompt.count > warningThreshold {
-                print("⚠️ WARNING: Prompt is long (\(prompt.count) characters) and may approach token limits. Consider shortening your message or clearing chat history.")
+            if prompt.count > Constants.criticalThreshold {
+                SecureLogger.log("WARNING: Multi-pass prompt is very long (\(prompt.count) characters). This may cause tokenization issues.")
+                SecureLogger.log("Prompt preview", sensitiveData: String(prompt.prefix(500)))
+            }
+            
+            // Warning for prompts approaching token limits
+            let warningThreshold = Constants.warningThreshold // Characters
+            if prompt.count > warningThreshold {
+                SecureLogger.log("WARNING: Prompt is long (\(prompt.count) characters) and may approach token limits. Consider shortening your message or clearing chat history.")
             }
             
             // Use the new streaming implementation

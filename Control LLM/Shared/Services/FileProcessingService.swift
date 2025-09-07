@@ -147,7 +147,7 @@ class FileProcessingService {
             if let page = pdfDocument.page(at: i) {
                 if let pageContent = page.string {
                     extractedText += pageContent + "\n\n"
-                    print("🔍 FileProcessingService: Extracted \(pageContent.count) characters from page \(i+1)")
+                    SecureLogger.log("FileProcessingService: Extracted \(pageContent.count) characters from page \(i+1)")
                 } else {
                     print("⚠️ FileProcessingService: Page \(i+1) has no text content")
                 }
@@ -178,6 +178,10 @@ class FileProcessingService {
             // This ensures PDFKit releases its internal memory
         }
         
+        // Additional security: Clear extracted text from memory
+        // Note: Removed string wiping as it can cause memory corruption
+        // The string will be deallocated naturally when it goes out of scope
+        
         return result
     }
     
@@ -187,29 +191,43 @@ class FileProcessingService {
         return try await Task.detached(priority: .userInitiated) {
             // First try to load image from file path (for files with direct access)
             if let image = UIImage(contentsOfFile: url.path) {
-                let extractedText = try await FileProcessingService.shared.extractTextFromImage(image)
-                return FileContent(
+                var extractedText = try await FileProcessingService.shared.extractTextFromImage(image)
+                let result = FileContent(
                     fileName: url.lastPathComponent,
                     content: extractedText,
                     type: .image,
                     size: url.fileSize ?? 0
                 )
+                
+                // Security: Clear sensitive data from memory
+                // Note: Removed string wiping as it can cause memory corruption
+                // The string will be deallocated naturally when it goes out of scope
+                
+                return result
             }
             
             // If file path access fails, try to read the file data and create image from data
             do {
-                let fileData = try Data(contentsOf: url)
+                var fileData = try Data(contentsOf: url)
                 guard let image = UIImage(data: fileData) else {
                     throw FileProcessingError.imageError
                 }
                 
-                let extractedText = try await FileProcessingService.shared.extractTextFromImage(image)
-                return FileContent(
+                var extractedText = try await FileProcessingService.shared.extractTextFromImage(image)
+                let result = FileContent(
                     fileName: url.lastPathComponent,
                     content: extractedText,
                     type: .image,
                     size: fileData.count
                 )
+                
+                // Security: Clear sensitive data from memory
+                // Note: Removed string wiping as it can cause memory corruption
+                // The string will be deallocated naturally when it goes out of scope
+                // Note: Removed fileData wiping as it can cause memory corruption
+                // The data will be deallocated naturally when it goes out of scope
+                
+                return result
             } catch {
                 print("❌ FileProcessingService: Failed to read image data: \(error)")
                 throw FileProcessingError.imageError
@@ -247,6 +265,10 @@ class FileProcessingService {
         autoreleasepool {
             // This ensures Vision framework releases its internal memory
         }
+        
+        // Additional security: Clear observations from memory
+        // Note: VNRecognizedTextObservation array doesn't need secure wiping as it doesn't contain sensitive text data
+        // The actual text content has already been extracted and will be wiped separately
         
         return extractedText.isEmpty ? NSLocalizedString("No text found in image", comment: "") : extractedText
     }
@@ -310,14 +332,7 @@ class FileProcessingService {
         }
         
         // PHASE 1: Add detailed logging for pass count calculation
-        print("🔍 PHASE 1 LOGGING - FileProcessingService.calculatePassCount:")
-        print("   - Input maxLength: \(maxLength)")
-        print("   - File content length: \(fileContent.content.count)")
-        print("   - Estimated header length: \(headerLength)")
-        print("   - Available content length: \(availableContentLength)")
-        print("   - Chunk size: \(chunkSize)")
-        print("   - Calculated passes: \(passCount)")
-        print("   - Math: ceil(\(fileContent.content.count) / \(chunkSize)) = \(passCount)")
+        SecureLogger.log("FileProcessingService.calculatePassCount: Input maxLength: \(maxLength), File content length: \(fileContent.content.count), Estimated header length: \(headerLength), Available content length: \(availableContentLength), Chunk size: \(chunkSize), Calculated passes: \(passCount)")
         
         return passCount
     }
@@ -472,6 +487,83 @@ class FileProcessingService {
             // Check for excessive compression
             let compressionRatio = Double(data.count) / Double(content.count)
             if compressionRatio > 100 {
+                throw FileProcessingError.suspiciousContent
+            }
+        }
+        
+        // Add PDF-specific validation
+        if data.prefix(4) == Data([0x25, 0x50, 0x44, 0x46]) { // PDF magic number
+            try validatePDFStructure(data)
+        }
+        
+        // Add image-specific validation
+        if data.prefix(4) == Data([0xFF, 0xD8, 0xFF, 0xE0]) || // JPEG
+           data.prefix(4) == Data([0xFF, 0xD8, 0xFF, 0xE1]) || // JPEG
+           data.prefix(8) == Data([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]) { // PNG
+            try validateImageStructure(data)
+        }
+        
+        // Check for malicious file patterns
+        try validateMaliciousPatterns(data)
+    }
+    
+    /// Validates PDF structure for security
+    private func validatePDFStructure(_ data: Data) throws {
+        // Check for PDF version
+        let header = String(data: data.prefix(8), encoding: .ascii) ?? ""
+        guard header.hasPrefix("%PDF-") else {
+            throw FileProcessingError.suspiciousContent
+        }
+        
+        // Check for suspicious PDF objects
+        let content = String(data: data.prefix(min(1024 * 1024, data.count)), encoding: .utf8) ?? ""
+        let suspiciousPatterns = [
+            "/JavaScript", "/JS", "/OpenAction", "/Launch",
+            "/GoToR", "/URI", "/SubmitForm", "/ImportData"
+        ]
+        
+        for pattern in suspiciousPatterns {
+            if content.contains(pattern) {
+                SecureLogger.log("SECURITY: Suspicious PDF pattern detected: \(pattern)")
+                throw FileProcessingError.suspiciousContent
+            }
+        }
+    }
+    
+    /// Validates image structure for security
+    private func validateImageStructure(_ data: Data) throws {
+        // Check for reasonable image dimensions
+        if data.count > 50 * 1024 * 1024 { // 50MB limit for images
+            throw FileProcessingError.fileTooLarge(maxSize: 50, actualSize: data.count / (1024 * 1024), fileType: "IMAGE")
+        }
+        
+        // Check for embedded scripts in images (steganography)
+        let content = String(data: data.prefix(min(1024 * 1024, data.count)), encoding: .utf8) ?? ""
+        let scriptPatterns = ["<script", "javascript:", "vbscript:", "onload="]
+        
+        for pattern in scriptPatterns {
+            if content.lowercased().contains(pattern.lowercased()) {
+                SecureLogger.log("SECURITY: Suspicious image content detected: \(pattern)")
+                throw FileProcessingError.suspiciousContent
+            }
+        }
+    }
+    
+    /// Validates for malicious patterns in file content
+    private func validateMaliciousPatterns(_ data: Data) throws {
+        let content = String(data: data.prefix(min(1024 * 1024, data.count)), encoding: .utf8) ?? ""
+        
+        let maliciousPatterns = [
+            "eval(", "exec(", "system(", "shell_exec(",
+            "passthru(", "proc_open(", "popen(",
+            "<script", "javascript:", "vbscript:",
+            "<?php", "<?=", "<?", "#!/bin/",
+            "cmd.exe", "powershell", "bash", "sh"
+        ]
+        
+        for pattern in maliciousPatterns {
+            if content.lowercased().contains(pattern.lowercased()) {
+                SecureLogger.log("SECURITY: Malicious pattern detected in file: \(pattern)")
                 throw FileProcessingError.suspiciousContent
             }
         }

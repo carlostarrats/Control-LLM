@@ -107,6 +107,29 @@ struct FlowingRingShaderView: UIViewRepresentable {
             super.init()
         }
         
+        deinit {
+            // Security: Clear Metal resources on deinit
+            cleanupMetalResources()
+        }
+        
+        /// Cleans up Metal resources to prevent memory leaks
+        func cleanupMetalResources() {
+            // Clear command queue
+            commandQueue = nil
+            
+            // Clear pipeline state
+            pipelineState = nil
+            
+            // Clear buffers
+            vertexBuffer = nil
+            uniformBuffer = nil
+            
+            // Clear device reference
+            device = nil
+            
+            SecureLogger.log("FlowingRingShaderView: Metal resources cleaned up")
+        }
+        
         func setupMetal(mtkView: MTKView) {
             device = mtkView.device
             commandQueue = device.makeCommandQueue()

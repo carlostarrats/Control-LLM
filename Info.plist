@@ -85,8 +85,10 @@
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<false/>
 				<key>NSExceptionMinimumTLSVersion</key>
-				<string>TLSv1.2</string>
+				<string>TLSv1.3</string>
 				<key>NSExceptionRequiresForwardSecrecy</key>
+				<true/>
+				<key>NSExceptionRequiresCertificateTransparency</key>
 				<true/>
 				<key>NSIncludesSubdomains</key>
 				<true/>

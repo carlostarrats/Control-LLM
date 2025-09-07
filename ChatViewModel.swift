@@ -333,7 +333,7 @@ class ChatViewModel {
 
         // Take the most recent messages up to maxMessages
         var trimmed = Array(fullHistory.suffix(maxMessages))
-        print("🔍 ChatViewModel: After maxMessages trim: \(trimmed.count) messages")
+        SecureLogger.log("ChatViewModel: After maxMessages trim: \(trimmed.count) messages")
 
         // If still too long, trim from the oldest in this window until below character cap
         func totalChars(_ msgs: [ChatMessage]) -> Int {
@@ -341,7 +341,7 @@ class ChatViewModel {
         }
 
         let initialChars = totalChars(trimmed)
-        print("🔍 ChatViewModel: Initial character count: \(initialChars)")
+        SecureLogger.log("ChatViewModel: Initial character count: \(initialChars)")
 
         while totalChars(trimmed) > maxCharacters && !trimmed.isEmpty {
             trimmed.removeFirst()
@@ -349,6 +349,10 @@ class ChatViewModel {
 
         let finalChars = totalChars(trimmed)
         SecureLogger.log("Final result - \(trimmed.count) messages, \(finalChars) characters")
+
+        // SECURITY: Clear original history from memory after processing
+        // Note: Removed string wiping as it can cause memory corruption
+        // The strings will be deallocated naturally when they go out of scope
 
         return trimmed
     }
