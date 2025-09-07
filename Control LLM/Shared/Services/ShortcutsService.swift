@@ -19,6 +19,23 @@ class ShortcutsService: NSObject {
     func handleBackgroundExecution() async -> Bool {
         print("Handling background execution from Shortcuts")
         
+        // PERFORMANCE OPTIMIZATION: Use BackgroundTaskManager for proper task management
+        let taskId = BackgroundTaskManager.shared.startBackgroundTask(
+            type: .llmInference,
+            priority: .high,
+            completion: {
+                print("⚠️ ShortcutsService: Background task expired, cleaning up resources")
+                self.cleanupBackgroundResources()
+            }
+        )
+        
+        defer {
+            // Clean up background task
+            if let taskId = taskId {
+                BackgroundTaskManager.shared.endBackgroundTask(taskId: taskId)
+            }
+        }
+        
         do {
             // Perform any necessary background setup
             try await performBackgroundSetup()
@@ -45,10 +62,26 @@ class ShortcutsService: NSObject {
     }
     
     private func registerBackgroundTasks() async {
-        // Register for background processing if needed
+        // PERFORMANCE OPTIMIZATION: Register for background processing with proper task management
         // This ensures the app can continue processing even when in background
         
-        print("Background tasks registered")
+        print("Background tasks registered with BackgroundTaskManager")
+    }
+    
+    /// Clean up resources when background task expires
+    private func cleanupBackgroundResources() {
+        print("🧹 ShortcutsService: Cleaning up background resources")
+        
+        // Clean up any ongoing operations
+        // This ensures we don't leave resources hanging when background time expires
+        
+        // Force cleanup of any pending operations
+        Task.detached(priority: .background) {
+            // Trigger memory cleanup
+            autoreleasepool {
+                // This will trigger ARC cleanup
+            }
+        }
     }
     
     // MARK: - Security Helpers

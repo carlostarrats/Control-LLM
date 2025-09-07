@@ -23,23 +23,34 @@ class AdaptiveFrameRateManager {
         let averagePerformance = performanceHistory.isEmpty ? 1.0 : 
             performanceHistory.reduce(0, +) / Double(performanceHistory.count)
         
-        // Adjust frame rate based on performance
-        if averagePerformance < 0.7 {
-            currentFPS = 24  // Very low performance
-        } else if averagePerformance < 0.8 {
-            currentFPS = 30  // Low performance
-        } else if averagePerformance < 0.9 {
-            currentFPS = 45  // Medium performance
+        // PERFORMANCE OPTIMIZATION: 15-45 FPS range for better battery life
+        // Adjust frame rate based on performance with new range
+        if averagePerformance < 0.6 {
+            currentFPS = 15  // Very low performance - minimal battery usage
+        } else if averagePerformance < 0.75 {
+            currentFPS = 20  // Low performance
+        } else if averagePerformance < 0.85 {
+            currentFPS = 30  // Medium performance
         } else {
-            currentFPS = 60  // High performance
+            currentFPS = 45  // High performance - still efficient
         }
         
-        // Check thermal state
+        // Check thermal state with new range
         let thermalState = ProcessInfo.processInfo.thermalState
         if thermalState == .critical {
-            currentFPS = min(currentFPS, 24)
+            currentFPS = min(currentFPS, 15)  // Force minimum for critical thermal
         } else if thermalState == .serious {
-            currentFPS = min(currentFPS, 30)
+            currentFPS = min(currentFPS, 20)  // Reduce for serious thermal
+        } else if thermalState == .fair {
+            currentFPS = min(currentFPS, 30)  // Cap at 30 for fair thermal
+        }
+        
+        // PERFORMANCE OPTIMIZATION: Real-time frame time monitoring
+        let frameTime = getCurrentFrameTime()
+        if frameTime > 0.066 { // If frame time > 66ms (15 FPS equivalent)
+            currentFPS = max(15, currentFPS * 0.8) // Reduce FPS if struggling
+        } else if frameTime < 0.022 { // If frame time < 22ms (45 FPS equivalent)
+            currentFPS = min(45, currentFPS * 1.1) // Increase FPS if performing well
         }
         
         return currentFPS
@@ -69,14 +80,46 @@ class AdaptiveFrameRateManager {
     }
     
     private func calculatePerformanceScore() -> Double {
-        // Simple performance calculation based on available memory and CPU usage
+        // Enhanced performance calculation based on available memory and CPU usage
         let availableMemory = getAvailableMemory()
         let memoryScore = min(1.0, Double(availableMemory) / 1_000_000_000) // Normalize to 1GB
         
-        // Basic CPU usage estimation (simplified)
-        let cpuScore = 0.8 // Placeholder - would need more sophisticated monitoring
+        // Enhanced CPU usage estimation based on frame times
+        let frameTime = getCurrentFrameTime()
+        let cpuScore = frameTime > 0 ? min(1.0, 0.033 / frameTime) : 0.8 // 33ms = 30 FPS baseline
         
-        return (memoryScore + cpuScore) / 2.0
+        // Thermal state impact
+        let thermalState = ProcessInfo.processInfo.thermalState
+        let thermalScore = switch thermalState {
+        case .nominal: 1.0
+        case .fair: 0.8
+        case .serious: 0.6
+        case .critical: 0.4
+        @unknown default: 0.8
+        }
+        
+        return (memoryScore + cpuScore + thermalScore) / 3.0
+    }
+    
+    // MARK: - Real-time Performance Monitoring
+    
+    private var frameTimes: [Double] = []
+    private var lastFrameTime: Date = Date()
+    private let maxFrameTimeHistory = 30 // Keep last 30 frame times
+    
+    private func getCurrentFrameTime() -> Double {
+        let now = Date()
+        let frameTime = now.timeIntervalSince(lastFrameTime)
+        lastFrameTime = now
+        
+        // Store frame time for analysis
+        frameTimes.append(frameTime)
+        if frameTimes.count > maxFrameTimeHistory {
+            frameTimes.removeFirst()
+        }
+        
+        // Return average frame time over recent history
+        return frameTimes.isEmpty ? 0.033 : frameTimes.reduce(0, +) / Double(frameTimes.count)
     }
     
     private func getAvailableMemory() -> UInt64 {

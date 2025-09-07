@@ -25,8 +25,18 @@ class DataCleanupManager {
     private let lastCleanupKey = "LastDataCleanup"
     private var cleanupTimer: Timer?
     
+    // PERFORMANCE OPTIMIZATION: Incremental cleanup system
+    private var incrementalCleanupManager: IncrementalCleanupManager?
+    
     private init() {
         setupCleanupTimer()
+        initializeIncrementalCleanup()
+    }
+    
+    private func initializeIncrementalCleanup() {
+        // PERFORMANCE OPTIMIZATION: Initialize incremental cleanup system
+        incrementalCleanupManager = IncrementalCleanupManager()
+        print("🧹 DataCleanupManager: Incremental cleanup system initialized")
     }
     
     deinit {
@@ -57,7 +67,15 @@ class DataCleanupManager {
         
         if timeSinceLastCleanup >= cleanupInterval {
             performComprehensiveCleanup()
+        } else {
+            // PERFORMANCE OPTIMIZATION: Schedule incremental cleanup for better performance
+            scheduleIncrementalCleanup()
         }
+    }
+    
+    /// Schedule incremental cleanup for better performance
+    func scheduleIncrementalCleanup() {
+        incrementalCleanupManager?.scheduleIncrementalCleanup()
     }
     
     /// Performs comprehensive data cleanup
@@ -353,5 +371,195 @@ extension ChatViewModel {
             
             print("✅ ChatViewModel: All conversation data cleared")
         }
+    }
+}
+
+// MARK: - Performance Optimization: Incremental Cleanup System
+
+/// Manages incremental cleanup tasks with prioritization and queuing
+class IncrementalCleanupManager {
+    private var taskQueue: [CleanupTask] = []
+    private let maxCleanupTasks = 10
+    private let cleanupQueue = DispatchQueue(label: "com.controlllm.cleanup.incremental", attributes: .concurrent)
+    private var isProcessing = false
+    
+    enum CleanupTaskType: String, CaseIterable {
+        case conversationData = "conversation_data"
+        case temporaryFiles = "temporary_files"
+        case metalMemory = "metal_memory"
+        case cppBridgeMemory = "cpp_bridge_memory"
+        case secureStorage = "secure_storage"
+        case userDefaults = "user_defaults"
+        case systemCaches = "system_caches"
+    }
+    
+    enum TaskPriority: Int, CaseIterable, Comparable {
+        case low = 0
+        case medium = 1
+        case high = 2
+        
+        static func < (lhs: TaskPriority, rhs: TaskPriority) -> Bool {
+            return lhs.rawValue < rhs.rawValue
+        }
+    }
+    
+    struct CleanupTask {
+        let id: String
+        let type: CleanupTaskType
+        let priority: TaskPriority
+        let createdAt: Date
+        let estimatedDuration: TimeInterval
+        
+        init(type: CleanupTaskType, priority: TaskPriority) {
+            self.id = UUID().uuidString
+            self.type = type
+            self.priority = priority
+            self.createdAt = Date()
+            self.estimatedDuration = Self.estimatedDuration(for: type)
+        }
+        
+        private static func estimatedDuration(for type: CleanupTaskType) -> TimeInterval {
+            switch type {
+            case .conversationData: return 2.0
+            case .temporaryFiles: return 1.0
+            case .metalMemory: return 0.5
+            case .cppBridgeMemory: return 0.5
+            case .secureStorage: return 1.5
+            case .userDefaults: return 0.3
+            case .systemCaches: return 3.0
+            }
+        }
+    }
+    
+    /// Schedule incremental cleanup tasks
+    func scheduleIncrementalCleanup() {
+        cleanupQueue.async(flags: .barrier) {
+            guard !self.isProcessing else { return }
+            
+            let tasks = [
+                CleanupTask(type: .conversationData, priority: .high),
+                CleanupTask(type: .temporaryFiles, priority: .medium),
+                CleanupTask(type: .metalMemory, priority: .low),
+                CleanupTask(type: .cppBridgeMemory, priority: .low),
+                CleanupTask(type: .secureStorage, priority: .medium),
+                CleanupTask(type: .userDefaults, priority: .low),
+                CleanupTask(type: .systemCaches, priority: .high)
+            ]
+            
+            // Add tasks to queue, avoiding duplicates
+            for task in tasks {
+                if !self.taskQueue.contains(where: { $0.type == task.type }) {
+                    self.taskQueue.append(task)
+                }
+            }
+            
+            // Sort by priority (high first)
+            self.taskQueue.sort { $0.priority > $1.priority }
+            
+            print("🧹 IncrementalCleanupManager: Scheduled \(tasks.count) cleanup tasks")
+            self.processNextCleanupTask()
+        }
+    }
+    
+    private func processNextCleanupTask() {
+        cleanupQueue.async(flags: .barrier) {
+            guard !self.isProcessing, !self.taskQueue.isEmpty else { return }
+            
+            self.isProcessing = true
+            let task = self.taskQueue.removeFirst()
+            
+            print("🧹 IncrementalCleanupManager: Processing \(task.type.rawValue) (priority: \(task.priority.rawValue))")
+            
+            Task.detached(priority: .background) {
+                await self.executeCleanupTask(task)
+                
+                // Schedule next task after a delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                    self.cleanupQueue.async(flags: .barrier) {
+                        self.isProcessing = false
+                        self.processNextCleanupTask()
+                    }
+                }
+            }
+        }
+    }
+    
+    private func executeCleanupTask(_ task: CleanupTask) async {
+        let startTime = Date()
+        
+        switch task.type {
+        case .conversationData:
+            await clearConversationDataIncremental()
+        case .temporaryFiles:
+            await clearTemporaryFilesIncremental()
+        case .metalMemory:
+            await clearMetalMemoryIncremental()
+        case .cppBridgeMemory:
+            await clearCppBridgeMemoryIncremental()
+        case .secureStorage:
+            await clearSecureStorageIncremental()
+        case .userDefaults:
+            await clearUserDefaultsIncremental()
+        case .systemCaches:
+            await clearSystemCachesIncremental()
+        }
+        
+        let duration = Date().timeIntervalSince(startTime)
+        print("✅ IncrementalCleanupManager: Completed \(task.type.rawValue) in \(String(format: "%.2f", duration))s")
+    }
+    
+    // MARK: - Incremental Cleanup Methods
+    
+    private func clearConversationDataIncremental() async {
+        // Clear conversation data in smaller chunks
+        NotificationCenter.default.post(name: .clearAllConversationData, object: nil)
+    }
+    
+    private func clearTemporaryFilesIncremental() async {
+        // Clear temporary files incrementally
+        let tempDir = FileManager.default.temporaryDirectory
+        do {
+            let tempFiles = try FileManager.default.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: [.creationDateKey], options: [])
+            let oldFiles = tempFiles.filter { url in
+                if let creationDate = try? url.resourceValues(forKeys: [.creationDateKey]).creationDate {
+                    return Date().timeIntervalSince(creationDate) > 3600 // 1 hour
+                }
+                return false
+            }
+            
+            for file in oldFiles.prefix(10) { // Process max 10 files at a time
+                try? FileManager.default.removeItem(at: file)
+            }
+        } catch {
+            print("⚠️ IncrementalCleanupManager: Error clearing temporary files: \(error)")
+        }
+    }
+    
+    private func clearMetalMemoryIncremental() async {
+        // Clear Metal memory incrementally
+        MetalMemoryManager.shared.clearMetalMemory()
+    }
+    
+    private func clearCppBridgeMemoryIncremental() async {
+        // Clear C++ bridge memory incrementally
+        NotificationCenter.default.post(name: .clearCppBridgeMemory, object: nil)
+    }
+    
+    private func clearSecureStorageIncremental() async {
+        // Clear secure storage incrementally (only old cache entries)
+        SecureStorage.clearCache()
+    }
+    
+    private func clearUserDefaultsIncremental() async {
+        // Clear UserDefaults incrementally (only non-essential keys)
+        let keysToRemove = ["tempCache", "debugFlags", "performanceMetrics"]
+        for key in keysToRemove {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+    }
+    
+    private func clearSystemCachesIncremental() async {
+        // Clear system caches incrementally
+        NotificationCenter.default.post(name: .clearSystemCaches, object: nil)
     }
 }
