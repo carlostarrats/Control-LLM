@@ -9,6 +9,92 @@ import Foundation
 import Metal
 import MetalKit
 
+// MARK: - Performance Optimization: Metal Memory Pooling
+
+/// Metal buffer pool for efficient memory management
+class MetalBufferPool {
+    private var availableBuffers: [MTLBuffer] = []
+    private let maxPoolSize = 10
+    private let device: MTLDevice
+    private let queue = DispatchQueue(label: "com.controlllm.metal.bufferpool", attributes: .concurrent)
+    
+    init(device: MTLDevice) {
+        self.device = device
+    }
+    
+    func getBuffer(length: Int, options: MTLResourceOptions = []) -> MTLBuffer? {
+        return queue.sync {
+            // Try to find a suitable buffer in the pool
+            if let bufferIndex = availableBuffers.firstIndex(where: { $0.length >= length }) {
+                let buffer = availableBuffers.remove(at: bufferIndex)
+                return buffer
+            }
+            
+            // Create new buffer if none available
+            return device.makeBuffer(length: length, options: options)
+        }
+    }
+    
+    func returnBuffer(_ buffer: MTLBuffer) {
+        queue.async(flags: .barrier) {
+            guard self.availableBuffers.count < self.maxPoolSize else { return }
+            self.availableBuffers.append(buffer)
+        }
+    }
+    
+    func clearPool() {
+        queue.async(flags: .barrier) {
+            self.availableBuffers.removeAll()
+        }
+    }
+}
+
+/// Metal texture pool for efficient memory management
+class MetalTexturePool {
+    private var availableTextures: [MTLTexture] = []
+    private let maxPoolSize = 10
+    private let device: MTLDevice
+    private let queue = DispatchQueue(label: "com.controlllm.metal.texturepool", attributes: .concurrent)
+    
+    init(device: MTLDevice) {
+        self.device = device
+    }
+    
+    func getTexture(width: Int, height: Int, pixelFormat: MTLPixelFormat) -> MTLTexture? {
+        return queue.sync {
+            // Try to find a suitable texture in the pool
+            if let textureIndex = availableTextures.firstIndex(where: { 
+                $0.width >= width && $0.height >= height && $0.pixelFormat == pixelFormat 
+            }) {
+                let texture = availableTextures.remove(at: textureIndex)
+                return texture
+            }
+            
+            // Create new texture if none available
+            let descriptor = MTLTextureDescriptor.texture2DDescriptor(
+                pixelFormat: pixelFormat,
+                width: width,
+                height: height,
+                mipmapped: false
+            )
+            return device.makeTexture(descriptor: descriptor)
+        }
+    }
+    
+    func returnTexture(_ texture: MTLTexture) {
+        queue.async(flags: .barrier) {
+            guard self.availableTextures.count < self.maxPoolSize else { return }
+            self.availableTextures.append(texture)
+        }
+    }
+    
+    func clearPool() {
+        queue.async(flags: .barrier) {
+            self.availableTextures.removeAll()
+        }
+    }
+}
+
 /// Manages Metal memory securely to prevent sensitive data leakage
 class MetalMemoryManager {
     static let shared = MetalMemoryManager()
@@ -16,6 +102,10 @@ class MetalMemoryManager {
     private var device: MTLDevice?
     private var commandQueue: MTLCommandQueue?
     private var metalHeaps: [MTLHeap] = []
+    
+    // PERFORMANCE OPTIMIZATION: Metal memory pooling
+    private var bufferPool: MetalBufferPool?
+    private var texturePool: MetalTexturePool?
     
     private init() {
         setupMetal()
@@ -37,7 +127,11 @@ class MetalMemoryManager {
         self.device = device
         self.commandQueue = device.makeCommandQueue()
         
-        SecureLogger.log("MetalMemoryManager: Metal setup completed")
+        // PERFORMANCE OPTIMIZATION: Initialize memory pools
+        self.bufferPool = MetalBufferPool(device: device)
+        self.texturePool = MetalTexturePool(device: device)
+        
+        SecureLogger.log("MetalMemoryManager: Metal setup completed with memory pooling")
     }
     
     // MARK: - Memory Management
@@ -110,6 +204,34 @@ class MetalMemoryManager {
             commandBuffer.commit()
             commandBuffer.waitUntilCompleted()
         }
+    }
+    
+    // MARK: - Performance Optimizations
+    
+    /// Get a buffer from the pool for better performance
+    func getPooledBuffer(length: Int, options: MTLResourceOptions = []) -> MTLBuffer? {
+        return bufferPool?.getBuffer(length: length, options: options)
+    }
+    
+    /// Return a buffer to the pool for reuse
+    func returnPooledBuffer(_ buffer: MTLBuffer) {
+        bufferPool?.returnBuffer(buffer)
+    }
+    
+    /// Get a texture from the pool for better performance
+    func getPooledTexture(width: Int, height: Int, pixelFormat: MTLPixelFormat) -> MTLTexture? {
+        return texturePool?.getTexture(width: width, height: height, pixelFormat: pixelFormat)
+    }
+    
+    /// Return a texture to the pool for reuse
+    func returnPooledTexture(_ texture: MTLTexture) {
+        texturePool?.returnTexture(texture)
+    }
+    
+    /// Clear all memory pools
+    func clearMemoryPools() {
+        bufferPool?.clearPool()
+        texturePool?.clearPool()
     }
     
     // MARK: - Security Utilities

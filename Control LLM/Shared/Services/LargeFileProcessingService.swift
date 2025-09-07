@@ -1,5 +1,86 @@
 import Foundation
 
+// MARK: - Performance Optimization: High-Performance Text Processing
+
+/// High-performance StringBuilder for efficient string concatenation
+class PerformanceStringBuilder {
+    private var buffer: [String] = []
+    private var totalLength: Int = 0
+    
+    func append(_ string: String) {
+        buffer.append(string)
+        totalLength += string.count
+    }
+    
+    func toString() -> String {
+        return buffer.joined()
+    }
+    
+    func clear() {
+        buffer.removeAll()
+        totalLength = 0
+    }
+}
+
+/// High-performance text processor with compiled regex patterns
+class TextProcessor {
+    static let shared = TextProcessor()
+    
+    // Compiled regex patterns for better performance
+    private let whitespaceRegex: NSRegularExpression
+    private let pageNumberRegex: NSRegularExpression
+    private let lineBreakRegex: NSRegularExpression
+    private let multipleSpacesRegex: NSRegularExpression
+    
+    private init() {
+        do {
+            // Compile regex patterns once for better performance
+            self.whitespaceRegex = try NSRegularExpression(pattern: "\\s+", options: [])
+            self.pageNumberRegex = try NSRegularExpression(pattern: "\\b\\d+\\s*of\\s*\\d+\\b|\\bPage\\s+\\d+\\b", options: [])
+            self.lineBreakRegex = try NSRegularExpression(pattern: "\\n\\s*\\n", options: [])
+            self.multipleSpacesRegex = try NSRegularExpression(pattern: "\\s{3,}", options: [])
+        } catch {
+            fatalError("Failed to compile regex patterns: \(error)")
+        }
+    }
+    
+    func cleanWhitespace(_ text: String) -> String {
+        return whitespaceRegex.stringByReplacingMatches(
+            in: text,
+            options: [],
+            range: NSRange(text.startIndex..., in: text),
+            withTemplate: " "
+        )
+    }
+    
+    func removePageNumbers(_ text: String) -> String {
+        return pageNumberRegex.stringByReplacingMatches(
+            in: text,
+            options: [],
+            range: NSRange(text.startIndex..., in: text),
+            withTemplate: ""
+        )
+    }
+    
+    func normalizeLineBreaks(_ text: String) -> String {
+        var result = lineBreakRegex.stringByReplacingMatches(
+            in: text,
+            options: [],
+            range: NSRange(text.startIndex..., in: text),
+            withTemplate: "\n\n"
+        )
+        
+        result = multipleSpacesRegex.stringByReplacingMatches(
+            in: result,
+            options: [],
+            range: NSRange(result.startIndex..., in: result),
+            withTemplate: " "
+        )
+        
+        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
 // MARK: - Performance Actors for Better Concurrency
 actor ProgressActor {
     private var pendingProgressUpdates: [String] = []
@@ -110,6 +191,16 @@ class LargeFileProcessingService {
     private let progressActor = ProgressActor()
     private let transcriptActor = TranscriptActor()
     
+    // PERFORMANCE OPTIMIZATION: Model-specific chunk size multipliers
+    private let modelChunkMultipliers: [String: Double] = [
+        "llama-3.2-1b": 1.5,      // Smaller model, larger chunks
+        "llama-3.2-3b": 1.2,      // Medium model, medium chunks
+        "gemma-3-1b": 1.4,        // Smaller model, larger chunks
+        "qwen3-1.7b": 1.3,        // Medium model, medium chunks
+        "smollm2-1.7b": 1.3,      // Medium model, medium chunks
+        "default": 1.0             // Default multiplier
+    ]
+    
     // NEW: Store final synthesis results for both parallel and sequential processing
     private var finalSynthesisResult: String?
     private var sequentialFinalSynthesisResult: String?
@@ -131,6 +222,49 @@ class LargeFileProcessingService {
         Task {
             await clearProcessedData()
         }
+    }
+    
+    // MARK: - Performance Optimizations
+    
+    /// Calculate optimal chunk size based on model and content
+    func calculateOptimalChunkSize(for modelFilename: String, contentLength: Int) async -> Int {
+        let baseChunkSize = 2000  // Base chunk size
+        
+        // Get model-specific multiplier
+        let modelKey = extractModelKey(from: modelFilename)
+        let modelMultiplier = modelChunkMultipliers[modelKey] ?? modelChunkMultipliers["default"]!
+        
+        // Content-based multiplier (larger content = larger chunks)
+        let contentMultiplier = min(2.0, max(0.5, Double(contentLength) / 100000.0))
+        
+        // Calculate optimal size
+        let optimalSize = Int(Double(baseChunkSize) * modelMultiplier * contentMultiplier)
+        
+        // Ensure reasonable bounds
+        let minSize = 500
+        let maxSize = 4000
+        
+        let finalSize = max(minSize, min(maxSize, optimalSize))
+        
+        print("🔥 LargeFileProcessingService: Chunk size calculation:")
+        print("   - Model: \(modelKey), Multiplier: \(modelMultiplier)")
+        print("   - Content: \(contentLength) chars, Multiplier: \(contentMultiplier)")
+        print("   - Base: \(baseChunkSize) → Optimal: \(finalSize)")
+        
+        return finalSize
+    }
+    
+    /// Extract model key from filename for multiplier lookup
+    private func extractModelKey(from filename: String) -> String {
+        let lowercased = filename.lowercased()
+        
+        if lowercased.contains("llama-3.2-1b") { return "llama-3.2-1b" }
+        if lowercased.contains("llama-3.2-3b") { return "llama-3.2-3b" }
+        if lowercased.contains("gemma-3-1b") { return "gemma-3-1b" }
+        if lowercased.contains("qwen3-1.7b") { return "qwen3-1.7b" }
+        if lowercased.contains("smollm2-1.7b") { return "smollm2-1.7b" }
+        
+        return "default"
     }
     
     // CRITICAL FIX: Check if processed PDF data is available for questions
@@ -180,7 +314,7 @@ class LargeFileProcessingService {
         transcriptHandler: @escaping (String) async -> Void
     ) async -> String? {
         
-        guard let (fileContent, summaries) = await getProcessedData() else {
+        guard let (_, summaries) = await getProcessedData() else {
             await transcriptHandler("❌ No processed PDF data available. Please upload and process a PDF first.")
             return nil
         }
@@ -260,15 +394,17 @@ class LargeFileProcessingService {
             )
         }
         
-        // CRITICAL FIX: Use much smaller chunk size to prevent timeouts
-        // The LLM is timing out on 3200 character chunks, so we need smaller ones
-        let fixedChunkSize = 1500  // Much smaller to process faster and avoid timeouts
-        let totalChunks = Int(ceil(Double(fileContent.content.count) / Double(fixedChunkSize)))
+        // PERFORMANCE OPTIMIZATION: Dynamic chunk sizing based on model and content
+        let optimalChunkSize = await calculateOptimalChunkSize(
+            for: await llmService.currentModelFilename ?? "default",
+            contentLength: fileContent.content.count
+        )
+        let totalChunks = Int(ceil(Double(fileContent.content.count) / Double(optimalChunkSize)))
         
         print("🔥 LargeFileProcessingService: Content length: \(fileContent.content.count)")
-        print("🔥 LargeFileProcessingService: Fixed chunk size: \(fixedChunkSize)")
+        print("🔥 LargeFileProcessingService: Optimal chunk size: \(optimalChunkSize)")
         print("🔥 LargeFileProcessingService: Total chunks: \(totalChunks)")
-        print("🔥 LargeFileProcessingService: Expected total processed: \(fixedChunkSize * totalChunks)")
+        print("🔥 LargeFileProcessingService: Expected total processed: \(optimalChunkSize * totalChunks)")
         
         // CRITICAL FIX: Use sequential processing to ensure chunks are processed in order
         // Parallel processing was causing random chunk order (4, 2, 1 instead of 1, 2, 3, 4...)
@@ -277,7 +413,7 @@ class LargeFileProcessingService {
             return await processChunksSequentially(
                 fileContent: fileContent,
                 instruction: instruction,
-                chunkSize: fixedChunkSize,
+                chunkSize: optimalChunkSize,
                 totalChunks: totalChunks,
                 llmService: llmService,
                 progressHandler: progressHandler,
@@ -289,7 +425,7 @@ class LargeFileProcessingService {
             return await processChunksSequentially(
                 fileContent: fileContent,
                 instruction: instruction,
-                chunkSize: fixedChunkSize,
+                chunkSize: optimalChunkSize,
                 totalChunks: totalChunks,
                 llmService: llmService,
                 progressHandler: progressHandler,
@@ -766,7 +902,7 @@ class LargeFileProcessingService {
         return fileContent.content
     }
     
-    // NEW: Process PDF with pure text extraction (no LLM enhancement)
+    // NEW: Process PDF with parallel page processing
     private func processPDFWithCleanText(
         fileContent: FileContent,
         instruction: String,
@@ -775,42 +911,237 @@ class LargeFileProcessingService {
         transcriptHandler: @escaping (String) async -> Void
     ) async -> String? {
         
-        print("🔥 LargeFileProcessingService: Processing PDF with pure text extraction")
+        print("🔥 LargeFileProcessingService: Processing PDF with parallel page processing")
         
         // Step 1: Extract clean text from PDF content
         let cleanText = extractCleanTextFromPDF(fileContent.content)
         print("🔥 LargeFileProcessingService: Clean text extracted (\(cleanText.count) chars)")
         
-        await progressHandler("Clean text extracted, generating intelligent summary...")
+        await progressHandler("Clean text extracted, processing pages in parallel...")
         
-        // Step 2: Pure text extraction with intelligent formatting
-        print("🔥 LargeFileProcessingService: Creating intelligent summary from text")
-        await progressHandler("Creating structured summary...")
+        // Step 2: Parallel page processing for better performance
+        let pages = extractPDFPages(cleanText)
+        print("🔥 LargeFileProcessingService: Extracted \(pages.count) pages")
         
-        // Create intelligent summary without LLM processing
-        let summary = createIntelligentTextSummary(from: cleanText, instruction: instruction)
-        
-        await progressHandler("Summary complete!")
-        return summary
+        if pages.count > 1 {
+            await progressHandler("Processing \(pages.count) pages in parallel...")
+            return await processPagesInParallel(
+                pages: pages,
+                instruction: instruction,
+                llmService: llmService,
+                progressHandler: progressHandler,
+                transcriptHandler: transcriptHandler
+            )
+        } else {
+            // Single page - use direct processing
+            await progressHandler("Single page detected, processing directly...")
+            return createIntelligentTextSummary(from: cleanText, instruction: instruction)
+        }
     }
     
-    // NEW: Extract clean text from PDF content
+    // PERFORMANCE OPTIMIZATION: Extract PDF pages for parallel processing
+    private func extractPDFPages(_ content: String) -> [String] {
+        // Split content by common page break patterns
+        let pageBreaks = [
+            "\\f", // Form feed
+            "\\n\\s*\\n\\s*\\n", // Multiple newlines
+            "\\n\\s*---\\s*\\n", // Dashed separators
+            "\\n\\s*===\\s*\\n", // Equals separators
+            "\\n\\s*Page\\s+\\d+\\s*\\n", // Page numbers
+        ]
+        
+        var pages: [String] = [content] // Start with full content as single page
+        
+        for pattern in pageBreaks {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
+                let matches = regex.matches(in: content, range: NSRange(content.startIndex..., in: content))
+                if matches.count > 1 {
+                    // Split by this pattern
+                    let splitContent = regex.stringByReplacingMatches(
+                        in: content,
+                        options: [],
+                        range: NSRange(content.startIndex..., in: content),
+                        withTemplate: "|||PAGE_BREAK|||"
+                    )
+                    pages = splitContent.components(separatedBy: "|||PAGE_BREAK|||")
+                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                        .filter { !$0.isEmpty }
+                    break
+                }
+            }
+        }
+        
+        // If no page breaks found, split by content length
+        if pages.count == 1 && content.count > 5000 {
+            let chunkSize = content.count / 3 // Split into 3 parts
+            pages = []
+            var startIndex = content.startIndex
+            
+            while startIndex < content.endIndex {
+                let endIndex = content.index(startIndex, offsetBy: min(chunkSize, content.distance(from: startIndex, to: content.endIndex)))
+                let page = String(content[startIndex..<endIndex])
+                if !page.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    pages.append(page)
+                }
+                startIndex = endIndex
+            }
+        }
+        
+        return pages
+    }
+    
+    // PERFORMANCE OPTIMIZATION: Process PDF pages in parallel
+    private func processPagesInParallel(
+        pages: [String],
+        instruction: String,
+        llmService: HybridLLMService,
+        progressHandler: @escaping (String) async -> Void,
+        transcriptHandler: @escaping (String) async -> Void
+    ) async -> String? {
+        
+        print("🔥 LargeFileProcessingService: Processing \(pages.count) pages in parallel")
+        
+        var pageSummaries: [String] = []
+        let pageCount = pages.count
+        
+        // Process pages in parallel with controlled concurrency
+        await withTaskGroup(of: (Int, String?).self) { group in
+            for (index, page) in pages.enumerated() {
+                group.addTask {
+                    let summary = await self.processSinglePage(
+                        page: page,
+                        pageIndex: index + 1,
+                        totalPages: pageCount,
+                        instruction: instruction,
+                        llmService: llmService,
+                        progressHandler: progressHandler,
+                        transcriptHandler: transcriptHandler
+                    )
+                    return (index, summary)
+                }
+            }
+            
+            // Collect results as they complete
+            for await (index, result) in group {
+                if let summary = result {
+                    pageSummaries.append(summary)
+                }
+            }
+        }
+        
+        // Sort page summaries by index
+        pageSummaries.sort { page1, page2 in
+            let index1 = extractPageIndex(from: page1)
+            let index2 = extractPageIndex(from: page2)
+            return index1 < index2
+        }
+        
+        await progressHandler("All pages processed, creating final summary...")
+        
+        // Create final summary from all page summaries
+        return createFinalPDFSummary(
+            pageSummaries: pageSummaries,
+            instruction: instruction,
+            totalPages: pageCount
+        )
+    }
+    
+    // Process a single PDF page
+    private func processSinglePage(
+        page: String,
+        pageIndex: Int,
+        totalPages: Int,
+        instruction: String,
+        llmService: HybridLLMService,
+        progressHandler: @escaping (String) async -> Void,
+        transcriptHandler: @escaping (String) async -> Void
+    ) async -> String? {
+        
+        await progressHandler("Processing page \(pageIndex)/\(totalPages)...")
+        
+        // Create page-specific summary
+        let pageSummary = createIntelligentTextSummary(from: page, instruction: instruction)
+        
+        // Add page header
+        let finalPageSummary = "📄 PAGE \(pageIndex)/\(totalPages)\n\n\(pageSummary)"
+        
+        await transcriptHandler("✅ Page \(pageIndex)/\(totalPages) processed")
+        
+        return finalPageSummary
+    }
+    
+    // Extract page index from summary
+    private func extractPageIndex(from summary: String) -> Int {
+        if let range = summary.range(of: "PAGE (\\d+)/", options: .regularExpression) {
+            let indexString = String(summary[range])
+            if let index = Int(indexString.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()) {
+                return index
+            }
+        }
+        return 0
+    }
+    
+    // Create final PDF summary from page summaries
+    private func createFinalPDFSummary(
+        pageSummaries: [String],
+        instruction: String,
+        totalPages: Int
+    ) -> String {
+        
+        var finalSummary = "📋 PDF DOCUMENT SUMMARY\n\n"
+        finalSummary += "📖 Request: \(instruction)\n\n"
+        finalSummary += "📊 Analysis: Document processed across \(totalPages) pages\n\n"
+        
+        if pageSummaries.isEmpty {
+            finalSummary += "❌ No pages were successfully processed.\n"
+            return finalSummary
+        }
+        
+        finalSummary += "📄 PAGE SUMMARIES:\n\n"
+        
+        for (index, pageSummary) in pageSummaries.enumerated() {
+            finalSummary += "--- PAGE \(index + 1) ---\n"
+            finalSummary += pageSummary + "\n\n"
+        }
+        
+        finalSummary += "✅ PDF processing complete - \(pageSummaries.count)/\(totalPages) pages processed successfully"
+        
+        return finalSummary
+    }
+    
+    // PERFORMANCE OPTIMIZATION: High-performance text extraction
     private func extractCleanTextFromPDF(_ content: String) -> String {
-        var cleanText = content
+        // Use PerformanceStringBuilder for better performance
+        var result = PerformanceStringBuilder()
         
-        // Remove common PDF artifacts
-        cleanText = cleanText.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression) // Multiple spaces
-        cleanText = cleanText.replacingOccurrences(of: "\\n\\s*\\n", with: "\n\n", options: .regularExpression) // Multiple newlines
-        cleanText = cleanText.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Process content in chunks for better memory efficiency
+        let chunkSize = 1000
+        var startIndex = content.startIndex
         
-        // Remove page numbers and headers/footers (common patterns)
-        cleanText = cleanText.replacingOccurrences(of: "\\b\\d+\\s*of\\s*\\d+\\b", with: "", options: .regularExpression) // "1 of 5"
-        cleanText = cleanText.replacingOccurrences(of: "\\bPage\\s+\\d+\\b", with: "", options: .regularExpression) // "Page 1"
+        while startIndex < content.endIndex {
+            let endIndex = content.index(startIndex, offsetBy: min(chunkSize, content.distance(from: startIndex, to: content.endIndex)))
+            let chunk = String(content[startIndex..<endIndex])
+            
+            // Process chunk with optimized algorithms
+            let processedChunk = processTextChunk(chunk)
+            result.append(processedChunk)
+            
+            startIndex = endIndex
+        }
         
-        // Remove excessive whitespace
-        cleanText = cleanText.replacingOccurrences(of: "\\s{3,}", with: " ", options: .regularExpression)
+        return result.toString()
+    }
+    
+    // PERFORMANCE OPTIMIZATION: Process text chunks efficiently
+    private func processTextChunk(_ chunk: String) -> String {
+        var processed = chunk
         
-        return cleanText
+        // Use compiled regex patterns for better performance
+        processed = TextProcessor.shared.cleanWhitespace(processed)
+        processed = TextProcessor.shared.removePageNumbers(processed)
+        processed = TextProcessor.shared.normalizeLineBreaks(processed)
+        
+        return processed
     }
     
     // NEW: Chunk raw text at natural boundaries (sentences, paragraphs)
@@ -1315,7 +1646,7 @@ class LargeFileProcessingService {
         
         // CRITICAL FIX: Process final synthesis in much smaller batches to avoid memory allocation failures
         // The LLM can't handle even 1226 tokens, so we need to process in much smaller chunks
-        let maxSummaryLength = 50  // Much smaller to keep prompts under 1000 characters
+        let _ = 50  // Much smaller to keep prompts under 1000 characters
         
         // CRITICAL FIX: Check if we have enough valid summaries before giving up
         let validSummaries = summaries.filter { !$0.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty }

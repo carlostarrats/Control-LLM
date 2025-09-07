@@ -9,6 +9,36 @@ import SwiftUI
 import os.log
 import AppIntents
 
+// MARK: - Performance Optimization: Lazy Service Manager
+class LazyServiceManager {
+    static let shared = LazyServiceManager()
+    
+    private var services: [String: Any] = [:]
+    private let serviceQueue = DispatchQueue(label: "com.controlllm.services", attributes: .concurrent)
+    
+    private init() {}
+    
+    func getService<T>(_ type: T.Type) -> T {
+        let key = String(describing: type)
+        
+        return serviceQueue.sync {
+            if let service = services[key] as? T {
+                return service
+            }
+            
+            let service = createService(type)
+            services[key] = service
+            return service
+        }
+    }
+    
+    private func createService<T>(_ type: T.Type) -> T {
+        // This would need to be implemented based on your specific service types
+        // For now, return a placeholder
+        fatalError("Service creation not implemented for \(type)")
+    }
+}
+
 // MARK: - Console Flooding Prevention
 #if DEBUG
 private func disableConsoleFlooding() {
@@ -51,18 +81,13 @@ struct Control_LLMApp: App {
         registerCustomFonts()
         print("🔍 App started successfully")
         
-        // Initialize ModelManager to ensure models are discovered at startup
-        DispatchQueue.main.async {
-            let _ = ModelManager.shared
+        // PERFORMANCE OPTIMIZATION: Defer heavy initialization to background
+        Task.detached(priority: .background) {
+            await Self.initializeNonCriticalServices()
         }
         
-        // Initialize security components
-        initializeSecurityComponents()
-        
-        // Initialize Shortcuts integration if available
-        if #available(iOS 16.0, *) {
-            initializeShortcutsIntegration()
-        }
+        // Initialize only critical services immediately
+        initializeCriticalServices()
         
         #if DEBUG
         let successMessage = "🔍 App started successfully at \(timestamp)"
@@ -95,7 +120,39 @@ struct Control_LLMApp: App {
         }
     }
     
-    private func initializeSecurityComponents() {
+    // MARK: - Performance Optimizations
+    
+    /// Initialize only critical services that are needed immediately
+    private func initializeCriticalServices() {
+        print("🚀 Initializing critical services...")
+        
+        // Only initialize essential services for app launch
+        let _ = LazyServiceManager.shared
+        
+        print("🚀 Critical services initialized")
+    }
+    
+    /// Initialize non-critical services in background
+    private static func initializeNonCriticalServices() async {
+        print("🔄 Initializing non-critical services in background...")
+        
+        // Initialize ModelManager (can be done in background)
+        DispatchQueue.main.async {
+            let _ = ModelManager.shared
+        }
+        
+        // Initialize security components
+        Self.initializeSecurityComponents()
+        
+        // Initialize Shortcuts integration if available
+        if #available(iOS 16.0, *) {
+            Self.initializeShortcutsIntegration()
+        }
+        
+        print("✅ Non-critical services initialized")
+    }
+    
+    private static func initializeSecurityComponents() {
         print("🔒 Initializing security components...")
         
         // Initialize Metal memory manager
@@ -111,7 +168,7 @@ struct Control_LLMApp: App {
     }
     
     @available(iOS 16.0, *)
-    private func initializeShortcutsIntegration() {
+    private static func initializeShortcutsIntegration() {
         print("🔗 Initializing Shortcuts integration...")
         
         // Initialize the Shortcuts service

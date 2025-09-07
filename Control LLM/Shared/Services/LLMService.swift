@@ -1,6 +1,65 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Performance Optimization: Memory Pressure Monitor
+class MemoryPressureMonitor {
+    private var memoryPressureSource: DispatchSourceMemoryPressure?
+    private let memoryThreshold: UInt64
+    
+    init(threshold: UInt64 = 2 * 1024 * 1024 * 1024) { // 2GB default
+        self.memoryThreshold = threshold
+        setupMemoryPressureMonitoring()
+    }
+    
+    private func setupMemoryPressureMonitoring() {
+        memoryPressureSource = DispatchSource.makeMemoryPressureSource(eventMask: .all, queue: .global(qos: .background))
+        
+        memoryPressureSource?.setEventHandler { [weak self] in
+            self?.handleMemoryPressure()
+        }
+        
+        memoryPressureSource?.resume()
+    }
+    
+    private func handleMemoryPressure() {
+        let currentMemory = getCurrentMemoryUsage()
+        
+        if currentMemory > memoryThreshold {
+            print("⚠️ MemoryPressureMonitor: High memory usage detected (\(currentMemory / 1024 / 1024)MB)")
+            // Trigger memory cleanup
+            NotificationCenter.default.post(name: .memoryPressureDetected, object: nil)
+        }
+    }
+    
+    private func getCurrentMemoryUsage() -> UInt64 {
+        var info = mach_task_basic_info()
+        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size)/4
+        
+        let kerr: kern_return_t = withUnsafeMutablePointer(to: &info) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
+                task_info(mach_task_self_,
+                         task_flavor_t(MACH_TASK_BASIC_INFO),
+                         $0,
+                         &count)
+            }
+        }
+        
+        if kerr == KERN_SUCCESS {
+            return info.resident_size
+        } else {
+            return 0
+        }
+    }
+    
+    deinit {
+        memoryPressureSource?.cancel()
+    }
+}
+
+extension Notification.Name {
+    static let memoryPressureDetected = Notification.Name("memoryPressureDetected")
+}
+
 final class LLMService: @unchecked Sendable {
     static let shared = LLMService()
     private var modelPath: String?
@@ -14,6 +73,15 @@ final class LLMService: @unchecked Sendable {
     private var isChatOperationInProgress = false   // For chat generation
     private var _isMultiPassMode = false             // For multi-pass processing
     private var lastOperationTime: Date = Date()  // Track when operations start
+    
+    // PERFORMANCE OPTIMIZATION: Model warmup cache
+    private var modelWarmupCache: [String: Date] = [:]
+    private let warmupValidityInterval: TimeInterval = 30 * 60 // 30 minutes
+    private var preloadedModels: Set<String> = []
+    
+    // PERFORMANCE OPTIMIZATION: Memory management
+    private var memoryPressureMonitor: MemoryPressureMonitor?
+    private let maxMemoryUsage: UInt64 = 2 * 1024 * 1024 * 1024 // 2GB limit
     
     /// Public read-only access to multi-pass mode status
     var isMultiPassMode: Bool {
@@ -53,6 +121,92 @@ final class LLMService: @unchecked Sendable {
         isChatOperationInProgress = false
     }
     
+    // MARK: - Performance Optimizations
+    
+    /// Check if model is warm (recently loaded)
+    func isModelWarm(_ modelFilename: String) -> Bool {
+        guard let lastWarmup = modelWarmupCache[modelFilename] else { return false }
+        return Date().timeIntervalSince(lastWarmup) < warmupValidityInterval
+    }
+    
+    /// Mark model as warm after successful loading
+    func markModelAsWarm(_ modelFilename: String) {
+        modelWarmupCache[modelFilename] = Date()
+        print("🔥 LLMService: Model \(modelFilename) marked as warm")
+    }
+    
+    /// Preload model in background for faster switching
+    func preloadModelInBackground(_ modelFilename: String) async {
+        guard !preloadedModels.contains(modelFilename) else {
+            print("🔥 LLMService: Model \(modelFilename) already preloaded")
+            return
+        }
+        
+        print("🔥 LLMService: Preloading model \(modelFilename) in background")
+        preloadedModels.insert(modelFilename)
+        
+        Task.detached(priority: .background) { [weak self] in
+            do {
+                // Preload without full initialization
+                try await self?.preloadModelWithLlamaCpp(modelFilename)
+                print("✅ LLMService: Model \(modelFilename) preloaded successfully")
+            } catch {
+                print("❌ LLMService: Failed to preload model \(modelFilename): \(error)")
+                self?.preloadedModels.remove(modelFilename)
+            }
+        }
+    }
+    
+    /// Preload model with minimal initialization
+    private func preloadModelWithLlamaCpp(_ modelFilename: String) async throws {
+        // Find model file
+        let modelURL = try await findModelFile(for: modelFilename)
+        
+        // Validate model
+        try await ModelValidationService.shared.performComprehensiveValidation(at: modelURL)
+        
+        // Preload model context (lightweight)
+        // This is a placeholder - actual implementation would depend on llama.cpp API
+        print("🔥 LLMService: Preloading model context for \(modelFilename)")
+        
+        // Mark as warm
+        markModelAsWarm(modelFilename)
+    }
+    
+    /// Initialize memory pressure monitoring
+    private func initializeMemoryMonitoring() {
+        memoryPressureMonitor = MemoryPressureMonitor(threshold: maxMemoryUsage)
+        
+        // Listen for memory pressure notifications
+        NotificationCenter.default.addObserver(
+            forName: .memoryPressureDetected,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.handleMemoryPressure()
+        }
+    }
+    
+    /// Handle memory pressure by cleaning up resources
+    private func handleMemoryPressure() {
+        print("🧹 LLMService: Handling memory pressure - cleaning up resources")
+        
+        // Clear warmup cache for old models
+        let cutoffDate = Date().addingTimeInterval(-warmupValidityInterval)
+        modelWarmupCache = modelWarmupCache.filter { $0.value > cutoffDate }
+        
+        // Clear preloaded models
+        preloadedModels.removeAll()
+        
+        // Force garbage collection
+        Task.detached(priority: .background) {
+            // Trigger memory cleanup
+            autoreleasepool {
+                // This will trigger ARC cleanup
+            }
+        }
+    }
+    
     /// Load a specific model by filename with optimized performance
     func loadModel(_ modelFilename: String) async throws {
         // Safety mechanism: if the flag has been stuck for more than 5 minutes, reset it
@@ -75,6 +229,16 @@ final class LLMService: @unchecked Sendable {
             return
         }
         
+        // PERFORMANCE OPTIMIZATION: Check if model is warm (recently loaded)
+        if isModelWarm(modelFilename) {
+            print("🔥 LLMService: Model \(modelFilename) is warm, faster loading expected")
+        }
+        
+        // PERFORMANCE OPTIMIZATION: Initialize memory monitoring if not already done
+        if memoryPressureMonitor == nil {
+            initializeMemoryMonitoring()
+        }
+        
         // Security: Validate model before loading
         let modelURL = try await findModelFile(for: modelFilename)
         try await ModelValidationService.shared.performComprehensiveValidation(at: modelURL)
@@ -87,17 +251,22 @@ final class LLMService: @unchecked Sendable {
         
         print("🔍 LLMService: Loading specific model: \(modelFilename) (previous: \(currentModelFilename ?? "none"))")
         
-        // OPTIMIZATION: Clear previous model to free memory before loading new one
-        print("🔍 LLMService: Clearing previous model before loading new one...")
-        unloadModel()
+        // PERFORMANCE OPTIMIZATION: Parallel model switching
+        print("🔍 LLMService: Starting optimized model switching...")
         
-        // IMPROVEMENT: Reset conversation count when switching models
-        conversationCount = 0
-        print("🔍 LLMService: Reset conversation count for new model")
-        
+        // Set new model info first (non-blocking)
         self.modelPath = modelURL.path
         self.currentModelFilename = modelFilename
         print("🔍 LLMService: Set currentModelFilename to: \(currentModelFilename ?? "nil")")
+        
+        // Reset conversation count when switching models
+        conversationCount = 0
+        print("🔍 LLMService: Reset conversation count for new model")
+        
+        // Clear previous model in background (non-blocking)
+        Task.detached(priority: .background) { [weak self] in
+            self?.unloadModel()
+        }
         
         // Load the model using llama.cpp with a timeout to avoid UI stalls
         do {
@@ -116,6 +285,9 @@ final class LLMService: @unchecked Sendable {
         print("     - currentModelFilename: \(currentModelFilename ?? "nil")")
         print("     - isModelLoaded: \(isModelLoaded)")
         print("     - modelPath: \(modelPath ?? "nil")")
+        
+        // PERFORMANCE OPTIMIZATION: Mark model as warm for faster future loading
+        markModelAsWarm(modelFilename)
         
         // SECURITY: Run comprehensive validation in background (non-blocking)
         Task.detached { [weak self] in

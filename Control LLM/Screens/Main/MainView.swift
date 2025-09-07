@@ -1,10 +1,45 @@
 import SwiftUI
 
+// MARK: - Performance Optimization: View Recycling
+
+/// High-performance view recycler for better memory management
+class ViewRecycler {
+    private var recycledViews: [String: AnyView] = [:]
+    private let maxCacheSize = 10
+    
+    func getRecycledView<T: View>(for key: String, @ViewBuilder builder: () -> T) -> AnyView {
+        if let cachedView = recycledViews[key] {
+            return cachedView
+        }
+        
+        let newView = AnyView(builder())
+        
+        // Cache the view if we have space
+        if recycledViews.count < maxCacheSize {
+            recycledViews[key] = newView
+        }
+        
+        return newView
+    }
+    
+    func clearCache() {
+        recycledViews.removeAll()
+    }
+    
+    func removeView(for key: String) {
+        recycledViews.removeValue(forKey: key)
+    }
+}
+
 
 
 struct MainView: View {
     @StateObject private var viewModel = MainViewModel()
     @EnvironmentObject var colorManager: ColorManager
+    
+    // PERFORMANCE OPTIMIZATION: View recycling and reuse
+    @State private var viewCache: [String: AnyView] = [:]
+    @State private var viewRecycler = ViewRecycler()
     
     init() {
         NSLog("🔍 MainView init")
@@ -84,19 +119,21 @@ struct MainView: View {
     
     // MARK: - Computed Properties
     private var chatSheetView: some View {
-        TextModalView(
-            viewModel: viewModel,
-            isPresented: $showingChatSheet,
-            isSheetExpanded: $isSheetExpanded,
-            messageHistory: []
-        )
-        .background(
-            LinearGradient(
-                colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
-                startPoint: .top, endPoint: .bottom
+        viewRecycler.getRecycledView(for: "chatSheet") {
+            TextModalView(
+                viewModel: viewModel,
+                isPresented: $showingChatSheet,
+                isSheetExpanded: $isSheetExpanded,
+                messageHistory: []
             )
-            .ignoresSafeArea(.all)
-        )
+            .background(
+                LinearGradient(
+                    colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
+                    startPoint: .top, endPoint: .bottom
+                )
+                .ignoresSafeArea(.all)
+            )
+        }
 
 
         .offset(y: isSettingsSheetExpanded ? UIScreen.main.bounds.height : 0)
@@ -131,18 +168,20 @@ struct MainView: View {
     
 
     private var settingsSheetView: some View {
-        SettingsModalView(
-            isPresented: $showingSettingsSheet,
-            isSheetExpanded: $isSettingsSheetExpanded,
-            mainViewModel: viewModel
-        )
-        .background(
-            LinearGradient(
-                colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
-                startPoint: .top, endPoint: .bottom
+        viewRecycler.getRecycledView(for: "settingsSheet") {
+            SettingsModalView(
+                isPresented: $showingSettingsSheet,
+                isSheetExpanded: $isSettingsSheetExpanded,
+                mainViewModel: viewModel
             )
-            .ignoresSafeArea(.all)
-        )
+            .background(
+                LinearGradient(
+                    colors: [Color(hex: "#1D1D1D"), Color(hex: "#141414")],
+                    startPoint: .top, endPoint: .bottom
+                )
+                .ignoresSafeArea(.all)
+            )
+        }
 
 
         .offset(y: isSheetExpanded ? UIScreen.main.bounds.height : 0)
@@ -259,6 +298,9 @@ struct MainView: View {
         .onDisappear {
             // Clean up notification observer
             viewModel.cleanupClipboardObserver()
+            
+            // PERFORMANCE OPTIMIZATION: Clear view cache to free memory
+            viewRecycler.clearCache()
         }
         .overlay(
             // Chat sheet (behind settings sheet, 100pt height)

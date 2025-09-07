@@ -1,6 +1,105 @@
 import SwiftUI
 import MetalKit
 
+// MARK: - Performance Optimization: Adaptive Frame Rate Manager
+class AdaptiveFrameRateManager {
+    static let shared = AdaptiveFrameRateManager()
+    
+    private var currentFPS: Double = 60
+    private var performanceHistory: [Double] = []
+    private let maxHistorySize = 10
+    private var lastUpdateTime: Date = Date()
+    
+    private init() {
+        // Start performance monitoring
+        startPerformanceMonitoring()
+    }
+    
+    func getOptimalFrameRate() -> Double {
+        // Update performance metrics
+        updatePerformanceMetrics()
+        
+        // Calculate average performance
+        let averagePerformance = performanceHistory.isEmpty ? 1.0 : 
+            performanceHistory.reduce(0, +) / Double(performanceHistory.count)
+        
+        // Adjust frame rate based on performance
+        if averagePerformance < 0.7 {
+            currentFPS = 24  // Very low performance
+        } else if averagePerformance < 0.8 {
+            currentFPS = 30  // Low performance
+        } else if averagePerformance < 0.9 {
+            currentFPS = 45  // Medium performance
+        } else {
+            currentFPS = 60  // High performance
+        }
+        
+        // Check thermal state
+        let thermalState = ProcessInfo.processInfo.thermalState
+        if thermalState == .critical {
+            currentFPS = min(currentFPS, 24)
+        } else if thermalState == .serious {
+            currentFPS = min(currentFPS, 30)
+        }
+        
+        return currentFPS
+    }
+    
+    private func startPerformanceMonitoring() {
+        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.updatePerformanceMetrics()
+        }
+    }
+    
+    private func updatePerformanceMetrics() {
+        let now = Date()
+        let timeSinceLastUpdate = now.timeIntervalSince(lastUpdateTime)
+        
+        if timeSinceLastUpdate >= 1.0 {
+            // Calculate performance score (0.0 to 1.0)
+            let performanceScore = calculatePerformanceScore()
+            
+            performanceHistory.append(performanceScore)
+            if performanceHistory.count > maxHistorySize {
+                performanceHistory.removeFirst()
+            }
+            
+            lastUpdateTime = now
+        }
+    }
+    
+    private func calculatePerformanceScore() -> Double {
+        // Simple performance calculation based on available memory and CPU usage
+        let availableMemory = getAvailableMemory()
+        let memoryScore = min(1.0, Double(availableMemory) / 1_000_000_000) // Normalize to 1GB
+        
+        // Basic CPU usage estimation (simplified)
+        let cpuScore = 0.8 // Placeholder - would need more sophisticated monitoring
+        
+        return (memoryScore + cpuScore) / 2.0
+    }
+    
+    private func getAvailableMemory() -> UInt64 {
+        var info = mach_task_basic_info()
+        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size)/4
+        
+        let kerr: kern_return_t = withUnsafeMutablePointer(to: &info) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
+                task_info(mach_task_self_,
+                         task_flavor_t(MACH_TASK_BASIC_INFO),
+                         $0,
+                         &count)
+            }
+        }
+        
+        if kerr == KERN_SUCCESS {
+            return info.resident_size
+        }
+        
+        return 0
+    }
+}
+
 struct FlowingLiquidView: View {
     @State private var animationTime: Double = 0
     @State private var continuousAnimationTimer: Timer?  // For continuous motion
@@ -47,10 +146,13 @@ struct FlowingLiquidView: View {
     }
     
     private func startContinuousAnimation() {
-        // Start continuous animation timer for motion - reduced to 30 FPS for less heat
-        continuousAnimationTimer = Timer.scheduledTimer(withTimeInterval: 1.0/30.0, repeats: true) { _ in
+        // PERFORMANCE OPTIMIZATION: Adaptive frame rate based on device performance
+        let targetFPS = AdaptiveFrameRateManager.shared.getOptimalFrameRate()
+        let frameInterval = 1.0 / targetFPS
+        
+        continuousAnimationTimer = Timer.scheduledTimer(withTimeInterval: frameInterval, repeats: true) { _ in
             // Update animation time continuously for motion
-            self.animationTime += 1.0/30.0
+            self.animationTime += frameInterval
         }
     }
 }
