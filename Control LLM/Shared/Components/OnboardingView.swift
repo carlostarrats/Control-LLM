@@ -126,6 +126,12 @@ struct ModelsScreen: View {
     @State private var downloadProgress: Double = 0.0
     @State private var showingUnusedModelsSheet = false
     @State private var selectedUnusedModels: Set<String> = []
+    @State private var hasDownloadedModel = false
+    
+    // Check if any models are available (either pre-installed or downloaded during onboarding)
+    private var hasAvailableModels: Bool {
+        return hasDownloadedModel || !modelManager.availableModels.isEmpty
+    }
     
     var body: some View {
         ZStack {
@@ -205,17 +211,18 @@ struct ModelsScreen: View {
                 Button(action: onNext) {
                     Text(NSLocalizedString("Begin...", comment: ""))
                         .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(Color(hex: "#F8C762"))
+                        .foregroundColor(hasAvailableModels ? Color(hex: "#F8C762") : Color(hex: "#666666"))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(Color(hex: "#F8C762").opacity(0.1))
+                        .background(hasAvailableModels ? Color(hex: "#F8C762").opacity(0.1) : Color(hex: "#333333"))
                         .overlay(
                             RoundedRectangle(cornerRadius: 4)
-                                .stroke(Color(hex: "#F8C762"), lineWidth: 1)
+                                .stroke(hasAvailableModels ? Color(hex: "#F8C762") : Color(hex: "#666666"), lineWidth: 1)
                         )
                         .cornerRadius(4)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .disabled(!hasAvailableModels)
                 .frame(width: 280) // Fixed width to match "I Understand" button
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.bottom, 40)
@@ -261,9 +268,16 @@ struct ModelsScreen: View {
     }
     
     private var availableDownloadModels: [LLMModelInfo] {
-        // For now, show no available downloads since all models are installed
-        // This will be updated when actual download functionality is implemented
-        return []
+        // Check which models are available for download (not already installed)
+        let potentialModels = [
+            LLMModelInfo(filename: "gemma-3-1B-It-Q4_K_M"),
+            LLMModelInfo(filename: "Llama-3.2-1B-Instruct-Q4_K_M"),
+            LLMModelInfo(filename: "Qwen3-1.7B-Q4_K_M"),
+            LLMModelInfo(filename: "smollm2-1.7b-instruct-q4_k_m")
+        ]
+        
+        // Filter out models that are already installed (isAvailable = true)
+        return potentialModels.filter { !$0.isAvailable }
     }
     
     private var unusedModelsCount: Int {
@@ -278,6 +292,9 @@ struct ModelsScreen: View {
                 timer.invalidate()
                 downloadingModel = nil
                 downloadProgress = 0.0
+                
+                // Mark that a model has been downloaded
+                hasDownloadedModel = true
             }
         }
     }
