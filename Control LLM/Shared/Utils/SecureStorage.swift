@@ -17,11 +17,12 @@ class SecureStorage {
     private static let keychainService = "ControlLLM-SecureStorage"
     private static let encryptionKeyIdentifier = "ControlLLM-EncryptionKey"
     
-    // PERFORMANCE OPTIMIZATION: In-memory cache for frequently accessed data
+    // PERFORMANCE OPTIMIZATION: Adaptive in-memory cache for frequently accessed data
     private static var memoryCache: [String: Any] = [:]
     private static let cacheQueue = DispatchQueue(label: "com.controlllm.securestorage.cache", attributes: .concurrent)
-    private static let maxCacheSize = 50
+    private static var maxCacheSize = 50 // Dynamic based on device capabilities
     private static let cacheExpirationInterval: TimeInterval = 300 // 5 minutes
+    private static var cacheInitialized = false
     
     // PERFORMANCE OPTIMIZATION: Batch operations
     private static var pendingWrites: [String: Any] = [:]
@@ -91,7 +92,7 @@ class SecureStorage {
     /// Gets cached value if available and not expired
     private static func getCachedValue<T>(forKey key: String, type: T.Type) -> T? {
         return cacheQueue.sync {
-            guard let cachedItem = memoryCache[key] as? CacheItem<T> else { return nil }
+            guard var cachedItem = memoryCache[key] as? CacheItem<T> else { return nil }
             
             // Check if cache item is expired
             if Date().timeIntervalSince(cachedItem.timestamp) > cacheExpirationInterval {
@@ -99,31 +100,25 @@ class SecureStorage {
                 return nil
             }
             
+            // Update access tracking for better cache management
+            cachedItem.accessed()
+            memoryCache[key] = cachedItem
+            
             return cachedItem.value
         }
     }
     
     /// Sets cached value with timestamp
     private static func setCachedValue<T>(_ value: T, forKey key: String) {
+        // Initialize adaptive cache size if needed
+        if !cacheInitialized {
+            initializeAdaptiveCacheSize()
+        }
+        
         cacheQueue.async(flags: .barrier) {
-            // Limit cache size
+            // Limit cache size based on adaptive sizing with improved eviction
             if memoryCache.count >= maxCacheSize {
-                // Remove oldest items (simple LRU)
-                let sortedKeys = memoryCache.keys.sorted { key1, key2 in
-                    if let item1 = memoryCache[key1] as? CacheItem<Any>,
-                       let item2 = memoryCache[key2] as? CacheItem<Any> {
-                        return item1.timestamp < item2.timestamp
-                    }
-                    return false
-                }
-                
-                // Remove oldest 25% of items
-                let itemsToRemove = max(1, maxCacheSize / 4)
-                for i in 0..<itemsToRemove {
-                    if i < sortedKeys.count {
-                        memoryCache.removeValue(forKey: sortedKeys[i])
-                    }
-                }
+                performSmartCacheEviction()
             }
             
             memoryCache[key] = CacheItem(value: value, timestamp: Date())
@@ -302,6 +297,117 @@ class SecureStorage {
         // The string will be deallocated naturally when it goes out of scope
         _ = string // Suppress unused parameter warning
     }
+    
+    // MARK: - Adaptive Cache Management
+    
+    /// Initialize adaptive cache size based on device capabilities
+    private static func initializeAdaptiveCacheSize() {
+        let physicalMemory = ProcessInfo.processInfo.physicalMemory
+        let availableMemory = getAvailableMemory()
+        
+        // Adaptive cache sizing based on device memory
+        if physicalMemory >= 8 * 1024 * 1024 * 1024 { // 8GB+ devices
+            maxCacheSize = 100
+        } else if physicalMemory >= 4 * 1024 * 1024 * 1024 { // 4-8GB devices
+            maxCacheSize = 75
+        } else if physicalMemory >= 2 * 1024 * 1024 * 1024 { // 2-4GB devices
+            maxCacheSize = 50
+        } else { // <2GB devices
+            maxCacheSize = 25
+        }
+        
+        // Further adjust based on current memory pressure
+        let memoryPressure = 1.0 - (Double(availableMemory) / Double(physicalMemory))
+        if memoryPressure > 0.8 { // High memory pressure
+            maxCacheSize = Int(Double(maxCacheSize) * 0.5) // Reduce by 50%
+        } else if memoryPressure > 0.6 { // Medium memory pressure
+            maxCacheSize = Int(Double(maxCacheSize) * 0.75) // Reduce by 25%
+        }
+        
+        cacheInitialized = true
+        SecureLogger.log("SecureStorage: Adaptive cache size set to \(maxCacheSize) items")
+    }
+    
+    /// Get available memory for cache optimization
+    private static func getAvailableMemory() -> UInt64 {
+        var info = mach_task_basic_info()
+        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size)/4
+        
+        let kerr: kern_return_t = withUnsafeMutablePointer(to: &info) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
+                task_info(mach_task_self_,
+                         task_flavor_t(MACH_TASK_BASIC_INFO),
+                         $0,
+                         &count)
+            }
+        }
+        
+        return kerr == KERN_SUCCESS ? info.resident_size : 0
+    }
+    
+    /// Perform smart cache eviction with multiple strategies
+    private static func performSmartCacheEviction() {
+        let now = Date()
+        var itemsToRemove: [String] = []
+        
+        // Strategy 1: Remove expired items first
+        for (key, value) in memoryCache {
+            if let cacheItem = value as? CacheItem<Any> {
+                if now.timeIntervalSince(cacheItem.timestamp) > cacheExpirationInterval {
+                    itemsToRemove.append(key)
+                }
+            }
+        }
+        
+        // Strategy 2: If still over capacity, use LRU with frequency consideration
+        if memoryCache.count - itemsToRemove.count >= maxCacheSize {
+            let sortedItems = memoryCache.compactMap { (key, value) -> (String, Date, Int)? in
+                guard !itemsToRemove.contains(key),
+                      let cacheItem = value as? CacheItem<Any> else { return nil }
+                
+                // Consider both recency and access frequency
+                let recencyScore = now.timeIntervalSince(cacheItem.timestamp)
+                let frequencyScore = cacheItem.accessCount
+                
+                // Combined score (higher means more likely to be evicted)
+                let evictionScore = recencyScore / Double(max(1, frequencyScore))
+                
+                return (key, cacheItem.timestamp, Int(evictionScore * 1000))
+            }.sorted { $0.2 > $1.2 } // Sort by eviction score (highest first)
+            
+            // Remove additional items to get below capacity
+            let additionalItemsToRemove = max(0, (memoryCache.count - itemsToRemove.count) - (maxCacheSize * 3 / 4))
+            for i in 0..<min(additionalItemsToRemove, sortedItems.count) {
+                itemsToRemove.append(sortedItems[i].0)
+            }
+        }
+        
+        // Remove selected items
+        for key in itemsToRemove {
+            memoryCache.removeValue(forKey: key)
+        }
+        
+        SecureLogger.log("SecureStorage: Evicted \(itemsToRemove.count) cache items (expired + LRU)")
+    }
+    
+    /// Clear expired cache items (public method for background cleanup)
+    static func clearExpiredCache() {
+        cacheQueue.async(flags: .barrier) {
+            let now = Date()
+            let keysToRemove = memoryCache.compactMap { (key, value) -> String? in
+                guard let cacheItem = value as? CacheItem<Any> else { return nil }
+                return now.timeIntervalSince(cacheItem.timestamp) > cacheExpirationInterval ? key : nil
+            }
+            
+            for key in keysToRemove {
+                memoryCache.removeValue(forKey: key)
+            }
+            
+            if !keysToRemove.isEmpty {
+                SecureLogger.log("SecureStorage: Cleared \(keysToRemove.count) expired cache items")
+            }
+        }
+    }
 }
 
 // MARK: - Error Types
@@ -385,6 +491,12 @@ extension SecureStorage {
 /// Cache item with timestamp for expiration
 private struct CacheItem<T> {
     let value: T
-    let timestamp: Date
+    var timestamp: Date
+    var accessCount: Int = 1
+    
+    mutating func accessed() {
+        timestamp = Date()
+        accessCount += 1
+    }
 }
 

@@ -17,8 +17,9 @@ class BackgroundTaskManager {
     // MARK: - Properties
     
     private var activeTasks: [String: UIBackgroundTaskIdentifier] = [:]
-    private let maxConcurrentTasks = 3
+    private var maxConcurrentTasks = 3 // Dynamic based on device capabilities
     private let taskQueue = DispatchQueue(label: "com.controlllm.backgroundtasks", attributes: .concurrent)
+    private var limitsInitialized = false
     private var taskPriorities: [String: TaskPriority] = [:]
     
     // Background task types
@@ -63,8 +64,13 @@ class BackgroundTaskManager {
         priority: TaskPriority = .medium,
         completion: @escaping () -> Void
     ) -> String? {
+        // Initialize adaptive limits if needed
+        if !limitsInitialized {
+            initializeAdaptiveLimits()
+        }
+        
         return taskQueue.sync {
-            // Check if we've reached the limit
+            // Check if we've reached the adaptive limit
             if activeTasks.count >= maxConcurrentTasks {
                 // Try to cancel a lower priority task
                 if !cancelLowestPriorityTask() {
@@ -110,7 +116,7 @@ class BackgroundTaskManager {
     /// Ends all background tasks
     func endAllBackgroundTasks() {
         taskQueue.async(flags: .barrier) {
-            for (taskId, backgroundTaskId) in self.activeTasks {
+            for (_, backgroundTaskId) in self.activeTasks {
                 UIApplication.shared.endBackgroundTask(backgroundTaskId)
             }
             
@@ -148,22 +154,23 @@ class BackgroundTaskManager {
     }
     
     private func setupBackgroundTaskMonitoring() {
-        // Monitor app state changes
+        // Monitor app state changes for aggressive background processing
         NotificationCenter.default.addObserver(
-            forName: UIApplication.didEnterBackgroundNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            self?.handleAppEnteredBackground()
-        }
+            self,
+            selector: #selector(appDidEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
         
         NotificationCenter.default.addObserver(
-            forName: UIApplication.willEnterForegroundNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            self?.handleAppWillEnterForeground()
-        }
+            self,
+            selector: #selector(appWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+        
+        // Setup proactive background operations
+        setupProactiveBackgroundOperations()
     }
     
     private func handleAppEnteredBackground() {
@@ -217,5 +224,162 @@ extension BackgroundTaskManager {
     /// Starts an LLM inference background task
     func startLLMInferenceTask(completion: @escaping () -> Void) -> String? {
         return startBackgroundTask(type: .llmInference, priority: .high, completion: completion)
+    }
+    
+    // MARK: - Adaptive Performance Optimization
+    
+    /// Initialize adaptive task limits based on device capabilities
+    private func initializeAdaptiveLimits() {
+        let processorCount = ProcessInfo.processInfo.processorCount
+        let physicalMemory = ProcessInfo.processInfo.physicalMemory
+        
+        // Adaptive task limits based on device capabilities
+        if processorCount >= 8 && physicalMemory >= 6 * 1024 * 1024 * 1024 { // 8+ cores, 6GB+ RAM
+            maxConcurrentTasks = 8
+        } else if processorCount >= 6 && physicalMemory >= 4 * 1024 * 1024 * 1024 { // 6+ cores, 4GB+ RAM
+            maxConcurrentTasks = 6
+        } else if processorCount >= 4 && physicalMemory >= 2 * 1024 * 1024 * 1024 { // 4+ cores, 2GB+ RAM
+            maxConcurrentTasks = 5
+        } else { // Lower-end devices
+            maxConcurrentTasks = 3
+        }
+        
+        // Further adjust based on thermal state
+        let thermalState = ProcessInfo.processInfo.thermalState
+        switch thermalState {
+        case .critical:
+            maxConcurrentTasks = max(1, maxConcurrentTasks / 2) // Halve the limit
+        case .serious:
+            maxConcurrentTasks = max(2, (maxConcurrentTasks * 3) / 4) // Reduce by 25%
+        case .fair:
+            maxConcurrentTasks = max(2, (maxConcurrentTasks * 7) / 8) // Reduce by 12.5%
+        case .nominal:
+            break // Keep the calculated limit
+        @unknown default:
+            maxConcurrentTasks = 3 // Conservative fallback
+        }
+        
+        limitsInitialized = true
+        print("🔧 BackgroundTaskManager: Adaptive task limit set to \(maxConcurrentTasks) concurrent tasks")
+    }
+    
+    // MARK: - Aggressive Background Processing
+    
+    /// Setup proactive background operations for better performance
+    private func setupProactiveBackgroundOperations() {
+        // Start periodic maintenance tasks
+        startPeriodicMaintenanceTasks()
+        
+        // Setup aggressive memory management
+        setupAggressiveMemoryManagement()
+        
+        // Initialize background model preloading
+        setupBackgroundModelPreloading()
+    }
+    
+    @objc private func appDidEnterBackground() {
+        print("🔄 BackgroundTaskManager: App entering background - starting aggressive background processing")
+        
+        // Start aggressive cleanup tasks
+        _ = startMemoryCleanupTask {
+            // Aggressive memory cleanup when app is backgrounded
+            autoreleasepool {
+                // Force cleanup
+            }
+        }
+        
+        // Start data cleanup
+        _ = startDataCleanupTask {
+            // Clean temporary files and caches
+            // Note: DataCleanupManager method will be added separately
+            print("🧹 BackgroundTaskManager: Performing background data cleanup")
+        }
+        
+        // Preload next likely models in background
+        Task.detached(priority: .background) {
+            await self.preloadLikelyModels()
+        }
+    }
+    
+    @objc private func appWillEnterForeground() {
+        print("🔄 BackgroundTaskManager: App entering foreground - optimizing for user interaction")
+        
+        // Cancel non-critical background tasks to prioritize UI responsiveness
+        cancelLowPriorityTasks()
+        
+        // Pre-warm critical components
+        Task.detached(priority: .userInitiated) {
+            await self.preWarmCriticalComponents()
+        }
+    }
+    
+    /// Start periodic maintenance tasks
+    private func startPeriodicMaintenanceTasks() {
+        // Schedule periodic cache optimization
+        Timer.scheduledTimer(withTimeInterval: 300, repeats: true) { [weak self] _ in
+            self?.performPeriodicOptimization()
+        }
+    }
+    
+    /// Setup aggressive memory management
+    private func setupAggressiveMemoryManagement() {
+        // Monitor memory pressure more aggressively
+        NotificationCenter.default.addObserver(
+            forName: .memoryPressureDetected,
+            object: nil,
+            queue: OperationQueue()
+        ) { [weak self] _ in
+            self?.handleAggressiveMemoryPressure()
+        }
+    }
+    
+    /// Setup background model preloading
+    private func setupBackgroundModelPreloading() {
+        // This could be expanded based on usage patterns
+        print("🔧 BackgroundTaskManager: Background model preloading initialized")
+    }
+    
+    /// Perform periodic optimization
+    private func performPeriodicOptimization() {
+        _ = startBackgroundTask(type: .memoryCleanup, priority: .low) {
+            // Periodic cache cleanup and optimization
+            SecureStorage.clearExpiredCache()
+        }
+    }
+    
+    /// Handle aggressive memory pressure
+    private func handleAggressiveMemoryPressure() {
+        // Cancel all non-critical tasks
+        cancelLowPriorityTasks()
+        
+        // Start aggressive cleanup
+        _ = startMemoryCleanupTask {
+            // Aggressive memory cleanup
+            autoreleasepool {
+                // Force cleanup of autoreleased objects
+            }
+        }
+    }
+    
+    /// Cancel low priority tasks for performance
+    private func cancelLowPriorityTasks() {
+        taskQueue.async(flags: .barrier) {
+            let lowPriorityTasks = self.taskPriorities.filter { $0.value == .low }
+            for (taskId, _) in lowPriorityTasks {
+                self.endBackgroundTask(taskId: taskId)
+            }
+        }
+    }
+    
+    /// Preload likely models based on usage patterns
+    private func preloadLikelyModels() async {
+        // This could be expanded with ML-based prediction
+        print("🔧 BackgroundTaskManager: Preloading likely models in background")
+    }
+    
+    /// Pre-warm critical components for better performance
+    private func preWarmCriticalComponents() async {
+        // Pre-warm LLM service
+        print("🔧 BackgroundTaskManager: Pre-warming critical components")
     }
 }

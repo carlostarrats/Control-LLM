@@ -283,72 +283,91 @@ class InputValidator {
     static func sanitizeInput(_ input: String) -> String {
         var sanitized = input
         
-        // TEMPORARILY DISABLED: Remove dangerous patterns using regex with word boundaries for better matching
-        // This is causing text to disappear - need to fix the patterns
-        /*
-        for pattern in dangerousPatterns {
-            do {
-                let regex = try NSRegularExpression(pattern: "\\b\(NSRegularExpression.escapedPattern(for: pattern))\\b", options: .caseInsensitive)
-                let range = NSRange(location: 0, length: sanitized.utf16.count)
-                sanitized = regex.stringByReplacingMatches(in: sanitized, options: [], range: range, withTemplate: "")
-            } catch {
-                // Fallback to simple replacement if regex fails
-                sanitized = sanitized.replacingOccurrences(
-                    of: pattern,
-                    with: "",
-                    options: [.caseInsensitive, .regularExpression]
-                )
-            }
-        }
-        */
+        // SECURITY FIX: Re-enabled with safer patterns that avoid false positives
         
-        // TEMPORARILY DISABLED: All sanitization steps
-        // This is causing text to disappear - need to fix the patterns
-        /*
-        // Remove HTML tags with more comprehensive pattern
-        sanitized = sanitized.replacingOccurrences(
-            of: "<[^>]+>",
-            with: "",
-            options: .regularExpression
-        )
+        // 1. Remove only clearly dangerous HTML/script content (not all brackets)
+        sanitized = safeSanitizeHTML(sanitized)
         
-        // Remove script tags and their content
+        // 2. Remove control characters except newlines and tabs (safe operation)
+        sanitized = sanitizeControlCharacters(sanitized)
+        
+        // 3. Remove null bytes and BOM (safe operation)
+        sanitized = sanitizeNullBytes(sanitized)
+        
+        // 4. Normalize excessive whitespace (safe operation)
+        sanitized = normalizeWhitespace(sanitized)
+        
+        return sanitized.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    /// Safely sanitizes HTML content without removing legitimate text
+    private static func safeSanitizeHTML(_ input: String) -> String {
+        var sanitized = input
+        
+        // Only remove script tags and their content (very specific pattern)
         sanitized = sanitized.replacingOccurrences(
             of: "<script[^>]*>.*?</script>",
             with: "",
             options: [.regularExpression, .caseInsensitive]
         )
         
-        // Remove style tags and their content
+        // Only remove style tags and their content (very specific pattern)
         sanitized = sanitized.replacingOccurrences(
             of: "<style[^>]*>.*?</style>",
             with: "",
             options: [.regularExpression, .caseInsensitive]
         )
         
-        // Remove control characters except newlines and tabs
+        // Remove iframe tags (security risk)
         sanitized = sanitized.replacingOccurrences(
+            of: "<iframe[^>]*>.*?</iframe>",
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        
+        // Remove object and embed tags (security risk)
+        sanitized = sanitized.replacingOccurrences(
+            of: "<(object|embed)[^>]*>.*?</\\1>",
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        
+        // Remove on* event handlers (very specific pattern to avoid false positives)
+        sanitized = sanitized.replacingOccurrences(
+            of: "\\s+on\\w+\\s*=\\s*[\"'][^\"']*[\"']",
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        
+        return sanitized
+    }
+    
+    /// Sanitizes control characters safely
+    private static func sanitizeControlCharacters(_ input: String) -> String {
+        // Remove control characters except newlines (\n), carriage returns (\r), and tabs (\t)
+        return input.replacingOccurrences(
             of: "[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]",
             with: "",
             options: .regularExpression
         )
-        
-        // Remove null bytes and other dangerous characters
+    }
+    
+    /// Sanitizes null bytes and BOM safely
+    private static func sanitizeNullBytes(_ input: String) -> String {
+        var sanitized = input
         sanitized = sanitized.replacingOccurrences(of: "\0", with: "")
         sanitized = sanitized.replacingOccurrences(of: "\u{FEFF}", with: "") // BOM
-        
-        // Normalize whitespace
-        sanitized = sanitized.replacingOccurrences(
-            of: "\\s+",
+        return sanitized
+    }
+    
+    /// Normalizes whitespace safely
+    private static func normalizeWhitespace(_ input: String) -> String {
+        // Only normalize excessive whitespace (3+ consecutive spaces/tabs)
+        return input.replacingOccurrences(
+            of: "[ \\t]{3,}",
             with: " ",
             options: .regularExpression
         )
-        
-        return sanitized.trimmingCharacters(in: .whitespacesAndNewlines)
-        */
-        
-        // Just return the input as-is for now
-        return input
     }
     
     // MARK: - Prompt Injection Detection
