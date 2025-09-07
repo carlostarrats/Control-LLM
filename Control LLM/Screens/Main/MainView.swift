@@ -269,7 +269,7 @@ struct MainView: View {
             NSLog("🔍 Initial showingOnboarding: \(showingOnboarding)")
             
             // Show onboarding after loading screen finishes (only if first run)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
                 if !hasSeenOnboarding {
                     NSLog("🔍 Showing onboarding - first run")
                     showingOnboarding = true
@@ -359,12 +359,10 @@ struct MainView: View {
                         .animation(.none, value: showingLoadingScreen) // Disable implicit animations
                         .onAppear {
                             NSLog("🔍 Loading screen appeared!")
-                            // Hide loading screen after logo expansion has time to be visible (after 1.7 seconds)
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.7) {
+            // Hide loading screen after logo expansion has time to be visible (after 1.6 seconds)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
                                 NSLog("🔍 Hiding loading screen - after expansion")
-                                withAnimation(.easeOut(duration: 0.3)) {
-                                    showingLoadingScreen = false
-                                }
+                                showingLoadingScreen = false
                             }
                         }
                 }
@@ -458,7 +456,6 @@ struct HomePage: View {
                 .accessibilityLabel(NSLocalizedString("Voice recording button", comment: ""))
                 .accessibilityHint(NSLocalizedString("Double tap to start or stop voice recording", comment: ""))
                 .opacity(blobColorOpacity)
-                .animation(.easeInOut(duration: 0.8), value: blobColorOpacity)
                 .offset(y: -60) // Move up by 60 points to center in available space
             }
 

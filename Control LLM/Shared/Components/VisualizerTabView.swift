@@ -21,24 +21,15 @@ struct VisualizerTabView: View {
             saturationLevel: saturationLevel,
             brightnessLevel: brightnessLevel
         )
-                .transition(.asymmetric(
-                    insertion: .opacity.combined(with: .scale(scale: 0.8)),
-                    removal: .opacity.combined(with: .scale(scale: 1.2))
-                ))
+                .transition(.identity)
                 
             case .particle:
                         ParticleVisualizerView()
-                .transition(.asymmetric(
-                    insertion: .opacity.combined(with: .scale(scale: 0.8)),
-                    removal: .opacity.combined(with: .scale(scale: 1.2))
-                ))
+                .transition(.identity)
                 
             case .flowing:
                         FlowingLiquidView()
-                .transition(.asymmetric(
-                    insertion: .opacity.combined(with: .scale(scale: 0.8)),
-                    removal: .opacity.combined(with: .scale(scale: 1.2))
-                ))
+                .transition(.identity)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

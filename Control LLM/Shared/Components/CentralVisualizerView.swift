@@ -456,10 +456,8 @@ struct CentralVisualizerView: View {
             precalculateColors()
             
             // Start the speech animation cycle smoothly
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(.easeInOut(duration: 3.0).repeatForever(autoreverses: true)) {
-                    animationPhase = 1.0
-                }
+            withAnimation(.easeInOut(duration: 3.0).repeatForever(autoreverses: true)) {
+                animationPhase = 1.0
             }
             
             // Start continuous animation timer

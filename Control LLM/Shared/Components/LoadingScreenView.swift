@@ -4,7 +4,6 @@ struct LoadingScreenView: View {
     @State private var logoScale: CGFloat = 0.7
     @State private var logoOpacity: Double = 0.0
     @State private var textOpacity: Double = 0.0
-    @State private var isExpanding: Bool = false
     
     var body: some View {
         ZStack {
@@ -31,7 +30,7 @@ struct LoadingScreenView: View {
                         
                         // Step 2: Logo and text quickly fade in together
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                                    withAnimation(.easeOut(duration: 0.3)) {
+                                    withAnimation(.easeOut(duration: 0.6)) {
                                         logoScale = 1.0 // Scale to 1.0 with ease out
                                         logoOpacity = 1.0
                                         textOpacity = 1.0
@@ -40,15 +39,14 @@ struct LoadingScreenView: View {
                                     // Step 3: Logo contracts 10% with ease in
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                         withAnimation(.easeIn(duration: 0.3)) {
-                                            logoScale = 0.9 // 10% contraction from 1.0 (1.0 * 0.9 = 0.9)
+                                            logoScale = 0.6 // 40% contraction from 1.0 (1.0 * 0.6 = 0.6)
                                         }
                                         
                                         // Step 4: Logo expands completely with ease out
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                             NSLog("🔍 Logo starting expansion animation")
-                                            withAnimation(.easeOut(duration: 0.2)) {
-                                                logoScale = 4.0 // Much larger than screen
-                                                isExpanding = true
+                                            withAnimation(.easeOut(duration: 0.1)) {
+                                                logoScale = 6.0 // Much larger than screen
                                             }
                                         }
                                     }
