@@ -463,7 +463,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Vendor/llama/include";
 				INFOPLIST_FILE = Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Control;
+				INFOPLIST_KEY_CFBundleDisplayName = "Control LLM";
 				INFOPLIST_KEY_UIAppFonts = "IBMPlexMono-Regular.otf IBMPlexMono-Medium.otf IBMPlexMono-Bold.otf";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -477,6 +477,8 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
@@ -563,7 +565,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Vendor/llama/include";
 				INFOPLIST_FILE = Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Control;
+				INFOPLIST_KEY_CFBundleDisplayName = "Control LLM";
 				INFOPLIST_KEY_UIAppFonts = "IBMPlexMono-Regular.otf IBMPlexMono-Medium.otf IBMPlexMono-Bold.otf";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -577,6 +579,8 @@
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
+					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
 					"$(PROJECT_DIR)/Control\\ LLM/Control\\ LLM/Vendor/llama/lib/ios",
