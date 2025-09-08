@@ -14,10 +14,12 @@ class ModelDownloadService: ObservableObject {
     
     @Published var downloadProgress: [String: Double] = [:]
     @Published var downloadingModels: Set<String> = []
+    @Published var queuedModels: [String] = []
     @Published var downloadErrors: [String: String] = [:]
     
     private var downloadTasks: [String: URLSessionDataTask] = [:]
     private var cancellables = Set<AnyCancellable>()
+    private var isProcessingQueue = false
     
     // MARK: - Model Configuration
     private let modelConfigurations: [String: ModelDownloadConfig] = [
@@ -82,8 +84,8 @@ class ModelDownloadService: ObservableObject {
             throw ModelDownloadError.invalidModel
         }
         
-        // Check if already downloading
-        if downloadingModels.contains(modelFilename) {
+        // Check if already downloading or queued
+        if downloadingModels.contains(modelFilename) || queuedModels.contains(modelFilename) {
             return
         }
         
@@ -93,7 +95,18 @@ class ModelDownloadService: ObservableObject {
             throw ModelDownloadError.alreadyInstalled
         }
         
-        // Start download
+        // If something is already downloading, add to queue
+        if !downloadingModels.isEmpty {
+            queuedModels.append(modelFilename)
+            downloadErrors.removeValue(forKey: modelFilename)
+            return
+        }
+        
+        // Start download immediately
+        await startDownload(config: config, modelFilename: modelFilename)
+    }
+    
+    private func startDownload(config: ModelDownloadConfig, modelFilename: String) async {
         downloadingModels.insert(modelFilename)
         downloadProgress[modelFilename] = 0.0
         downloadErrors.removeValue(forKey: modelFilename)
@@ -108,28 +121,65 @@ class ModelDownloadService: ObservableObject {
             // Refresh ModelManager to detect the new model
             await ModelManager.shared.refreshAvailableModels()
             
+            // Process next in queue
+            await processNextInQueue()
+            
         } catch {
             // Download failed
             downloadingModels.remove(modelFilename)
             downloadProgress.removeValue(forKey: modelFilename)
             downloadErrors[modelFilename] = error.localizedDescription
-            throw error
+            
+            // Process next in queue even if this one failed
+            await processNextInQueue()
         }
     }
     
+    private func processNextInQueue() async {
+        guard !queuedModels.isEmpty, downloadingModels.isEmpty else { return }
+        
+        let nextModel = queuedModels.removeFirst()
+        
+        guard let config = modelConfigurations[nextModel] else {
+            // Skip invalid model and process next
+            await processNextInQueue()
+            return
+        }
+        
+        await startDownload(config: config, modelFilename: nextModel)
+    }
+    
     func cancelDownload(_ modelFilename: String) {
+        // If it's currently downloading
         if let task = downloadTasks[modelFilename] {
             task.cancel()
             downloadTasks.removeValue(forKey: modelFilename)
         }
         
+        // Remove from downloading
         downloadingModels.remove(modelFilename)
         downloadProgress.removeValue(forKey: modelFilename)
         downloadErrors.removeValue(forKey: modelFilename)
+        
+        // Remove from queue if it's there
+        if let index = queuedModels.firstIndex(of: modelFilename) {
+            queuedModels.remove(at: index)
+        }
+        
+        // If we cancelled a downloading model, process next in queue
+        if downloadingModels.isEmpty {
+            Task {
+                await processNextInQueue()
+            }
+        }
     }
     
     func isDownloading(_ modelFilename: String) -> Bool {
         return downloadingModels.contains(modelFilename)
+    }
+    
+    func isQueued(_ modelFilename: String) -> Bool {
+        return queuedModels.contains(modelFilename)
     }
     
     func getDownloadProgress(_ modelFilename: String) -> Double {

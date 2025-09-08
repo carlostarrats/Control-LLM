@@ -13,6 +13,26 @@ struct LLMModelInfo: Identifiable {
     let provider: String
     let isAvailable: Bool
     
+    // Computed property for status display without quantizations
+    var statusDisplayName: String {
+        var cleanName = displayName
+        
+        // Remove quantization designations for status display only
+        let quantizationPatterns = [
+            "Q4_K_M", "Q4_K_S", "Q4_0", "Q4_1", "Q5_K_M", "Q5_K_S", "Q5_0", "Q5_1",
+            "Q6_K", "Q6_0", "Q8_0", "Q8_1", "F16", "F32"
+        ]
+        
+        for pattern in quantizationPatterns {
+            cleanName = cleanName.replacingOccurrences(of: pattern, with: "")
+        }
+        
+        // Clean up any double spaces that might result from removing quantization patterns
+        cleanName = cleanName.replacingOccurrences(of: "  ", with: " ").trimmingCharacters(in: .whitespaces)
+        
+        return cleanName
+    }
+    
     init(filename: String) {
         self.filename = filename
         self.id = filename
@@ -119,10 +139,10 @@ struct LLMModelInfo: Identifiable {
             if lowercaseFilename.contains("2") {
                 self.name = NSLocalizedString("SmolLM2 Model", comment: "")
                 if lowercaseFilename.contains("1.7b") {
-                    self.description = NSLocalizedString("Compact high-performance model for mobile and edge deployment | English + 6 languages", comment: "")
+                    self.description = NSLocalizedString("Compact high-performance model for mobile and edge deployment | 6 languages", comment: "")
                     self.size = "1.0 GB"
                 } else {
-                    self.description = NSLocalizedString("Compact high-performance model for mobile and edge deployment | English + 6 languages", comment: "")
+                    self.description = NSLocalizedString("Compact high-performance model for mobile and edge deployment | 6 languages", comment: "")
                     self.size = NSLocalizedString("Unknown", comment: "")
                 }
             } else {
@@ -139,6 +159,7 @@ struct LLMModelInfo: Identifiable {
         
         // CRASH FIX: Special formatting for model names to add proper spacing
         var displayName = filename.replacingOccurrences(of: "-", with: " ").capitalized
+        
         if lowercaseFilename.contains("qwen") && lowercaseFilename.contains("2.5") {
             displayName = displayName.replacingOccurrences(of: "Qwen2.5", with: "Qwen 2.5")
         } else if lowercaseFilename.contains("qwen") && lowercaseFilename.contains("3") {

@@ -186,7 +186,7 @@ struct SystemInfoView: View {
                     
                     Spacer()
                     
-                    Text(selectedModel.displayName)
+                    Text(selectedModel.statusDisplayName)
                         .font(.custom("IBMPlexMono", size: 14))
                         .foregroundColor(Color(hex: "#555555"))
                         .lineLimit(1)

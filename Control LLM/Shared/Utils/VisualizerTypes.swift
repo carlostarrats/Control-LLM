@@ -28,7 +28,7 @@ enum VisualizerType: Int, CaseIterable {
 class VisualizerStateManager: ObservableObject {
     static let shared = VisualizerStateManager()
     
-    @Published var selectedVisualizerType: VisualizerType = .liquid {
+    @Published var selectedVisualizerType: VisualizerType = .flowing {
         didSet {
             saveSelectedVisualizerType()
         }
@@ -42,11 +42,22 @@ class VisualizerStateManager: ObservableObject {
     }
     
     private func loadSelectedVisualizerType() {
+        // Check if this is first run
+        let hasSeenOnboarding = userDefaults.bool(forKey: "hasSeenOnboarding")
+        let hasSetVisualizer = userDefaults.object(forKey: selectedVisualizerKey) != nil
+        
+        // If it's first run or no visualizer has been set, force TARS as default
+        if !hasSeenOnboarding || !hasSetVisualizer {
+            selectedVisualizerType = .flowing
+            saveSelectedVisualizerType()
+            return
+        }
+        
         let savedRawValue = userDefaults.integer(forKey: selectedVisualizerKey)
         if let visualizerType = VisualizerType(rawValue: savedRawValue) {
             selectedVisualizerType = visualizerType
         }
-        // If no saved value or invalid value, it will use the default .liquid
+        // If no saved value or invalid value, it will use the default .flowing (TARS)
     }
     
     private func saveSelectedVisualizerType() {

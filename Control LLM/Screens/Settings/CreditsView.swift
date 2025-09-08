@@ -72,7 +72,6 @@ struct CreditsView: View {
     
     private var creditsItems: [CreditsItem] {
         [
-            CreditsItem(title: "Control.Design", url: "https://github.com/control-design-studio/Control-LLM"),
             CreditsItem(title: "Gemma 3", url: "https://huggingface.co/unsloth/gemma-3-1b-it-GGUF"),
             CreditsItem(title: "IBM Plex Mono", url: "https://github.com/IBM/plex?tab=readme-ov-file"),
             CreditsItem(title: "LLaMA.cpp", url: "https://github.com/ggml-org/llama.cpp"),

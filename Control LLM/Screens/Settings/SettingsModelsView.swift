@@ -103,10 +103,14 @@ struct SettingsModelsView: View {
                                     AvailableDownloadModelView(
                                         model: model,
                                         isDownloading: downloadService.isDownloading(model.filename),
+                                        isQueued: downloadService.isQueued(model.filename),
                                         downloadProgress: downloadService.getDownloadProgress(model.filename),
                                         onDownload: {
                                             if downloadService.isDownloading(model.filename) {
                                                 // Stop download
+                                                downloadService.cancelDownload(model.filename)
+                                            } else if downloadService.isQueued(model.filename) {
+                                                // Cancel queued download
                                                 downloadService.cancelDownload(model.filename)
                                             } else {
                                                 // Start download
@@ -236,6 +240,7 @@ struct SettingsModelsView: View {
 struct AvailableDownloadModelView: View {
     let model: LLMModelInfo
     let isDownloading: Bool
+    let isQueued: Bool
     let downloadProgress: Double
     let onDownload: () -> Void
     @EnvironmentObject var colorManager: ColorManager
@@ -244,6 +249,26 @@ struct AvailableDownloadModelView: View {
     private var availableModelSubtitle: String? {
         // Use the actual model description from ModelManager instead of hardcoded values
         return model.description
+    }
+    
+    private var buttonSymbol: String {
+        if isDownloading {
+            return "square.inset.filled"
+        } else if isQueued {
+            return "timer.square"
+        } else {
+            return "arrow.down.square"
+        }
+    }
+    
+    private var buttonColor: Color {
+        if isDownloading {
+            return colorManager.redColor
+        } else if isQueued {
+            return colorManager.orangeColor
+        } else {
+            return Color(hex: "#BBBBBB")
+        }
     }
     
     var body: some View {
@@ -265,18 +290,27 @@ struct AvailableDownloadModelView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     
-                    HStack {
-                        Text(model.size)
-                            .font(.custom("IBMPlexMono", size: 10))
-                            .foregroundColor(colorManager.redColor)
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text(model.size)
+                                .font(.custom("IBMPlexMono", size: 10))
+                                .foregroundColor(colorManager.redColor)
+                            
+                            Text("•")
+                                .font(.custom("IBMPlexMono", size: 10))
+                                .foregroundColor(Color(hex: "#666666"))
+                            
+                            Text(model.provider)
+                                .font(.custom("IBMPlexMono", size: 10))
+                                .foregroundColor(Color(hex: "#BBBBBB"))
+                        }
                         
-                        Text("•")
-                            .font(.custom("IBMPlexMono", size: 10))
-                            .foregroundColor(Color(hex: "#666666"))
-                        
-                        Text(model.provider)
-                            .font(.custom("IBMPlexMono", size: 10))
-                            .foregroundColor(Color(hex: "#BBBBBB"))
+                        // Queued indicator
+                        if isQueued {
+                            Text("Queued")
+                                .font(.custom("IBMPlexMono", size: 10))
+                                .foregroundColor(Color(hex: "#F8C762")) // Yellow color
+                        }
                     }
                 }
                 
@@ -284,9 +318,9 @@ struct AvailableDownloadModelView: View {
                 
                 // Download button
                 Button(action: onDownload) {
-                    Image(systemName: isDownloading ? "square.inset.filled" : "arrow.down.square")
+                    Image(systemName: buttonSymbol)
                         .font(.system(size: 20))
-                        .foregroundColor(isDownloading ? colorManager.redColor : Color(hex: "#BBBBBB"))
+                        .foregroundColor(buttonColor)
                 }
                 .buttonStyle(PlainButtonStyle())
             }

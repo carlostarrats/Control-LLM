@@ -38,6 +38,12 @@ final class HybridLLMService: ObservableObject {
             throw HybridLLMError.noModelSelected
         }
         
+        // RACE CONDITION FIX: Check if this exact model is already loaded
+        if isModelLoaded && currentModelFilename == modelFilename {
+            print("🔍 HybridLLMService: Model \(modelFilename) already loaded, skipping reload")
+            return
+        }
+        
         print("🔍 HybridLLMService: Loading model: \(modelFilename)")
         
         // Determine which engine to use
