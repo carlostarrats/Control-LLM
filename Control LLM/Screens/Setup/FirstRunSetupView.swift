@@ -179,17 +179,17 @@ struct FirstRunSetupView: View {
                                 .font(.custom("IBMPlexMono", size: 28))
                                 .foregroundColor(Color(hex: "141414"))
                             
-                            Text(" CONTROL ")
+                            Text(" SYSTEM ")
                                 .font(.custom("IBMPlexMono-Bold", size: 16)) // Smaller than before
                                 .foregroundColor(Color(hex: "141414"))
                                 .kerning(6) // More letter spacing
                                 .baselineOffset(-2) // Move down to center-align with "Setup"
                             
-                            Text("Setup")
+                            Text("SETUP")
                                 .font(.custom("IBMPlexMono", size: 28))
                                 .foregroundColor(Color(hex: "141414"))
                             
-                            Text(" v1.0 ")
+                            Text("/ ")
                                 .font(.custom("IBMPlexMono", size: 28))
                                 .foregroundColor(Color(hex: "141414"))
                             
