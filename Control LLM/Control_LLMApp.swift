@@ -66,45 +66,44 @@ private func disableConsoleFlooding() {
 
 @main
 struct Control_LLMApp: App {
+    @State private var isAppReady = false
+    
     init() {
+        print("🔍 [\(Date())] App init started")
+        
         // FIRST: Stop console flooding immediately
         disableConsoleFlooding()
         
-        #if DEBUG
-        // Debug logging only - no filesystem writes for security
-        let timestamp = Date().description
-        print("🔍 App starting... at \(timestamp)")
-        #endif
+        print("🔍 [\(Date())] Console flooding disabled")
         
-        print("🔍 App starting...")
-        // Register custom fonts
+        // Register custom fonts (minimal, fast operation)
         registerCustomFonts()
-        print("🔍 App started successfully")
         
-        // PERFORMANCE OPTIMIZATION: Defer heavy initialization to background
+        print("🔍 [\(Date())] Fonts registered")
+        
+        // Defer ALL heavy initialization to background - show UI immediately
         Task.detached(priority: .background) {
-            await Self.initializeNonCriticalServices()
+            await Self.initializeAllServices()
         }
         
-        // Initialize only critical services immediately
-        initializeCriticalServices()
-        
-        #if DEBUG
-        let successMessage = "🔍 App started successfully at \(timestamp)"
-        print(successMessage)
-        #endif
+        print("🔍 [\(Date())] App init finished - UI should be ready")
     }
     
     var body: some Scene {
-        WindowGroup {
-            BackgroundSecurityView {
-                MainView()
-                    .environmentObject(ColorManager.shared)
-                    .onAppear {
-                        // Refresh colors on appear to apply saved settings
-                        ColorManager.shared.refreshColors()
-                        debugPrint("MainView appeared!", category: .ui)
-                    }
+        let isFirstRun = FirstRunManager.shared.isFirstRun
+        print("🔍 [\(Date())] WindowGroup body called - isFirstRun: \(isFirstRun)")
+        
+        return WindowGroup {
+            if isFirstRun {
+                FirstRunSetupView()
+            } else {
+                BackgroundSecurityView {
+                    MainView()
+                        .environmentObject(ColorManager.shared)
+                        .onAppear {
+                            ColorManager.shared.refreshColors()
+                        }
+                }
             }
         }
     }
@@ -122,21 +121,11 @@ struct Control_LLMApp: App {
     
     // MARK: - Performance Optimizations
     
-    /// Initialize only critical services that are needed immediately
-    private func initializeCriticalServices() {
-        print("🚀 Initializing critical services...")
+    /// Initialize all services in background - UI shows immediately
+    private static func initializeAllServices() async {
+        print("🔄 Initializing all services in background...")
         
-        // Only initialize essential services for app launch
-        let _ = LazyServiceManager.shared
-        
-        print("🚀 Critical services initialized")
-    }
-    
-    /// Initialize non-critical services in background
-    private static func initializeNonCriticalServices() async {
-        print("🔄 Initializing non-critical services in background...")
-        
-        // Initialize ModelManager (can be done in background)
+        // Initialize ModelManager
         DispatchQueue.main.async {
             let _ = ModelManager.shared
         }
@@ -149,7 +138,7 @@ struct Control_LLMApp: App {
             Self.initializeShortcutsIntegration()
         }
         
-        print("✅ Non-critical services initialized")
+        print("✅ All services initialized in background")
     }
     
     private static func initializeSecurityComponents() {

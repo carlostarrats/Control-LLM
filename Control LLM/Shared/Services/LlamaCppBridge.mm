@@ -11,8 +11,18 @@
 // If you vendor llama.cpp headers (e.g., llama.h) into Vendor/llama, include them here
 // and link against a prebuilt static library (Option A). Otherwise fall back to placeholders.
 
+// Metal shader compilation for first run setup (global variables)
+static bool s_metal_compilation_in_progress = false;
+static bool s_metal_compilation_complete = false;
+static void* s_metal_backend = nullptr;
+
 #if __has_include("llama.h")
 #include "llama.h"
+
+// Include Metal headers if available
+#if __has_include("ggml-metal.h")
+#include "ggml-metal.h"
+#endif
 
 // MARK: - Secure Memory Clearing Functions
 
@@ -182,6 +192,9 @@ int llm_bridge_apply_chat_template_messages(const char* const* roles, const char
 void* llm_bridge_load_model(const char* model_path) {
     NSLog(@"LlamaCppBridge: Loading model (real) from %s", model_path);
     
+    // Wait for background Metal compilation to complete if it's still running
+    llm_bridge_wait_for_metal_compilation();
+    
     // CRASH FIX: Thread-safe model loading with mutex protection
     pthread_mutex_lock(&s_bridge_mutex);
     
@@ -211,7 +224,18 @@ void* llm_bridge_load_model(const char* model_path) {
     // Keep memory usage lower for simulator/device defaults
     model_params.use_mmap = true;
     model_params.use_mlock = false;
-    model_params.n_gpu_layers = 0; // CPU/Accelerate
+    
+    // Use Metal if available and pre-compiled
+    if (s_metal_compilation_complete && s_metal_backend) {
+        NSLog(@"LlamaCppBridge: Using pre-compiled Metal backend for model loading");
+        model_params.n_gpu_layers = -1; // Use all GPU layers with Metal
+        
+        // Use the pre-compiled Metal backend
+        NSLog(@"LlamaCppBridge: Using pre-compiled Metal backend (shaders already compiled)");
+    } else {
+        NSLog(@"LlamaCppBridge: Using CPU/Accelerate backend for model loading");
+        model_params.n_gpu_layers = 0; // CPU/Accelerate
+    }
     
     NSLog(@"LlamaCppBridge: Attempting to load model with params: mmap=%d, mlock=%d, gpu_layers=%d", 
           model_params.use_mmap, model_params.use_mlock, model_params.n_gpu_layers);
@@ -938,3 +962,110 @@ void llm_bridge_cancel_generation(void) {
 }
 
 #endif
+
+void llm_bridge_preload_metal_shaders(void) {
+    NSLog(@"LlamaCppBridge: Starting Metal shader compilation...");
+    
+    #if __has_include("llama.h")
+    // Initialize llama backend if not already done
+    static bool s_backend_initialized = false;
+    if (!s_backend_initialized) {
+        NSLog(@"LlamaCppBridge: Initializing backend for Metal shader compilation");
+        llama_backend_init();
+        s_backend_initialized = true;
+    }
+    
+    // Mark compilation as in progress
+    s_metal_compilation_in_progress = true;
+    NSLog(@"LlamaCppBridge: Metal compilation status set to IN PROGRESS");
+    
+    // Initialize Metal backend to trigger shader compilation
+    #if __has_include("ggml-metal.h")
+    NSLog(@"LlamaCppBridge: About to call ggml_backend_metal_init()...");
+    s_metal_backend = (void*)ggml_backend_metal_init();
+    NSLog(@"LlamaCppBridge: ggml_backend_metal_init() returned, result: %p", s_metal_backend);
+    if (s_metal_backend) {
+        NSLog(@"LlamaCppBridge: ✅ Metal shaders compiled successfully");
+        
+        // Store the Metal backend for later use
+        NSLog(@"LlamaCppBridge: Metal backend stored for model loading");
+        
+        s_metal_compilation_complete = true;
+        NSLog(@"LlamaCppBridge: Metal compilation status set to COMPLETE");
+        // Keep the backend alive so shaders stay compiled
+        // Don't free it - this ensures shaders are ready for model loading
+    } else {
+        NSLog(@"LlamaCppBridge: ⚠️ Failed to compile Metal shaders");
+        s_metal_compilation_complete = true; // Mark as complete even if failed
+        NSLog(@"LlamaCppBridge: Metal compilation status set to COMPLETE (failed)");
+    }
+    #else
+    NSLog(@"LlamaCppBridge: Metal support not available");
+    s_metal_compilation_complete = true; // Mark as complete
+    NSLog(@"LlamaCppBridge: Metal compilation status set to COMPLETE (not available)");
+    #endif
+    
+    // Mark compilation as no longer in progress
+    s_metal_compilation_in_progress = false;
+    NSLog(@"LlamaCppBridge: Metal compilation status set to NOT IN PROGRESS");
+    
+    #else
+    NSLog(@"LlamaCppBridge: llama.h not available - using placeholder");
+    s_metal_compilation_complete = true; // Mark as complete
+    s_metal_compilation_in_progress = false;
+    NSLog(@"LlamaCppBridge: Metal compilation status set to COMPLETE (placeholder)");
+    #endif
+    
+    NSLog(@"LlamaCppBridge: Metal shader compilation completed");
+}
+
+// Check if Metal compilation is in progress
+bool llm_bridge_is_metal_compilation_in_progress(void) {
+    return s_metal_compilation_in_progress;
+}
+
+// Check if Metal compilation is complete
+bool llm_bridge_is_metal_compilation_complete(void) {
+    return s_metal_compilation_complete;
+}
+
+// Wait for Metal compilation to complete (with timeout)
+void llm_bridge_wait_for_metal_compilation(void) {
+    NSLog(@"LlamaCppBridge: Checking Metal compilation status - Complete: %d, In Progress: %d", 
+          s_metal_compilation_complete, s_metal_compilation_in_progress);
+    
+    if (s_metal_compilation_complete) {
+        NSLog(@"LlamaCppBridge: Metal compilation already complete, returning immediately");
+        return; // Already complete
+    }
+    
+    if (!s_metal_compilation_in_progress) {
+        NSLog(@"LlamaCppBridge: Metal compilation not started, returning immediately");
+        return; // Not started, so nothing to wait for
+    }
+    
+    NSLog(@"LlamaCppBridge: Waiting for background Metal compilation to complete...");
+    
+    // Wait up to 60 seconds for compilation to complete
+    int timeout_seconds = 60;
+    int waited = 0;
+    
+    while (s_metal_compilation_in_progress && waited < timeout_seconds) {
+        usleep(100000); // Wait 0.1 seconds
+        waited++;
+        if (waited % 10 == 0) { // Log every second
+            NSLog(@"LlamaCppBridge: Still waiting... %d seconds elapsed", waited / 10);
+        }
+    }
+    
+    if (s_metal_compilation_complete) {
+        NSLog(@"LlamaCppBridge: ✅ Background Metal compilation completed after %d seconds", waited / 10);
+    } else {
+        NSLog(@"LlamaCppBridge: ⚠️ Timeout waiting for Metal compilation after %d seconds", waited / 10);
+    }
+}
+
+// Get the pre-compiled Metal backend (if available)
+void* llm_bridge_get_metal_backend(void) {
+    return s_metal_backend;
+}
