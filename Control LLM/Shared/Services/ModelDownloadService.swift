@@ -118,6 +118,11 @@ class ModelDownloadService: ObservableObject {
             downloadingModels.remove(modelFilename)
             downloadProgress.removeValue(forKey: modelFilename)
             
+            // Play light haptic feedback for download completion
+            await MainActor.run {
+                HapticManager.shared.impact(style: .light)
+            }
+            
             // Refresh ModelManager to detect the new model
             await ModelManager.shared.refreshAvailableModels()
             

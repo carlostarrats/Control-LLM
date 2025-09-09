@@ -83,7 +83,7 @@ class AppearanceManager: ObservableObject {
     }
     
     var currentGreenColor: Color {
-        Color(hue: greenColorHue / 360, saturation: 0.5, brightness: 0.8)
+        Color(hue: greenColorHue / 360, saturation: 0.35, brightness: 0.73)
     }
     
     var currentPurpleColor: Color {
@@ -272,8 +272,8 @@ struct AppearanceView: View {
                                 Button(action: {
                                     // Change visual state immediately for instant feedback
                                     visualizerState.selectedVisualizerType = tab
-                                    // Play sound after state change for immediate response
-                                    FeedbackService.shared.playSound(.tabSwitch)
+                                    // Play light haptic feedback for immediate response
+                                    FeedbackService.shared.playHaptic(.light)
                                 }) {
                                     HStack(spacing: 6) {
                                         Image(systemName: tab.icon)
