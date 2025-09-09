@@ -97,14 +97,24 @@ struct Control_LLMApp: App {
     
     var body: some Scene {
         WindowGroup {
-            BackgroundSecurityView {
-                MainView()
-                    .environmentObject(ColorManager.shared)
-                    .onAppear {
-                        // Refresh colors on appear to apply saved settings
-                        ColorManager.shared.refreshColors()
-                        debugPrint("MainView appeared!", category: .ui)
+            ZStack {
+                // Always show red background immediately to prevent white screen
+                ColorManager.shared.redColor
+                    .ignoresSafeArea()
+                
+                if FirstRunManager.shared.isFirstRun {
+                    FirstRunSetupView()
+                } else {
+                    BackgroundSecurityView {
+                        MainView()
+                            .environmentObject(ColorManager.shared)
+                            .onAppear {
+                                // Refresh colors on appear to apply saved settings
+                                ColorManager.shared.refreshColors()
+                                debugPrint("MainView appeared!", category: .ui)
+                            }
                     }
+                }
             }
         }
     }

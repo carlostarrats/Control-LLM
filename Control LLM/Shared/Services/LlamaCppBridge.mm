@@ -14,6 +14,11 @@
 #if __has_include("llama.h")
 #include "llama.h"
 
+// Include Metal headers if available
+#if __has_include("ggml-metal.h")
+#include "ggml-metal.h"
+#endif
+
 // MARK: - Secure Memory Clearing Functions
 
 /// Securely clears memory to prevent data leakage
@@ -938,3 +943,37 @@ void llm_bridge_cancel_generation(void) {
 }
 
 #endif
+
+// Metal shader compilation for first run setup (outside the llama.h include block)
+void llm_bridge_preload_metal_shaders(void) {
+    NSLog(@"LlamaCppBridge: Starting Metal shader compilation...");
+    
+    #if __has_include("llama.h")
+    // Initialize llama backend if not already done
+    static bool s_backend_initialized = false;
+    if (!s_backend_initialized) {
+        NSLog(@"LlamaCppBridge: Initializing backend for Metal shader compilation");
+        llama_backend_init();
+        s_backend_initialized = true;
+    }
+    
+    // Initialize Metal backend to trigger shader compilation
+    #if __has_include("ggml-metal.h")
+    NSLog(@"LlamaCppBridge: Compiling Metal shaders (this takes ~30 seconds)");
+    ggml_backend_t metal_backend = ggml_backend_metal_init();
+    if (metal_backend) {
+        NSLog(@"LlamaCppBridge: ✅ Metal shaders compiled successfully");
+        // Keep the backend alive so shaders stay compiled
+        // Don't free it - this ensures shaders are ready for model loading
+    } else {
+        NSLog(@"LlamaCppBridge: ⚠️ Failed to compile Metal shaders");
+    }
+    #else
+    NSLog(@"LlamaCppBridge: Metal support not available");
+    #endif
+    #else
+    NSLog(@"LlamaCppBridge: llama.h not available - using placeholder");
+    #endif
+    
+    NSLog(@"LlamaCppBridge: Metal shader compilation completed");
+}
