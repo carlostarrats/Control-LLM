@@ -16,6 +16,14 @@ class AppearanceManager: ObservableObject {
     @Published var whiteTextColorHue: Double = 0.0 // For #EEEEEE (white text)
     @Published var greyTextColorHue: Double = 0.0 // For #BBBBBB (grey text)
     
+    // Track the last committed state for restoration
+    var lastCommittedRedColorHue: Double = 0.0
+    var lastCommittedOrangeColorHue: Double = 30.0
+    var lastCommittedGreenColorHue: Double = 160.0
+    var lastCommittedPurpleColorHue: Double = 220.0
+    var lastCommittedWhiteTextColorHue: Double = 0.0
+    var lastCommittedGreyTextColorHue: Double = 0.0
+    
     // Default colors (extracted from current app)
     static var defaultVisualizerColor: Color {
         // Using the exact color provided by the user
@@ -41,6 +49,14 @@ class AppearanceManager: ObservableObject {
         purpleColorHue = Self.defaultPurpleColor.hsb.hue * 360
         whiteTextColorHue = Self.defaultWhiteTextColor.hsb.hue * 360
         greyTextColorHue = Self.defaultGreyTextColor.hsb.hue * 360
+        
+        // Initialize last committed state to defaults
+        lastCommittedRedColorHue = redColorHue
+        lastCommittedOrangeColorHue = orangeColorHue
+        lastCommittedGreenColorHue = greenColorHue
+        lastCommittedPurpleColorHue = purpleColorHue
+        lastCommittedWhiteTextColorHue = whiteTextColorHue
+        lastCommittedGreyTextColorHue = greyTextColorHue
     }
     
     func restoreDefaults() {
@@ -55,6 +71,34 @@ class AppearanceManager: ObservableObject {
         purpleColorHue = Self.defaultPurpleColor.hsb.hue * 360
         whiteTextColorHue = Self.defaultWhiteTextColor.hsb.hue * 360
         greyTextColorHue = Self.defaultGreyTextColor.hsb.hue * 360
+        
+        // Update last committed state to defaults
+        lastCommittedRedColorHue = redColorHue
+        lastCommittedOrangeColorHue = orangeColorHue
+        lastCommittedGreenColorHue = greenColorHue
+        lastCommittedPurpleColorHue = purpleColorHue
+        lastCommittedWhiteTextColorHue = whiteTextColorHue
+        lastCommittedGreyTextColorHue = greyTextColorHue
+    }
+    
+    // Save current state as committed
+    func commitCurrentState() {
+        lastCommittedRedColorHue = redColorHue
+        lastCommittedOrangeColorHue = orangeColorHue
+        lastCommittedGreenColorHue = greenColorHue
+        lastCommittedPurpleColorHue = purpleColorHue
+        lastCommittedWhiteTextColorHue = whiteTextColorHue
+        lastCommittedGreyTextColorHue = greyTextColorHue
+    }
+    
+    // Restore to last committed state (not defaults)
+    func restoreToLastCommitted() {
+        redColorHue = lastCommittedRedColorHue
+        orangeColorHue = lastCommittedOrangeColorHue
+        greenColorHue = lastCommittedGreenColorHue
+        purpleColorHue = lastCommittedPurpleColorHue
+        whiteTextColorHue = lastCommittedWhiteTextColorHue
+        greyTextColorHue = lastCommittedGreyTextColorHue
     }
     
     var currentVisualizerColor: Color {
@@ -251,6 +295,24 @@ struct AppearanceView: View {
         }
     }
     
+    // Check if the currently applied colors are at their default values
+    private var isAtDefaults: Bool {
+        let defaultRed = AppearanceManager.defaultRedColor.hsb.hue * 360
+        let defaultOrange = AppearanceManager.defaultOrangeColor.hsb.hue * 360
+        let defaultGreen = AppearanceManager.defaultGreenColor.hsb.hue * 360
+        let defaultPurple = AppearanceManager.defaultPurpleColor.hsb.hue * 360
+        let defaultWhite = AppearanceManager.defaultWhiteTextColor.hsb.hue * 360
+        let defaultGrey = AppearanceManager.defaultGreyTextColor.hsb.hue * 360
+        
+        // Check against the last committed state (what's actually applied)
+        return abs(appearanceManager.lastCommittedRedColorHue - defaultRed) < 1 &&
+               abs(appearanceManager.lastCommittedOrangeColorHue - defaultOrange) < 1 &&
+               abs(appearanceManager.lastCommittedGreenColorHue - defaultGreen) < 1 &&
+               abs(appearanceManager.lastCommittedPurpleColorHue - defaultPurple) < 1 &&
+               abs(appearanceManager.lastCommittedWhiteTextColorHue - defaultWhite) < 1 &&
+               abs(appearanceManager.lastCommittedGreyTextColorHue - defaultGrey) < 1
+    }
+    
     var body: some View {
         ZStack {
             // Background
@@ -381,35 +443,40 @@ struct AppearanceView: View {
                     VStack(spacing: 12) {
                         // Restore Defaults Button
                         Button(action: {
-                            FeedbackService.shared.playHaptic(.light)
-                            // Prevent onChange handlers from re-activating Apply during reset
-                            suppressChangeTracking = true
-                            // Reset editor values to defaults
-                            appearanceManager.restoreDefaults()
-                            // Immediately apply defaults app-wide
-                            colorManager.refreshColors()
-                            // Clear change flags since we're now in a clean default state
-                            hasVisualizerChanges = false
-                            hasMainColorsChanges = false
-                            hasChanges = false
-                            // Re-enable change tracking after state settles
-                            DispatchQueue.main.async {
-                                suppressChangeTracking = false
+                            if !isAtDefaults {
+                                FeedbackService.shared.playHaptic(.light)
+                                // Prevent onChange handlers from re-activating Apply during reset
+                                suppressChangeTracking = true
+                                // Reset editor values to defaults
+                                appearanceManager.restoreDefaults()
+                                // Immediately apply defaults app-wide
+                                colorManager.refreshColors()
+                                // Clear change flags since we're now in a clean default state
+                                hasVisualizerChanges = false
+                                hasMainColorsChanges = false
+                                hasChanges = false
+                                // Re-enable change tracking after state settles
+                                DispatchQueue.main.async {
+                                    suppressChangeTracking = false
+                                }
                             }
                         }) {
                             Text(NSLocalizedString("Restore Defaults", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 16))
-                                .foregroundColor(ColorManager.shared.greyTextColor)
+                                .foregroundColor(isAtDefaults ? Color(hex: "#888888") : ColorManager.shared.greenColor)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
                                 .background(Color(hex: "#2A2A2A"))
                                 .cornerRadius(4)
                         }
                         .buttonStyle(PlainButtonStyle())
+                        .disabled(isAtDefaults)
                         
                         // Apply Changes Button
                         Button(action: {
                             FeedbackService.shared.playHaptic(.light)
+                            // Save current state as committed
+                            appearanceManager.commitCurrentState()
                             // Apply changes by refreshing the ColorManager
                             colorManager.refreshColors()
                             hasVisualizerChanges = false
@@ -459,6 +526,12 @@ struct AppearanceView: View {
                         Spacer()
                         
                         Button(action: {
+                            // If there are uncommitted changes, restore to last committed state before dismissing
+                            if hasChanges {
+                                suppressChangeTracking = true
+                                appearanceManager.restoreToLastCommitted()
+                                suppressChangeTracking = false
+                            }
                             dismiss()
                         }) {
                             Image(systemName: "xmark")
