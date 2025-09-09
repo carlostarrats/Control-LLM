@@ -83,8 +83,6 @@ struct MainView: View {
                 // Always use dark background - no more orange
                 let backgroundColor = UIColor(red: 0.08, green: 0.08, blue: 0.08, alpha: 1.0) // #141414
                 
-                // Debug logging
-                
                 // Try multiple approaches
                 window.backgroundColor = backgroundColor
                 
@@ -98,8 +96,8 @@ struct MainView: View {
                 
                 // Verify the change
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    // Background color verification complete
                 }
-            } else {
             }
         }
     }
@@ -433,7 +431,7 @@ struct HomePage: View {
                 .accessibilityLabel(NSLocalizedString("Voice recording button", comment: ""))
                 .accessibilityHint(NSLocalizedString("Double tap to start or stop voice recording", comment: ""))
                 .opacity(blobColorOpacity)
-                .offset(y: -60) // Move up by 60 points to center in available space
+                .offset(y: -40) // Move up by 40 points to center in available space
             }
 
             // Bottom navigation buttons removed - main screen now has no buttons

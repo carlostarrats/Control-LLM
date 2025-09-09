@@ -33,6 +33,7 @@ struct VisualizerTabView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .offset(y: visualizerState.selectedVisualizerType == .liquid ? 0 : -15) // TARS and WOPR move up 15pt
     }
 }
 
