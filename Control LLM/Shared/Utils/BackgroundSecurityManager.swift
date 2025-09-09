@@ -152,7 +152,6 @@ class BackgroundSecurityManager: ObservableObject {
         
         backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "HideSensitiveContent") {
             // This block is called when the background task is about to expire
-            print("🔒 BackgroundSecurityManager: Background task expiring - ensuring content is hidden")
             self.endBackgroundTask()
         }
     }

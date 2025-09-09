@@ -52,11 +52,9 @@ final class OllamaService: ObservableObject {
             self.isModelLoaded = true
         }
         
-        print("✅ OllamaService: Model loaded successfully: \(ollamaModelName)")
     }
     
     func unloadModel() async {
-        print("🔍 OllamaService: Unloading current model")
         await MainActor.run {
             self.currentModelName = nil
             self.isModelLoaded = false
@@ -64,7 +62,6 @@ final class OllamaService: ObservableObject {
     }
     
     private func preWarmModel(_ modelName: String) async throws -> String {
-        print("🔍 OllamaService: Pre-warming model with minimal generation: \(modelName)")
         
         guard let url = URL(string: "https://localhost:11434/api/generate") else {
             throw OllamaError.invalidURL
@@ -91,7 +88,6 @@ final class OllamaService: ObservableObject {
         
         if let httpResponse = response as? HTTPURLResponse {
             if httpResponse.statusCode != 200 {
-                print("❌ OllamaService: Pre-warm failed with status: \(httpResponse.statusCode)")
                 throw OllamaError.serverError(httpResponse.statusCode)
             }
         }
@@ -198,7 +194,6 @@ final class OllamaService: ObservableObject {
             throw OllamaError.serverError((response as? HTTPURLResponse)?.statusCode ?? 0)
         }
         
-        print("✅ OllamaService: Model pulled successfully: \(modelName)")
     }
     
     // MARK: - Server Health

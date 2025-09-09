@@ -197,7 +197,6 @@ class ModelDownloadService: ObservableObject {
             throw ModelDownloadError.invalidURL
         }
         
-        print("🚀 Starting download for \(modelFilename) from \(config.downloadURL)")
         
         // Create destination URL in Documents/Models directory
         let documentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -249,14 +248,12 @@ class ModelDownloadService: ObservableObject {
         
         // Save data to file
         try data.write(to: destinationURL)
-        print("✅ ModelDownloadService: Successfully downloaded \(modelFilename) to \(destinationURL.path)")
     }
     
     private func monitorDownloadProgress(task: URLSessionDataTask, modelFilename: String) async {
         while !task.progress.isFinished && !task.progress.isCancelled {
             await MainActor.run {
                 downloadProgress[modelFilename] = task.progress.fractionCompleted
-                print("📥 Download progress for \(modelFilename): \(Int(task.progress.fractionCompleted * 100))%")
             }
             
             try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds

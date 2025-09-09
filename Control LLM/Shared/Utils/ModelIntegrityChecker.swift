@@ -120,7 +120,6 @@ class ModelIntegrityChecker {
             let isExecutable = (posixPermissions & 0o111) != 0
             
             if isExecutable {
-                print("⚠️ ModelIntegrityChecker: Warning - model file has execute permissions")
                 // Don't throw error, just log warning
             }
         }
@@ -161,7 +160,6 @@ class ModelIntegrityChecker {
             throw ModelIntegrityError.invalidFileFormat("Invalid GGUF magic number: \(magic)")
         }
         
-        print("🔍 ModelIntegrityChecker: GGUF format validation passed")
     }
     
     /// Validates BIN format (basic validation)
@@ -175,7 +173,6 @@ class ModelIntegrityChecker {
             throw ModelIntegrityError.cannotOpenFile
         }
         
-        print("🔍 ModelIntegrityChecker: BIN format validation passed")
     }
     
     /// Validates SafeTensors format
@@ -189,7 +186,6 @@ class ModelIntegrityChecker {
             throw ModelIntegrityError.cannotOpenFile
         }
         
-        print("🔍 ModelIntegrityChecker: SafeTensors format validation passed")
     }
     
     /// Checks for file corruption
@@ -212,7 +208,6 @@ class ModelIntegrityChecker {
             throw ModelIntegrityError.fileCorrupted("Excessive null bytes detected")
         }
         
-        print("🔍 ModelIntegrityChecker: Corruption check passed")
     }
     
     // MARK: - Model Security Checks
@@ -221,7 +216,6 @@ class ModelIntegrityChecker {
     /// - Parameter modelPath: Path to the model file
     /// - Throws: ModelIntegrityError if security check fails
     static func performSecurityChecks(_ modelPath: String) throws {
-        print("🔍 ModelIntegrityChecker: Performing security checks on \(modelPath)")
         
         // Check file location (should be in app bundle or documents)
         try validateFileLocation(modelPath)
@@ -232,7 +226,6 @@ class ModelIntegrityChecker {
         // Check file modification time
         try validateFileModificationTime(modelPath)
         
-        print("✅ ModelIntegrityChecker: Security checks passed")
     }
     
     /// Validates file location
@@ -272,7 +265,6 @@ class ModelIntegrityChecker {
         let lowercasedFileName = fileName.lowercased()
         for pattern in suspiciousPatterns {
             if lowercasedFileName.contains(pattern) {
-                print("⚠️ ModelIntegrityChecker: Warning - suspicious pattern in filename: \(pattern)")
             }
         }
     }
@@ -295,7 +287,6 @@ class ModelIntegrityChecker {
         // Check if file is too old (potential security issue)
         let oneYearAgo = Calendar.current.date(byAdding: .year, value: -1, to: now) ?? now
         if modificationDate < oneYearAgo {
-            print("⚠️ ModelIntegrityChecker: Warning - model file is over 1 year old")
         }
     }
     
@@ -342,7 +333,6 @@ class ModelIntegrityChecker {
             )
         }
         
-        print("✅ ModelIntegrityChecker: Hash verification passed")
     }
 }
 

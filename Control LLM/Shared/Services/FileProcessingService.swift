@@ -101,14 +101,12 @@ class FileProcessingService {
     
     /// Process PDF files
     private func processPDFFile(_ url: URL) async throws -> FileContent {
-        print("🔍 FileProcessingService: Starting PDF processing for URL: \(url.path)")
         
         // PERFORMANCE FIX: Run all file I/O and parsing in a detached background task
         // to prevent any possibility of blocking the main thread during UI transitions (e.g., file picker dismissal).
         return try await Task.detached(priority: .userInitiated) {
             // First try to create PDFDocument from URL (for files with direct access)
             if let pdfDocument = PDFDocument(url: url) {
-                print("✅ FileProcessingService: Successfully created PDFDocument from URL.")
                 // Pass needed properties instead of capturing self
                 let fileName = url.lastPathComponent
                 let fileSize = url.fileSize ?? 0
@@ -116,21 +114,16 @@ class FileProcessingService {
             }
             
             // If URL access fails, try to read the file data and create PDFDocument from data
-            print("⚠️ FileProcessingService: Could not create PDFDocument from URL, attempting to read data directly.")
             do {
                 let fileData = try Data(contentsOf: url)
-                print("✅ FileProcessingService: Successfully read PDF data (\(fileData.count) bytes).")
                 guard let pdfDocument = PDFDocument(data: fileData) else {
-                    print("❌ FileProcessingService: Failed to create PDFDocument from data.")
                     throw FileProcessingError.pdfError
                 }
                 
-                print("✅ FileProcessingService: Successfully created PDFDocument from data.")
                 // Pass needed properties instead of capturing self
                 let fileName = url.lastPathComponent
                 return try await FileProcessingService.shared.extractTextFromPDFDocument(pdfDocument, fileName: fileName, size: fileData.count)
             } catch {
-                print("❌ FileProcessingService: Failed to read PDF data with error: \(error)")
                 throw FileProcessingError.pdfError
             }
         }.value
@@ -138,10 +131,8 @@ class FileProcessingService {
     
     /// Extract text from PDFDocument (helper method)
     private func extractTextFromPDFDocument(_ pdfDocument: PDFDocument, fileName: String, size: Int) async throws -> FileContent {
-        print("🔍 FileProcessingService: Starting text extraction from PDF")
         var extractedText = ""
         let pageCount = pdfDocument.pageCount
-        print("🔍 FileProcessingService: PDF has \(pageCount) pages")
         
         for i in 0..<pageCount {
             if let page = pdfDocument.page(at: i) {
@@ -149,21 +140,16 @@ class FileProcessingService {
                     extractedText += pageContent + "\n\n"
                     SecureLogger.log("FileProcessingService: Extracted \(pageContent.count) characters from page \(i+1)")
                 } else {
-                    print("⚠️ FileProcessingService: Page \(i+1) has no text content")
                 }
             } else {
-                print("❌ FileProcessingService: Could not access page \(i+1)")
             }
         }
         
-        print("🔍 FileProcessingService: Total extracted text: \(extractedText.count) characters")
         
         if extractedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            print("❌ FileProcessingService: PDF contains no readable text")
             throw FileProcessingError.emptyContent
         }
         
-        print("✅ FileProcessingService: Successfully extracted text from PDF")
         
         let result = FileContent(
             fileName: fileName,
@@ -195,7 +181,6 @@ class FileProcessingService {
         }
         
         if taskId == nil {
-            print("⚠️ FileProcessingService: Could not start background task, processing image on main thread")
             return try await processImageFileInBackground(url)
         }
         
@@ -266,7 +251,6 @@ class FileProcessingService {
         
         let request = VNRecognizeTextRequest { request, error in
             if let error = error {
-                print("Vision error: \(error)")
             }
         }
         

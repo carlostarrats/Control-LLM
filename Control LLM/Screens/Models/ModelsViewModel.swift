@@ -104,7 +104,6 @@ class ModelsViewModel: ObservableObject {
     }
     
     func selectModel(_ model: LLMModelInfo) {
-        print("🔍 ModelsViewModel: selectModel called for: \(model.displayName)")
         
         // Use the actual ModelManager to select the model
         ModelManager.shared.selectModel(model)

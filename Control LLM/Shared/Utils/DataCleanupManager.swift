@@ -36,7 +36,6 @@ class DataCleanupManager {
     private func initializeIncrementalCleanup() {
         // PERFORMANCE OPTIMIZATION: Initialize incremental cleanup system
         incrementalCleanupManager = IncrementalCleanupManager()
-        print("🧹 DataCleanupManager: Incremental cleanup system initialized")
     }
     
     deinit {
@@ -80,7 +79,6 @@ class DataCleanupManager {
     
     /// Performs comprehensive data cleanup
     func performComprehensiveCleanup() {
-        print("🧹 DataCleanupManager: Starting comprehensive data cleanup")
         
         // PERFORMANCE OPTIMIZATION: Use background task for cleanup
         let taskId = BackgroundTaskManager.shared.startDataCleanupTask {
@@ -111,7 +109,6 @@ class DataCleanupManager {
             // Update last cleanup time
             SecureStorage.storeDate(Date(), forKey: self.lastCleanupKey)
             
-            print("✅ DataCleanupManager: Comprehensive cleanup completed")
         }
         
         // End the background task after completion
@@ -120,7 +117,6 @@ class DataCleanupManager {
         }
         
         if taskId == nil {
-            print("⚠️ DataCleanupManager: Could not start background task, performing cleanup on main thread")
             // Fallback to immediate cleanup if background task unavailable
             performImmediateCleanup()
         }
@@ -129,7 +125,6 @@ class DataCleanupManager {
     // MARK: - Specific Cleanup Methods
     
     private func clearConversationData() {
-        print("🧹 DataCleanupManager: Clearing conversation data")
         
         // Clear ChatViewModel data
         NotificationCenter.default.post(name: .clearAllConversationData, object: nil)
@@ -153,7 +148,6 @@ class DataCleanupManager {
     }
     
     private func clearPerformanceData() {
-        print("🧹 DataCleanupManager: Clearing performance data")
         
         // Clear performance tracking data
         let performanceKeys = [
@@ -176,11 +170,9 @@ class DataCleanupManager {
         // Clear any cached performance metrics
         NotificationCenter.default.post(name: .clearPerformanceData, object: nil)
         
-        print("✅ DataCleanupManager: Performance data cleared")
     }
     
     private func clearTemporaryFiles() {
-        print("🧹 DataCleanupManager: Clearing temporary files")
         
         let tempDir = FileManager.default.temporaryDirectory
         
@@ -207,16 +199,13 @@ class DataCleanupManager {
             }
         }
         
-        print("✅ DataCleanupManager: Temporary files cleared")
     }
     
     private func clearMetalMemory() {
-        print("🧹 DataCleanupManager: Clearing Metal memory")
         MetalMemoryManager.shared.performSecurityCleanup()
     }
     
     private func clearCppBridgeMemory() {
-        print("🧹 DataCleanupManager: Clearing C++ bridge memory")
         
         // Call the C++ bridge reset context function to clear memory
         llm_bridge_reset_context(nil)
@@ -226,7 +215,6 @@ class DataCleanupManager {
     }
     
     private func clearSecureStorage() {
-        print("🧹 DataCleanupManager: Clearing secure storage")
         
         // Clear all secure storage except essential app data
         let essentialKeys = [
@@ -251,7 +239,6 @@ class DataCleanupManager {
     }
     
     private func clearUserDefaults() {
-        print("🧹 DataCleanupManager: Clearing UserDefaults")
         
         let defaults = UserDefaults.standard
         let dictionary = defaults.dictionaryRepresentation()
@@ -274,11 +261,9 @@ class DataCleanupManager {
         // Force synchronization
         defaults.synchronize()
         
-        print("✅ DataCleanupManager: UserDefaults cleared")
     }
     
     private func clearSystemCaches() {
-        print("🧹 DataCleanupManager: Clearing system caches")
         
         // Clear URL cache
         URLCache.shared.removeAllCachedResponses()
@@ -294,7 +279,6 @@ class DataCleanupManager {
         // Clear any other system caches
         NotificationCenter.default.post(name: .clearSystemCaches, object: nil)
         
-        print("✅ DataCleanupManager: System caches cleared")
     }
     
     // MARK: - Helper Methods
@@ -324,13 +308,11 @@ class DataCleanupManager {
     
     /// Performs immediate cleanup (for testing or manual triggers)
     func performImmediateCleanup() {
-        print("🧹 DataCleanupManager: Performing immediate cleanup")
         performComprehensiveCleanup()
     }
     
     /// Clears all data immediately (for app reset)
     func clearAllData() {
-        print("🧹 DataCleanupManager: Clearing all data")
         
         // Clear everything
         SecureStorage.clearAll()
@@ -351,7 +333,6 @@ class DataCleanupManager {
         // Clear system caches
         clearSystemCaches()
         
-        print("✅ DataCleanupManager: All data cleared")
     }
     
 }
@@ -369,7 +350,6 @@ extension ChatViewModel {
             
             // Clear any cached data (handled by ChatViewModel's clearAllConversationData method)
             
-            print("✅ ChatViewModel: All conversation data cleared")
         }
     }
 }
@@ -456,7 +436,6 @@ class IncrementalCleanupManager {
             // Sort by priority (high first)
             self.taskQueue.sort { $0.priority > $1.priority }
             
-            print("🧹 IncrementalCleanupManager: Scheduled \(tasks.count) cleanup tasks")
             self.processNextCleanupTask()
         }
     }
@@ -468,7 +447,6 @@ class IncrementalCleanupManager {
             self.isProcessing = true
             let task = self.taskQueue.removeFirst()
             
-            print("🧹 IncrementalCleanupManager: Processing \(task.type.rawValue) (priority: \(task.priority.rawValue))")
             
             Task.detached(priority: .background) {
                 await self.executeCleanupTask(task)
@@ -505,7 +483,6 @@ class IncrementalCleanupManager {
         }
         
         let duration = Date().timeIntervalSince(startTime)
-        print("✅ IncrementalCleanupManager: Completed \(task.type.rawValue) in \(String(format: "%.2f", duration))s")
     }
     
     // MARK: - Incremental Cleanup Methods
@@ -531,7 +508,6 @@ class IncrementalCleanupManager {
                 try? FileManager.default.removeItem(at: file)
             }
         } catch {
-            print("⚠️ IncrementalCleanupManager: Error clearing temporary files: \(error)")
         }
     }
     

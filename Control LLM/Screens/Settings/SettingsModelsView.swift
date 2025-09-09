@@ -55,9 +55,7 @@ struct SettingsModelsView: View {
                                             Task {
                                                 do {
                                                     try await modelManager.deleteModel(model)
-                                                    print("✅ Successfully deleted model: \(model.filename)")
                                                 } catch {
-                                                    print("❌ Failed to delete model: \(error.localizedDescription)")
                                                 }
                                             }
                                         }
@@ -118,7 +116,6 @@ struct SettingsModelsView: View {
                                                     do {
                                                         try await downloadService.downloadModel(model.filename)
                                                     } catch {
-                                                        print("Download failed: \(error.localizedDescription)")
                                                     }
                                                 }
                                             }
@@ -211,9 +208,7 @@ struct SettingsModelsView: View {
                             if let model = modelManager.availableModels.first(where: { $0.filename == modelFilename }) {
                                 do {
                                     try await modelManager.deleteModel(model)
-                                    print("✅ Successfully deleted unused model: \(modelFilename)")
                                 } catch {
-                                    print("❌ Failed to delete unused model \(modelFilename): \(error.localizedDescription)")
                                 }
                             }
                         }

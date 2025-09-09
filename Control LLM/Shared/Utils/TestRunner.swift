@@ -19,7 +19,6 @@ class TestRunner: ObservableObject {
     
     /// Run all acceptance tests and return results
     func runAcceptanceTests() async -> String {
-        print("🚀 PHASE 6 - Starting acceptance test execution...")
         
         // Run the simple test suite
         await SimpleAcceptanceTest.shared.runAllTests()
@@ -27,13 +26,11 @@ class TestRunner: ObservableObject {
         // Export results
         let results = SimpleAcceptanceTest.shared.exportTestResults()
         
-        print("🚀 PHASE 6 - Acceptance test execution completed!")
         return results
     }
     
     /// Run a quick validation check
     func runQuickValidation() async -> Bool {
-        print("🔍 PHASE 6 - Running quick validation check...")
         
         // Check if all required files exist
         let requiredFiles = [
@@ -45,21 +42,16 @@ class TestRunner: ObservableObject {
         for fileName in requiredFiles {
             let exists = FileManager.default.fileExists(atPath: "Control LLM/Shared/Utils/\(fileName)")
             if !exists {
-                print("❌ Missing required file: \(fileName)")
                 allFilesExist = false
             } else {
-                print("✅ Found required file: \(fileName)")
             }
         }
         
         // Check if project builds successfully
-        print("🔍 PHASE 6 - Checking project build status...")
         
         if allFilesExist {
-            print("✅ PHASE 6 - Quick validation passed: All required files present")
             return true
         } else {
-            print("❌ PHASE 6 - Quick validation failed: Missing required files")
             return false
         }
     }

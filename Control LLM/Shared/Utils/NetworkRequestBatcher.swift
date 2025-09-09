@@ -174,12 +174,10 @@ class NetworkRequestBatcher {
     
     private func performModelDownload(_ request: NetworkRequest) async throws -> Any? {
         // Simulate model download with progress tracking
-        print("🌐 NetworkRequestBatcher: Downloading model \(request.url)")
         
         // Simulate download progress
         for i in 1...10 {
             try await Task.sleep(nanoseconds: 100_000_000) // 0.1 second
-            print("🌐 NetworkRequestBatcher: Download progress \(i * 10)%")
         }
         
         return ModelDownloadResult(
@@ -191,7 +189,6 @@ class NetworkRequestBatcher {
     
     private func performFileUpload(_ request: NetworkRequest) async throws -> Any? {
         // Simulate file upload
-        print("🌐 NetworkRequestBatcher: Uploading file \(request.url)")
         
         try await Task.sleep(nanoseconds: 500_000_000) // 0.5 second
         
@@ -204,7 +201,6 @@ class NetworkRequestBatcher {
     
     private func performDataSync(_ request: NetworkRequest) async throws -> Any? {
         // Simulate data synchronization
-        print("🌐 NetworkRequestBatcher: Syncing data")
         
         try await Task.sleep(nanoseconds: 200_000_000) // 0.2 second
         
@@ -216,7 +212,6 @@ class NetworkRequestBatcher {
     
     private func performCacheUpdate(_ request: NetworkRequest) async throws -> Any? {
         // Simulate cache update
-        print("🌐 NetworkRequestBatcher: Updating cache")
         
         try await Task.sleep(nanoseconds: 50_000_000) // 0.05 second
         

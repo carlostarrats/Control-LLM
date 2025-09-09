@@ -26,8 +26,6 @@ class MainViewModel: ObservableObject {
     // Speaking functionality removed
     
     func sendTextMessage(_ text: String) async {
-        print("🔍 MainViewModel: sendTextMessage called with text: \(text.prefix(50))...")
-        print("🔍 MainViewModel: Current messages count: \(messages.count)")
         
         // Create user message immediately for UI display
         let userMessage = ChatMessage(
@@ -37,7 +35,6 @@ class MainViewModel: ObservableObject {
         )
         
         messages.append(userMessage)
-        print("🔍 MainViewModel: User message added. New count: \(messages.count)")
         
         // PERFORMANCE FIX: Batch UI updates to reduce main thread blocking
         DispatchQueue.main.async { [weak self] in
@@ -46,7 +43,6 @@ class MainViewModel: ObservableObject {
         
         // CRITICAL FIX: Check if there's processed PDF data available for questions
         if await LargeFileProcessingService.shared.hasProcessedData() {
-            print("🔍 MainViewModel: Processed PDF data available, answering question")
             
             // Answer the question using stored processed data
             Task {
@@ -54,12 +50,10 @@ class MainViewModel: ObservableObject {
                     question: text,
                     llmService: HybridLLMService.shared,
                     progressHandler: { [self] progressMessage in
-                        print("🔍 MainViewModel: Progress: \(progressMessage)")
                         // CRITICAL FIX: Show progress to user in the transcript
                         llm.transcript = progressMessage
                     },
                                             transcriptHandler: { [self] transcript in
-                            print("🔍 MainViewModel: Transcript: \(transcript)")
                             // CRITICAL FIX: Batch transcript updates to prevent UI refresh loops
                             // Only update every 10 characters to reduce UI refreshes
                             if transcript.count % 10 == 0 || transcript.hasSuffix(".") || transcript.hasSuffix("!") || transcript.hasSuffix("?") {
@@ -97,7 +91,6 @@ class MainViewModel: ObservableObject {
         
         // Check if there's a file to process
         if let fileUrl = selectedFileUrl {
-            print("🔍 MainViewModel: File detected, processing with LargeFileProcessingService")
             
             // Set file processing state
             isFileProcessing = true
@@ -111,7 +104,6 @@ class MainViewModel: ObservableObject {
                 do {
                     // Check if task was cancelled before starting
                     if Task.isCancelled {
-                        print("🔍 MainViewModel: PDF processing task was cancelled before starting")
                         return
                     }
                     
@@ -120,7 +112,6 @@ class MainViewModel: ObservableObject {
                     
                     // Check if task was cancelled after file extraction
                     if Task.isCancelled {
-                        print("🔍 MainViewModel: PDF processing task was cancelled after file extraction")
                         return
                     }
                     
@@ -131,7 +122,6 @@ class MainViewModel: ObservableObject {
                         maxContentLength: 1000000,
                         llmService: HybridLLMService.shared,
                         progressHandler: { [self] progressMessage in
-                            print("🔍 MainViewModel: Progress: \(progressMessage)")
                             // Show progress in a separate area, not transcript
                             await MainActor.run {
                                 // Create a progress message that doesn't overwrite user input
@@ -144,7 +134,6 @@ class MainViewModel: ObservableObject {
                             }
                         },
                         transcriptHandler: { [self] transcript in
-                            print("🔍 MainViewModel: Transcript: \(transcript)")
                             // CRITICAL FIX: Actually update the transcript that TextModalView is polling
                             // MainViewModel is already @MainActor, so no need for Task wrapper
                             // CRITICAL FIX: Batch transcript updates to prevent UI refresh loops
@@ -157,15 +146,12 @@ class MainViewModel: ObservableObject {
                     
                     // Check if task was cancelled after processing
                     if Task.isCancelled {
-                        print("🔍 MainViewModel: PDF processing task was cancelled after processing")
                         return
                     }
                     
-                    print("🔍 MainViewModel: File processing completed with result: \(result ?? "nil")")
                     
                     // Check if processing failed
                     if result == nil {
-                        print("❌ MainViewModel: File processing failed - result is nil")
                         
                         // Set error state
                         isFileProcessing = false
@@ -175,7 +161,6 @@ class MainViewModel: ObservableObject {
                         // CRITICAL FIX: Clear transcript to stop thinking animation
                         llm.transcript = ""
                         
-                        print("🔍 MainViewModel: Error state reset - isFileProcessing: \(isFileProcessing), llm.isProcessing: \(llm.isProcessing), transcript: '\(llm.transcript)'")
                         
                         // Send error message to user
                         let errorMessage = ChatMessage(
@@ -190,7 +175,6 @@ class MainViewModel: ObservableObject {
                         currentFileProcessingTask = nil
                     } else {
                         // Processing succeeded - add the result to messages
-                        print("✅ MainViewModel: File processing succeeded with result: \(result?.prefix(100) ?? "nil")...")
                         
                         // Add the result to chat messages
                         let resultMessage = ChatMessage(
@@ -210,14 +194,12 @@ class MainViewModel: ObservableObject {
                         // Clear the file URL after processing
                         selectedFileUrl = nil
                         
-                        print("🔍 MainViewModel: UI state reset - isFileProcessing: \(isFileProcessing), llm.isProcessing: \(llm.isProcessing), transcript: '\(llm.transcript)'")
                         
                         // Clean up task reference
                         currentFileProcessingTask = nil
                     }
                     
                 } catch {
-                    print("❌ MainViewModel: Error in FileProcessingService: \(error)")
                     
                     // Set error state
                     isFileProcessing = false
@@ -227,7 +209,6 @@ class MainViewModel: ObservableObject {
                     // CRITICAL FIX: Clear transcript to stop thinking animation
                     llm.transcript = ""
                     
-                    print("🔍 MainViewModel: Exception state reset - isFileProcessing: \(isFileProcessing), llm.isProcessing: \(llm.isProcessing), transcript: '\(llm.transcript)'")
                     
                     // Send error message to user
                     let errorMessage = ChatMessage(
@@ -244,7 +225,6 @@ class MainViewModel: ObservableObject {
             }
         } else {
             // No file, just send text as normal
-            print("🔍 MainViewModel: No file detected, sending text normally")
             
             // CRITICAL FIX: LLM processing state is now set in TextModalView before calling this function
             
@@ -254,13 +234,10 @@ class MainViewModel: ObservableObject {
                     // CRITICAL FIX: Reset processing state and clear transcript after LLM completes
                     llm.isProcessing = false
                     llm.transcript = ""
-                    print("🔍 MainViewModel: Regular chat completed - isProcessing: \(llm.isProcessing), transcript: '\(llm.transcript)'")
                 } catch {
-                    print("❌ MainViewModel: Error calling LLM: \(error)")
                     // CRITICAL FIX: Reset processing state and clear transcript on error
                     llm.isProcessing = false
                     llm.transcript = ""
-                    print("🔍 MainViewModel: Regular chat error - isProcessing: \(llm.isProcessing), transcript: '\(llm.transcript)'")
                 }
             }
         }
@@ -277,7 +254,6 @@ class MainViewModel: ObservableObject {
     // MARK: - PDF Processing Cancellation
     
     func cancelFileProcessing() {
-        print("🔍 MainViewModel: Cancelling PDF processing task")
         
         // Cancel the PDF processing task
         currentFileProcessingTask?.cancel()
@@ -290,7 +266,6 @@ class MainViewModel: ObservableObject {
         llm.transcript = ""
         selectedFileUrl = nil
         
-        print("🔍 MainViewModel: PDF processing cancelled - isFileProcessing: \(isFileProcessing), llm.isProcessing: \(llm.isProcessing), transcript: '\(llm.transcript)'")
     }
     
     // MARK: - Clipboard Processing
@@ -334,12 +309,10 @@ class MainViewModel: ObservableObject {
     private func handleClipboardTextProcessing(_ text: String) {
         // Prevent multiple simultaneous clipboard processing calls
         guard !isProcessingClipboard else {
-            print("🔍 MainViewModel: Clipboard processing already in progress, ignoring duplicate call")
             return
         }
         
         isProcessingClipboard = true
-        print("🔍 MainViewModel: handleClipboardTextProcessing called with text: \(text.prefix(100))...")
         
         // Create the analysis prompt (focused on analysis only, not summary)
         let prompt = String(format: NSLocalizedString("Analyze this text (keep under 2000 tokens): %@", comment: ""), text)

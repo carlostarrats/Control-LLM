@@ -34,7 +34,6 @@ class VoiceIntegrationService: ObservableObject {
     func startVoiceMode() {
         guard !isVoiceModeActive else { return }
         
-        print("🎤 VoiceIntegrationService: Starting voice mode")
         
         // Reset state
         currentTranscription = ""
@@ -45,14 +44,12 @@ class VoiceIntegrationService: ObservableObject {
         isVoiceModeActive = true
         
         // For now, just simulate starting
-        print("🎤 VoiceIntegrationService: Voice mode started (simulated)")
     }
     
     /// Stop voice mode
     func stopVoiceMode() {
         guard isVoiceModeActive else { return }
         
-        print("🎤 VoiceIntegrationService: Stopping voice mode")
         
         // Reset state
         isVoiceModeActive = false
@@ -84,7 +81,6 @@ class VoiceIntegrationService: ObservableObject {
     // MARK: - Cleanup
     
     func cleanup() {
-        print("🧹 VoiceIntegrationService: Cleaning up")
         stopVoiceMode()
     }
 }

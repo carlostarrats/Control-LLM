@@ -5,15 +5,12 @@ struct TextFormatter {
     
     /// Converts markdown text to AttributedString with proper formatting
     static func formatText(_ text: String) -> AttributedString {
-        print("TextFormatter: Original text: \(text)")
         
         // First add line breaks for better readability
         let textWithBreaks = addLineBreaks(text)
-        print("TextFormatter: After line breaks: \(textWithBreaks)")
         
         // Process the text to remove asterisks and clean up spaces
         let processedText = processMarkdown(textWithBreaks)
-        print("TextFormatter: After markdown processing: \(processedText)")
         
         // Create AttributedString with the processed text
         var attributedString = AttributedString(processedText)
@@ -69,7 +66,6 @@ struct TextFormatter {
                 }
             }
         } catch {
-            print("TextFormatter: Error applying bold formatting: \(error)")
         }
         
         // Find italic patterns in original text and apply formatting
@@ -94,7 +90,6 @@ struct TextFormatter {
                 }
             }
         } catch {
-            print("TextFormatter: Error applying italic formatting: \(error)")
         }
         
         return result

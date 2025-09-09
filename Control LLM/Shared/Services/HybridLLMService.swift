@@ -40,16 +40,13 @@ final class HybridLLMService: ObservableObject {
         
         // RACE CONDITION FIX: Check if this exact model is already loaded
         if isModelLoaded && currentModelFilename == modelFilename {
-            print("🔍 HybridLLMService: Model \(modelFilename) already loaded, skipping reload")
             return
         }
         
-        print("🔍 HybridLLMService: Loading model: \(modelFilename)")
         
         // Determine which engine to use
         let engine = determineEngine(for: modelFilename)
         
-        print("🔍 HybridLLMService: Using \(engine.description) for \(modelFilename)")
         
         // Load model with appropriate service
         switch engine {
@@ -59,7 +56,6 @@ final class HybridLLMService: ObservableObject {
             do {
                 try await ollamaService.loadModel(modelFilename)
             } catch {
-                print("❌ HybridLLMService: Failed to load Ollama model \(modelFilename): \(error)")
                 throw error
             }
         }
@@ -71,11 +67,9 @@ final class HybridLLMService: ObservableObject {
             self.isModelLoaded = true
         }
         
-        print("✅ HybridLLMService: Model loaded with \(engine.description)")
     }
     
     func forceUnloadModel() async throws {
-        print("🔍 HybridLLMService: Force unloading model")
         
         // PERFORMANCE FIX: Cancel any ongoing generation before unloading
         currentGenerationTask?.cancel()
@@ -121,7 +115,6 @@ final class HybridLLMService: ObservableObject {
         currentGenerationTask?.cancel()
         
         // DEBUG: Log the useRawPrompt parameter
-        print("🔍 HybridLLMService: generateResponse called with useRawPrompt: \(useRawPrompt)")
         
         // Create new cancellable task for generation
         currentGenerationTask = Task { [weak self, useRawPrompt] in
@@ -130,14 +123,11 @@ final class HybridLLMService: ObservableObject {
             // Donate the user's prompt to Shortcuts
             ShortcutsIntegrationHelper.shared.donateMessageSent(message: userText)
             
-            print("🔍 HybridLLMService: Generating response with \(currentEngine.description)")
-            print("🔍 HybridLLMService: useRawPrompt flag: \(useRawPrompt)")
             
             do {
                 switch currentEngine {
                 case .llamaCpp:
                     if useRawPrompt {
-                        print("🔍 HybridLLMService: Using chatRaw path")
                         try await llamaCppService.chatRaw(
                             prompt: userText,
                             maxTokens: maxTokens,
@@ -147,7 +137,6 @@ final class HybridLLMService: ObservableObject {
                             }
                         )
                     } else {
-                        print("🔍 HybridLLMService: Using regular chat path")
                         try await llamaCppService.chat(
                             user: userText,
                             history: history,
@@ -172,7 +161,6 @@ final class HybridLLMService: ObservableObject {
             } catch {
                 // Only log error if not cancelled
                 if !Task.isCancelled {
-                    print("❌ HybridLLMService: Error in generation: \(error)")
                     throw error
                 }
             }
@@ -207,14 +195,12 @@ final class HybridLLMService: ObservableObject {
                 throw HybridLLMError.modelNotLoaded
             }
             
-            print("🔍 HybridLLMService: generateResponseSync called with useRawPrompt: \(useRawPrompt)")
             
             var result = ""
             
             switch currentEngine {
             case .llamaCpp:
                 if useRawPrompt {
-                    print("🔍 HybridLLMService: Using chatRaw path (sync)")
                     try await llamaCppService.chatRaw(
                         prompt: userText,
                         maxTokens: maxTokens,
@@ -223,7 +209,6 @@ final class HybridLLMService: ObservableObject {
                         }
                     )
                 } else {
-                    print("🔍 HybridLLMService: Using regular chat path (sync)")
                     try await llamaCppService.chat(
                         user: userText,
                         history: history,
@@ -254,7 +239,6 @@ final class HybridLLMService: ObservableObject {
     // MARK: - Cancellation Support (Phase 4: Enhanced Reliability)
     
     func stopGeneration() {
-        print("🔍 HybridLLMService: PHASE 4 - Stopping generation with enhanced reliability")
         
         // Cancel the current generation task
         currentGenerationTask?.cancel()
@@ -263,7 +247,6 @@ final class HybridLLMService: ObservableObject {
         // Cancel the underlying LLM generation with enhanced logic
         switch currentEngine {
         case .llamaCpp:
-            print("🔍 HybridLLMService: PHASE 4 - Cancelling llama.cpp generation")
             llamaCppService.cancelGeneration()
             
             // Wait briefly for cancellation to take effect
@@ -272,14 +255,12 @@ final class HybridLLMService: ObservableObject {
                 
                 // Verify cancellation took effect
                 if currentGenerationTask != nil {
-                    print("⚠️ HybridLLMService: PHASE 4 - Cancellation may not have taken effect, forcing cleanup")
                     currentGenerationTask?.cancel()
                     currentGenerationTask = nil
                 }
             }
             
         case .ollama:
-            print("🔍 HybridLLMService: PHASE 4 - Ollama doesn't support streaming cancellation, but cleaning up tasks")
             // Ollama doesn't support streaming cancellation in our implementation
             // But we can still clean up our task references
             break

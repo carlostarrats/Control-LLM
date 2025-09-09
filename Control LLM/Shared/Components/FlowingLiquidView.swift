@@ -174,7 +174,6 @@ struct FlowingLiquidView: View {
         }
         .onAppear {
             // Always start in deactivated state and keep it there
-            print("🎯 TARS onAppear - Starting with animationTime: \(animationTime)")
             
             isVisible = true
             // Start continuous animation timer for motion
@@ -349,7 +348,6 @@ struct FlowingRingShaderView: UIViewRepresentable {
             do {
                 pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
             } catch {
-                print("Failed to create pipeline state: \(error)")
             }
         }
         

@@ -42,12 +42,9 @@ struct MainView: View {
     @State private var viewRecycler = ViewRecycler()
     
     init() {
-        NSLog("🔍 MainView init")
         // Check for first run immediately
         let hasSeenOnboarding = false // Reset for testing
-        NSLog("🔍 Init check: hasSeenOnboarding = \(hasSeenOnboarding)")
         if !hasSeenOnboarding {
-            NSLog("🔍 First run detected in init")
             // We can't set @State here, so we'll use a different approach
         }
     }
@@ -87,12 +84,6 @@ struct MainView: View {
                 let backgroundColor = UIColor(red: 0.08, green: 0.08, blue: 0.08, alpha: 1.0) // #141414
                 
                 // Debug logging
-                NSLog("🔍 DEBUG: Setting window background to DARK")
-                NSLog("🔍 DEBUG: isSettingsSheetExpanded: \(isSettingsSheetExpanded)")
-                NSLog("🔍 DEBUG: isSheetExpanded: \(isSheetExpanded)")
-                NSLog("🔍 DEBUG: Window found: \(window != nil)")
-                NSLog("🔍 DEBUG: Window frame: \(window.frame)")
-                NSLog("🔍 DEBUG: Window safe area: \(window.safeAreaInsets)")
                 
                 // Try multiple approaches
                 window.backgroundColor = backgroundColor
@@ -100,7 +91,6 @@ struct MainView: View {
                 // Also try setting root view controller background
                 if let rootVC = window.rootViewController {
                     rootVC.view.backgroundColor = backgroundColor
-                    NSLog("🔍 DEBUG: Set root view controller background to DARK")
                 }
                 
                 // Also try setting the window's root view background
@@ -108,11 +98,8 @@ struct MainView: View {
                 
                 // Verify the change
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    NSLog("🔍 DEBUG: Window background after change: \(window.backgroundColor?.description ?? "nil")")
-                    NSLog("🔍 DEBUG: Root VC background: \(window.rootViewController?.view.backgroundColor?.description ?? "nil")")
                 }
             } else {
-                NSLog("🔍 DEBUG: No window found!")
             }
         }
     }
@@ -263,18 +250,12 @@ struct MainView: View {
         )
         .onAppear {
             let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
-            NSLog("🔍 Onboarding check: hasSeenOnboarding = \(hasSeenOnboarding)")
-            NSLog("🔍 Loading screen showing: \(showingLoadingScreen)")
-            NSLog("🔍 MainView onAppear called")
-            NSLog("🔍 Initial showingOnboarding: \(showingOnboarding)")
             
             // Show onboarding after loading screen finishes (only if first run)
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
                 if !hasSeenOnboarding {
-                    NSLog("🔍 Showing onboarding - first run")
                     showingOnboarding = true
                 } else {
-                    NSLog("🔍 Skipping onboarding - already seen")
                     showingOnboarding = false
                 }
             }
@@ -288,11 +269,9 @@ struct MainView: View {
             // Initialize any needed setup
         }
         .onChange(of: isSettingsSheetExpanded) { oldValue, newValue in
-            NSLog("🔍 DEBUG: isSettingsSheetExpanded changed from \(oldValue) to \(newValue)")
             updateWindowBackgroundColor()
         }
         .onChange(of: isSheetExpanded) { oldValue, newValue in
-            NSLog("🔍 DEBUG: isSheetExpanded changed from \(oldValue) to \(newValue)")
             updateWindowBackgroundColor()
         }
         .onDisappear {
@@ -358,10 +337,8 @@ struct MainView: View {
                         .transition(.identity) // No animation
                         .animation(.none, value: showingLoadingScreen) // Disable implicit animations
                         .onAppear {
-                            NSLog("🔍 Loading screen appeared!")
             // Hide loading screen after logo expansion has time to be visible (after 1.6 seconds)
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
-                                NSLog("🔍 Hiding loading screen - after expansion")
                                 showingLoadingScreen = false
                             }
                         }

@@ -57,7 +57,6 @@ class SimpleAcceptanceTest: ObservableObject {
             testResults.removeAll()
         }
         
-        print("🧪 PHASE 6 - Starting simple acceptance test suite...")
         
         // Phase 1: Logging & Instrumentation
         await runPhase1Tests()
@@ -84,14 +83,12 @@ class SimpleAcceptanceTest: ObservableObject {
             isRunningTests = false
         }
         
-        print("🧪 PHASE 6 - Simple acceptance test suite completed!")
         printTestSummary()
     }
     
     // MARK: - Phase 1 Tests: Logging & Instrumentation
     
     private func runPhase1Tests() async {
-        print("🧪 Running Phase 1 tests: Logging & Instrumentation")
         
         // Test 1: File upload logging
         await runTest(
@@ -118,7 +115,6 @@ class SimpleAcceptanceTest: ObservableObject {
     // MARK: - Phase 2 Tests: Multi-Pass Path Unification
     
     private func runPhase2Tests() async {
-        print("🧪 Running Phase 2 tests: Multi-Pass Path Unification")
         
         // Test 1: Single multi-pass implementation
         await runTest(
@@ -145,7 +141,6 @@ class SimpleAcceptanceTest: ObservableObject {
     // MARK: - Phase 3 Tests: Limits Consistency
     
     private func runPhase3Tests() async {
-        print("🧪 Running Phase 3 tests: Limits Consistency")
         
         // Test 1: Constants file existence
         await runTest(
@@ -172,7 +167,6 @@ class SimpleAcceptanceTest: ObservableObject {
     // MARK: - Phase 4 Tests: Stop Button Reliability
     
     private func runPhase4Tests() async {
-        print("🧪 Running Phase 4 tests: Stop Button Reliability")
         
         // Test 1: Enhanced stop button constants
         await runTest(
@@ -199,7 +193,6 @@ class SimpleAcceptanceTest: ObservableObject {
     // MARK: - Phase 5 Tests: Execution Flow Resilience
     
     private func runPhase5Tests() async {
-        print("🧪 Running Phase 5 tests: Execution Flow Resilience")
         
         // Test 1: ResilientErrorHandler existence
         await runTest(
@@ -233,7 +226,6 @@ class SimpleAcceptanceTest: ObservableObject {
     // MARK: - Integration Tests
     
     private func runIntegrationTests() async {
-        print("🧪 Running Integration tests")
         
         // Test 1: End-to-end multi-pass flow
         await runTest(
@@ -379,7 +371,6 @@ class SimpleAcceptanceTest: ObservableObject {
         }
         
         let statusEmoji = status == .passed ? "✅" : status == .failed ? "❌" : status == .warning ? "⚠️" : "⏭️"
-        print("\(statusEmoji) \(category.rawValue): \(testName) - \(details)")
     }
     
     // MARK: - Score Calculation
@@ -396,19 +387,11 @@ class SimpleAcceptanceTest: ObservableObject {
             overallScore = score
         }
         
-        print("📊 Test Results Summary:")
-        print("   Total Tests: \(totalTests)")
-        print("   ✅ Passed: \(passedTests)")
-        print("   ❌ Failed: \(failedTests)")
-        print("   ⚠️ Warnings: \(warningTests)")
-        print("   📈 Overall Score: \(String(format: "%.1f", score))%")
     }
     
     // MARK: - Test Summary
     
     private func printTestSummary() {
-        print("\n🎯 PHASE 6 - SIMPLE ACCEPTANCE TEST SUMMARY")
-        print("=============================================")
         
         for category in TestCategory.allCases {
             let categoryResults = testResults.filter { $0.category == category }
@@ -418,13 +401,9 @@ class SimpleAcceptanceTest: ObservableObject {
             if total > 0 {
                 let percentage = Double(passed) / Double(total) * 100.0
                 let status = percentage == 100.0 ? "✅" : percentage >= 80.0 ? "⚠️" : "❌"
-                print("\(status) \(category.rawValue): \(passed)/\(total) tests passed (\(String(format: "%.1f", percentage))%)")
             }
         }
         
-        print("\n🎉 Multi-Pass Processing Improvements Validation Complete!")
-        print("   All phases have been tested and validated.")
-        print("   The system is now ready for production use.")
     }
     
     // MARK: - Test Data Export

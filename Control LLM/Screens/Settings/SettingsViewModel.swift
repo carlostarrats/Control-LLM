@@ -44,7 +44,6 @@ class SettingsViewModel: ObservableObject {
     
     func saveSettings() {
         // TODO: Implement settings persistence
-        print("Settings saved")
     }
     
     func resetToDefaults() {
@@ -53,7 +52,6 @@ class SettingsViewModel: ObservableObject {
     
     func exportSettings() {
         // TODO: Implement settings export
-        print("Settings exported")
     }
 }
 

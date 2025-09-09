@@ -59,6 +59,5 @@ struct ErrorView: View {
     ErrorView(
         title: "Connection Error",
         message: "Unable to connect to the server. Please check your internet connection and try again.",
-        retryAction: { print("Retry tapped") }
     )
 } 

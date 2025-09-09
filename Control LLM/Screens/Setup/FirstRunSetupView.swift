@@ -18,8 +18,6 @@ struct FirstRunSetupView: View {
     private let redColor = ColorManager.shared.redColor
     
     init() {
-        print("🔍 [\(Date())] FirstRunSetupView init started")
-        print("🔍 [\(Date())] FirstRunSetupView init finished")
     }
     
     var body: some View {
@@ -278,15 +276,12 @@ struct FirstRunSetupView: View {
             }
         }
         .onAppear {
-            print("🔍 [\(Date())] FirstRunSetupView onAppear called")
             
             // Calculate storage immediately for instant display
             calculateAvailableStorage()
-            print("🔍 [\(Date())] Storage calculated")
             
             // Start setup process immediately - no delay
             Task {
-                print("🔍 [\(Date())] Starting setup task")
                 await setupManager.performFirstRunSetup()
             }
         }

@@ -33,21 +33,19 @@ struct LottieView: UIViewRepresentable {
         // Method 1: Try named animation (this should work for assets)
         if let namedAnimation = LottieAnimation.named(name) {
             animation = namedAnimation
-            print("✅ Lottie: Loaded animation '\(name)' using .named()")
         }
         // Method 2: Try to load from the animations subdirectory
         else if let url = Bundle.main.url(forResource: "16cfa363-2720-425f-bcde-0cf315dd706a", withExtension: "json", subdirectory: "Animations.dataset/animations") {
-            print("📁 Lottie: Found JSON file at URL: \(url)")
             // Note: loadedFrom is async, so we can't use it here
             // We'll need to handle this differently
         }
         // Method 3: Try from bundle URL
         else if let url = Bundle.main.url(forResource: name, withExtension: "lottie") {
-            print("📁 Lottie: Found .lottie file at URL: \(url)")
+            // Found .lottie file
         }
         // Method 4: Try from main bundle path
         else if let path = Bundle.main.path(forResource: name, ofType: "lottie") {
-            print("📁 Lottie: Found .lottie file at path: \(path)")
+            // Found .lottie file at path
         }
         
         if let animation = animation {
@@ -55,9 +53,7 @@ struct LottieView: UIViewRepresentable {
             animationView.loopMode = loopMode
             animationView.contentMode = .scaleAspectFit
             animationView.play()
-            print("✅ Lottie: Animation '\(name)' started playing")
         } else {
-            print("❌ Lottie: Could not load animation '\(name)' - falling back to dots")
             // Fallback: Create a simple loading indicator
             let fallbackView = createFallbackView()
             view.addSubview(fallbackView)
@@ -238,7 +234,6 @@ struct TextModalView: View {
     // REMOVED: @StateObject private var llm = ChatViewModel()        // NEW: streams reply
     
     init(viewModel: MainViewModel, isPresented: Binding<Bool>, isSheetExpanded: Binding<Bool>? = nil, messageHistory: [ChatMessage]? = nil) {
-        print("🔍 TextModalView init")
         self.viewModel = viewModel
         self._isPresented = isPresented
         self._isSheetExpanded = isSheetExpanded ?? .constant(false)
@@ -273,7 +268,6 @@ struct TextModalView: View {
     
     // MARK: - Force Reset Function
     private func forceResetProcessingState() {
-        print("🔍 TextModalView: Force resetting processing state")
         viewModel.llm.isProcessing = false
         viewModel.llm.transcript = ""
         isLocalProcessing = false
@@ -294,7 +288,6 @@ struct TextModalView: View {
         ) { notification in
             if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
                 keyboardHeight = keyboardFrame.height
-                print("🔍 Keyboard will show, height: \(keyboardHeight)")
             }
         }
         
@@ -304,7 +297,6 @@ struct TextModalView: View {
             queue: .main
         ) { _ in
             keyboardHeight = 0
-            print("🔍 Keyboard will hide")
         }
     }
     
@@ -424,7 +416,6 @@ struct TextModalView: View {
             
             // CRITICAL FIX: Reset showGeneratingText FIRST to ensure clean state
             showGeneratingText = false
-            print("🔍 TextModalView: onAppear - Reset showGeneratingText to false")
             
             // CRITICAL FIX: Synchronize processing state when view appears
             syncProcessingState()
@@ -435,13 +426,11 @@ struct TextModalView: View {
             // Setup keyboard observers
             setupKeyboardObservers()
             
-            print("🔍 TextModalView: onAppear - Reset clipboard state and duplicate detection")
             
             // CRITICAL FIX: Removed clipboard message observer setup - consolidated into single message flow
         }
         .onChange(of: viewModel.llm.isProcessing) { _, isProcessing in
             // CRITICAL FIX: Update effective processing state when llm.isProcessing changes
-            print("🔍 TextModalView: llm.isProcessing changed to \(isProcessing), updating effective processing state")
             updateEffectiveProcessingState()
             
             // CRITICAL FIX: Cancel any pending timer
@@ -453,23 +442,19 @@ struct TextModalView: View {
                 showGeneratingText = false
                 showGeneratingTextTimer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: false) { _ in
                     showGeneratingText = true
-                    print("🔍 TextModalView: Delay completed, set showGeneratingText to true")
                 }
             } else {
                 showGeneratingText = false
-                print("🔍 TextModalView: llm.isProcessing changed to false, reset showGeneratingText to false")
             }
         }
         .onChange(of: isLocalProcessing) { _, _ in
             // CRITICAL FIX: Update effective processing state when isLocalProcessing changes
-            print("🔍 TextModalView: isLocalProcessing changed, updating effective processing state")
             updateEffectiveProcessingState()
         }
         .onChange(of: viewModel.isFileProcessing) { _, isFileProcessing in
             // CRITICAL FIX: Reset showGeneratingText when file processing completes
             if !isFileProcessing {
                 showGeneratingText = false
-                print("🔍 TextModalView: isFileProcessing changed to false, reset showGeneratingText to false")
             }
         }
         .onDisappear {
@@ -490,14 +475,12 @@ struct TextModalView: View {
             // CRITICAL FIX: Removed clipboard message observer cleanup - consolidated into single message flow
         }
                         .onReceive(NotificationCenter.default.publisher(for: .modelDidChange)) { _ in
-            print("🔍 TextModalView: Model changed notification received")
             
             // IMPORTANT: Preserve the user's follow-up question if it exists
             let lastUserMessage = viewModel.messages.last { $0.isUser }
             let hasFollowUpQuestion = lastUserMessage != nil && !lastUserMessage!.content.hasPrefix("Analyze this text")
             
             // CRITICAL FIX: Don't sync UI messages to ChatViewModel - this causes context loss
-            print("🔍 TextModalView: Model change - preserving ChatViewModel history")
             
             // Reset all streaming state for new model
             isPolling = false
@@ -514,7 +497,6 @@ struct TextModalView: View {
             if !viewModel.llm.isProcessing {
                 // If ChatViewModel is not processing, ensure our local state matches
                 // This prevents the UI from thinking it's in a processing state when it's not
-                print("🔍 TextModalView: ChatViewModel isProcessing is false, ensuring UI state matches")
             }
             
             // Reset clipboard message state
@@ -531,7 +513,6 @@ struct TextModalView: View {
             viewModel.llm.lastSentMessage = nil
             
             // CRITICAL FIX: Don't sync UI messages - preserve ChatViewModel history
-            print("🔍 TextModalView: Model change complete - preserving context")
             
             // If there was a follow-up question, we need to re-send it to the new model
             if hasFollowUpQuestion {
@@ -539,7 +520,6 @@ struct TextModalView: View {
                 // The question will be automatically re-sent by the ChatViewModel
             }
             
-            print("🔍 TextModalView: ALL streaming state reset completed for new model")
         }
         .onReceive(NotificationCenter.default.publisher(for: .dismissKeyboard)) { _ in
             // Dismiss keyboard and reset focus when navigating away from chat
@@ -827,7 +807,7 @@ struct TextModalView: View {
                                 handleFileUpload(url)
                             }
                         case .failure(let error):
-                            print("File import failed: \(error.localizedDescription)")
+                            break
                         }
                     }
                 }
@@ -849,13 +829,11 @@ struct TextModalView: View {
                     .onChange(of: viewModel.llm.isProcessing) { _, isProcessing in
                         // CRITICAL FIX: Clear messageText when processing state changes to prevent corruption
                         if !isProcessing && !messageText.isEmpty {
-                            print("🔍 TextModalView: Processing completed, clearing messageText to prevent corruption")
                             messageText = ""
                         }
                         
                         // CRITICAL FIX: Reset isLocalProcessing when llm.isProcessing changes to false
                         if !isProcessing {
-                            print("🔍 TextModalView: llm.isProcessing changed to false, resetting isLocalProcessing")
                             isLocalProcessing = false
                         }
                         
@@ -943,7 +921,6 @@ struct TextModalView: View {
                     .foregroundColor(Color(hex: "#666666"))
                     .transition(.identity)
                     .onAppear {
-                        print("🔍 TextModalView: generatingOverlay appeared - llm.isProcessing: \(viewModel.llm.isProcessing), isLocalProcessing: \(isLocalProcessing), effectiveIsProcessing: \(effectiveIsProcessing)")
                     }
                 
                 Spacer()
@@ -990,19 +967,14 @@ struct TextModalView: View {
 
                     if showGeneratingText {
                         // Stop button pressed - cancel ongoing generation
-                        print("Stop button pressed!")
-                        NSLog("Stop button pressed!")
                         
                         // Cancel both LLM generation and PDF processing
                         viewModel.llm.stopGeneration()
                         viewModel.cancelFileProcessing()
                     } else {
                         // Send button pressed - send new message
-                        print("Send button pressed!")
-                        NSLog("Send button pressed!")
                         
                         // Immediately change button state and dismiss keyboard for instant UI response
-                        print("🔍 Setting isLocalProcessing = true for immediate button change")
                         isLocalProcessing = true
                         isTextFieldFocused = false
                         
@@ -1033,18 +1005,15 @@ struct TextModalView: View {
     private func sendMessage() async {
         // Prevent sending if already processing or no models available
         guard !viewModel.llm.isProcessing else {
-            print("🔍 TextModalView: sendMessage called but LLM is already processing")
             return
         }
         
         guard hasModelsInstalled else {
-            print("🔍 TextModalView: sendMessage called but no models are installed")
             return
         }
         
         let text = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { 
-            print("🔍 TextModalView: sendMessage called but text is empty")
             return 
         }
 
@@ -1054,8 +1023,6 @@ struct TextModalView: View {
         // Donate user's action to Shortcuts
         ShortcutsIntegrationHelper.shared.donateMessageSent(message: text)
 
-        print("🔍 TextModalView: sendMessage called with text: '\(text)'")
-        NSLog("🔍 TextModalView: sendMessage called with text: '\(text)'")
 
         // Stop any existing polling before starting new message
         isPolling = false
@@ -1068,11 +1035,9 @@ struct TextModalView: View {
         if isClipboardMessageFormat {
             // Clipboard messages are never duplicates - they always have different content
             isDuplicateMessage = false
-            print("🔍 TextModalView: Clipboard message detected, bypassing duplicate check")
         } else {
             // Normal duplicate detection for regular messages
             isDuplicateMessage = text == lastSentMessage
-            print("🔍 TextModalView: isDuplicateMessage: \(isDuplicateMessage)")
         }
         
         lastSentMessage = text
@@ -1084,10 +1049,8 @@ struct TextModalView: View {
         lastLoadedModelForDuplicateCheck = viewModel.llm.lastLoadedModel
         
         if isDuplicateMessage && isNewContext {
-            print("🔍 TextModalView: Duplicate message detected, but allowing re-send in new context")
             isDuplicateMessage = false
         } else if isDuplicateMessage {
-            print("🔍 TextModalView: Duplicate message detected, ignoring")
             return
         }
         
@@ -1108,12 +1071,9 @@ struct TextModalView: View {
         stableTranscriptCount = 0
         hasProvidedCompletionHaptic = false
 
-        print("🔍 TextModalView: Sending message through MainViewModel")
         
         // CRITICAL FIX: Set LLM processing state BEFORE sending message to prevent UI state loss during view recreation
-        print("🔍 TextModalView: Setting llm.isProcessing = true before sending message")
         viewModel.llm.isProcessing = true
-        print("🔍 TextModalView: llm.isProcessing set to: \(viewModel.llm.isProcessing)")
         
         // CRITICAL FIX: Send through MainViewModel which handles user message creation and LLM sending
         await viewModel.sendTextMessage(text)
@@ -1125,18 +1085,15 @@ struct TextModalView: View {
         // CRITICAL FIX: Check if file processing occurred - if so, skip placeholder and polling
         let hasProcessedData = await LargeFileProcessingService.shared.hasProcessedData()
         if viewModel.selectedFileUrl != nil || hasProcessedData {
-            print("🔍 TextModalView: File processing detected, skipping placeholder creation and polling")
             // Clear message text synchronously to prevent corruption
             messageText = ""
             return
         }
 
-        print("🔍 TextModalView: About to create placeholder message")
         // 2) placeholder assistant bubble (0.3s delay to prevent motion and allow thinking animation)
         // BUT: Don't create placeholder if file processing is happening
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             if viewModel.isFileProcessing {
-                print("🔍 TextModalView: File processing detected, skipping placeholder creation")
                 return
             }
             
@@ -1147,36 +1104,28 @@ struct TextModalView: View {
                 messageType: .text
             )
             viewModel.messages.append(placeholder)
-            print("🔍 TextModalView: Added empty placeholder message (0.3s delay)")
             
             // CRITICAL FIX: Don't sync UI messages - let ChatViewModel handle its own context
-            print("🔍 TextModalView: Placeholder added, starting polling")
         }
         
-        print("🔍 TextModalView: About to clear messageText")
         // 3) clear field + ask model (keyboard already dismissed)
         messageText = ""
-        print("🔍 TextModalView: LLM call already made through ChatViewModel, no duplicate call needed")
         // Note: viewModel.llm.send(text) is already called by ChatViewModel.sendTextMessage
         // No need to duplicate the LLM call here
         
-        print("🔍 TextModalView: About to start polling")
         // 4) start polling the stream immediately for real-time word streaming
         // BUT: Don't poll if file processing is happening (file processing handles its own results)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             if viewModel.isFileProcessing {
-                print("🔍 TextModalView: File processing detected, skipping polling")
                 isPolling = false
                 isLocalProcessing = false
             } else {
-                print("🔍 TextModalView: Starting monitorAssistantStream")
                 isPolling = true
                 pollCount = 0
                 monitorAssistantStream()
             }
         }
         
-        print("🔍 TextModalView: sendMessage completed successfully")
     }
     
     // MARK: - Error Handling --------------------------------------------------
@@ -1226,10 +1175,8 @@ struct TextModalView: View {
     // CRITICAL FIX: Ensure isLocalProcessing is synchronized with llm.isProcessing on view creation
     private func syncProcessingState() {
         if viewModel.llm.isProcessing {
-            print("🔍 TextModalView: syncProcessingState - setting isLocalProcessing to true because llm.isProcessing is true")
             isLocalProcessing = true
         } else {
-            print("🔍 TextModalView: syncProcessingState - resetting isLocalProcessing from \(isLocalProcessing) to false")
             isLocalProcessing = false
             // CRITICAL FIX: Also reset showGeneratingText when not processing
             showGeneratingText = false
@@ -1245,14 +1192,12 @@ struct TextModalView: View {
     private func updateEffectiveProcessingState() {
         let newValue = viewModel.llm.isProcessing || isLocalProcessing
         if newValue != effectiveIsProcessing {
-            print("🔍 TextModalView: updateEffectiveProcessingState - changing from \(effectiveIsProcessing) to \(newValue) (llm.isProcessing: \(viewModel.llm.isProcessing), isLocalProcessing: \(isLocalProcessing))")
             effectiveIsProcessing = newValue
         }
         
         // CRITICAL FIX: Reset showGeneratingText when not processing
         if !effectiveIsProcessing {
             showGeneratingText = false
-            print("🔍 TextModalView: updateEffectiveProcessingState - reset showGeneratingText to false")
         }
     }
     // All state variables already declared above
@@ -1284,7 +1229,6 @@ struct TextModalView: View {
         
         // Check if file processing failed - stop polling immediately
         if let fileError = viewModel.fileProcessingError {
-            print("🔍 TextModalView: File processing failed with error: \(fileError), stopping polling")
             isPolling = false
             isLocalProcessing = false
             
@@ -1298,12 +1242,10 @@ struct TextModalView: View {
         
         // Check if file processing is still in progress - if not, stop polling
         if viewModel.isFileProcessing == false {
-            print("🔍 TextModalView: File processing completed, stopping polling")
             isPolling = false
             isLocalProcessing = false
             // CRITICAL FIX: Reset showGeneratingText when file processing completes
             showGeneratingText = false
-            print("🔍 TextModalView: File processing completed, reset showGeneratingText to false")
             return
         }
         
@@ -1315,7 +1257,6 @@ struct TextModalView: View {
         // Check if we should stop polling - give clipboard messages more time for analysis
         let maxPolls = isClipboardMessage ? 300 : 150  // 30 seconds for clipboard, 15 seconds for regular messages
         if pollCount > maxPolls {
-            print("🔍 TextModalView: Max polls (\(maxPolls)) reached, stopping")
             isPolling = false
             FeedbackService.shared.playHaptic(.light)
             
@@ -1335,8 +1276,6 @@ struct TextModalView: View {
             
             // FIXED: Detect streaming loops where LLM keeps generating same content
             if stableTranscriptCount >= 3 && !currentTranscript.isEmpty {
-                print("🔍 TextModalView: WARNING - Possible streaming loop detected after \(stableTranscriptCount) stable polls")
-                print("🔍 TextModalView: Stopping polling to prevent infinite loop")
                 isPolling = false
                 isLocalProcessing = false // Reset local processing state
                 
@@ -1348,7 +1287,6 @@ struct TextModalView: View {
             // Check if transcript has been stable for 3 consecutive polls (600ms)
             // This indicates the response is likely complete
             if stableTranscriptCount >= 3 && !hasProvidedCompletionHaptic && !currentTranscript.isEmpty {
-                print("🔍 TextModalView: Response appears complete, providing haptic feedback")
                 hasProvidedCompletionHaptic = true
                 
                 // Add follow-up questions for clipboard messages if not already added
@@ -1360,13 +1298,11 @@ struct TextModalView: View {
                 
                 // CRITICAL FIX: Reset showGeneratingText when response is complete
                 showGeneratingText = false
-                print("🔍 TextModalView: Response complete, reset showGeneratingText to false")
                 
                 // CRITICAL FIX: Clear transcript to ensure placeholder text shows correctly
                 // This ensures the UI returns to "Ask Anything..." state
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     self.viewModel.llm.transcript = ""
-                    print("🔍 TextModalView: Cleared transcript after response completion")
                 }
                 return
             }
@@ -1381,14 +1317,10 @@ struct TextModalView: View {
         
         // Check if transcript is empty but we have a previous response
         if currentTranscript.isEmpty && !lastRenderedTranscript.isEmpty {
-            print("🔍 TextModalView: Transcript is empty but we have previous content, continuing to poll")
             self.scheduleNextPoll()
             return
         }
         
-        print("🔍 TextModalView: Transcript changed! Updating UI...")
-        print("🔍 TextModalView: Previous transcript: '\(lastRenderedTranscript)'")
-        print("🔍 TextModalView: New transcript: '\(viewModel.llm.transcript)'")
         
         // Only update if we have actual content
         if !currentTranscript.isEmpty {
@@ -1398,13 +1330,10 @@ struct TextModalView: View {
 
             if let idx = viewModel.messages.lastIndex(where: { !$0.isUser }),
                idx < viewModel.messages.count {
-                print("🔍 TextModalView: Updating existing assistant message at index \(idx)")
                 SecureLogger.log("TextModalView: Setting message content", sensitiveData: viewModel.llm.transcript)
                 // Mutate the last assistant bubble in place (no array replacement)
                 viewModel.messages[idx].content = viewModel.llm.transcript
-                print("🔍 TextModalView: Message updated successfully")
             } else {
-                print("🔍 TextModalView: Creating new assistant message")
                 SecureLogger.log("TextModalView: New message content", sensitiveData: viewModel.llm.transcript)
                 // Create initial assistant bubble
                 let bot = ChatMessage(
@@ -1414,10 +1343,8 @@ struct TextModalView: View {
                     messageType: .text
                 )
                 viewModel.messages.append(bot)
-                print("🔍 TextModalView: New message created and added")
             }
         } else {
-            print("🔍 TextModalView: Transcript is empty, continuing to poll for content")
         }
 
         self.scheduleNextPoll()
@@ -1452,7 +1379,6 @@ struct TextModalView: View {
             viewModel.messages[lastAssistantIndex].content += followUpText
             hasAddedFollowUpQuestions = true
             
-            print("🔍 TextModalView: Added follow-up questions to clipboard message")
         }
     }
 

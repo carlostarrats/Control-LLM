@@ -109,7 +109,6 @@ class BackgroundTaskManager {
             self.activeTasks.removeValue(forKey: taskId)
             self.taskPriorities.removeValue(forKey: taskId)
             
-            print("🔄 BackgroundTaskManager: Ended task \(taskId)")
         }
     }
     
@@ -123,7 +122,6 @@ class BackgroundTaskManager {
             self.activeTasks.removeAll()
             self.taskPriorities.removeAll()
             
-            print("🔄 BackgroundTaskManager: Ended all background tasks")
         }
     }
     
@@ -174,7 +172,6 @@ class BackgroundTaskManager {
     }
     
     private func handleAppEnteredBackground() {
-        print("🔄 BackgroundTaskManager: App entered background, managing tasks")
         
         // Cancel low priority tasks when entering background
         taskQueue.async(flags: .barrier) {
@@ -186,7 +183,6 @@ class BackgroundTaskManager {
     }
     
     private func handleAppWillEnterForeground() {
-        print("🔄 BackgroundTaskManager: App will enter foreground, cleaning up")
         
         // End all background tasks when returning to foreground
         endAllBackgroundTasks()
@@ -260,7 +256,6 @@ extension BackgroundTaskManager {
         }
         
         limitsInitialized = true
-        print("🔧 BackgroundTaskManager: Adaptive task limit set to \(maxConcurrentTasks) concurrent tasks")
     }
     
     // MARK: - Aggressive Background Processing
@@ -278,7 +273,6 @@ extension BackgroundTaskManager {
     }
     
     @objc private func appDidEnterBackground() {
-        print("🔄 BackgroundTaskManager: App entering background - starting aggressive background processing")
         
         // Start aggressive cleanup tasks
         _ = startMemoryCleanupTask {
@@ -292,7 +286,6 @@ extension BackgroundTaskManager {
         _ = startDataCleanupTask {
             // Clean temporary files and caches
             // Note: DataCleanupManager method will be added separately
-            print("🧹 BackgroundTaskManager: Performing background data cleanup")
         }
         
         // Preload next likely models in background
@@ -302,7 +295,6 @@ extension BackgroundTaskManager {
     }
     
     @objc private func appWillEnterForeground() {
-        print("🔄 BackgroundTaskManager: App entering foreground - optimizing for user interaction")
         
         // Cancel non-critical background tasks to prioritize UI responsiveness
         cancelLowPriorityTasks()
@@ -336,7 +328,6 @@ extension BackgroundTaskManager {
     /// Setup background model preloading
     private func setupBackgroundModelPreloading() {
         // This could be expanded based on usage patterns
-        print("🔧 BackgroundTaskManager: Background model preloading initialized")
     }
     
     /// Perform periodic optimization
@@ -374,12 +365,10 @@ extension BackgroundTaskManager {
     /// Preload likely models based on usage patterns
     private func preloadLikelyModels() async {
         // This could be expanded with ML-based prediction
-        print("🔧 BackgroundTaskManager: Preloading likely models in background")
     }
     
     /// Pre-warm critical components for better performance
     private func preWarmCriticalComponents() async {
         // Pre-warm LLM service
-        print("🔧 BackgroundTaskManager: Pre-warming critical components")
     }
 }

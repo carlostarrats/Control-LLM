@@ -18,7 +18,6 @@ class FirstRunSetupManager: ObservableObject {
     
     /// Performs the complete first run setup process
     func performFirstRunSetup() async {
-        print("🚀 Starting first run setup process...")
         
         // Step 1: Initialize backend (1 second)
         updateStatus("> INITIALIZING METAL BACKEND...")
@@ -30,11 +29,8 @@ class FirstRunSetupManager: ObservableObject {
         updateProgress(0.2)
         
         // Test Metal compilation with DispatchQueue.global().async (background thread)
-        print("🔥 Starting Metal shader compilation with DispatchQueue.global().async...")
         DispatchQueue.global().async {
-            print("🔥 DispatchQueue.global().async task started")
             llm_bridge_preload_metal_shaders()
-            print("✅ DispatchQueue.global().async Metal shader compilation completed")
         }
         
         // Step 3: Simulate progress updates for 16 seconds (18 total)
@@ -53,7 +49,6 @@ class FirstRunSetupManager: ObservableObject {
         firstRunManager.markFirstRunComplete()
         updateComplete()
         
-        print("✅ First run setup completed in 18 seconds - Metal compilation continues in background")
     }
     
     /// Simulates progress updates during setup (16 seconds total)
@@ -93,7 +88,6 @@ class FirstRunSetupManager: ObservableObject {
         DispatchQueue.main.async {
             self.statusMessages.append(message)
         }
-        print("📱 Setup: \(message)")
     }
     
     private func updateProgress(_ value: Double) {

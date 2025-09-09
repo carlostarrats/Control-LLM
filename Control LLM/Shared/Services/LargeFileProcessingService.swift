@@ -246,10 +246,6 @@ class LargeFileProcessingService {
         
         let finalSize = max(minSize, min(maxSize, optimalSize))
         
-        print("🔥 LargeFileProcessingService: Chunk size calculation:")
-        print("   - Model: \(modelKey), Multiplier: \(modelMultiplier)")
-        print("   - Content: \(contentLength) chars, Multiplier: \(contentMultiplier)")
-        print("   - Base: \(baseChunkSize) → Optimal: \(finalSize)")
         
         return finalSize
     }
@@ -280,7 +276,6 @@ class LargeFileProcessingService {
         
         let timeSinceCreation = Date().timeIntervalSince(creationTime)
         if timeSinceCreation >= dataRetentionInterval {
-            print("🧹 LargeFileProcessingService: Data expired after 24 hours, cleaning up")
             await clearProcessedData()
         }
     }
@@ -298,7 +293,6 @@ class LargeFileProcessingService {
         await finalSynthesisActor.setFinalSynthesisResult(nil)
         await finalSynthesisActor.setSequentialFinalSynthesisResult(nil)
         
-        print("✅ LargeFileProcessingService: All processed data cleared from memory")
     }
     
     // CRITICAL FIX: Get processed PDF data for answering questions
@@ -342,10 +336,6 @@ class LargeFileProcessingService {
     ) async -> String? {
         
         #if DEBUG
-        print("🔥 LargeFileProcessingService: Starting process for file '\(fileContent.fileName)'")
-        print("🔥 LargeFileProcessingService: Content length: \(fileContent.content.count) characters")
-        print("🔥 LargeFileProcessingService: Max content length: \(maxContentLength)")
-        print("🔥 LargeFileProcessingService: Instruction: '\(instruction)'")
         #endif
         
         // PERFORMANCE OPTIMIZATION: Process file with background task support
@@ -372,7 +362,6 @@ class LargeFileProcessingService {
         }
         
         if taskId == nil {
-            print("⚠️ LargeFileProcessingService: Could not start background task, processing on main thread")
             // Fallback to immediate processing if background task unavailable
             return await processFileInBackground(
                 fileContent: fileContent,
@@ -404,24 +393,19 @@ class LargeFileProcessingService {
         
         // CRITICAL FIX: Ensure model is loaded before processing
         if !(await llmService.isModelLoaded) {
-            print("🔥 LargeFileProcessingService: Model not loaded, loading model first...")
             await progressHandler("Loading model...")
             do {
                 try await llmService.loadSelectedModel()
-                print("✅ LargeFileProcessingService: Model loaded successfully")
             } catch {
-                print("❌ LargeFileProcessingService: Failed to load model: \(error)")
                 await progressHandler("Error: Failed to load model")
                 return nil
             }
         } else {
-            print("✅ LargeFileProcessingService: Model already loaded")
         }
         
         // NEW: All images should use simple processing to avoid chunking issues
         if fileContent.type == .image {
             #if DEBUG
-            print("🔥 LargeFileProcessingService: Image content detected (\(fileContent.content.count) chars), processing directly")
             #endif
             await progressHandler("Processing image text directly...")
             return await processImageContent(
@@ -436,7 +420,6 @@ class LargeFileProcessingService {
         // NEW: PDFs use clean text extraction first, then LLM processing
         if fileContent.type == .pdf {
             #if DEBUG
-            print("🔥 LargeFileProcessingService: PDF content detected (\(fileContent.content.count) chars), extracting clean text first")
             #endif
             await progressHandler("Extracting clean text from PDF...")
             return await processPDFWithCleanText(
@@ -455,10 +438,6 @@ class LargeFileProcessingService {
         )
         let totalChunks = Int(ceil(Double(fileContent.content.count) / Double(optimalChunkSize)))
         
-        print("🔥 LargeFileProcessingService: Content length: \(fileContent.content.count)")
-        print("🔥 LargeFileProcessingService: Optimal chunk size: \(optimalChunkSize)")
-        print("🔥 LargeFileProcessingService: Total chunks: \(totalChunks)")
-        print("🔥 LargeFileProcessingService: Expected total processed: \(optimalChunkSize * totalChunks)")
         
         // CRITICAL FIX: Use sequential processing to ensure chunks are processed in order
         // Parallel processing was causing random chunk order (4, 2, 1 instead of 1, 2, 3, 4...)
@@ -501,7 +480,6 @@ class LargeFileProcessingService {
         transcriptHandler: @escaping (String) async -> Void
     ) async -> String? {
         
-        print("🔥 LargeFileProcessingService: Using PARALLEL processing for \(totalChunks) chunks")
         
         // CRITICAL FIX: Create semaphore OUTSIDE task creation so all tasks share the same instance
         let llmSemaphore = AsyncSemaphore(value: 1)
@@ -523,16 +501,11 @@ class LargeFileProcessingService {
         
         // Wait for all chunks to complete
         do {
-            print("🔍 LargeFileProcessingService: About to start withThrowingTaskGroup")
             let results = try await withThrowingTaskGroup(of: String.self) { group in
-                print("🔍 LargeFileProcessingService: Inside task group, adding \(totalChunks) tasks")
                 
                 // CRITICAL FIX: Create tasks directly within the task group instead of pre-creating them
                 for chunkIndex in 1...totalChunks {
-                    print("🔍 LargeFileProcessingService: Adding task \(chunkIndex) to group")
                     group.addTask { [self, chunkIndex, chunkSize, fileContent, llmService, llmSemaphore] in
-                        print("🔍 LargeFileProcessingService: Executing task \(chunkIndex)")
-                        print("🔍 LargeFileProcessingService: Chunk \(chunkIndex) - startIndex: \((chunkIndex - 1) * chunkSize), endIndex: \(min((chunkIndex - 1) * chunkSize + chunkSize, fileContent.content.count))")
                         
                         let startIndex = (chunkIndex - 1) * chunkSize
                         let endIndex = min(startIndex + chunkSize, fileContent.content.count)
@@ -571,7 +544,6 @@ class LargeFileProcessingService {
                             
                             do {
                                 // DEBUG: Check if model is actually loaded before calling generateResponse
-                                print("🔍 LargeFileProcessingService: About to call generateResponse for chunk \(chunkIndex)")
                                 
                                 // CRITICAL FIX: Show immediate progress when starting each chunk
                                 await transcriptHandler("Starting chunk \(chunkIndex)/\(totalChunks)...")
@@ -637,7 +609,6 @@ class LargeFileProcessingService {
                                     } else if chunkSummary.count >= chunkSize {
                                         // We have enough content, cancel the task and continue
                                         chunkTask.cancel()
-                                        print("🔍 LargeFileProcessingService: Chunk \(chunkIndex) reached target size, cancelling generation")
                                     } else {
                                         // Real error occurred, re-throw it
                                         throw error
@@ -653,7 +624,6 @@ class LargeFileProcessingService {
                                 await transcriptHandler("✅ Chunk \(chunkIndex)/\(totalChunks) completed!")
                             } catch {
                                 // CRITICAL FIX: Better error handling to see what's failing
-                                print("❌ LargeFileProcessingService: Chunk \(chunkIndex) failed with error: \(error)")
                                 
                                 // CRITICAL FIX: Check if this is a memory allocation failure and try to fix it immediately
                                 if error.localizedDescription.contains("failed to find a memory slot") {
@@ -765,7 +735,6 @@ class LargeFileProcessingService {
                     }
                 }
                 
-                print("🔍 LargeFileProcessingService: All tasks added, starting execution")
                 var results: [String] = []
                 for try await result in group {
                     results.append(result)
@@ -780,11 +749,9 @@ class LargeFileProcessingService {
                 return index1 < index2
             }
             
-            print("🔥 LargeFileProcessingService: All \(totalChunks) chunks processed successfully")
             
         } catch {
             let errorMessage = "Error during parallel processing: \(error.localizedDescription)"
-            print("🔥 LargeFileProcessingService: Error in parallel processing: \(errorMessage)")
             await progressHandler("Error: Processing failed.")
             return nil  // Return nil on failure, not the error message
         }
@@ -795,7 +762,6 @@ class LargeFileProcessingService {
         // Security: Track data creation time for automatic cleanup
         dataCreationTime = Date()
         
-        print("🔥 LargeFileProcessingService: Stored processed data for future questions")
         
         // CRITICAL FIX: Focus on PROBLEM_STATEMENT - ensure LLM actually answers the user's question
         // WORKING SOLUTION: Generate final summary without broken LLM
@@ -815,7 +781,6 @@ class LargeFileProcessingService {
         transcriptHandler: @escaping (String) async -> Void
     ) async -> String? {
         
-        print("🔥 LargeFileProcessingService: Using SEQUENTIAL processing for \(totalChunks) chunks")
         
         var summaries: [String] = []
         
@@ -872,7 +837,6 @@ class LargeFileProcessingService {
                     await transcriptHandler("✅ Chunk \(chunkIndex)/\(totalChunks) processed successfully with \(chunkSummary.count) characters")
                 } catch {
                     let errorMessage = "Error processing part \(chunkIndex)/\(totalChunks): \(error.localizedDescription)"
-                    print("🔥 LargeFileProcessingService: Error processing part \(chunkIndex)/\(totalChunks): \(errorMessage)")
                     
                     // CRITICAL FIX: Check if this is a memory allocation failure and try to fix it immediately
                     if error.localizedDescription.contains("failed to find a memory slot") {
@@ -924,7 +888,6 @@ class LargeFileProcessingService {
     // Security: Track data creation time for automatic cleanup
     dataCreationTime = Date()
     
-    print("🔥 LargeFileProcessingService: Stored processed data for future questions")
     
             // CRITICAL FIX: Focus on PROBLEM_STATEMENT - ensure LLM actually answers the user's question
         // Generate the final answer directly using all completed summaries
@@ -948,7 +911,6 @@ class LargeFileProcessingService {
         transcriptHandler: @escaping (String) async -> Void
     ) async -> String? {
         
-        print("🔥 LargeFileProcessingService: Processing image content directly")
         await progressHandler("Analyzing image text...")
         
         // For any question about image text, just return the text content directly
@@ -965,17 +927,14 @@ class LargeFileProcessingService {
         transcriptHandler: @escaping (String) async -> Void
     ) async -> String? {
         
-        print("🔥 LargeFileProcessingService: Processing PDF with parallel page processing")
         
         // Step 1: Extract clean text from PDF content
         let cleanText = extractCleanTextFromPDF(fileContent.content)
-        print("🔥 LargeFileProcessingService: Clean text extracted (\(cleanText.count) chars)")
         
         await progressHandler("Clean text extracted, processing pages in parallel...")
         
         // Step 2: Parallel page processing for better performance
         let pages = extractPDFPages(cleanText)
-        print("🔥 LargeFileProcessingService: Extracted \(pages.count) pages")
         
         if pages.count > 1 {
             await progressHandler("Processing \(pages.count) pages in parallel...")
@@ -1053,7 +1012,6 @@ class LargeFileProcessingService {
         transcriptHandler: @escaping (String) async -> Void
     ) async -> String? {
         
-        print("🔥 LargeFileProcessingService: Processing \(pages.count) pages in parallel")
         
         var pageSummaries: [String] = []
         let pageCount = pages.count
@@ -1433,15 +1391,12 @@ class LargeFileProcessingService {
     
     // NEW: Create LLM-enhanced summary from extracted points
     private func createLLMEnhancedSummary(_ keyPoints: [String], llmService: HybridLLMService) async -> String {
-        print("🔥 LargeFileProcessingService: Starting LLM enhancement with \(keyPoints.count) key points")
         
         // Combine key points into a single text block
         let extractedText = keyPoints.joined(separator: "\n")
-        print("🔥 LargeFileProcessingService: Extracted text length: \(extractedText.count) characters")
         
         // Check if we have enough content but not too much
         if extractedText.count < 100 {
-            print("🔥 LargeFileProcessingService: Not enough content, falling back to simple summary")
             // Fallback to simple summary if not enough content
             return createIntelligentTextSummary(from: extractedText, instruction: "")
         }
@@ -1457,14 +1412,12 @@ class LargeFileProcessingService {
         
         // Check if content is too large for LLM
         if extractedText.count > 800 {
-            print("🔥 LargeFileProcessingService: Content too large (\(extractedText.count) chars), truncating for LLM")
             // Truncate to avoid token limits
             let truncatedText = String(extractedText.prefix(800))
             llmPrompt = llmPrompt.replacingOccurrences(of: extractedText, with: truncatedText)
         }
         
         do {
-            print("🔥 LargeFileProcessingService: Calling LLM for enhancement...")
             // Process through LLM with conservative token limit
             let llmResponse = try await llmService.generateResponseSync(
                 userText: llmPrompt,
@@ -1472,11 +1425,9 @@ class LargeFileProcessingService {
                 maxTokens: 1000  // Very high limit - let model complete naturally
             )
             
-            print("🔥 LargeFileProcessingService: LLM enhancement successful, response length: \(llmResponse.count)")
             return llmResponse
             
         } catch {
-            print("❌ LargeFileProcessingService: Error creating LLM-enhanced summary: \(error)")
             // Fallback to simple summary if LLM fails
             return createIntelligentTextSummary(from: extractedText, instruction: "")
         }
@@ -1484,7 +1435,6 @@ class LargeFileProcessingService {
     
     // NEW: Create intelligent text summary without LLM enhancement
     private func createIntelligentTextSummary(from content: String, instruction: String) -> String {
-        print("🔥 LargeFileProcessingService: Creating intelligent text summary")
         
         // Extract structured information from the text
         let documentInfo = extractDocumentStructure(content)
@@ -1835,7 +1785,6 @@ class LargeFileProcessingService {
                 
                 // Stop if we've generated enough tokens
                 if tokenCount >= maxTokens {
-                    print("🔥 LargeFileProcessingService: Direct answer generation reached token limit")
                     return
                 }
                 
@@ -1855,12 +1804,10 @@ class LargeFileProcessingService {
                 return "❌ Error: The LLM could not generate an answer to your question."
             }
             
-            print("🔥 LargeFileProcessingService: Direct final answer generated successfully (\(tokenCount) tokens)")
             await transcriptHandler("✅ Answer generated successfully!")
             return finalAnswer
             
         } catch {
-            print("🔥 LargeFileProcessingService: Error in direct final answer generation: \(error.localizedDescription)")
             await transcriptHandler("❌ Error generating answer: \(error.localizedDescription)")
             return "❌ Error: Failed to generate answer due to: \(error.localizedDescription)"
         }
@@ -1949,7 +1896,6 @@ class LargeFileProcessingService {
         transcriptHandler: @escaping (String) async -> Void
     ) async -> String? {
         
-        print("🔥 LargeFileProcessingService: Starting EARLY final synthesis")
         
         // CRITICAL FIX: Increase summary length for better quality while staying within LLM limits
         let maxSummaryLength = 800 // Increased from 200 to 800 for better context
@@ -1991,13 +1937,11 @@ class LargeFileProcessingService {
                 
                 // Stop if we've generated enough tokens
                 if tokenCount >= maxTokens {
-                    print("🔥 LargeFileProcessingService: Early synthesis reached token limit, stopping generation")
                     return
                 }
                 
                 // Stop if we detect repetitive content (infinite loop)
                 if finalSummary.count > 1000 && finalSummary.suffix(100).contains(token) {
-                    print("🔥 LargeFileProcessingService: Detected repetitive content, stopping generation")
                     return
                 }
                 
@@ -2010,10 +1954,8 @@ class LargeFileProcessingService {
             // CRITICAL FIX: Ensure the LLM stops generating
             await llmService.stopGeneration()
             
-            print("🔥 LargeFileProcessingService: Early final synthesis completed with \(tokenCount) tokens")
             return finalSummary
         } catch {
-            print("🔥 LargeFileProcessingService: Error in early final synthesis: \(error.localizedDescription)")
             return nil
         }
     }
@@ -2077,11 +2019,6 @@ class LargeFileProcessingService {
         
         let finalSize = max(minChunkSize, min(optimalSize, maxSafeChunkSize))
         
-        print("🔥 LargeFileProcessingService: Chunk size calculation:")
-        print("  - Original maxSize: \(maxSize)")
-        print("  - LLM-safe limit: \(maxSafeCharacters)")
-        print("  - Actual maxSize: \(actualMaxSize)")
-        print("  - Final chunk size: \(finalSize)")
         
         return finalSize
     }
@@ -2096,7 +2033,6 @@ class LargeFileProcessingService {
         progressHandler: @escaping (String) async -> Void
     ) async -> Int {
         
-        print("🔥 LargeFileProcessingService: Starting automatic retry for failed chunks")
         
         // Find which chunks failed by comparing successful summaries with expected total
         let successfulChunkIndices = successfulSummaries.compactMap { summary -> Int? in

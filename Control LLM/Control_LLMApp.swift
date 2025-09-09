@@ -55,7 +55,6 @@ private func disableConsoleFlooding() {
     // Disable Core Data and other verbose logging
     setenv("SQLITE_ENABLE_LOGGING", "0", 1)
     
-    print("🔇 Console flooding prevention enabled")
 }
 #else
 private func disableConsoleFlooding() {
@@ -69,29 +68,24 @@ struct Control_LLMApp: App {
     @State private var isAppReady = false
     
     init() {
-        print("🔍 [\(Date())] App init started")
         
         // FIRST: Stop console flooding immediately
         disableConsoleFlooding()
         
-        print("🔍 [\(Date())] Console flooding disabled")
         
         // Register custom fonts (minimal, fast operation)
         registerCustomFonts()
         
-        print("🔍 [\(Date())] Fonts registered")
         
         // Defer ALL heavy initialization to background - show UI immediately
         Task.detached(priority: .background) {
             await Self.initializeAllServices()
         }
         
-        print("🔍 [\(Date())] App init finished - UI should be ready")
     }
     
     var body: some Scene {
         let isFirstRun = FirstRunManager.shared.isFirstRun
-        print("🔍 [\(Date())] WindowGroup body called - isFirstRun: \(isFirstRun)")
         
         return WindowGroup {
             if isFirstRun {
@@ -123,7 +117,6 @@ struct Control_LLMApp: App {
     
     /// Initialize all services in background - UI shows immediately
     private static func initializeAllServices() async {
-        print("🔄 Initializing all services in background...")
         
         // Initialize ModelManager
         DispatchQueue.main.async {
@@ -138,11 +131,9 @@ struct Control_LLMApp: App {
             Self.initializeShortcutsIntegration()
         }
         
-        print("✅ All services initialized in background")
     }
     
     private static func initializeSecurityComponents() {
-        print("🔒 Initializing security components...")
         
         // Initialize Metal memory manager
         let _ = MetalMemoryManager.shared
@@ -153,12 +144,10 @@ struct Control_LLMApp: App {
         // Initialize data cleanup manager
         let _ = DataCleanupManager.shared
         
-        print("🔒 Security components initialized")
     }
     
     @available(iOS 16.0, *)
     private static func initializeShortcutsIntegration() {
-        print("🔗 Initializing Shortcuts integration...")
         
         // Initialize the Shortcuts service
         let _ = ShortcutsService.shared
@@ -169,6 +158,5 @@ struct Control_LLMApp: App {
         // App Intents automatically handle authorization and integration
         // No need to manually request Siri authorization with App Intents
         
-        print("🔗 Shortcuts integration initialized with App Intents")
     }
 }

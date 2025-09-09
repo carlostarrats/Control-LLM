@@ -221,7 +221,6 @@ final class ModelManager: ObservableObject {
     
     
     private func loadAvailableModels() {
-        print("ModelManager: Loading available models...")
         var discovered = Set<String>()
         let discoveredQueue = DispatchQueue(label: "discovered.serial")
         
@@ -241,16 +240,13 @@ final class ModelManager: ObservableObject {
                             discoveredQueue.sync {
                                 discovered.insert(filename)
                             }
-                            print("ModelManager: Found model: \(filename)")
                         }
                     }
                 } catch {
-                    print("ModelManager: Error reading Models directory: \(error)")
                 }
                 group.leave()
             }
         } else {
-            print("ModelManager: Models directory not found in bundle")
         }
         
         // Also check bundle root as fallback
@@ -262,7 +258,6 @@ final class ModelManager: ObservableObject {
                     discoveredQueue.sync {
                         discovered.insert(filename)
                     }
-                    print("ModelManager: Found model in bundle root: \(filename)")
                 }
             }
             group.leave()
@@ -281,11 +276,9 @@ final class ModelManager: ObservableObject {
                             discoveredQueue.sync {
                                 discovered.insert(filename)
                             }
-                            print("ModelManager: Found downloaded model: \(filename)")
                         }
                     }
                 } catch {
-                    print("ModelManager: Error reading Documents/Models directory: \(error)")
                 }
             }
             group.leave()
@@ -320,10 +313,6 @@ final class ModelManager: ObservableObject {
         availableModels = infos
         objectWillChange.send()
         
-        print("ModelManager: Loaded \(availableModels.count) available models")
-        print("ModelManager: Available models: \(availableModels.map { $0.filename })")
-        print("ModelManager: Sorted by name: \(availableModels.map { $0.name })")
-        print("ModelManager: Alphabetical order should be: G, L, S, Q")
     }
     
     private func loadSelectedModel() {
@@ -334,30 +323,23 @@ final class ModelManager: ObservableObject {
                     // Default to first available model
         if let firstModel = availableModels.first {
             selectedModel = firstModel
-            print("ModelManager: Defaulting to first available model: \(firstModel.filename)")
         }
             saveSelectedModel()
         }
     }
     
     func selectModel(_ model: LLMModelInfo) {
-        print("🔍 ModelManager: selectModel called for: \(model.displayName)")
-        print("   Previous model: \(selectedModel?.displayName ?? "none")")
         
         selectedModel = model
         saveSelectedModel()
-        print("✅ ModelManager: Selected model \(model.displayName)")
 
 
 
         // Notify that the model has changed
-        print("🔍 ModelManager: Posting modelDidChange notification...")
         NotificationCenter.default.post(name: .modelDidChange, object: model)
-        print("✅ ModelManager: modelDidChange notification posted")
 
         // REMOVED: Automatic preloading to prevent double model loading/unloading
         // ChatViewModel will handle the model loading when it receives the notification
-        print("🔍 ModelManager: Skipping preload - ChatViewModel will handle model loading")
     }
 
     private func shouldPreload(filename: String) -> Bool {
@@ -384,7 +366,6 @@ final class ModelManager: ObservableObject {
             // If no model is selected but we have available models, select the first one
             if selectedModel == nil && !availableModels.isEmpty {
                 if let firstModel = availableModels.first {
-                    print("🔍 ModelManager: Auto-selecting first available model: \(firstModel.filename)")
                     selectModel(firstModel)
                 }
             }
@@ -393,18 +374,15 @@ final class ModelManager: ObservableObject {
     
     // DEBUG: Force refresh to see sorting debug output
     func debugRefreshModels() {
-        print("🔍 DEBUG: Forcing model refresh to check sorting...")
         loadAvailableModels()
     }
     
     // MARK: - Model Deletion
     
     func deleteModel(_ model: LLMModelInfo) async throws {
-        print("🗑️ ModelManager: Deleting model: \(model.filename)")
         
         // If this is the currently selected model, clear the selection first
         if selectedModel?.filename == model.filename {
-            print("⚠️ ModelManager: Deleting currently selected model, clearing selection")
             selectedModel = nil
             saveSelectedModel()
         }
@@ -422,23 +400,17 @@ final class ModelManager: ObservableObject {
                     // Get file size before deletion for verification
                     let fileAttributes = try FileManager.default.attributesOfItem(atPath: modelURL.path)
                     let fileSize = fileAttributes[.size] as? Int64 ?? 0
-                    print("🗑️ ModelManager: About to delete file: \(modelURL.path)")
-                    print("🗑️ ModelManager: File size: \(fileSize) bytes")
                     
                     try FileManager.default.removeItem(at: modelURL)
                     
                     // Verify deletion
                     let stillExists = FileManager.default.fileExists(atPath: modelURL.path)
                     if stillExists {
-                        print("❌ ModelManager: File still exists after deletion attempt!")
                         throw ModelDeletionError.deletionFailed("File still exists after deletion")
                     } else {
-                        print("✅ ModelManager: Successfully deleted downloaded model: \(model.filename)")
-                        print("✅ ModelManager: File confirmed deleted: \(modelURL.path)")
                     }
                     deleted = true
                 } catch {
-                    print("❌ ModelManager: Failed to delete downloaded model: \(error)")
                     throw ModelDeletionError.deletionFailed(error.localizedDescription)
                 }
             }
@@ -453,23 +425,17 @@ final class ModelManager: ObservableObject {
                     // Get file size before deletion for verification
                     let fileAttributes = try FileManager.default.attributesOfItem(atPath: modelURL.path)
                     let fileSize = fileAttributes[.size] as? Int64 ?? 0
-                    print("🗑️ ModelManager: About to delete bundled file: \(modelURL.path)")
-                    print("🗑️ ModelManager: File size: \(fileSize) bytes")
                     
                     try FileManager.default.removeItem(at: modelURL)
                     
                     // Verify deletion
                     let stillExists = FileManager.default.fileExists(atPath: modelURL.path)
                     if stillExists {
-                        print("❌ ModelManager: Bundled file still exists after deletion attempt!")
                         throw ModelDeletionError.deletionFailed("Bundled file still exists after deletion")
                     } else {
-                        print("✅ ModelManager: Successfully deleted bundled model: \(model.filename)")
-                        print("✅ ModelManager: Bundled file confirmed deleted: \(modelURL.path)")
                     }
                     deleted = true
                 } catch {
-                    print("❌ ModelManager: Failed to delete bundled model: \(error)")
                     throw ModelDeletionError.deletionFailed(error.localizedDescription)
                 }
             }
@@ -483,24 +449,18 @@ final class ModelManager: ObservableObject {
                         // Get file size before deletion for verification
                         let fileAttributes = try FileManager.default.attributesOfItem(atPath: url.path)
                         let fileSize = fileAttributes[.size] as? Int64 ?? 0
-                        print("🗑️ ModelManager: About to delete bundle root file: \(url.path)")
-                        print("🗑️ ModelManager: File size: \(fileSize) bytes")
                         
                         try FileManager.default.removeItem(at: url)
                         
                         // Verify deletion
                         let stillExists = FileManager.default.fileExists(atPath: url.path)
                         if stillExists {
-                            print("❌ ModelManager: Bundle root file still exists after deletion attempt!")
                             throw ModelDeletionError.deletionFailed("Bundle root file still exists after deletion")
                         } else {
-                            print("✅ ModelManager: Successfully deleted model from bundle root: \(model.filename)")
-                            print("✅ ModelManager: Bundle root file confirmed deleted: \(url.path)")
                         }
                         deleted = true
                         break
                     } catch {
-                        print("❌ ModelManager: Failed to delete model from bundle root: \(error)")
                         throw ModelDeletionError.deletionFailed(error.localizedDescription)
                     }
                 }
@@ -508,14 +468,12 @@ final class ModelManager: ObservableObject {
         }
         
         if !deleted {
-            print("❌ ModelManager: Model file not found: \(model.filename)")
             throw ModelDeletionError.modelNotFound
         }
         
         // Refresh the available models list
         await refreshAvailableModels()
         
-        print("✅ ModelManager: Model deletion completed: \(model.filename)")
     }
 }
 

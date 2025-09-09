@@ -11,7 +11,6 @@ struct LoadingScreenView: View {
             Color(hex: "#FF6B6B")
                 .ignoresSafeArea(.all)
                 .onAppear {
-                    NSLog("🔍 LoadingScreenView body appeared!")
                 }
             
             ZStack {
@@ -44,7 +43,6 @@ struct LoadingScreenView: View {
                                         
                                         // Step 4: Logo expands completely with ease out
                                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                            NSLog("🔍 Logo starting expansion animation")
                                             withAnimation(.easeOut(duration: 0.1)) {
                                                 logoScale = 6.0 // Much larger than screen
                                             }

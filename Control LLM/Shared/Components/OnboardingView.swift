@@ -163,9 +163,7 @@ struct UnusedModelsScreen: View {
                                             Task {
                                                 do {
                                                     try await modelManager.deleteModel(model)
-                                                    print("✅ Successfully deleted model: \(model.filename)")
                                                 } catch {
-                                                    print("❌ Failed to delete model: \(error.localizedDescription)")
                                                 }
                                             }
                                         }
@@ -226,7 +224,6 @@ struct UnusedModelsScreen: View {
                                                     do {
                                                         try await downloadService.downloadModel(model.filename)
                                                     } catch {
-                                                        print("Download failed: \(error.localizedDescription)")
                                                     }
                                                 }
                                             }

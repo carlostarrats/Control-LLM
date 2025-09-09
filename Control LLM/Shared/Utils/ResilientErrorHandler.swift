@@ -46,31 +46,26 @@ class ResilientErrorHandler {
                 consecutiveFailures[operationName] = 0
                 operationStartTimes.removeValue(forKey: operationName)
                 
-                print("✅ ResilientErrorHandler: Operation '\(operationName)' succeeded on attempt \(attempt)")
                 return result
                 
             } catch {
                 lastError = error
                 consecutiveFailures[operationName, default: 0] += 1
                 
-                print("⚠️ ResilientErrorHandler: Operation '\(operationName)' failed on attempt \(attempt)/\(maxRetries): \(error.localizedDescription)")
                 
                 // Check if we should abort due to too many consecutive failures
                 if consecutiveFailures[operationName, default: 0] >= Constants.maxConsecutiveFailures {
-                    print("🚨 ResilientErrorHandler: Too many consecutive failures for '\(operationName)', aborting")
                     throw ResilientError.tooManyConsecutiveFailures(operation: operationName, count: consecutiveFailures[operationName, default: 0])
                 }
                 
                 // If this isn't the last attempt, wait before retrying
                 if attempt < maxRetries {
-                    print("⏳ ResilientErrorHandler: Waiting \(Constants.retryDelaySeconds)s before retry...")
                     try await Task.sleep(nanoseconds: UInt64(Constants.retryDelaySeconds * 1_000_000_000))
                 }
             }
         }
         
         // All retries failed
-        print("❌ ResilientErrorHandler: Operation '\(operationName)' failed all \(maxRetries) attempts")
         throw ResilientError.maxRetriesExceeded(operation: operationName, lastError: lastError)
     }
     
@@ -86,7 +81,6 @@ class ResilientErrorHandler {
     func recoverFromStuckOperation(_ operation: String) async -> Bool {
         guard isOperationStuck(operation) else { return false }
         
-        print("🔧 ResilientErrorHandler: Attempting to recover from stuck operation '\(operation)'")
         
         // Clear the stuck operation tracking
         operationStartTimes.removeValue(forKey: operation)
@@ -146,7 +140,6 @@ class ResilientErrorHandler {
         consecutiveFailures.removeAll()
         operationStartTimes.removeAll()
         partialResults.removeAll()
-        print("🔄 ResilientErrorHandler: All error tracking reset")
     }
 }
 

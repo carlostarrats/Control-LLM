@@ -10,21 +10,18 @@ class ShortcutsService: NSObject {
     
     private override init() {
         super.init()
-        print("Shortcuts Service initialized")
     }
     
     // MARK: - Background Execution Support
     
     /// Handle background execution when called from Shortcuts
     func handleBackgroundExecution() async -> Bool {
-        print("Handling background execution from Shortcuts")
         
         // PERFORMANCE OPTIMIZATION: Use BackgroundTaskManager for proper task management
         let taskId = BackgroundTaskManager.shared.startBackgroundTask(
             type: .llmInference,
             priority: .high,
             completion: {
-                print("⚠️ ShortcutsService: Background task expired, cleaning up resources")
                 self.cleanupBackgroundResources()
             }
         )
@@ -43,11 +40,9 @@ class ShortcutsService: NSObject {
             // Register for background processing if needed
             await registerBackgroundTasks()
             
-            print("Background execution setup completed successfully")
             return true
             
         } catch {
-            print("Background execution setup failed: \(error.localizedDescription)")
             return false
         }
     }
@@ -58,19 +53,16 @@ class ShortcutsService: NSObject {
         
         try await Task.sleep(nanoseconds: 500_000_000) // 0.5 second delay for setup
         
-        print("Background setup completed")
     }
     
     private func registerBackgroundTasks() async {
         // PERFORMANCE OPTIMIZATION: Register for background processing with proper task management
         // This ensures the app can continue processing even when in background
         
-        print("Background tasks registered with BackgroundTaskManager")
     }
     
     /// Clean up resources when background task expires
     private func cleanupBackgroundResources() {
-        print("🧹 ShortcutsService: Cleaning up background resources")
         
         // Clean up any ongoing operations
         // This ensures we don't leave resources hanging when background time expires
@@ -166,7 +158,6 @@ class ShortcutsService: NSObject {
             throw ShortcutsError.potentiallyMaliciousInput
         }
         
-        print("Processing sanitized message for Shortcuts")
         
         // Process through existing LLM service
         let response = try await processMessage(sanitizedMessage)
@@ -174,7 +165,6 @@ class ShortcutsService: NSObject {
         // SECURITY: Sanitize response for Siri/Shortcuts
         let sanitizedResponse = sanitizeForSiri(response)
         
-        print("Generated sanitized response for Shortcuts")
         return sanitizedResponse
     }
     
@@ -212,7 +202,6 @@ class ShortcutsService: NSObject {
     
     /// Processes message through the LLM service
     private func processMessage(_ message: String) async throws -> String {
-        print("Sending message via Shortcuts: '\(message)'")
         
         // Integrate with existing LLM service
         do {
@@ -230,14 +219,12 @@ class ShortcutsService: NSObject {
             
             return response
         } catch {
-            print("Failed to process message via LLM service: \(error.localizedDescription)")
             throw ShortcutsError.processingFailed(error.localizedDescription)
         }
     }
     
     /// Chain multiple messages with delays
     func chainMessages(_ messages: [String], delays: [Double]? = nil) async throws -> [String] {
-        print("Chaining \(messages.count) messages via Shortcuts")
         
         var responses: [String] = []
         let defaultDelays = Array(repeating: 1.0, count: messages.count)
@@ -246,7 +233,6 @@ class ShortcutsService: NSObject {
         for (index, message) in messages.enumerated() {
             let delay = index < actualDelays.count ? actualDelays[index] : 1.0
             
-            print("Processing chained message \(index + 1): '\(message)' with delay \(delay)")
             
             // Process the message
             let response = try await self.sendMessage(message, recipient: "Chained")
@@ -258,7 +244,6 @@ class ShortcutsService: NSObject {
             }
         }
         
-        print("Chained message processing completed - \(responses.count) responses")
         return responses
     }
     
@@ -279,7 +264,6 @@ class ShortcutsService: NSObject {
         let intent = SystemPromptSteeringIntent(promptText: prompt, behaviorType: behaviorType)
         try await intent.donate()
         
-        print("System prompt updated successfully via Shortcuts.")
     }
 }
 
@@ -311,7 +295,6 @@ enum ShortcutsError: Error, LocalizedError {
     
     /// Handle errors and return meaningful responses for Shortcuts
     func handleError(_ error: Error, context: String) -> String {
-        print("Error in \(context): \(error.localizedDescription)")
         
         // Return user-friendly error messages for Shortcuts
         switch error {
@@ -359,6 +342,5 @@ extension ShortcutsService {
         // Register for background processing
         // This ensures the app can continue processing even when in background
         
-        print("Background tasks registered for Shortcuts")
     }
 }

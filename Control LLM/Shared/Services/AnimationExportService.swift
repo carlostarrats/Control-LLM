@@ -35,7 +35,6 @@ class AnimationExportService: ObservableObject {
         do {
             try fileManager.createDirectory(at: exportPath, withIntermediateDirectories: true)
         } catch {
-            print("Failed to create export directory: \(error)")
             await MainActor.run {
                 isExporting = false
             }
@@ -82,7 +81,6 @@ class AnimationExportService: ObservableObject {
             progress = 1.0
         }
         
-        print("Export completed. Frames saved to: \(exportPath.path)")
     }
 }
 
