@@ -20,44 +20,43 @@ class FirstRunSetupManager: ObservableObject {
     func performFirstRunSetup() async {
         print("🚀 Starting first run setup process...")
         
-        // Step 1: Initialize backend (0.5 seconds - faster)
+        // Step 1: Initialize backend (1 second)
         updateStatus("> INITIALIZING METAL BACKEND...")
         updateProgress(0.1)
-        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
         
-        // Step 2: Call Metal shader compilation (25 seconds)
+        // Step 2: Start Metal compilation in background (don't wait for it)
         updateStatus("> COMPILING SHADER KERNELS...")
-        updateProgress(0.1)
+        updateProgress(0.2)
         
-        // Start Metal compilation in background
-        print("🔥 Starting Metal shader compilation (this takes ~25 seconds)...")
-        let metalTask = Task {
+        // Test Metal compilation with DispatchQueue.global().async (background thread)
+        print("🔥 Starting Metal shader compilation with DispatchQueue.global().async...")
+        DispatchQueue.global().async {
+            print("🔥 DispatchQueue.global().async task started")
             llm_bridge_preload_metal_shaders()
+            print("✅ DispatchQueue.global().async Metal shader compilation completed")
         }
         
-        // Simulate progress updates during compilation (25 seconds total)
+        // Step 3: Simulate progress updates for 16 seconds (18 total)
         await simulateProgressUpdates()
         
-        // Wait for Metal compilation to complete
-        await metalTask.value
-        
-        // Step 3: Finalize (0.5 seconds - faster)
+        // Step 4: Finalize (1 second)
         updateStatus("> FINALIZING AI ENGINE...")
         updateProgress(0.95)
-        try? await Task.sleep(nanoseconds: 250_000_000) // 0.25 seconds
+        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
         
         updateStatus("> SETUP COMPLETE")
         updateProgress(1.0)
-        try? await Task.sleep(nanoseconds: 250_000_000) // 0.25 seconds
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
         
-        // Mark first run as complete
+        // Mark first run as complete (Metal still compiling in background)
         firstRunManager.markFirstRunComplete()
         updateComplete()
         
-        print("✅ First run setup completed successfully in exactly 26 seconds")
+        print("✅ First run setup completed in 18 seconds - Metal compilation continues in background")
     }
     
-    /// Simulates progress updates during Metal compilation (25 seconds total)
+    /// Simulates progress updates during setup (16 seconds total)
     private func simulateProgressUpdates() async {
         let messages = [
             "> OPTIMIZING MATRIX OPERATIONS...",
@@ -71,21 +70,21 @@ class FirstRunSetupManager: ObservableObject {
             "> PREPARING INFERENCE ENGINE..."
         ]
         
-        // 25 seconds total with 50 steps = 0.5 seconds per step
-        let totalSteps = 50
-        let baseProgress = 0.1
-        let progressIncrement = 0.8 / Double(totalSteps) // 0.8 progress over 50 steps (0.1 to 0.9)
+        // 16 seconds total with 32 steps = 0.5 seconds per step
+        let totalSteps = 32
+        let baseProgress = 0.2
+        let progressIncrement = 0.7 / Double(totalSteps) // 0.7 progress over 32 steps (0.2 to 0.9)
         
         for step in 0..<totalSteps {
-            // Update progress every 0.5 seconds for exactly 25 seconds total
+            // Update progress every 0.5 seconds for exactly 16 seconds total
             try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
             
             let currentProgress = baseProgress + (Double(step) * progressIncrement)
             updateProgress(currentProgress)
             
-            // Update status message every 5 steps (every 2.5 seconds)
-            if step % 5 == 0 && step / 5 < messages.count {
-                updateStatus(messages[step / 5])
+            // Update status message every 4 steps (every 2 seconds)
+            if step % 4 == 0 && step / 4 < messages.count {
+                updateStatus(messages[step / 4])
             }
         }
     }
