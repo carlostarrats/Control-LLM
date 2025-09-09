@@ -20,33 +20,44 @@ class FirstRunSetupManager: ObservableObject {
     func performFirstRunSetup() async {
         print("🚀 Starting first run setup process...")
         
-        // Step 1: Initialize backend
+        // Step 1: Initialize backend (2 seconds)
         updateStatus("> INITIALIZING METAL BACKEND...")
+        updateProgress(0.05)
+        try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+        
+        // Step 2: Call Metal shader compilation (25 seconds)
+        updateStatus("> COMPILING SHADER KERNELS...")
         updateProgress(0.1)
         
-        // Step 2: Call Metal shader compilation
-        updateStatus("> COMPILING SHADER KERNELS...")
-        updateProgress(0.2)
+        // Start Metal compilation in background
+        print("🔥 Starting Metal shader compilation (this takes ~25 seconds)...")
+        let metalTask = Task {
+            llm_bridge_preload_metal_shaders()
+        }
         
-        // This is the actual 30-second Metal compilation
-        print("🔥 Starting Metal shader compilation (this takes ~30 seconds)...")
-        llm_bridge_preload_metal_shaders()
-        
-        // Simulate progress updates during compilation
+        // Simulate progress updates during compilation (25 seconds total)
         await simulateProgressUpdates()
         
-        // Step 3: Finalize
+        // Wait for Metal compilation to complete
+        await metalTask.value
+        
+        // Step 3: Finalize (3 seconds)
         updateStatus("> FINALIZING AI ENGINE...")
+        updateProgress(0.95)
+        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
+        
+        updateStatus("> SETUP COMPLETE")
         updateProgress(1.0)
+        try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
         
         // Mark first run as complete
         firstRunManager.markFirstRunComplete()
         updateComplete()
         
-        print("✅ First run setup completed successfully")
+        print("✅ First run setup completed successfully in exactly 30 seconds")
     }
     
-    /// Simulates progress updates during Metal compilation
+    /// Simulates progress updates during Metal compilation (25 seconds total)
     private func simulateProgressUpdates() async {
         let messages = [
             "> OPTIMIZING MATRIX OPERATIONS...",
@@ -54,24 +65,27 @@ class FirstRunSetupManager: ObservableObject {
             "> PREPARING MEMORY POOLS...",
             "> CACHING COMPILED SHADERS...",
             "> VALIDATING KERNEL FUNCTIONS...",
-            "> COMPLETING OPTIMIZATION..."
+            "> COMPLETING OPTIMIZATION...",
+            "> FINALIZING METAL KERNELS...",
+            "> OPTIMIZING GPU MEMORY...",
+            "> PREPARING INFERENCE ENGINE..."
         ]
         
-        // Start with more frequent progress updates
-        let totalSteps = 30 // More granular progress
-        let baseProgress = 0.2
-        let progressIncrement = 0.6 / Double(totalSteps) // 0.6 progress over 30 steps
+        // 25 seconds total with 50 steps = 0.5 seconds per step
+        let totalSteps = 50
+        let baseProgress = 0.1
+        let progressIncrement = 0.8 / Double(totalSteps) // 0.8 progress over 50 steps (0.1 to 0.9)
         
         for step in 0..<totalSteps {
-            // Update progress every 0.5 seconds for smoother animation
+            // Update progress every 0.5 seconds for exactly 25 seconds total
             try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
             
             let currentProgress = baseProgress + (Double(step) * progressIncrement)
             updateProgress(currentProgress)
             
-            // Update status message every 3 steps (every 1.5 seconds)
-            if step % 3 == 0 && step / 3 < messages.count {
-                updateStatus(messages[step / 3])
+            // Update status message every 5 steps (every 2.5 seconds)
+            if step % 5 == 0 && step / 5 < messages.count {
+                updateStatus(messages[step / 5])
             }
         }
     }

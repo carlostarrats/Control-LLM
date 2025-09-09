@@ -66,6 +66,8 @@ private func disableConsoleFlooding() {
 
 @main
 struct Control_LLMApp: App {
+    @State private var isAppReady = false
+    
     init() {
         // FIRST: Stop console flooding immediately
         disableConsoleFlooding()
@@ -98,24 +100,37 @@ struct Control_LLMApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                // Always show red background immediately to prevent white screen
+                // CRITICAL: Always show red background FIRST to prevent white screen flash
                 ColorManager.shared.redColor
                     .ignoresSafeArea()
+                    .onAppear {
+                        // Ensure red background is visible immediately
+                        print("🔴 Red background displayed immediately")
+                        // Mark app as ready immediately to show content
+                        isAppReady = true
+                    }
                 
-                if FirstRunManager.shared.isFirstRun {
-                    FirstRunSetupView()
-                } else {
-                    BackgroundSecurityView {
-                        MainView()
-                            .environmentObject(ColorManager.shared)
-                            .onAppear {
-                                // Refresh colors on appear to apply saved settings
-                                ColorManager.shared.refreshColors()
-                                debugPrint("MainView appeared!", category: .ui)
-                            }
+                // Show content only when app is ready to prevent white screen
+                if isAppReady {
+                    // Show appropriate view based on first run status
+                    if FirstRunManager.shared.isFirstRun {
+                        FirstRunSetupView()
+                            .transition(.opacity)
+                    } else {
+                        BackgroundSecurityView {
+                            MainView()
+                                .environmentObject(ColorManager.shared)
+                                .onAppear {
+                                    // Refresh colors on appear to apply saved settings
+                                    ColorManager.shared.refreshColors()
+                                    debugPrint("MainView appeared!", category: .ui)
+                                }
+                        }
+                        .transition(.opacity)
                     }
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: FirstRunManager.shared.isFirstRun)
         }
     }
     
