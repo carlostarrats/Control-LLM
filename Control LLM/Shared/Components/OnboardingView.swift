@@ -7,7 +7,7 @@ struct OnboardingView: View {
     var body: some View {
         ZStack {
             // Background
-            Color(hex: "#1D1D1D")
+            Color(hex: "#FF6B6B")
                 .ignoresSafeArea()
             
             DisclaimerScreen(
@@ -38,8 +38,8 @@ struct DisclaimerScreen: View {
                 // Disclaimer heading - 70pts from top
                 HStack {
                     Text(NSLocalizedString("DISCLAIMER", comment: ""))
-                        .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(ColorManager.shared.redColor)
+                        .font(.custom("IBMPlexMono-Bold", size: 16))
+                        .foregroundColor(Color(hex: "#141414"))
                         .opacity(isBlinking ? 0.3 : 1.0)
                         .onAppear {
                             withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
@@ -53,29 +53,28 @@ struct DisclaimerScreen: View {
                 Spacer()
                     .frame(height: 150) // 150pts space
                 
-                // Disclaimer text - blue body text
+                // Disclaimer text - dark text
                 VStack(alignment: .leading, spacing: 8) {
                     Text(NSLocalizedString("This app uses AI models that", comment: ""))
                     Text(NSLocalizedString("may generate incorrect,", comment: ""))
                     Text(NSLocalizedString("inappropriate, or misleading", comment: ""))
-                    Text(NSLocalizedString("content. Do not rely on AI-", comment: ""))
-                    Text(NSLocalizedString("generated content for legal,", comment: ""))
-                    Text(NSLocalizedString("financial, or medical advice.", comment: ""))
+                    Text(AttributedString(NSLocalizedString("content. ", comment: "")) + AttributedString(NSLocalizedString("Do not rely on AI-generated content for legal, financial, or medical advice.", comment: ""), attributes: AttributeContainer().font(.custom("IBMPlexMono-Bold", size: 16))))
+                        .lineSpacing(8)
                     Text(NSLocalizedString("This software is provided \"as", comment: ""))
                     Text(NSLocalizedString("is\" without warranties. For", comment: ""))
                     Text(NSLocalizedString("personal use only.", comment: ""))
                 }
                 .font(.custom("IBMPlexMono", size: 16))
-                .foregroundColor(Color(hex: "#94A8E1")) // Blue color
+                .foregroundColor(Color(hex: "#141414")) // Dark color
                 .multilineTextAlignment(.leading)
                 
                 Spacer()
                     .frame(height: 40) // 40pts space
                 
-                // Green text
+                // Dark text
                 Text(NSLocalizedString("This app stores all data on your device only - nothing is saved or shared, and no account exists.", comment: ""))
-                    .font(.custom("IBMPlexMono", size: 14))
-                    .foregroundColor(Color(hex: "#3EBBA5")) // Green color
+                    .font(.custom("IBMPlexMono-Bold", size: 14))
+                    .foregroundColor(Color(hex: "#141414")) // Dark color
                     .multilineTextAlignment(.leading)
                 
                 Spacer()
@@ -84,13 +83,13 @@ struct DisclaimerScreen: View {
                 Button(action: onNext) {
                     Text(NSLocalizedString("I Understand", comment: ""))
                         .font(.custom("IBMPlexMono", size: 16))
-                        .foregroundColor(Color(hex: "#F8C762")) // Specific orange
+                        .foregroundColor(Color(hex: "#141414")) // Dark text
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(Color(hex: "#F8C762").opacity(0.1)) // 10% orange fill
+                        .background(Color(hex: "#141414").opacity(0.1)) // 10% dark fill
                         .overlay(
                             RoundedRectangle(cornerRadius: 4)
-                                .stroke(Color(hex: "#F8C762"), lineWidth: 1) // 1px orange stroke
+                                .stroke(Color(hex: "#141414"), lineWidth: 1) // 1px dark stroke
                         )
                         .cornerRadius(4)
                 }

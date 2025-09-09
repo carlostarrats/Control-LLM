@@ -75,19 +75,19 @@ class AppearanceManager: ObservableObject {
     
     // Main UI colors that affect buttons and UI elements
     var currentRedColor: Color {
-        Color(hue: redColorHue / 360, saturation: 0.6, brightness: 0.7)
+        Color(hue: redColorHue / 360, saturation: 0.6, brightness: 0.8)
     }
     
     var currentOrangeColor: Color {
-        Color(hue: orangeColorHue / 360, saturation: 0.6, brightness: 0.7)
+        Color(hue: orangeColorHue / 360, saturation: 0.6, brightness: 0.8)
     }
     
     var currentGreenColor: Color {
-        Color(hue: greenColorHue / 360, saturation: 0.5, brightness: 0.7)
+        Color(hue: greenColorHue / 360, saturation: 0.5, brightness: 0.8)
     }
     
     var currentPurpleColor: Color {
-        Color(hue: purpleColorHue / 360, saturation: 0.4, brightness: 0.7)
+        Color(hue: purpleColorHue / 360, saturation: 0.4, brightness: 0.8)
     }
     
     var currentWhiteTextColor: Color {
