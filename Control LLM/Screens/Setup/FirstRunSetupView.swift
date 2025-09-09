@@ -13,12 +13,19 @@ struct FirstRunSetupView: View {
     @State private var showMainApp = false
     @State private var availableStorage: String = "Calculating..."
     @State private var isReadyBlinking = true
-    @State private var blinkTimer: Timer?
+    
+    // Cache the red color to prevent repeated access
+    private let redColor = ColorManager.shared.redColor
+    
+    init() {
+        print("🔍 [\(Date())] FirstRunSetupView init started")
+        print("🔍 [\(Date())] FirstRunSetupView init finished")
+    }
     
     var body: some View {
         ZStack {
-            // Red background (your signature color)
-            ColorManager.shared.redColor
+            // Red background (your signature color) - cached for performance
+            redColor
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
@@ -40,23 +47,23 @@ struct FirstRunSetupView: View {
                     .padding(.top, 20)
                     
                     // Slice 2: PROCESSING...
-                    Text("PROCESSING...")
-                        .font(.custom("IBMPlexMono", size: 12))
-                        .foregroundColor(Color(hex: "141414"))
-                        .opacity(isReadyBlinking ? 1.0 : 0.3)
-                        .animation(.easeInOut(duration: 0.8), value: isReadyBlinking)
-                        .onAppear {
-                            startBlinking()
-                        }
-                        .onDisappear {
-                            stopBlinking()
-                        }
+                        Text("PROCESSING...")
+                            .font(.custom("IBMPlexMono", size: 12))
+                            .foregroundColor(Color(hex: "141414"))
+                            .opacity(isReadyBlinking ? 1.0 : 0.3)
+                            .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: isReadyBlinking)
+                            .onAppear {
+                                startBlinking()
+                            }
+                            .onDisappear {
+                                stopBlinking()
+                            }
                         .padding(.horizontal, 20)
                         .padding(.top, 8)
                     
                     Spacer().frame(height: 20)
                 }
-                .background(ColorManager.shared.redColor) // Ensure header has solid background
+                .background(redColor) // Ensure header has solid background
                 
                 // SCROLLABLE CONTENT - Everything else scrolls under the header
                 ScrollView {
@@ -271,14 +278,16 @@ struct FirstRunSetupView: View {
             }
         }
         .onAppear {
+            print("🔍 [\(Date())] FirstRunSetupView onAppear called")
+            
             // Calculate storage immediately for instant display
             calculateAvailableStorage()
+            print("🔍 [\(Date())] Storage calculated")
             
-            // Start setup process with slight delay to ensure UI is fully rendered
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                Task {
-                    await setupManager.performFirstRunSetup()
-                }
+            // Start setup process immediately - no delay
+            Task {
+                print("🔍 [\(Date())] Starting setup task")
+                await setupManager.performFirstRunSetup()
             }
         }
         .onChange(of: setupManager.isComplete) { _, isComplete in
@@ -324,16 +333,14 @@ struct FirstRunSetupView: View {
     }
     
     private func startBlinking() {
-        blinkTimer = Timer.scheduledTimer(withTimeInterval: 0.8, repeats: true) { _ in
-            withAnimation(.easeInOut(duration: 0.8)) {
-                isReadyBlinking.toggle()
-            }
+        // Use a more efficient approach - let the animation handle the timing
+        withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+            isReadyBlinking = false
         }
     }
     
     private func stopBlinking() {
-        blinkTimer?.invalidate()
-        blinkTimer = nil
+        isReadyBlinking = true
     }
     
 }

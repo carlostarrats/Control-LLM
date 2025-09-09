@@ -20,10 +20,10 @@ class FirstRunSetupManager: ObservableObject {
     func performFirstRunSetup() async {
         print("🚀 Starting first run setup process...")
         
-        // Step 1: Initialize backend (2 seconds)
+        // Step 1: Initialize backend (0.5 seconds - faster)
         updateStatus("> INITIALIZING METAL BACKEND...")
-        updateProgress(0.05)
-        try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+        updateProgress(0.1)
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
         
         // Step 2: Call Metal shader compilation (25 seconds)
         updateStatus("> COMPILING SHADER KERNELS...")
@@ -41,20 +41,20 @@ class FirstRunSetupManager: ObservableObject {
         // Wait for Metal compilation to complete
         await metalTask.value
         
-        // Step 3: Finalize (3 seconds)
+        // Step 3: Finalize (0.5 seconds - faster)
         updateStatus("> FINALIZING AI ENGINE...")
         updateProgress(0.95)
-        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
+        try? await Task.sleep(nanoseconds: 250_000_000) // 0.25 seconds
         
         updateStatus("> SETUP COMPLETE")
         updateProgress(1.0)
-        try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+        try? await Task.sleep(nanoseconds: 250_000_000) // 0.25 seconds
         
         // Mark first run as complete
         firstRunManager.markFirstRunComplete()
         updateComplete()
         
-        print("✅ First run setup completed successfully in exactly 30 seconds")
+        print("✅ First run setup completed successfully in exactly 26 seconds")
     }
     
     /// Simulates progress updates during Metal compilation (25 seconds total)

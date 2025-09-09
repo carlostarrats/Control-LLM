@@ -17,7 +17,10 @@ class FirstRunManager {
     
     /// Returns true if this is the first run of the app
     var isFirstRun: Bool {
-        return !UserDefaults.standard.bool(forKey: hasCompletedFirstRunKey)
+        print("🔍 [\(Date())] FirstRunManager.isFirstRun called")
+        let result = !UserDefaults.standard.bool(forKey: hasCompletedFirstRunKey)
+        print("🔍 [\(Date())] FirstRunManager.isFirstRun result: \(result)")
+        return result
     }
     
     /// Marks the first run as completed
