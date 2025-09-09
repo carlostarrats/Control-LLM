@@ -81,24 +81,40 @@ struct FirstRunSetupView: View {
                         .padding(.horizontal, 20)
                         .padding(.top, 8)
                         
-                        // Slice 4: 02 > STATUS, 03 > LATENCY, 04 > TEMP
-                        VStack(alignment: .leading, spacing: 4) {
+                        // Slice 4: 02 > STATUS
+                        HStack {
                             Text("02 > STATUS")
                                 .font(.custom("IBMPlexMono-Bold", size: 12))
                                 .foregroundColor(Color(hex: "141414"))
                             
+                            Spacer()
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 4)
+                        
+                        // Slice 5: 03 > LATENCY
+                        HStack {
                             Text("03 > LATENCY")
                                 .font(.custom("IBMPlexMono-Bold", size: 12))
                                 .foregroundColor(Color(hex: "141414"))
                             
+                            Spacer()
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 4)
+                        
+                        // Slice 6: 04 > TEMP
+                        HStack {
                             Text("04 > TEMP")
                                 .font(.custom("IBMPlexMono-Bold", size: 12))
                                 .foregroundColor(Color(hex: "141414"))
+                            
+                            Spacer()
                         }
                         .padding(.horizontal, 20)
-                        .padding(.top, 8)
+                        .padding(.top, 4)
                         
-                        // Slice 5: 05 > MEMORY <...> ORGANIZING FILE >>>>>
+                        // Slice 7: 05 > MEMORY <...> ORGANIZING FILE >>>>>
                         HStack {
                             Text("05 > MEMORY")
                                 .font(.custom("IBMPlexMono-Bold", size: 12))
@@ -117,7 +133,7 @@ struct FirstRunSetupView: View {
                                 .foregroundColor(Color(hex: "141414"))
                         }
                         .padding(.horizontal, 20)
-                        .padding(.top, 8)
+                        .padding(.top, 4)
                         
                         // Slice 6: GEMMA 3 (40pt indentation + 30pt shift)
                         Text("GEMMA 3")

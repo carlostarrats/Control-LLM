@@ -76,6 +76,7 @@ struct DisclaimerScreen: View {
                     .font(.custom("IBMPlexMono-Bold", size: 14))
                     .foregroundColor(Color(hex: "#141414")) // Dark color
                     .multilineTextAlignment(.leading)
+                    .lineSpacing(7)
                 
                 Spacer()
                 
@@ -89,7 +90,7 @@ struct DisclaimerScreen: View {
                         .background(Color(hex: "#141414").opacity(0.1)) // 10% dark fill
                         .overlay(
                             RoundedRectangle(cornerRadius: 4)
-                                .stroke(Color(hex: "#141414"), lineWidth: 1) // 1px dark stroke
+                                .stroke(Color(hex: "#141414"), lineWidth: 2) // 2px dark stroke
                         )
                         .cornerRadius(4)
                 }
