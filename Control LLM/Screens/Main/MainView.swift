@@ -252,7 +252,7 @@ struct MainView: View {
             let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
             
             // Show onboarding after loading screen finishes (only if first run)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 if !hasSeenOnboarding {
                     showingOnboarding = true
                 } else {
@@ -337,8 +337,8 @@ struct MainView: View {
                         .transition(.identity) // No animation
                         .animation(.none, value: showingLoadingScreen) // Disable implicit animations
                         .onAppear {
-            // Hide loading screen after logo expansion has time to be visible (after 1.6 seconds)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            // Hide loading screen after logo expansion has time to be visible (after 2.0 seconds)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                                 showingLoadingScreen = false
                             }
                         }

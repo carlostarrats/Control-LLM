@@ -135,8 +135,6 @@ class ChatViewModel {
     }
     
     private func handleModelChange() {
-        print("🔍 ChatViewModel: handleModelChange called")
-        print("🔍 ChatViewModel: Current messageHistory count: \(messageHistory?.count ?? 0)")
         
         // FIXED: Set model switching flag to prevent new messages
         isModelSwitching = true
@@ -158,22 +156,16 @@ class ChatViewModel {
             
             // CRITICAL FIX: DO NOT clear messageHistory during model switch
             // This preserves conversation context across model changes
-            print("🔍 ChatViewModel: Preserving messageHistory during model switch: \(self.messageHistory?.count ?? 0) messages")
             
             // FIXED: Ensure proper sequencing - unload first, then load new model
             do {
-                print("🔍 ChatViewModel: Starting sequential model switch...")
-                
                 // Step 1: Unload current model
-                print("🔍 ChatViewModel: Step 1 - Unloading current model")
                 try await HybridLLMService.shared.forceUnloadModel()
                 
                 // Step 2: Load new model
-                print("🔍 ChatViewModel: Step 2 - Loading new model")
                 try await self.ensureModel()
                 
                 // Step 3: Verify model is ready
-                print("🔍 ChatViewModel: Step 3 - Verifying model readiness")
                 let isReady = await HybridLLMService.shared.isModelLoaded
                 let modelName = await HybridLLMService.shared.currentModelFilename
                 
@@ -183,17 +175,10 @@ class ChatViewModel {
                 }
                 
                 // FIXED: Add delay to ensure model is fully ready
-                print("🔍 ChatViewModel: Step 4 - Waiting for model to stabilize")
                 try await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-                
-                print("🔍 ChatViewModel: Model switch completed successfully")
-                print("🔍 ChatViewModel: New model: \(modelName ?? "unknown")")
-                print("🔍 ChatViewModel: Model loaded: \(isReady)")
-                print("🔍 ChatViewModel: After model switch, messageHistory count: \(self.messageHistory?.count ?? 0)")
                 
                 // Step 5: Verify history is intact
                 if let history = self.messageHistory {
-                    print("🔍 ChatViewModel: Final history verification:")
                     for (index, message) in history.enumerated() {
                         #if DEBUG
                         print("   [\(index)] \(message.isUser ? "User" : "Assistant"): \(message.content.prefix(100))...")
@@ -205,10 +190,8 @@ class ChatViewModel {
                 await MainActor.run {
                     self.isModelSwitching = false
                 }
-                print("🔍 ChatViewModel: Model switch complete - ready for new messages")
                 
             } catch {
-                print("❌ ChatViewModel: Error during model switch: \(error)")
                 await MainActor.run {
                     self.modelLoaded = false
                     self.isModelSwitching = false
@@ -292,7 +275,6 @@ class ChatViewModel {
                 }
                 
             } catch is CancellationError {
-                print("🔍 ChatViewModel: Generation was cancelled.")
                 // Ensure a partial message is saved if cancelled
                 if !transcript.isEmpty {
                     let partialMessage = ChatMessage(content: transcript, isUser: false, timestamp: Date())
@@ -303,7 +285,6 @@ class ChatViewModel {
                     self.transcript = ""
                 }
             } catch {
-                print("❌ ChatViewModel: Llama generation failed: \(error)")
                 let errorMessage = ChatMessage(content: String(format: NSLocalizedString("Error: %@", comment: ""), error.localizedDescription), isUser: false, timestamp: Date(), messageType: .error)
                 self.messageHistory?.append(errorMessage)
                 // Clear transcript to stop thinking animation
@@ -368,27 +349,21 @@ class ChatViewModel {
             // self.totalResponseTime = 0.0
             // self.responseCount = 0
             // self.averageResponseDuration = 0.0
-            print("🔍 ChatViewModel: Conversation cleared (timing data preserved)")
         }
     }
     
     func clearDuplicateMessageState() {
         DispatchQueue.main.async {
             self.lastSentMessage = nil
-            print("🔍 ChatViewModel: Duplicate message state cleared")
         }
     }
     
     func ensureModel() async throws {
-        print("🔍 ChatViewModel: ensureModel called")
-
         // Use the HybridLLMService to manage model state
         if !(await HybridLLMService.shared.isModelLoaded) {
-            print("🔍 ChatViewModel: Model not loaded, loading selected model via Hybrid Service")
             try await HybridLLMService.shared.loadSelectedModel()
         } else {
             let engineInfo = await HybridLLMService.shared.getCurrentEngineInfo()
-            print("🔍 ChatViewModel: Model already loaded: \(engineInfo)")
         }
         
         // Sync local state for UI purposes by fetching async properties first
@@ -403,7 +378,6 @@ class ChatViewModel {
     
     /// CRITICAL FIX: Sync model state on startup to ensure UI shows correct status
     private func syncModelState() async {
-        print("🔍 ChatViewModel: Syncing initial model state...")
         
         // Check if model is already loaded in HybridLLMService
         let isLoaded = await HybridLLMService.shared.isModelLoaded
@@ -415,12 +389,9 @@ class ChatViewModel {
                 self.modelLoaded = isLoaded
                 self.lastLoadedModel = filename
             }
-            print("🔍 ChatViewModel: Model already loaded - loaded: \(isLoaded), model: \(filename ?? "none")")
         } else {
             // No model loaded, check if there's a selected model and load it
             if let selectedModelFilename = ModelManager.shared.getSelectedModelFilename() {
-                print("🔍 ChatViewModel: No model loaded, but selected model exists: \(selectedModelFilename)")
-                print("🔍 ChatViewModel: Auto-loading selected model on startup...")
                 
                 do {
                     try await HybridLLMService.shared.loadSelectedModel()
@@ -434,16 +405,13 @@ class ChatViewModel {
                         self.lastLoadedModel = newFilename
                     }
                     
-                    print("✅ ChatViewModel: Auto-loaded model on startup - loaded: \(newIsLoaded), model: \(newFilename ?? "none")")
                 } catch {
-                    print("❌ ChatViewModel: Failed to auto-load model on startup: \(error)")
                     await MainActor.run {
                         self.modelLoaded = false
                         self.lastLoadedModel = nil
                     }
                 }
             } else {
-                print("🔍 ChatViewModel: No model loaded and no model selected")
                 await MainActor.run {
                     self.modelLoaded = false
                     self.lastLoadedModel = nil
@@ -502,8 +470,6 @@ class ChatViewModel {
         
         modelPerformanceData[modelFilename]?.updateResponseTime(responseTime)
         saveModelPerformanceData()
-        
-        print("🔍 ChatViewModel: Updated performance for \(modelFilename): \(String(format: "%.2f", responseTime))s (avg: \(String(format: "%.2f", modelPerformanceData[modelFilename]?.averageResponseTime ?? 0))s)")
     }
     
     func updateGlobalResponseDuration(responseTime: TimeInterval) {
@@ -531,7 +497,6 @@ class ChatViewModel {
     
     @MainActor
     func stopGeneration() {
-        print("🔍 ChatViewModel: Stopping generation")
         currentGenerationTask?.cancel()
         currentGenerationTask = nil
         

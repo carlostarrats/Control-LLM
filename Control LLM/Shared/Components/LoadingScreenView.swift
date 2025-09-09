@@ -28,22 +28,22 @@ struct LoadingScreenView: View {
                         // Step 1: Red page loads first (already showing)
                         
                         // Step 2: Logo and text quickly fade in together
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                                    withAnimation(.easeOut(duration: 0.6)) {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                                    withAnimation(.easeOut(duration: 0.75)) {
                                         logoScale = 1.0 // Scale to 1.0 with ease out
                                         logoOpacity = 1.0
                                         textOpacity = 1.0
                                     }
                                     
                                     // Step 3: Logo contracts 10% with ease in
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                        withAnimation(.easeIn(duration: 0.3)) {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.625) {
+                                        withAnimation(.easeIn(duration: 0.375)) {
                                             logoScale = 0.6 // 40% contraction from 1.0 (1.0 * 0.6 = 0.6)
                                         }
                                         
                                         // Step 4: Logo expands completely with ease out
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                            withAnimation(.easeOut(duration: 0.1)) {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.375) {
+                                            withAnimation(.easeOut(duration: 0.125)) {
                                                 logoScale = 6.0 // Much larger than screen
                                             }
                                         }
