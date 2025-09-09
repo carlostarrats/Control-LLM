@@ -304,7 +304,7 @@ struct AvailableDownloadModelView: View {
                         if isQueued {
                             Text("Queued")
                                 .font(.custom("IBMPlexMono", size: 10))
-                                .foregroundColor(Color(hex: "#F8C762")) // Yellow color
+                                .foregroundColor(ColorManager.shared.orangeColor)
                         }
                     }
                 }
@@ -333,7 +333,7 @@ struct AvailableDownloadModelView: View {
                             .frame(height: 2)
                         
                         Rectangle()
-                            .fill(Color(hex: "#F8C762"))
+                            .fill(ColorManager.shared.orangeColor)
                             .frame(width: UIScreen.main.bounds.width * 0.8 * CGFloat(downloadProgress), height: 2)
                     }
                     .frame(width: UIScreen.main.bounds.width * 0.8, height: 2)
