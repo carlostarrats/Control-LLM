@@ -97,6 +97,8 @@ class DebugFlagManager {
         let fileName = URL(fileURLWithPath: file).lastPathComponent
         let timestamp = DateFormatter.debugTimestamp.string(from: Date())
         
+        print("[\(timestamp)] [\(category.rawValue)] \(fileName):\(line) \(function) - \(message)")
+        
         #else
         // No debug printing in production builds
         #endif
@@ -126,7 +128,9 @@ class DebugFlagManager {
         
         if let data = sensitiveData {
             let sanitized = String(data.prefix(20)) + (data.count > 20 ? "..." : "")
+            print("[\(timestamp)] [\(category.rawValue)] \(fileName):\(line) \(function) - \(message): [SENSITIVE DATA REDACTED - \(data.count) chars, preview: \(sanitized)]")
         } else {
+            print("[\(timestamp)] [\(category.rawValue)] \(fileName):\(line) \(function) - \(message)")
         }
         #else
         // No debug printing in production builds

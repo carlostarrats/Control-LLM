@@ -158,8 +158,7 @@ class MainViewModel: ObservableObject {
                         fileProcessingError = "Processing failed - no result returned"
                         // CRITICAL FIX: Reset LLM processing state on failure
                         llm.isProcessing = false
-                        // CRITICAL FIX: Clear transcript to stop thinking animation
-                        llm.transcript = ""
+                        // CRITICAL FIX: DO NOT clear transcript on failure - keep any partial content
                         
                         
                         // Send error message to user
@@ -189,8 +188,7 @@ class MainViewModel: ObservableObject {
                         fileProcessingError = nil
                         // CRITICAL FIX: Reset LLM processing state
                         llm.isProcessing = false
-                        // CRITICAL FIX: Clear transcript to stop thinking animation
-                        llm.transcript = ""
+                        // CRITICAL FIX: DO NOT clear transcript - keep generated content
                         // Clear the file URL after processing
                         selectedFileUrl = nil
                         
@@ -206,8 +204,7 @@ class MainViewModel: ObservableObject {
                     fileProcessingError = error.localizedDescription
                     // CRITICAL FIX: Reset LLM processing state on error
                     llm.isProcessing = false
-                    // CRITICAL FIX: Clear transcript to stop thinking animation
-                    llm.transcript = ""
+                    // CRITICAL FIX: DO NOT clear transcript on error - keep any partial content
                     
                     
                     // Send error message to user
@@ -231,13 +228,13 @@ class MainViewModel: ObservableObject {
             Task {
                 do {
                     try await llm.send(text)
-                    // CRITICAL FIX: Reset processing state and clear transcript after LLM completes
+                    // CRITICAL FIX: Reset processing state but DO NOT clear transcript after LLM completes
                     llm.isProcessing = false
-                    llm.transcript = ""
+                    // CRITICAL FIX: Keep transcript content visible for user
                 } catch {
-                    // CRITICAL FIX: Reset processing state and clear transcript on error
+                    // CRITICAL FIX: Reset processing state but DO NOT clear transcript on error
                     llm.isProcessing = false
-                    llm.transcript = ""
+                    // CRITICAL FIX: Keep any partial content visible
                 }
             }
         }
@@ -263,7 +260,7 @@ class MainViewModel: ObservableObject {
         isFileProcessing = false
         fileProcessingError = nil
         llm.isProcessing = false
-        llm.transcript = ""
+        // CRITICAL FIX: DO NOT clear transcript - keep generated content visible
         selectedFileUrl = nil
         
     }

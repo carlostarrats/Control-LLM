@@ -133,7 +133,7 @@ final class HybridLLMService: ObservableObject {
                             maxTokens: maxTokens,
                             onToken: { partialResponse in
                                 if Task.isCancelled { return }
-                                Task { await onToken(partialResponse) }
+                                await onToken(partialResponse)
                             }
                         )
                     } else {
@@ -143,7 +143,7 @@ final class HybridLLMService: ObservableObject {
                             maxTokens: maxTokens,
                             onToken: { partialResponse in
                                 if Task.isCancelled { return }
-                                Task { await onToken(partialResponse) }
+                                await onToken(partialResponse)
                             }
                         )
                     }

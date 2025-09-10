@@ -343,7 +343,7 @@ extension ChatViewModel {
     /// Clears all conversation data when cleanup is requested
     func clearAllConversationData() {
         DispatchQueue.main.async {
-            self.transcript = ""
+            // self.transcript = "" // REMOVED: Don't clear transcript in clearAllConversationData
             self.messageHistory = []
             self.lastSentMessage = nil
             // Conversation count will be reset by ChatViewModel's clearAllConversationData method

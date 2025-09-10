@@ -123,6 +123,10 @@ final class LLMService: @unchecked Sendable {
             llamaContext = nil
         }
         
+        // CRITICAL FIX: Reset model state flags when context is freed
+        isModelLoaded = false
+        currentModelFilename = nil
+        
         debugPrint("LLMService: PHASE 4 - Cancellation flag set and operation flags reset", category: .model)
     }
     
@@ -759,7 +763,17 @@ final class LLMService: @unchecked Sendable {
                                 }
                                 
                                 if !pieceString.isEmpty {
-                                    Task { await onToken(pieceString) }
+                                    // CRITICAL FIX: Use DispatchQueue.main.async for reliable callback execution
+                                    NSLog("LLMService: Callback received token: '\(pieceString)'")
+                                    NSLog("LLMService: About to call DispatchQueue.main.async")
+                                    DispatchQueue.main.async {
+                                        NSLog("LLMService: Inside DispatchQueue.main.async")
+                                        Task {
+                                            NSLog("LLMService: About to call onToken with: '\(pieceString)'")
+                                            await onToken(pieceString)
+                                            NSLog("LLMService: onToken call completed")
+                                        }
+                                    }
                                 }
                             } else {
                                 if !hasCompleted {

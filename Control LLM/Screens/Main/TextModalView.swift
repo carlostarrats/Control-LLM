@@ -268,11 +268,21 @@ struct TextModalView: View {
     
     // MARK: - Force Reset Function
     private func forceResetProcessingState() {
-        viewModel.llm.isProcessing = false
-        viewModel.llm.transcript = ""
+        // CRITICAL FIX: Stop all polling and reset all processing states
+        isPolling = false
+        pollCount = 0
         isLocalProcessing = false
         effectiveIsProcessing = false
         showGeneratingText = false
+        
+        // CRITICAL FIX: Reset ChatViewModel state
+        viewModel.llm.isProcessing = false
+        // viewModel.llm.transcript = "" // REMOVED: Don't clear transcript
+        
+        // CRITICAL FIX: Clear any empty thinking messages
+        viewModel.messages.removeAll { message in
+            !message.isUser && message.content.isEmpty
+        }
     }
     
     // MARK: - Helper Functions
@@ -308,6 +318,7 @@ struct TextModalView: View {
 
     // MARK: body -------------------------------------------------------------
     var body: some View {
+        let _ = NSLog("TextModalView: BODY RE-RENDERING - effectiveIsProcessing: \(effectiveIsProcessing), isProcessing: \(viewModel.llm.isProcessing), transcript length: \(viewModel.llm.transcript.count)")
         GeometryReader { geometry in
             ZStack(alignment: .bottom) {
                 // Background gradient when expanded, transparent when collapsed
@@ -426,12 +437,25 @@ struct TextModalView: View {
             // Setup keyboard observers
             setupKeyboardObservers()
             
+            // CRITICAL FIX: Ensure polling is stopped on view appear
+            isPolling = false
+            pollCount = 0
             
             // CRITICAL FIX: Removed clipboard message observer setup - consolidated into single message flow
         }
-        .onChange(of: viewModel.llm.isProcessing) { _, isProcessing in
+        .onChange(of: viewModel.llm.isProcessing) { oldValue, isProcessing in
+            NSLog("TextModalView: onChange(viewModel.llm.isProcessing) triggered - old: \(oldValue), new: \(isProcessing)")
             // CRITICAL FIX: Update effective processing state when llm.isProcessing changes
             updateEffectiveProcessingState()
+            
+            // CRITICAL FIX: When processing finishes, ensure placeholder message gets updated with transcript
+            if oldValue == true && isProcessing == false {
+                NSLog("TextModalView: Processing finished - updating placeholder message with transcript")
+                if let lastAssistantIndex = viewModel.messages.lastIndex(where: { !$0.isUser && $0.content.isEmpty }) {
+                    viewModel.messages[lastAssistantIndex].content = viewModel.llm.transcript
+                    NSLog("TextModalView: Updated empty placeholder message with transcript: '\(viewModel.llm.transcript)'")
+                }
+            }
             
             // CRITICAL FIX: Cancel any pending timer
             showGeneratingTextTimer?.invalidate()
@@ -447,7 +471,8 @@ struct TextModalView: View {
                 showGeneratingText = false
             }
         }
-        .onChange(of: isLocalProcessing) { _, _ in
+        .onChange(of: isLocalProcessing) { _, newValue in
+            NSLog("TextModalView: onChange(isLocalProcessing) triggered - new value: \(newValue)")
             // CRITICAL FIX: Update effective processing state when isLocalProcessing changes
             updateEffectiveProcessingState()
         }
@@ -464,6 +489,12 @@ struct TextModalView: View {
             timeUpdateTimer = nil
             showGeneratingTextTimer?.invalidate()
             showGeneratingTextTimer = nil
+            
+            // CRITICAL FIX: Stop all polling and reset processing state on disappear
+            isPolling = false
+            pollCount = 0
+            isLocalProcessing = false
+            showGeneratingText = false
             
             // Dismiss keyboard when view disappears
             isTextFieldFocused = false
@@ -492,6 +523,11 @@ struct TextModalView: View {
             stableTranscriptCount = 0
             hasProvidedCompletionHaptic = false
             
+            // CRITICAL FIX: Force reset all processing states on model change
+            isLocalProcessing = false
+            showGeneratingText = false
+            effectiveIsProcessing = false
+            
             // CRITICAL FIX: Also reset local UI state to match ChatViewModel
             // This ensures the UI is properly synchronized after model changes
             if !viewModel.llm.isProcessing {
@@ -503,11 +539,10 @@ struct TextModalView: View {
             isClipboardMessage = false
             hasAddedFollowUpQuestions = false
             
-            // CRITICAL FIX: Don't clear empty thinking messages during model change
-            // This can interfere with UI state and cause the thinking animation to not show
-            // viewModel.messages.removeAll { message in
-            //     !message.isUser && message.content.isEmpty
-            // }
+            // CRITICAL FIX: Clear empty thinking messages during model change to prevent stuck animations
+            viewModel.messages.removeAll { message in
+                !message.isUser && message.content.isEmpty
+            }
             
             // IMPORTANT: Also reset the ChatViewModel's duplicate detection
             viewModel.llm.lastSentMessage = nil
@@ -556,6 +591,13 @@ struct TextModalView: View {
                     await sendMessage()
                 }
             }
+        }
+        .onAppear {
+            NSLog("TextModalView: VIEW LIFECYCLE - onAppear called")
+            NSLog("TextModalView: VIEW LIFECYCLE - effectiveIsProcessing on appear: \(effectiveIsProcessing)")
+        }
+        .onDisappear {
+            NSLog("TextModalView: VIEW LIFECYCLE - onDisappear called")
         }
 
 
@@ -715,6 +757,7 @@ struct TextModalView: View {
                 }
             }
             .onChange(of: viewModel.llm.transcript) { oldTranscript, newTranscript in
+                NSLog("TextModalView: onChange triggered - old: '\(oldTranscript)' new: '\(newTranscript)'")
                 // CRITICAL FIX: Actually update the message content when transcript changes
                 if !newTranscript.isEmpty && newTranscript != oldTranscript {
                     if let lastAssistantIndex = viewModel.messages.lastIndex(where: { !$0.isUser }) {
@@ -914,6 +957,8 @@ struct TextModalView: View {
     
     // generating response overlay - always visible when processing
     @ViewBuilder private var generatingOverlay: some View {
+        let _ = NSLog("TextModalView: GENERATING OVERLAY - effectiveIsProcessing: \(effectiveIsProcessing), showing: \(effectiveIsProcessing)")
+        let _ = NSLog("TextModalView: GENERATING OVERLAY - isLocalProcessing: \(isLocalProcessing), showGeneratingText: \(showGeneratingText)")
         if effectiveIsProcessing {
             HStack {
                 Text(NSLocalizedString("Generating response...", comment: ""))
@@ -965,7 +1010,7 @@ struct TextModalView: View {
                         isSendButtonPressed = false
                     }
 
-                    if showGeneratingText {
+                    if viewModel.llm.isProcessing {
                         // Stop button pressed - cancel ongoing generation
                         
                         // Cancel both LLM generation and PDF processing
@@ -1174,6 +1219,10 @@ struct TextModalView: View {
     
     // CRITICAL FIX: Ensure isLocalProcessing is synchronized with llm.isProcessing on view creation
     private func syncProcessingState() {
+        NSLog("TextModalView: syncProcessingState called")
+        NSLog("TextModalView: viewModel.llm.isProcessing = \(viewModel.llm.isProcessing)")
+        NSLog("TextModalView: isLocalProcessing = \(isLocalProcessing)")
+        NSLog("TextModalView: showGeneratingText = \(showGeneratingText)")
         if viewModel.llm.isProcessing {
             isLocalProcessing = true
         } else {
@@ -1181,6 +1230,8 @@ struct TextModalView: View {
             // CRITICAL FIX: Also reset showGeneratingText when not processing
             showGeneratingText = false
         }
+        NSLog("TextModalView: After sync - isLocalProcessing = \(isLocalProcessing)")
+        NSLog("TextModalView: After sync - showGeneratingText = \(showGeneratingText)")
     }
     
     // CRITICAL FIX: State variable to track effective processing state (already declared above)
@@ -1190,13 +1241,24 @@ struct TextModalView: View {
     
     // CRITICAL FIX: Function to update effective processing state
     private func updateEffectiveProcessingState() {
+        NSLog("TextModalView: updateEffectiveProcessingState called")
+        NSLog("TextModalView: viewModel.llm.isProcessing = \(viewModel.llm.isProcessing)")
+        NSLog("TextModalView: isLocalProcessing = \(isLocalProcessing)")
+        NSLog("TextModalView: current effectiveIsProcessing = \(effectiveIsProcessing)")
+        
         let newValue = viewModel.llm.isProcessing || isLocalProcessing
+        NSLog("TextModalView: calculated newValue = \(newValue)")
+        
         if newValue != effectiveIsProcessing {
+            NSLog("TextModalView: effectiveIsProcessing changing from \(effectiveIsProcessing) to \(newValue)")
             effectiveIsProcessing = newValue
+        } else {
+            NSLog("TextModalView: effectiveIsProcessing unchanged (\(effectiveIsProcessing))")
         }
         
         // CRITICAL FIX: Reset showGeneratingText when not processing
         if !effectiveIsProcessing {
+            NSLog("TextModalView: Resetting showGeneratingText to false")
             showGeneratingText = false
         }
     }
@@ -1225,7 +1287,29 @@ struct TextModalView: View {
     private let maxPollCount = 300 // 30 seconds max (300 * 0.1s)
 
     private func monitorAssistantStream() {
-        guard isPolling else { return }
+        guard isPolling else { 
+            NSLog("TextModalView: monitorAssistantStream - not polling, returning")
+            return 
+        }
+        
+        NSLog("TextModalView: monitorAssistantStream - poll count: \(pollCount)")
+        NSLog("TextModalView: monitorAssistantStream - viewModel.llm.isProcessing: \(viewModel.llm.isProcessing)")
+        NSLog("TextModalView: monitorAssistantStream - transcript length: \(viewModel.llm.transcript.count)")
+        NSLog("TextModalView: monitorAssistantStream - transcript content: '\(viewModel.llm.transcript)'")
+        
+        // CRITICAL FIX: Check the actual message content instead of transcript
+        let lastAssistantMessage = viewModel.messages.last { !$0.isUser }
+        let actualContent = lastAssistantMessage?.content ?? ""
+        NSLog("TextModalView: monitorAssistantStream - actual message content: '\(actualContent)'")
+        
+        // CRITICAL FIX: Check if LLM is actually processing - if not, stop polling immediately
+        if !viewModel.llm.isProcessing {
+            NSLog("TextModalView: monitorAssistantStream - LLM not processing, stopping polling")
+            isPolling = false
+            isLocalProcessing = false
+            showGeneratingText = false
+            return
+        }
         
         // Check if file processing failed - stop polling immediately
         if let fileError = viewModel.fileProcessingError {
@@ -1249,8 +1333,9 @@ struct TextModalView: View {
             return
         }
         
-        let currentTranscriptLength = viewModel.llm.transcript.count
-        let currentTranscript = viewModel.llm.transcript
+        // CRITICAL FIX: Use actual message content instead of transcript
+        let currentTranscriptLength = actualContent.count
+        let currentTranscript = actualContent
         
         SecureLogger.log("TextModalView: Polling transcript", sensitiveData: "length: \(currentTranscriptLength), content: \(currentTranscript)")
         
@@ -1299,11 +1384,27 @@ struct TextModalView: View {
                 // CRITICAL FIX: Reset showGeneratingText when response is complete
                 showGeneratingText = false
                 
-                // CRITICAL FIX: Clear transcript to ensure placeholder text shows correctly
-                // This ensures the UI returns to "Ask Anything..." state
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self.viewModel.llm.transcript = ""
-                }
+                // CRITICAL FIX: DO NOT clear transcript - keep the generated content visible
+                // The transcript should retain the generated response for the user to see
+                return
+            }
+            
+            // CRITICAL FIX: Check for new content before continuing polling
+            NSLog("TextModalView: monitorAssistantStream - Checking content change")
+            NSLog("TextModalView: monitorAssistantStream - actualContent: '\(actualContent)'")
+            NSLog("TextModalView: monitorAssistantStream - lastRenderedTranscript: '\(lastRenderedTranscript)'")
+            NSLog("TextModalView: monitorAssistantStream - actualContent.isEmpty: \(actualContent.isEmpty)")
+            NSLog("TextModalView: monitorAssistantStream - actualContent != lastRenderedTranscript: \(actualContent != lastRenderedTranscript)")
+            
+            if !actualContent.isEmpty && actualContent != lastRenderedTranscript {
+                NSLog("TextModalView: monitorAssistantStream - New content detected, stopping polling")
+                NSLog("TextModalView: monitorAssistantStream - Content: '\(actualContent)'")
+                lastRenderedTranscript = actualContent
+                lastTranscriptLength = actualContent.count
+                pollCount = 0 // Reset counter when transcript changes
+                isPolling = false
+                isLocalProcessing = false
+                showGeneratingText = false
                 return
             }
             
@@ -1317,12 +1418,12 @@ struct TextModalView: View {
         
         // Check if transcript is empty but we have a previous response
         if currentTranscript.isEmpty && !lastRenderedTranscript.isEmpty {
+            NSLog("TextModalView: monitorAssistantStream - Early return: currentTranscript empty but lastRenderedTranscript not empty")
             self.scheduleNextPoll()
             return
         }
         
-        
-        // Only update if we have actual content
+        // Legacy logic - should not be needed anymore
         if !currentTranscript.isEmpty {
             lastRenderedTranscript = currentTranscript
             lastTranscriptLength = currentTranscriptLength
@@ -1495,7 +1596,10 @@ struct MessageBubble: View {
                         // Assistant messages: ZStack for stable transition
                         ZStack(alignment: .topLeading) {
                             // Animation is only rendered when content is empty to prevent layout issues
+                            let _ = NSLog("TextModalView: MESSAGE BUBBLE - message.content.isEmpty: \(message.content.isEmpty), content: '\(message.content)'")
+                            // PHASE 5 FIX: Only show ThinkingAnimationView when processing AND content is empty
                             if message.content.isEmpty {
+                                let _ = NSLog("TextModalView: SHOWING ThinkingAnimationView for empty message")
                                 ThinkingAnimationView()
                                     .offset(x: -31, y: -35) // Restore original positioning
                             }

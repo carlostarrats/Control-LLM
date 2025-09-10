@@ -78,6 +78,10 @@ class ChatViewModel {
         debugPrint("ChatViewModel: init", category: .general)
         initializeSession()
         
+        // CRITICAL FIX: Ensure processing state is clean on startup
+        isProcessing = false
+        // transcript = "" // REMOVED: Don't clear transcript on startup
+        
         // Load saved timing data from secure storage
         let savedAverage = SecureStorage.retrieveDouble(forKey: "AverageResponseTime") ?? 0.0
         let savedTotalTime = SecureStorage.retrieveDouble(forKey: "TotalResponseTime") ?? 0.0
@@ -145,7 +149,7 @@ class ChatViewModel {
             
             // OPTIMIZATION: Clear UI state immediately for better responsiveness
             await MainActor.run {
-                self.transcript = ""
+                // self.transcript = "" // REMOVED: Don't clear transcript during model switch
                 self.modelLoaded = false
                 self.lastLoadedModel = nil
                 self.isProcessing = false  // CRITICAL FIX: Reset processing state
@@ -201,6 +205,7 @@ class ChatViewModel {
     }
     
     func send(_ userText: String, addUserMessageToHistory: Bool = true) async throws {
+        NSLog("ChatViewModel: send() called with: '\(userText)'")
         // Check session expiry before processing message
         checkSessionExpiry()
         
@@ -210,11 +215,22 @@ class ChatViewModel {
             return
         }
         
+        NSLog("ChatViewModel: Setting isProcessing = true")
         // Ensure isProcessing is handled correctly, even if errors occur
-        await MainActor.run { self.isProcessing = true }
+        await MainActor.run { 
+            self.isProcessing = true
+        }
         // CRITICAL FIX: Removed defer block - let MainViewModel handle state reset after async completion
         
         lastSentMessage = userText
+
+        // CRITICAL FIX: Always clear transcript for each new user message
+        // Each user question should start with a fresh transcript
+        NSLog("ChatViewModel: Message history count: \(messageHistory?.count ?? 0)")
+        if let lastMessage = messageHistory?.last {
+            NSLog("ChatViewModel: Last message isUser: \(lastMessage.isUser)")
+        }
+        NSLog("ChatViewModel: Clearing transcript for new user message")
         await MainActor.run { self.transcript = "" }
 
         if addUserMessageToHistory {
@@ -240,15 +256,28 @@ class ChatViewModel {
 
                 // SIMPLIFIED: LLMService now handles concurrent loading automatically
                 // Multiple requests for the same model will queue and share the result
+                NSLog("ChatViewModel: About to load selected model")
                 try await HybridLLMService.shared.loadSelectedModel()
+                NSLog("ChatViewModel: Model loaded successfully")
                 
+                NSLog("ChatViewModel: About to call generateResponse")
                 try await HybridLLMService.shared.generateResponse(
                     userText: userText,
                     history: historyToSend,
                     onToken: { [weak self] partialResponse in
-                        Task { @MainActor in
-                            if Task.isCancelled { return }
+                        NSLog("ChatViewModel: onToken called with: '\(partialResponse)'")
+                        NSLog("ChatViewModel: About to call MainActor.run")
+                        await MainActor.run {
+                            NSLog("ChatViewModel: Inside MainActor.run")
+                            if Task.isCancelled { 
+                                NSLog("ChatViewModel: Task is cancelled, returning")
+                                return 
+                            }
+                            NSLog("ChatViewModel: Updating transcript with: '\(partialResponse)'")
+                            NSLog("ChatViewModel: Current transcript length: \(self?.transcript.count ?? 0)")
                             self?.transcript += partialResponse
+                            NSLog("ChatViewModel: New transcript length: \(self?.transcript.count ?? 0)")
+                            NSLog("ChatViewModel: Transcript update completed")
                         }
                     }
                 )
@@ -268,10 +297,8 @@ class ChatViewModel {
                         }
                     }
                     
-                    // Clear transcript to stop thinking animation
-                    await MainActor.run {
-                        self.transcript = ""
-                    }
+                    // CRITICAL FIX: DO NOT clear transcript after successful generation
+                    // Keep the generated content visible for the user
                 }
                 
             } catch is CancellationError {
@@ -280,17 +307,17 @@ class ChatViewModel {
                     let partialMessage = ChatMessage(content: transcript, isUser: false, timestamp: Date())
                     self.messageHistory?.append(partialMessage)
                 }
-                // Clear transcript to stop thinking animation
-                await MainActor.run {
-                    self.transcript = ""
-                }
+                // CRITICAL FIX: DO NOT clear transcript on cancellation - keep partial content
+                // await MainActor.run {
+                //     self.transcript = ""
+                // }
             } catch {
                 let errorMessage = ChatMessage(content: String(format: NSLocalizedString("Error: %@", comment: ""), error.localizedDescription), isUser: false, timestamp: Date(), messageType: .error)
                 self.messageHistory?.append(errorMessage)
-                // Clear transcript to stop thinking animation
-                await MainActor.run {
-                    self.transcript = ""
-                }
+                // CRITICAL FIX: DO NOT clear transcript on error - keep partial content
+                // await MainActor.run {
+                //     self.transcript = ""
+                // }
             }
             
             await MainActor.run {
@@ -298,12 +325,25 @@ class ChatViewModel {
                 self.lastSentMessage = nil // Allow sending the same message again
                 // CRITICAL FIX: Reset processing state after Task completes
                 self.isProcessing = false
-                self.transcript = ""
+                // CRITICAL FIX: DO NOT clear transcript - keep generated content visible
             }
         }
         
-        // Wait for the task to complete
-        await currentGenerationTask?.value
+        // Wait for the task to complete, handling cancellation properly
+        do {
+            try await currentGenerationTask?.value
+        } catch {
+            // Task was cancelled or failed - isProcessing already reset in stopGeneration()
+            if error is CancellationError {
+                debugPrint("ChatViewModel: Generation task was cancelled", category: .general)
+            } else {
+                debugPrint("ChatViewModel: Generation task failed: \(error)", category: .general)
+                // Reset processing state on error
+                await MainActor.run {
+                    self.isProcessing = false
+                }
+            }
+        }
     }
     
     // MARK: - History Safeguard
@@ -342,7 +382,7 @@ class ChatViewModel {
     
     func clearConversation() {
         DispatchQueue.main.async {
-            self.transcript = ""
+            // self.transcript = "" // REMOVED: Don't clear transcript in clearConversation
             self.messageHistory = []
             self.lastSentMessage = nil
             // Keep response timing stats - don't reset them

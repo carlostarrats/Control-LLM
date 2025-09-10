@@ -1,19 +1,508 @@
 Info.plist configuration "(no name)" for UIWindowSceneSessionRoleApplication contained UISceneDelegateClassName key, but could not load class with name "Control_LLM.SceneDelegate".
 Info.plist configuration "(no name)" for UIWindowSceneSessionRoleApplication contained UISceneDelegateClassName key, but could not load class with name "Control_LLM.SceneDelegate".
-Info.plist configuration "(no name)" for UIWindowSceneSessionRoleApplication contained UISceneDelegateClassName key, but could not load class with name "Control_LLM.SceneDelegate".
-SecureStorage: Adaptive cache size set to 37 items
-Retrieved and decrypted data for key: AppSessionStartTime
-Continuing existing session started at 2025-09-09 15:09:03 +0000
-Retrieved and decrypted data for key: AverageResponseTime
-Retrieved and decrypted data for key: TotalResponseTime
-Retrieved and decrypted data for key: ResponseCount
-Loaded saved timing data - avg: 1.0185060501098633s, total: 1.0185060501098633s, count: 1
-Retrieved and decrypted data for key: ModelPerformanceData
-Loaded model performance data - 1 models
-Model performance - gemma-3-1b-it-Q4_K_M: avg=1.02s, fast=true
-App became active - sensitive content shown
 MetalMemoryManager: Metal setup completed with memory pooling
 Shortcuts Integration Helper initialized
+[22:50:50.105] [SECURITY] DebugFlagManager.swift:319 debugPrint(_:category:) - BackgroundSecurityManager: App became active - showing sensitive content
+App became active - sensitive content shown
+LlamaCppBridge: Starting Metal shader compilation...
+LlamaCppBridge: Initializing backend for Metal shader compilation
+LlamaCppBridge: Metal compilation status set to IN PROGRESS
+LlamaCppBridge: About to call ggml_backend_metal_init()...
+ggml_metal_init: allocating
+ggml_metal_init: picking default device: Apple A14 GPU
+ggml_metal_load_library: using embedded metal library
+fopen failed for data file: errno = 2 (No such file or directory)
+Errors found! Invalidating cache...
+Warning: Compilation succeeded with: 
+
+program_source:495:28: warning: unused variable 'ksigns64' [-Wunused-const-variable]
+GGML_TABLE_BEGIN(uint64_t, ksigns64, 128)
+                           ^
+program_source:1091:26: warning: unused variable 'kvalues_iq4nl' [-Wunused-const-variable]
+GGML_TABLE_BEGIN(int8_t, kvalues_iq4nl, 16)
+                         ^
+program_source:1097:26: warning: unused variable 'kvalues_mxfp4' [-Wunused-const-variable]
+GGML_TABLE_BEGIN(int8_t, kvalues_mxfp4, 16)
+                         ^
+ggml_metal_init: GPU name:   Apple A14 GPU
+ggml_metal_init: GPU family: MTLGPUFamilyApple7  (1007)
+ggml_metal_init: GPU family: MTLGPUFamilyCommon3 (3003)
+ggml_metal_init: GPU family: MTLGPUFamilyMetal3  (5001)
+ggml_metal_init: simdgroup reduction   = true
+ggml_metal_init: simdgroup matrix mul. = true
+ggml_metal_init: has residency sets    = true
+ggml_metal_init: has bfloat            = true
+ggml_metal_init: use bfloat            = true
+ggml_metal_init: hasUnifiedMemory      = true
+ggml_metal_init: recommendedMaxWorkingSetSize  =  4294.98 MB
+fopen failed for data file: errno = 2 (No such file or directory)
+Errors found! Invalidating cache...
+ggml_metal_init: loaded kernel_add                                    0x15af01b60 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_fuse_2                             0x15af02580 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_fuse_3                             0x15af02fa0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_fuse_4                             0x15af039c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_fuse_5                             0x15af03ea0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_fuse_6                             0x15afbc5a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_fuse_7                             0x15afbcf60 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_fuse_8                             0x15afbd980 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_row_c4                             0x15afbe3a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_row_c4_fuse_2                      0x15afbedc0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_row_c4_fuse_3                      0x15afbf7e0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_row_c4_fuse_4                      0x15afe42a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_row_c4_fuse_5                      0x15afe4c60 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_row_c4_fuse_6                      0x15afe5680 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_row_c4_fuse_7                      0x15afe60a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_row_c4_fuse_8                      0x15afe6ac0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_sub                                    0x15afe74e0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_sub_row_c4                             0x15afe7f00 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul                                    0x15c01c000 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_row_c4                             0x15c01d380 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_div                                    0x15c01dda0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_div_row_c4                             0x15c01e7c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_add_id                                 0x15c01ea60 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_repeat_f32                             0x15c01f0c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_repeat_f16                             0x15c01f720 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_repeat_i32                             0x15c01fd80 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_repeat_i16                             0x15c064480 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_scale                                  0x15c0644e0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_scale_4                                0x15c064540 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_clamp                                  0x15c0645a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_tanh                                   0x15c064600 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_relu                                   0x15c064660 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_sigmoid                                0x15c0646c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_gelu                                   0x15c064720 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_gelu_4                                 0x15c0648a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_gelu_erf                               0x15c064900 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_gelu_erf_4                             0x15c064960 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_gelu_quick                             0x15c0649c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_gelu_quick_4                           0x15c064a20 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_silu                                   0x15c064a80 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_silu_4                                 0x15c064ae0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_elu                                    0x15c064b40 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_abs                                    0x15c064ba0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_sgn                                    0x15c064c00 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_step                                   0x15c064c60 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_hardswish                              0x15c064cc0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_hardsigmoid                            0x15c064d20 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_exp                                    0x15c064d80 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_soft_max_f16                           0x15c065500 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_soft_max_f16_4                         0x15c065ce0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_soft_max_f32                           0x15c0664c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_soft_max_f32_4                         0x15c066ca0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_diag_mask_inf                          0x15c066e20 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_diag_mask_inf_8                        0x15c066fa0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_f32                           0x15c067300 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_f16                           0x15c067660 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_bf16                          0x15c0679c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_q4_0                          0x15c067d20 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_q4_1                          0x15af010e0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_q5_0                          0x15c1442a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_q5_1                          0x15c144600 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_q8_0                          0x15c144960 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_mxfp4                         0x15c144cc0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_q2_K                          0x15c145020 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_q3_K                          0x15c145380 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_q4_K                          0x15c1456e0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_q5_K                          0x15c145aa0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_q6_K                          0x15c145e60 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_iq2_xxs                       0x15c1461c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_iq2_xs                        0x15c146520 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_iq3_xxs                       0x15c146880 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_iq3_s                         0x15c146be0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_iq2_s                         0x15c146f40 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_iq1_s                         0x15c1472a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_iq1_m                         0x15c147600 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_iq4_nl                        0x15c147960 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_iq4_xs                        0x15c147cc0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_get_rows_i32                           0x15c1e0060 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_set_rows_f32                           0x15c1e0540 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_set_rows_f16                           0x15c1e0a80 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_set_rows_bf16                          0x15c1e0fc0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_set_rows_q8_0                          0x15c1e1500 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_set_rows_q4_0                          0x15c1e1a40 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_set_rows_q4_1                          0x15c1e1f80 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_set_rows_q5_0                          0x15c1e2580 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_set_rows_q5_1                          0x15c1e2ac0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_set_rows_iq4_nl                        0x15c1e3000 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_rms_norm                               0x15c1e34e0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_rms_norm_mul                           0x15c1e39c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_rms_norm_mul_add                       0x15c1e3ea0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_l2_norm                                0x15c2700c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_group_norm                             0x15c2703c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_norm                                   0x15c2705a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_ssm_conv_f32                           0x15c270c00 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_ssm_scan_f32                           0x15c2714a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_ssm_scan_f32_group                     0x15c271d40 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_rwkv_wkv6_f32                          0x15c271e00 | th_max =  384 | th_width =   32
+ggml_metal_init: loaded kernel_rwkv_wkv7_f32                          0x15c271e60 | th_max =  448 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_f32_f32                         0x15c272520 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_f32_f32_c4                      0x15c272d00 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_bf16_f32                        0x15c273420 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_bf16_f32_c4                     0x15c273b40 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_bf16_f32_1row                   0x15c2dc240 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_bf16_f32_l4                     0x15c2dc900 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_bf16_bf16                       0x15c2dd020 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_f16_f32                         0x15c2dd740 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_f16_f32_c4                      0x15c2dde60 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_f16_f32_1row                    0x15c2de580 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_f16_f32_l4                      0x15c2deca0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_f16_f16                         0x15c2df3c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_q4_0_f32                        0x15c2dfae0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_q4_1_f32                        0x15c3382a0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_q5_0_f32                        0x15c338960 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_q5_1_f32                        0x15c339080 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_q8_0_f32                        0x15c339860 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_mxfp4_f32                       0x15c339f80 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_2                0x15c33a7c0 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_3                0x15c33b000 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_4                0x15c33b840 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_5                0x15c3a80c0 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_2               0x15c3a88a0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_3               0x15c3a90e0 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_4               0x15c3a9920 | th_max =  640 | th_width =   32
+[22:51:00.766] [SECURITY] DebugFlagManager.swift:319 debugPrint(_:category:) - BackgroundSecurityManager: Device orientation changed - content remains visible
+ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_5               0x15c3aa220 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_2               0x15c3aaa60 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_3               0x15c3ab2a0 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_4               0x15c3abb40 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_5               0x15c3e8300 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_2               0x15c3e8ae0 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_3               0x15c3e93e0 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_4               0x15c3e9c20 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_5               0x15c3ea460 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_2               0x15c3ead00 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_3               0x15c3eb540 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_4               0x15c3ebd80 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_5               0x15c4205a0 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_2               0x15c420d80 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_3               0x15c4215c0 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_4               0x15c421f20 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_5               0x15c422760 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_2              0x15c422fa0 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_3              0x15c4237e0 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_4              0x15c423960 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_5              0x15c454000 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_2               0x15c454fc0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_3               0x15c4558c0 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_4               0x15c456100 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_5               0x15c456940 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_2               0x15c457240 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_3               0x15c457a80 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_4               0x15c480240 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_5               0x15c480ae0 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_2               0x15c481320 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_3               0x15c481b60 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_4               0x15c482400 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_5               0x15c482c40 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_2             0x15c4834e0 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_3             0x15c483d20 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_4             0x15c4b8480 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_5             0x15c4b8c60 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_q2_K_f32                        0x15c4b9440 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_q3_K_f32                        0x15c4b9b60 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_q4_K_f32                        0x15c4ba280 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_q5_K_f32                        0x15c4ba9a0 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_q6_K_f32                        0x15c4bb0c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_iq2_xxs_f32                     0x15c4bb7e0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_iq2_xs_f32                      0x15c4bbf00 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_iq3_xxs_f32                     0x15c524660 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_iq3_s_f32                       0x15c524d80 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_iq2_s_f32                       0x15c5254a0 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_iq1_s_f32                       0x15c525bc0 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_iq1_m_f32                       0x15c5262e0 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_iq4_nl_f32                      0x15c526a00 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_iq4_xs_f32                      0x15c527120 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_f32_f32                      0x15c5278a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_f16_f32                      0x15c580060 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_bf16_f32                     0x15c580780 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_q4_0_f32                     0x15c580f00 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_q4_1_f32                     0x15c581680 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_q5_0_f32                     0x15c5820a0 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_q5_1_f32                     0x15c582820 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_q8_0_f32                     0x15c582fa0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_mxfp4_f32                    0x15c583720 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_q2_K_f32                     0x15c583ea0 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_q3_K_f32                     0x15c624480 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_q4_K_f32                     0x15c624ba0 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_q5_K_f32                     0x15c625320 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_q6_K_f32                     0x15c625aa0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_iq2_xxs_f32                  0x15c626220 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_iq2_xs_f32                   0x15c6269a0 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_iq3_xxs_f32                  0x15c627120 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_iq3_s_f32                    0x15c6278a0 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_iq2_s_f32                    0x15c6740c0 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_iq1_s_f32                    0x15c6747e0 | th_max =  512 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_iq1_m_f32                    0x15c674f60 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_iq4_nl_f32                   0x15c6756e0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mv_id_iq4_xs_f32                   0x15c675e60 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_f32_f32                         0x15c676400 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_f16_f32                         0x15c6769a0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_bf16_f32                        0x15c677120 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_q4_0_f32                        0x15c6776c0 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_q4_1_f32                        0x15c677c60 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_q5_0_f32                        0x15c704120 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_q5_1_f32                        0x15c704660 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_q8_0_f32                        0x15c704c00 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_mxfp4_f32                       0x15c7051a0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_mxfp4_f32                       0x15c7052c0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_q2_K_f32                        0x15c705ce0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_q3_K_f32                        0x15c706280 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_q4_K_f32                        0x15c706820 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_q5_K_f32                        0x15c706dc0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_q6_K_f32                        0x15c707360 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_iq2_xxs_f32                     0x15c707900 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_iq2_xs_f32                      0x15c707ea0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_iq3_xxs_f32                     0x15c7a84e0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_iq3_s_f32                       0x15c7a8a20 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_iq2_s_f32                       0x15c7a8fc0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_iq1_s_f32                       0x15c7a9560 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_iq1_m_f32                       0x15c7a9b00 | th_max =  832 | th_width =   32
+[22:51:10.615] [GENERAL] DebugFlagManager.swift:319 debugPrint(_:category:) - ChatViewModel: init
+SecureStorage: Adaptive cache size set to 37 items
+Stored encrypted data for key: AppSessionStartTime
+Started new session at 2025-09-10 05:51:10 +0000
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 0
+ggml_metal_init: loaded kernel_mul_mm_iq4_nl_f32                      0x15c7aa0a0 | th_max =  832 | th_width =   32
+[22:51:10.738] [UI] DebugFlagManager.swift:319 debugPrint(_:category:) - MainView appeared!
+TextModalView: syncProcessingState called
+TextModalView: viewModel.llm.isProcessing = false
+TextModalView: isLocalProcessing = false
+TextModalView: showGeneratingText = false
+TextModalView: After sync - isLocalProcessing = false
+TextModalView: After sync - showGeneratingText = false
+TextModalView: updateEffectiveProcessingState called
+TextModalView: viewModel.llm.isProcessing = false
+TextModalView: isLocalProcessing = false
+TextModalView: current effectiveIsProcessing = false
+TextModalView: calculated newValue = false
+TextModalView: effectiveIsProcessing unchanged (false)
+TextModalView: Resetting showGeneratingText to false
+TextModalView: VIEW LIFECYCLE - onAppear called
+TextModalView: VIEW LIFECYCLE - effectiveIsProcessing on appear: false
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 0
+ggml_metal_init: loaded kernel_mul_mm_iq4_xs_f32                      0x15c7ab060 | th_max =  832 | th_width =   32
+App is being debugged, do not track this hang
+Hang detected: 0.36s (debugger attached, not reporting)
+ggml_metal_init: loaded kernel_mul_mm_id_map0_f16                     0x15c7ab2a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_map1_f32                     0x15c7ab5a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_f32_f16                      0x15c7aba80 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_f16_f16                      0x15ce64060 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_bf16_f16                     0x15ce64600 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_q4_0_f16                     0x15ce64b40 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_q4_1_f16                     0x15ce65140 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_q5_0_f16                     0x15ce65680 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_q5_1_f16                     0x15ce65ce0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_q8_0_f16                     0x15ce66280 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_mxfp4_f16                    0x15ce66820 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_q2_K_f16                     0x15ce66dc0 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_q3_K_f16                     0x15ce67300 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_q4_K_f16                     0x15ce67900 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_q5_K_f16                     0x15ce67ea0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_q6_K_f16                     0x15cf24540 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_iq2_xxs_f16                  0x15cf24ae0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_iq2_xs_f16                   0x15cf25080 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_iq3_xxs_f16                  0x15cf255c0 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_iq3_s_f16                    0x15cf25bc0 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_iq2_s_f16                    0x15cf26100 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_iq1_s_f16                    0x15cf26700 | th_max =  896 | th_width =   32
+MetalMemoryManager: Clearing Metal memory for security
+MetalMemoryManager: Metal memory cleared successfully
+FlowingRingShaderView: Metal resources cleaned up
+ggml_metal_init: loaded kernel_mul_mm_id_iq1_m_f16                    0x15cf26ca0 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_iq4_nl_f16                   0x15cf27900 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_mul_mm_id_iq4_xs_f16                   0x15cf27ea0 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_rope_norm_f32                          0x15d800720 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_rope_norm_f16                          0x15d801200 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_rope_multi_f32                         0x15d801d40 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_rope_multi_f16                         0x15d802880 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_rope_vision_f32                        0x15d8033c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_rope_vision_f16                        0x15d803f00 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_rope_neox_f32                          0x15d83c000 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_rope_neox_f16                          0x15d83d5c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_im2col_f16                             0x15d83dbc0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_im2col_f32                             0x15d83e1c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_im2col_ext_f16                         0x15d83e7c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_im2col_ext_f32                         0x15d83edc0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_conv_transpose_1d_f32_f32              0x15d83f060 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_conv_transpose_1d_f16_f32              0x15d83f300 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_upscale_f32                            0x15d83fae0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_pad_f32                                0x15d89c1e0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_pad_reflect_1d_f32                     0x15d89c8a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_timestep_embedding_f32                 0x15d89ca20 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_arange_f32                             0x15d89cba0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_argsort_f32_i32_asc                    0x15d89cc60 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_argsort_f32_i32_desc                   0x15d89cd80 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_leaky_relu_f32                         0x15d89cf00 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_f16_h64                 0x15d89d980 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_f16_h80                 0x15d89e460 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_f16_h96                 0x15d89ef40 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_f16_h112                0x15d89fa20 | th_max =  512 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_f16_h128                0x15d8e05a0 | th_max =  512 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_f16_h192                0x15d8e1020 | th_max =  384 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_f16_hk192_hv128         0x15d8e1b00 | th_max =  512 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_f16_h256                0x15d8e25e0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_f16_hk576_hv512         0x15d8e30c0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h64                0x15d8e3ba0 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h80                0x15d914720 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h96                0x15d9151a0 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h112               0x15d915c80 | th_max =  512 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h128               0x15d916760 | th_max =  512 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h192               0x15d917240 | th_max =  384 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_bf16_hk192_hv128        0x15d917d20 | th_max =  512 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h256               0x15d9408a0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_bf16_hk576_hv512        0x15d941320 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h64                0x15d941e00 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h80                0x15d9428e0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h96                0x15d9433c0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h112               0x15d943ea0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h128               0x15d96ca20 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h192               0x15d96d4a0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_hk192_hv128        0x15d96e100 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h256               0x15d96eb80 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_hk576_hv512        0x15d96f660 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h64                0x15d96fa20 | th_max =  576 | th_width =   32
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 0
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h80                0x15da28ea0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h96                0x15da29920 | th_max =  832 | th_width =   32
+MetalMemoryManager: Clearing Metal memory for security
+MetalMemoryManager: Metal memory cleared successfully
+FlowingRingShaderView: Metal resources cleaned up
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h112               0x15da2a400 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h128               0x15da2aee0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h192               0x15db94b40 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_hk192_hv128        0x15db955c0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h256               0x15db960a0 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_hk576_hv512        0x15db96b80 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h64                0x15e858360 | th_max =  512 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h80                0x15e859080 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h96                0x15e85a3a0 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h112               0x15e85ae80 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h128               0x15e85b960 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h192               0x15e950480 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_hk192_hv128        0x15e950f00 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h256               0x15e9519e0 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_hk576_hv512        0x15e9524c0 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h64                0x15e952fa0 | th_max =  512 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h80                0x15e953a80 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h96                0x15ea38600 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h112               0x15ea391a0 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h128               0x15ea39b60 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h192               0x15ea3a640 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_hk192_hv128        0x15ea3b120 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h256               0x15ea3bc00 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_hk576_hv512        0x15ebb8060 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h64                0x15ebb9500 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h80                0x15ebb9fe0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h96                0x15ebbab80 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h112               0x15ebbb5a0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h128               0x15ebbb7e0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h192               0x16544c900 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_hk192_hv128        0x16544d380 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h256               0x16544de60 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_hk576_hv512        0x16544e940 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h64             0x16544f420 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h64            0x15ebbb660 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h64            0x165494000 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h64            0x165495500 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h64            0x165495fe0 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h64            0x165496be0 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h64            0x1654975a0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h96             0x1654f4120 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h96            0x1654f4c00 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h96            0x1654f5680 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h96            0x1654f6160 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h96            0x1654f6d00 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h96            0x1654f7720 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h96            0x1655342a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h128            0x165534d80 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h128           0x165535800 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h128           0x1655362e0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h128           0x165536dc0 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h128           0x165537960 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h128           0x165580420 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h128           0x165580ea0 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h192            0x165581980 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h192           0x165582460 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h192           0x165582f40 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h192           0x165583a20 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h192           0x1655b8600 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h192           0x1655b9020 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h192           0x1655b9b00 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_hk192_hv128      0x1655ba5e0 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_hk192_hv128      0x1655bb0c0 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_hk192_hv128      0x1655bbba0 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_hk192_hv128      0x1655f47e0 | th_max =  832 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_hk192_hv128      0x1655f52c0 | th_max =  768 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_hk192_hv128      0x1655f5d40 | th_max =  704 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_hk192_hv128      0x1655f6820 | th_max =  896 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h256            0x1655f7300 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h256           0x1655f7f00 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h256           0x1656388a0 | th_max =  640 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h256           0x165639320 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h256           0x165639e00 | th_max =  512 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h256           0x16563a8e0 | th_max =  512 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h256           0x16563b3c0 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_hk576_hv512      0x1655bbf60 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_hk576_hv512      0x165680a20 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_hk576_hv512      0x1656814a0 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_hk576_hv512      0x165681f80 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_hk576_hv512      0x165682a60 | th_max =  512 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_hk576_hv512      0x165683540 | th_max =  512 | th_width =   32
+ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_hk576_hv512      0x1656bc0c0 | th_max =  576 | th_width =   32
+ggml_metal_init: loaded kernel_set_f32                                0x1656bc5a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_set_i32                                0x1656bca20 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_f32_f32                            0x1656bd0e0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_f32_f16                            0x1656bd6e0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_f32_bf16                           0x1656bde00 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_f16_f32                            0x1656be3a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_f16_f16                            0x1656bea00 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_bf16_f32                           0x1656bf060 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_bf16_bf16                          0x1656bf780 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_f32_q8_0                           0x1656bfd20 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_f32_q4_0                           0x165738420 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_f32_q4_1                           0x165738b40 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_f32_q5_0                           0x165739140 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_f32_q5_1                           0x1657396e0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_f32_iq4_nl                         0x165739d40 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_q4_0_f32                           0x16573a400 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_q4_0_f16                           0x16573aa00 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_q4_1_f32                           0x16573b060 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_q4_1_f16                           0x16573b6c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_q5_0_f32                           0x16573bd20 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_q5_0_f16                           0x1657e8420 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_q5_1_f32                           0x1657e8a20 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_q5_1_f16                           0x1657e9080 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_q8_0_f32                           0x1657e96e0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cpy_q8_0_f16                           0x1657e9d40 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_concat                                 0x1657ea700 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_sqr                                    0x1657ea880 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_sqrt                                   0x1657ea7c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_sin                                    0x1657ea8e0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_cos                                    0x1657ea820 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_neg                                    0x1657ea940 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_reglu                                  0x1657ead60 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_geglu                                  0x1657eb2a0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_swiglu                                 0x1657eb720 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_swiglu_oai                             0x1657ebae0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_geglu_erf                              0x1657ebf60 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_geglu_quick                            0x154cbc3c0 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_sum_rows                               0x154cbcd20 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_mean                                   0x154cbd680 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_argmax                                 0x154cbd740 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_pool_2d_avg_f32                        0x154cbdc20 | th_max = 1024 | th_width =   32
+ggml_metal_init: loaded kernel_pool_2d_max_f32                        0x154cbdfe0 | th_max = 1024 | th_width =   32
+LlamaCppBridge: ggml_backend_metal_init() returned, result: 0x154cc8080
+LlamaCppBridge: ✅ Metal shaders compiled successfully
+LlamaCppBridge: Metal backend stored for model loading
+LlamaCppBridge: Metal compilation status set to COMPLETE
+LlamaCppBridge: Metal compilation status set to NOT IN PROGRESS
+LlamaCppBridge: Metal shader compilation completed
+App is being debugged, do not track this hang
+Hang detected: 0.84s (debugger attached, not reporting)
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 0
+App is being debugged, do not track this hang
+Hang detected: 0.52s (debugger attached, not reporting)
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 0
 ModelValidationService: Starting comprehensive validation
 ModelValidationService: Validating structure for gemma-3-1b-it-Q4_K_M.gguf
 ModelValidationService: Model structure validation passed
@@ -25,15 +514,19 @@ ModelValidationService: Model structure validation passed
 ModelValidationService: Security checks passed
 ModelValidationService: Comprehensive validation passed
 LLMService: Pre-warmed memory for gemma-3-1b-it-Q4_K_M
-LlamaCppBridge: Loading model (real) from /var/mobile/Containers/Data/Application/F448A08E-4D04-426E-8C14-27EE68888959/Documents/Models/gemma-3-1b-it-Q4_K_M.gguf
-LlamaCppBridge: Checking Metal compilation status - Complete: 0, In Progress: 0
-LlamaCppBridge: Metal compilation not started, returning immediately
+[22:52:01.958] [SECURITY] DebugFlagManager.swift:319 debugPrint(_:category:) - ModelIntegrityChecker: Quick validating model at /var/mobile/Containers/Data/Application/4E0542AA-0814-40DD-B8A8-93AE7E371D6E/Documents/Models/gemma-3-1b-it-Q4_K_M.gguf
+[22:52:01.959] [SECURITY] DebugFlagManager.swift:319 debugPrint(_:category:) - ModelIntegrityChecker: File size validation passed (806058272 bytes)
+[22:52:01.959] [SECURITY] DebugFlagManager.swift:319 debugPrint(_:category:) - ModelIntegrityChecker: Quick validation passed
+LlamaCppBridge: Loading model (real) from /var/mobile/Containers/Data/Application/4E0542AA-0814-40DD-B8A8-93AE7E371D6E/Documents/Models/gemma-3-1b-it-Q4_K_M.gguf
+LlamaCppBridge: Checking Metal compilation status - Complete: 1, In Progress: 0
+LlamaCppBridge: Metal compilation already complete, returning immediately
 LlamaCppBridge: Initializing llama backend
 LlamaCppBridge: Backend initialized successfully
-LlamaCppBridge: Using CPU/Accelerate backend for model loading
-LlamaCppBridge: Attempting to load model with params: mmap=1, mlock=0, gpu_layers=0
-llama[2]: llama_model_load_from_file_impl: using device Metal (Apple A14 GPU) - 4095 MiB free
-llama[2]: llama_model_loader: loaded meta data with 38 key-value pairs and 340 tensors from /var/mobile/Containers/Data/Application/F448A08E-4D04-426E-8C14-27EE68888959/Documents/Models/gemma-3-1b-it-Q4_K_M.gguf (version GGUF V3 (latest))
+LlamaCppBridge: Using pre-compiled Metal backend for model loading
+LlamaCppBridge: Using pre-compiled Metal backend (shaders already compiled)
+LlamaCppBridge: Attempting to load model with params: mmap=1, mlock=0, gpu_layers=-1
+llama[2]: llama_model_load_from_file_impl: using device Metal (Apple A14 GPU) - 4089 MiB free
+llama[2]: llama_model_loader: loaded meta data with 38 key-value pairs and 340 tensors from /var/mobile/Containers/Data/Application/4E0542AA-0814-40DD-B8A8-93AE7E371D6E/Documents/Models/gemma-3-1b-it-Q4_K_M.gguf (version GGUF V3 (latest))
 llama[2]: llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
 llama[2]: llama_model_loader: - kv   0:                       general.architecture str              = gemma3
 llama[2]: llama_model_loader: - kv   1:                               general.type str              = model
@@ -6411,8 +6904,8 @@ llama[1]: load_tensors: layer  24 assigned to device CPU, is_swa = 1
 llama[1]: load_tensors: layer  25 assigned to device CPU, is_swa = 1
 llama[1]: load_tensors: layer  26 assigned to device CPU, is_swa = 0
 llama[1]: load_tensors: tensor 'token_embd.weight' (q8_0) (and 340 others) cannot be used with preferred buffer type CPU_REPACK, using CPU instead
-llama[2]: load_tensors: offloading 0 repeating layers to GPU
-llama[2]: load_tensors: offloaded 0/27 layers to GPU
+llama[2]: load_tensors: offloading -1 repeating layers to GPU
+llama[2]: load_tensors: offloaded -1/27 layers to GPU
 llama[2]: load_tensors:   CPU_Mapped model buffer size =   762.49 MiB
 llama[5]: .
 llama[5]: .
@@ -6476,7 +6969,7 @@ llama[5]: .
 llama[5]: .
 llama[5]: .
 llama[5]:
-LlamaCppBridge: Successfully loaded model from /var/mobile/Containers/Data/Application/F448A08E-4D04-426E-8C14-27EE68888959/Documents/Models/gemma-3-1b-it-Q4_K_M.gguf
+LlamaCppBridge: Successfully loaded model from /var/mobile/Containers/Data/Application/4E0542AA-0814-40DD-B8A8-93AE7E371D6E/Documents/Models/gemma-3-1b-it-Q4_K_M.gguf
 LlamaCppBridge: Creating context for model
 LlamaCppBridge: Using small model parameters (ctx=1024, batch=2048, threads=4, flash_attn=false) for 0B model
 llama[2]: llama_context: constructing llama_context
@@ -6493,7 +6986,6 @@ llama[2]: llama_context: freq_scale    = 1
 llama[3]: llama_context: n_ctx_per_seq (1024) < n_ctx_train (32768) -- the full capacity of the model will not be utilized
 llama[2]: ggml_metal_init: allocating
 llama[2]: ggml_metal_init: picking default device: Apple A14 GPU
-llama[2]: ggml_metal_load_library: using embedded metal library
 llama[2]: ggml_metal_init: GPU name:   Apple A14 GPU
 llama[2]: ggml_metal_init: GPU family: MTLGPUFamilyApple7  (1007)
 llama[2]: ggml_metal_init: GPU family: MTLGPUFamilyCommon3 (3003)
@@ -6505,428 +6997,428 @@ llama[2]: ggml_metal_init: has bfloat            = true
 llama[2]: ggml_metal_init: use bfloat            = true
 llama[2]: ggml_metal_init: hasUnifiedMemory      = true
 llama[2]: ggml_metal_init: recommendedMaxWorkingSetSize  =  4294.98 MB
-llama[1]: ggml_metal_init: loaded kernel_add                                    0x13e03f2a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_fuse_2                             0x13e03fcc0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_fuse_3                             0x113aa87e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_fuse_4                             0x113aa91a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_fuse_5                             0x113aa9bc0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_fuse_6                             0x113aaa5e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_fuse_7                             0x113aab000 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_fuse_8                             0x113aaba20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4                             0x113ad44e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_2                      0x113ad4ea0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_3                      0x113ad58c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_4                      0x113ad62e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_5                      0x113ad6d00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_6                      0x113ad7720 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_7                      0x113af01e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_8                      0x113af0ba0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sub                                    0x113af15c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sub_row_c4                             0x113af1fe0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul                                    0x113af2a00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_row_c4                             0x113af3420 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_div                                    0x113af3e40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_div_row_c4                             0x113b28900 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_add_id                                 0x113b28b40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_repeat_f32                             0x113b291a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_repeat_f16                             0x113b29800 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_repeat_i32                             0x113b29e60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_repeat_i16                             0x113b2a4c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_scale                                  0x113b2a580 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_scale_4                                0x113b2a5e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_clamp                                  0x113b2a640 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_tanh                                   0x113b2a6a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_relu                                   0x113b2a700 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sigmoid                                0x113b2a760 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_gelu                                   0x113b2a7c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_gelu_4                                 0x113b2a820 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_gelu_erf                               0x113b2a880 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_gelu_erf_4                             0x113b2a8e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_gelu_quick                             0x113b2a940 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_gelu_quick_4                           0x113b2a9a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_silu                                   0x113b2aa00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_silu_4                                 0x113b2aa60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_elu                                    0x113b2aac0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_abs                                    0x113b2ab20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sgn                                    0x113b2ab80 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_step                                   0x113b2abe0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_hardswish                              0x113b2ac40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_hardsigmoid                            0x113b2aca0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_exp                                    0x113b2ad00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_soft_max_f16                           0x113b2b480 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_soft_max_f16_4                         0x113b2bc60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_soft_max_f32                           0x113bc04e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_soft_max_f32_4                         0x113bc0c60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_diag_mask_inf                          0x113bc0de0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_diag_mask_inf_8                        0x113bc0f60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_f32                           0x113bc12c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_f16                           0x113bc1620 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_bf16                          0x113bc1980 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q4_0                          0x113bc1ce0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q4_1                          0x113bc2040 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q5_0                          0x113bc23a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q5_1                          0x113bc2700 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q8_0                          0x113bc2a60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_mxfp4                         0x113bc2dc0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q2_K                          0x113bc3120 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q3_K                          0x113bc3480 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q4_K                          0x113bc37e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q5_K                          0x113bc3b40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_q6_K                          0x113bc3ea0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq2_xxs                       0x1188542a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq2_xs                        0x1188545a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq3_xxs                       0x118854900 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq3_s                         0x118854c60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq2_s                         0x118854fc0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq1_s                         0x118855320 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq1_m                         0x118855680 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq4_nl                        0x1188559e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_iq4_xs                        0x118855d40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_get_rows_i32                           0x1188560a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_f32                           0x1188565e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_f16                           0x118856b20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_bf16                          0x118857060 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_q8_0                          0x1188575a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_q4_0                          0x118857ae0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_q4_1                          0x1188e00c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_q5_0                          0x1188e05a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_q5_1                          0x1188e0ae0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_rows_iq4_nl                        0x1188e1020 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rms_norm                               0x1188e1500 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rms_norm_mul                           0x1188e19e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rms_norm_mul_add                       0x1188e1ec0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_l2_norm                                0x1188e20a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_group_norm                             0x1188e2400 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_norm                                   0x1188e25e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_ssm_conv_f32                           0x1188e2c40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_ssm_scan_f32                           0x1188e34e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_ssm_scan_f32_group                     0x1188e3d80 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rwkv_wkv6_f32                          0x1188e3e40 | th_max =  384 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rwkv_wkv7_f32                          0x1188e3ea0 | th_max =  448 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_f32_f32                         0x118950600 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_f32_f32_c4                      0x118950cc0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32                        0x1189513e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32_c4                     0x118951b00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32_1row                   0x118952220 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32_l4                     0x118952940 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_bf16                       0x118953060 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32                         0x118953780 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32_c4                      0x118953ea0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32_1row                    0x11899c660 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32_l4                      0x11899cd20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f16                         0x11899d440 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q4_0_f32                        0x11899db60 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q4_1_f32                        0x11899e280 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q5_0_f32                        0x11899e9a0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q5_1_f32                        0x11899f0c0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q8_0_f32                        0x11899f7e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_mxfp4_f32                       0x11899ff00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_2                0x1189fc000 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_3                0x1189fcfc0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_4                0x1189fd800 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_5                0x1189fe040 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_2               0x1189fe880 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_3               0x1189ff0c0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_4               0x1189ff900 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_5               0x118a301e0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_2               0x118a309c0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_3               0x118a31200 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_4               0x118a31a40 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_5               0x118a32280 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_2               0x118a32ac0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_3               0x118a33300 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_4               0x118a33b40 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_5               0x118a5c420 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_2               0x118a5cc00 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_3               0x118a5d440 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_4               0x118a5dc80 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_5               0x118a5e4c0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_2               0x118a5ed00 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_3               0x118a5f540 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_4               0x118a5fd80 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_5               0x118a84660 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_2              0x118a84e40 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_3              0x118a85680 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_4              0x118a85ec0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_5              0x118a86700 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_2               0x118a86f40 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_3               0x118a87780 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_4               0x118ab0060 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_5               0x118ab0840 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_2               0x118ab1080 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_3               0x118ab18c0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_4               0x118ab2100 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_5               0x118ab2940 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_2               0x118ab3180 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_3               0x118ab39c0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_4               0x118ae02a0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_5               0x118ae0a80 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_2             0x118ae12c0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_3             0x118ae1b00 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_4             0x118ae2340 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_5             0x118ae2b80 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q2_K_f32                        0x118ae32a0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q3_K_f32                        0x118ae39c0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q4_K_f32                        0x118b14180 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q5_K_f32                        0x118b14840 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_q6_K_f32                        0x118b14f60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq2_xxs_f32                     0x118b15680 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq2_xs_f32                      0x118b15da0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq3_xxs_f32                     0x118b164c0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq3_s_f32                       0x118b16be0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq2_s_f32                       0x118b17300 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq1_s_f32                       0x118b17a20 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq1_m_f32                       0x118b7c1e0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq4_nl_f32                      0x118b7c8a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq4_xs_f32                      0x118b7cfc0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_f32_f32                      0x118b7d740 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_f16_f32                      0x118b7dec0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_bf16_f32                     0x118b7e640 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q4_0_f32                     0x118b7edc0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q4_1_f32                     0x118b7f540 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q5_0_f32                     0x118b7fcc0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q5_1_f32                     0x1190104e0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q8_0_f32                     0x119010c00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_mxfp4_f32                    0x119011380 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q2_K_f32                     0x119011b00 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q3_K_f32                     0x119012280 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q4_K_f32                     0x119012a00 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q5_K_f32                     0x119013180 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q6_K_f32                     0x119013900 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq2_xxs_f32                  0x11906c120 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq2_xs_f32                   0x11906c840 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq3_xxs_f32                  0x11906cfc0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq3_s_f32                    0x11906d740 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq2_s_f32                    0x11906dec0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq1_s_f32                    0x11906e640 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq1_m_f32                    0x11906edc0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq4_nl_f32                   0x11906f540 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq4_xs_f32                   0x11906fcc0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_f32_f32                         0x1190ec300 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_f16_f32                         0x1190ec840 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_bf16_f32                        0x1190ecde0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q4_0_f32                        0x1190ed380 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q4_1_f32                        0x1190ed920 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q5_0_f32                        0x1190edec0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q5_1_f32                        0x1190ee460 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q8_0_f32                        0x1190eea00 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_mxfp4_f32                       0x1190eefa0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_mxfp4_f32                       0x1190ef0c0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q2_K_f32                        0x1190efae0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q3_K_f32                        0x11916c120 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q4_K_f32                        0x11916c660 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q5_K_f32                        0x11916cc00 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_q6_K_f32                        0x11916d1a0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq2_xxs_f32                     0x11916d740 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq2_xs_f32                      0x11916dce0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq3_xxs_f32                     0x11916e280 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq3_s_f32                       0x11916e820 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq2_s_f32                       0x11916edc0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq1_s_f32                       0x11916f360 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq1_m_f32                       0x11916f900 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq4_nl_f32                      0x11916fea0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq4_xs_f32                      0x1192344e0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_map0_f16                     0x1192347e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_map1_f32                     0x119234b40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_f32_f16                      0x1192350e0 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_f16_f16                      0x119235680 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_bf16_f16                     0x119235c20 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q4_0_f16                     0x1192361c0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q4_1_f16                     0x119236760 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q5_0_f16                     0x119236d00 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q5_1_f16                     0x1192372a0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q8_0_f16                     0x119237840 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_mxfp4_f16                    0x119237de0 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q2_K_f16                     0x1192a4420 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q3_K_f16                     0x1192a4960 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q4_K_f16                     0x1192a4f00 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q5_K_f16                     0x1192a54a0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q6_K_f16                     0x1192a5a40 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq2_xxs_f16                  0x1192a5fe0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq2_xs_f16                   0x1192a6580 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq3_xxs_f16                  0x1192a6b20 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq3_s_f16                    0x1192a70c0 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq2_s_f16                    0x1192a7660 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq1_s_f16                    0x1192a7c00 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq1_m_f16                    0x119350240 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq4_nl_f16                   0x119350780 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq4_xs_f16                   0x119350d20 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_norm_f32                          0x119351860 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_norm_f16                          0x1193523a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_multi_f32                         0x119352ee0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_multi_f16                         0x119353a20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_vision_f32                        0x1193d8600 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_vision_f16                        0x1193d90e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_neox_f32                          0x1193d9c20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_rope_neox_f16                          0x1193da760 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_im2col_f16                             0x1193dad60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_im2col_f32                             0x1193db360 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_im2col_ext_f16                         0x1193db960 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_im2col_ext_f32                         0x1193dbf60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_conv_transpose_1d_f32_f32              0x1193fc060 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_conv_transpose_1d_f16_f32              0x1193fc480 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_upscale_f32                            0x1193fcc60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_pad_f32                                0x1193fd2c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_pad_reflect_1d_f32                     0x1193fd9e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_timestep_embedding_f32                 0x1193fdb60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_arange_f32                             0x1193fdce0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_argsort_f32_i32_asc                    0x1193fdda0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_argsort_f32_i32_desc                   0x1193fdec0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_leaky_relu_f32                         0x1193fe040 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h64                 0x1193feac0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h80                 0x1193ff5a0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h96                 0x119480180 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h112                0x119480c00 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h128                0x1194816e0 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h192                0x1194821c0 | th_max =  384 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_hk192_hv128         0x119482ca0 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h256                0x119483780 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_hk576_hv512         0x11949c300 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h64                0x11949cd80 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h80                0x11949d860 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h96                0x11949e340 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h112               0x11949ee20 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h128               0x11949f900 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h192               0x1194cc480 | th_max =  384 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_hk192_hv128        0x1194ccf00 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h256               0x1194cd9e0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_hk576_hv512        0x1194ce4c0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h64                0x1194cefa0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h80                0x1194cfa80 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h96                0x1194f4600 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h112               0x1194f5080 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h128               0x1194f5b60 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h192               0x1194f6640 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_hk192_hv128        0x1194f7120 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h256               0x1194f7c00 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_hk576_hv512        0x119524780 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h64                0x119525200 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h80                0x119525ce0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h96                0x1195267c0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h112               0x1195272a0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h128               0x119527d80 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h192               0x119554900 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_hk192_hv128        0x119555380 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h256               0x119555e60 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_hk576_hv512        0x119556940 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h64                0x119557420 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h80                0x119557f00 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h96                0x119578000 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h112               0x119579500 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h128               0x119579fe0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h192               0x11957aac0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_hk192_hv128        0x11957b5a0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h256               0x119598120 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_hk576_hv512        0x119598ba0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h64                0x119599680 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h80                0x11959a160 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h96                0x11959ac40 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h112               0x11959b720 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h128               0x1195d82a0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h192               0x1195d8d20 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_hk192_hv128        0x1195d9800 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h256               0x1195da2e0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_hk576_hv512        0x1195dadc0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h64                0x1195db8a0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h80                0x1195f8420 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h96                0x1195f8ea0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h112               0x1195f9980 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h128               0x1195fa460 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h192               0x1195faf40 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_hk192_hv128        0x1195fba20 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h256               0x1196545a0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_hk576_hv512        0x119655020 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h64             0x119655b00 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h64            0x1196565e0 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h64            0x1196570c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h64            0x119657ba0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h64            0x11967c720 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h64            0x11967d1a0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h64            0x11967dc80 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h96             0x11967e760 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h96            0x11967f240 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h96            0x11967fd20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h96            0x1196b88a0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h96            0x1196b9320 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h96            0x1196b9e00 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h96            0x1196ba8e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h128            0x1196bb3c0 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h128           0x1196bbea0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h128           0x1196e4a20 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h128           0x1196e54a0 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h128           0x1196e5f80 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h128           0x1196e6a60 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h128           0x1196e7540 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h192            0x1197100c0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h192           0x119710b40 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h192           0x119711620 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h192           0x119712100 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h192           0x119712be0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h192           0x1197136c0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h192           0x119734240 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_hk192_hv128      0x119734cc0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_hk192_hv128      0x1197357a0 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_hk192_hv128      0x119736280 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_hk192_hv128      0x119736d60 | th_max =  832 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_hk192_hv128      0x119737840 | th_max =  768 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_hk192_hv128      0x1197643c0 | th_max =  704 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_hk192_hv128      0x119764e40 | th_max =  896 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h256            0x119765920 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h256           0x119766400 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h256           0x119766ee0 | th_max =  640 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h256           0x1197679c0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h256           0x119788540 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h256           0x119788fc0 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h256           0x119789aa0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_hk576_hv512      0x11978a580 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_hk576_hv512      0x11978b060 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_hk576_hv512      0x11978bb40 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_hk576_hv512      0x1197b86c0 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_hk576_hv512      0x1197b9140 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_hk576_hv512      0x1197b9c20 | th_max =  512 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_hk576_hv512      0x1197ba700 | th_max =  576 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_f32                                0x1197babe0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_set_i32                                0x1197bb0c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_f32                            0x1197bb720 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_f16                            0x1197bbd80 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_bf16                           0x1197fc480 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f16_f32                            0x1197fca80 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f16_f16                            0x1197fd0e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_bf16_f32                           0x1197fd740 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_bf16_bf16                          0x1197fdda0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q8_0                           0x1197fe400 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q4_0                           0x1197fea60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q4_1                           0x1197ff0c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q5_0                           0x1197ff720 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q5_1                           0x1197ffd80 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_f32_iq4_nl                         0x11b8a8480 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q4_0_f32                           0x11b8a8a80 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q4_0_f16                           0x11b8a90e0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q4_1_f32                           0x11b8a9740 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q4_1_f16                           0x11b8a9da0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q5_0_f32                           0x11b8aa400 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q5_0_f16                           0x11b8aaa60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q5_1_f32                           0x11b8ab0c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q5_1_f16                           0x11b8ab720 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q8_0_f32                           0x11b8abd80 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cpy_q8_0_f16                           0x11b94c480 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_concat                                 0x11b94cde0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sqr                                    0x11b94cea0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sqrt                                   0x11b94cf00 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sin                                    0x11b94cf60 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_cos                                    0x11b94cfc0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_neg                                    0x11b94d020 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_reglu                                  0x11b94d440 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_geglu                                  0x11b94d8c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_swiglu                                 0x11b94dd40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_swiglu_oai                             0x11b94e1c0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_geglu_erf                              0x11b94e640 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_geglu_quick                            0x11b94eac0 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_sum_rows                               0x11b94f420 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_mean                                   0x11b94fd80 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_argmax                                 0x11b94fe40 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_pool_2d_avg_f32                        0x11b9c4300 | th_max = 1024 | th_width =   32
-llama[1]: ggml_metal_init: loaded kernel_pool_2d_max_f32                        0x11b9c4720 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add                                    0x154cbe940 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_fuse_2                             0x154cbf300 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_fuse_3                             0x125ac0360 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_fuse_4                             0x125ac0420 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_fuse_5                             0x125ac0e40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_fuse_6                             0x125ac1860 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_fuse_7                             0x125ac2280 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_fuse_8                             0x125ac2ca0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4                             0x125ad0060 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_2                      0x125ad0120 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_3                      0x125ad0b40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_4                      0x125ad1560 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_5                      0x125ad1f80 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_6                      0x125ad29a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_7                      0x125ad33c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_row_c4_fuse_8                      0x125adc780 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sub                                    0x125adc840 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sub_row_c4                             0x125add260 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul                                    0x125addc80 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_row_c4                             0x125ade6a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_div                                    0x125adf0c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_div_row_c4                             0x125aec480 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_add_id                                 0x125aec540 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_repeat_f32                             0x125aec7e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_repeat_f16                             0x125aece40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_repeat_i32                             0x125aed4a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_repeat_i16                             0x125aedb00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_scale                                  0x125aee160 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_scale_4                                0x125aee1c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_clamp                                  0x125aee220 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_tanh                                   0x125aee280 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_relu                                   0x125aee2e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sigmoid                                0x125aee340 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_gelu                                   0x125aee3a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_gelu_4                                 0x125aee400 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_gelu_erf                               0x125aee460 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_gelu_erf_4                             0x125aee4c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_gelu_quick                             0x125aee520 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_gelu_quick_4                           0x125aee580 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_silu                                   0x125aee5e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_silu_4                                 0x125aee640 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_elu                                    0x125aee6a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_abs                                    0x125aee700 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sgn                                    0x125aee760 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_step                                   0x125aee7c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_hardswish                              0x125aee820 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_hardsigmoid                            0x125aee880 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_exp                                    0x125aee8e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_soft_max_f16                           0x125aee940 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_soft_max_f16_4                         0x125aef120 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_soft_max_f32                           0x125b18060 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_soft_max_f32_4                         0x125b18120 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_diag_mask_inf                          0x125b18900 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_diag_mask_inf_8                        0x125b18a80 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_f32                           0x125b18c00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_f16                           0x125b18f60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_bf16                          0x125b192c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q4_0                          0x125b19620 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q4_1                          0x125b19980 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q5_0                          0x125b19ce0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q5_1                          0x125b1a040 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q8_0                          0x125b1a3a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_mxfp4                         0x125b1a700 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q2_K                          0x125b1aa60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q3_K                          0x125b1adc0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q4_K                          0x125b1b120 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q5_K                          0x125b1b480 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_q6_K                          0x125b1b7e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq2_xxs                       0x125b1bb40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq2_xs                        0x125b60180 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq3_xxs                       0x125b60240 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq3_s                         0x125b605a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq2_s                         0x125b60900 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq1_s                         0x125b60c60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq1_m                         0x125b60fc0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq4_nl                        0x125b61320 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_iq4_xs                        0x125b61680 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_get_rows_i32                           0x125b619e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_f32                           0x125b61d40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_f16                           0x125b62280 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_bf16                          0x125b627c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_q8_0                          0x125b62d00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_q4_0                          0x125b63240 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_q4_1                          0x125b63780 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_q5_0                          0x125b80180 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_q5_1                          0x125b80240 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_rows_iq4_nl                        0x125b80780 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rms_norm                               0x125b80cc0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rms_norm_mul                           0x125b811a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rms_norm_mul_add                       0x125b81680 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_l2_norm                                0x125b81b60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_group_norm                             0x125b81d40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_norm                                   0x125b820a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_ssm_conv_f32                           0x125b82280 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_ssm_scan_f32                           0x125b828e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_ssm_scan_f32_group                     0x125b83180 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rwkv_wkv6_f32                          0x125b83a20 | th_max =  384 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rwkv_wkv7_f32                          0x125b83a80 | th_max =  448 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_f32_f32                         0x125bb8180 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_f32_f32_c4                      0x125bb8240 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32                        0x125bb8960 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32_c4                     0x125bb9080 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32_1row                   0x125bb97a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_f32_l4                     0x125bb9ec0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_bf16_bf16                       0x125bba5e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32                         0x125bbad00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32_c4                      0x125bbb420 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32_1row                    0x125bd81e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f32_l4                      0x125bd82a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_f16_f16                         0x125bd89c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q4_0_f32                        0x125bd90e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q4_1_f32                        0x125bd9800 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q5_0_f32                        0x125bd9f20 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q5_1_f32                        0x125bda640 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q8_0_f32                        0x125bdad60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_mxfp4_f32                       0x125bdb480 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_2                0x125bf4360 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_3                0x125bf4420 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_4                0x125bf4c60 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_f16_f32_r1_5                0x125bf54a0 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_2               0x125bf5ce0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_3               0x125bf6520 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_4               0x125bf6d60 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_0_f32_r1_5               0x125bf75a0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_2               0x125c085a0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_3               0x125c08660 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_4               0x125c08ea0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_1_f32_r1_5               0x125c096e0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_2               0x125c09f20 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_3               0x125c0a760 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_4               0x125c0afa0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_0_f32_r1_5               0x125c0b7e0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_2               0x125c14000 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_3               0x125c148a0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_4               0x125c150e0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_1_f32_r1_5               0x125c15920 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_2               0x125c16160 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_3               0x125c169a0 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_4               0x125c171e0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q8_0_f32_r1_5               0x125c1c1e0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_2              0x125c1c2a0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_3              0x125c1cae0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_4              0x125c1d320 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_mxfp4_f32_r1_5              0x125c1db60 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_2               0x125c1e3a0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_3               0x125c1ebe0 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_4               0x125c1f420 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q4_K_f32_r1_5               0x125c28420 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_2               0x125c284e0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_3               0x125c28d20 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_4               0x125c29560 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q5_K_f32_r1_5               0x125c29da0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_2               0x125c2a5e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_3               0x125c2ae20 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_4               0x125c2b660 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_q6_K_f32_r1_5               0x125c38660 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_2             0x125c38720 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_3             0x125c38f60 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_4             0x125c397a0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_ext_iq4_nl_f32_r1_5             0x125c39fe0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q2_K_f32                        0x125c3a820 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q3_K_f32                        0x125c3af40 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q4_K_f32                        0x125c3b660 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q5_K_f32                        0x125c44420 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_q6_K_f32                        0x125c444e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq2_xxs_f32                     0x125c44c00 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq2_xs_f32                      0x125c45320 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq3_xxs_f32                     0x125c45a40 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq3_s_f32                       0x125c46160 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq2_s_f32                       0x125c46880 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq1_s_f32                       0x125c46fa0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq1_m_f32                       0x125c476c0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq4_nl_f32                      0x125c74480 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_iq4_xs_f32                      0x125c74540 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_f32_f32                      0x125c74c60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_f16_f32                      0x125c753e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_bf16_f32                     0x125c75b60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q4_0_f32                     0x125c762e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q4_1_f32                     0x125c76a60 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q5_0_f32                     0x125c771e0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q5_1_f32                     0x125cb0060 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q8_0_f32                     0x125cb0120 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_mxfp4_f32                    0x125cb08a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q2_K_f32                     0x125cb1020 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q3_K_f32                     0x125cb17a0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q4_K_f32                     0x125cb1f20 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q5_K_f32                     0x125cb26a0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_q6_K_f32                     0x125cb2e20 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq2_xxs_f32                  0x125cb35a0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq2_xs_f32                   0x125cc8420 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq3_xxs_f32                  0x125cc84e0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq3_s_f32                    0x125cc8c60 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq2_s_f32                    0x125cc93e0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq1_s_f32                    0x125cc9b60 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq1_m_f32                    0x125cca2e0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq4_nl_f32                   0x125ccaa60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mv_id_iq4_xs_f32                   0x125ccb1e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_f32_f32                         0x125ccb960 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_f16_f32                         0x125cf8420 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_bf16_f32                        0x125cf84e0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q4_0_f32                        0x125cf8a80 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q4_1_f32                        0x125cf9020 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q5_0_f32                        0x125cf95c0 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q5_1_f32                        0x125cf9b60 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q8_0_f32                        0x125cfa100 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_mxfp4_f32                       0x125cfa6a0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_mxfp4_f32                       0x125cfac40 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q2_K_f32                        0x125cfb1e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q3_K_f32                        0x125cfb780 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q4_K_f32                        0x125d40240 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q5_K_f32                        0x125d40300 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_q6_K_f32                        0x125d408a0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq2_xxs_f32                     0x125d40e40 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq2_xs_f32                      0x125d413e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq3_xxs_f32                     0x125d41980 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq3_s_f32                       0x125d41f20 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq2_s_f32                       0x125d424c0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq1_s_f32                       0x125d42a60 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq1_m_f32                       0x125d43000 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq4_nl_f32                      0x125d435a0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_iq4_xs_f32                      0x125d70060 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_map0_f16                     0x125d70120 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_map1_f32                     0x125d70480 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_f32_f16                      0x125d707e0 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_f16_f16                      0x125d70d80 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_bf16_f16                     0x125d71320 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q4_0_f16                     0x125d718c0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q4_1_f16                     0x125d71e60 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q5_0_f16                     0x125d72400 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q5_1_f16                     0x125d729a0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q8_0_f16                     0x125d72f40 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_mxfp4_f16                    0x125d734e0 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q2_K_f16                     0x125d73a80 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q3_K_f16                     0x125dbc000 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q4_K_f16                     0x125dbc600 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q5_K_f16                     0x125dbcba0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_q6_K_f16                     0x125dbd140 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq2_xxs_f16                  0x125dbd6e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq2_xs_f16                   0x125dbdc80 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq3_xxs_f16                  0x125dbe220 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq3_s_f16                    0x125dbe7c0 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq2_s_f16                    0x125dbed60 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq1_s_f16                    0x125dbf300 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq1_m_f16                    0x125dbf8a0 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq4_nl_f16                   0x125e08360 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mul_mm_id_iq4_xs_f16                   0x125e08420 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_norm_f32                          0x125e089c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_norm_f16                          0x125e09500 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_multi_f32                         0x125e0a040 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_multi_f16                         0x125e0ab80 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_vision_f32                        0x125e28180 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_vision_f16                        0x125e28240 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_neox_f32                          0x125e28d80 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_rope_neox_f16                          0x125e298c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_im2col_f16                             0x125e2a400 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_im2col_f32                             0x125e2aa00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_im2col_ext_f16                         0x125e2b000 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_im2col_ext_f32                         0x125e2b600 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_conv_transpose_1d_f32_f32              0x125e2bc00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_conv_transpose_1d_f16_f32              0x125e580c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_upscale_f32                            0x125e58180 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_pad_f32                                0x125e58960 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_pad_reflect_1d_f32                     0x125e58fc0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_timestep_embedding_f32                 0x125e596e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_arange_f32                             0x125e59860 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_argsort_f32_i32_asc                    0x125e599e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_argsort_f32_i32_desc                   0x125e59b00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_leaky_relu_f32                         0x125e59c20 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h64                 0x125e59ce0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h80                 0x125e5a7c0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h96                 0x125e5b2a0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h112                0x125e7c7e0 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h128                0x125e7c8a0 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h192                0x125e7d380 | th_max =  384 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_hk192_hv128         0x125e7de60 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_h256                0x125e7e940 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_f16_hk576_hv512         0x125e7f420 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h64                0x125e90960 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h80                0x125e90a20 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h96                0x125e91500 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h112               0x125e91fe0 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h128               0x125e92ac0 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h192               0x125e935a0 | th_max =  384 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_hk192_hv128        0x125e98060 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_h256               0x125e98b40 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_bf16_hk576_hv512        0x125e99620 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h64                0x125e9a100 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h80                0x125e9abe0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h96                0x125ea0180 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h112               0x125ea0240 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h128               0x125ea0d20 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h192               0x125ea1800 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_hk192_hv128        0x125ea22e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_h256               0x125ea2dc0 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_0_hk576_hv512        0x125eac300 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h64                0x125eac3c0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h80                0x125eacea0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h96                0x125ead980 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h112               0x125eae460 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h128               0x125eaef40 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h192               0x125ebc480 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_hk192_hv128        0x125ebc540 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_h256               0x125ebd020 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q4_1_hk576_hv512        0x125ebdb00 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h64                0x125ebe5e0 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h80                0x125ebf0c0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h96                0x125ed0600 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h112               0x125ed06c0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h128               0x125ed11a0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h192               0x125ed1c80 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_hk192_hv128        0x125ed2760 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_h256               0x125ed3240 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_0_hk576_hv512        0x125ed8780 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h64                0x125ed8840 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h80                0x125ed9320 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h96                0x125ed9e00 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h112               0x125eda8e0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h128               0x125edb3c0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h192               0x125ee0900 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_hk192_hv128        0x125ee09c0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_h256               0x125ee14a0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q5_1_hk576_hv512        0x125ee1f80 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h64                0x125ee2a60 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h80                0x125ee3540 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h96                0x125ef4000 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h112               0x125ef4b40 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h128               0x125ef5620 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h192               0x125ef6100 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_hk192_hv128        0x125ef6be0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_h256               0x125f00120 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_q8_0_hk576_hv512        0x125f001e0 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h64             0x125f00cc0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h64            0x125f017a0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h64            0x125f02280 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h64            0x125f02d60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h64            0x125f082a0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h64            0x125f08360 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h64            0x125f08e40 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h96             0x125f09920 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h96            0x125f0a400 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h96            0x125f0aee0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h96            0x125f18420 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h96            0x125f184e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h96            0x125f18fc0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h96            0x125f19aa0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h128            0x125f1a580 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h128           0x125f1b060 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h128           0x125f205a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h128           0x125f20660 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h128           0x125f21140 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h128           0x125f21c20 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h128           0x125f22700 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h192            0x125f231e0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h192           0x125f34720 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h192           0x125f347e0 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h192           0x125f352c0 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h192           0x125f35da0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h192           0x125f36880 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h192           0x125f37360 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_hk192_hv128      0x125f408a0 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_hk192_hv128      0x125f40960 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_hk192_hv128      0x125f41440 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_hk192_hv128      0x125f41f20 | th_max =  832 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_hk192_hv128      0x125f42a00 | th_max =  768 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_hk192_hv128      0x125f434e0 | th_max =  704 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_hk192_hv128      0x125f4ca20 | th_max =  896 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_h256            0x125f4cae0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_h256           0x125f4d5c0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_h256           0x125f4e0a0 | th_max =  640 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_h256           0x125f4eb80 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_h256           0x125f580c0 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_h256           0x125f58180 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_h256           0x125f58c60 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_f16_hk576_hv512      0x125f59740 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_bf16_hk576_hv512      0x125f5a220 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_0_hk576_hv512      0x125f5ad00 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q4_1_hk576_hv512      0x125f6c240 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_0_hk576_hv512      0x125f6c300 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q5_1_hk576_hv512      0x125f6cde0 | th_max =  512 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_flash_attn_ext_vec_q8_0_hk576_hv512      0x125f6d8c0 | th_max =  576 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_f32                                0x125f6e3a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_set_i32                                0x125f6e880 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_f32                            0x125f6ed60 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_f16                            0x125f6f3c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_bf16                           0x125f6fa20 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f16_f32                            0x125f98060 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f16_f16                            0x125f986c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_bf16_f32                           0x125f98d20 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_bf16_bf16                          0x125f99380 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q8_0                           0x125f999e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q4_0                           0x125f9a040 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q4_1                           0x125f9a6a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q5_0                           0x125f9ad00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_q5_1                           0x125f9b360 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_f32_iq4_nl                         0x125f9b9c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q4_0_f32                           0x125fbc060 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q4_0_f16                           0x125fbc6c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q4_1_f32                           0x125fbcd20 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q4_1_f16                           0x125fbd380 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q5_0_f32                           0x125fbd9e0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q5_0_f16                           0x125fbe040 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q5_1_f32                           0x125fbe6a0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q5_1_f16                           0x125fbed00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q8_0_f32                           0x125fbf360 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cpy_q8_0_f16                           0x125fbf9c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_concat                                 0x127018060 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sqr                                    0x127018a20 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sqrt                                   0x127018a80 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sin                                    0x127018ae0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_cos                                    0x127018b40 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_neg                                    0x127018ba0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_reglu                                  0x127018c00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_geglu                                  0x127019080 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_swiglu                                 0x127019500 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_swiglu_oai                             0x127019980 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_geglu_erf                              0x127019e00 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_geglu_quick                            0x12701a280 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_sum_rows                               0x12701a700 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_mean                                   0x12701b060 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_argmax                                 0x12701b9c0 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_pool_2d_avg_f32                        0x12701ba20 | th_max = 1024 | th_width =   32
+llama[1]: ggml_metal_init: loaded kernel_pool_2d_max_f32                        0x12703c300 | th_max = 1024 | th_width =   32
 llama[1]: set_abort_callback: call
 llama[2]: llama_context:        CPU  output buffer size =     1.00 MiB
 llama[1]: create_memory: n_ctx = 1024 (padded)
@@ -7000,144 +7492,1808 @@ llama[2]: llama_context:        CPU compute buffer size =   514.25 MiB
 llama[2]: llama_context: graph nodes  = 1151
 llama[2]: llama_context: graph splits = 366 (with bs=512), 1 (with bs=1)
 LlamaCppBridge: Successfully created context
+[22:52:02.384] [SECURITY] DebugFlagManager.swift:319 debugPrint(_:category:) - ModelIntegrityChecker: Validating model at /var/mobile/Containers/Data/Application/4E0542AA-0814-40DD-B8A8-93AE7E371D6E/Documents/Models/gemma-3-1b-it-Q4_K_M.gguf
+[22:52:02.384] [SECURITY] DebugFlagManager.swift:319 debugPrint(_:category:) - ModelIntegrityChecker: File size validation passed (806058272 bytes)
+[22:52:02.385] [SECURITY] DebugFlagManager.swift:319 debugPrint(_:category:) - ModelIntegrityChecker: Model validation passed
 ModelHashVerifier: No known hash for external model gemma-3-1b-it-Q4_K_M.gguf - rejecting for security
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: true
-Committed red: 0.0, default: 0.0
-isAtDefaults: false
-Committed red: 211.54284667968747, default: 0.0
-isAtDefaults: false
-Committed red: 211.54284667968747, default: 0.0
-isAtDefaults: false
-Committed red: 211.54284667968747, default: 0.0
-isAtDefaults: false
-Committed red: 211.54284667968747, default: 0.0
-isAtDefaults: false
-Committed red: 211.54284667968747, default: 0.0
-isAtDefaults: false
-Committed red: 211.54284667968747, default: 0.0
+App is being debugged, do not track this hang
+Hang detected: 0.39s (debugger attached, not reporting)
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 0
+App is being debugged, do not track this hang
+Hang detected: 1.80s (debugger attached, not reporting)
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 0
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 0
+App is being debugged, do not track this hang
+Hang detected: 0.81s (debugger attached, not reporting)
+App is being debugged, do not track this hang
+Hang detected: 0.26s (debugger attached, not reporting)
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 0
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 0
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 0
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 0
+TextModalView: onChange(isLocalProcessing) triggered - new value: true
+TextModalView: updateEffectiveProcessingState called
+TextModalView: viewModel.llm.isProcessing = false
+TextModalView: isLocalProcessing = true
+TextModalView: current effectiveIsProcessing = false
+TextModalView: calculated newValue = true
+TextModalView: effectiveIsProcessing changing from false to true
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: false, transcript length: 0
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: false, transcript length: 0
+Donating message sent intent: 'Hi'
+ChatViewModel: send() called with: 'Hi'
+ChatViewModel: Setting isProcessing = true
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 0
+TextModalView: updateEffectiveProcessingState called
+TextModalView: viewModel.llm.isProcessing = true
+TextModalView: isLocalProcessing = true
+TextModalView: current effectiveIsProcessing = true
+TextModalView: calculated newValue = true
+TextModalView: effectiveIsProcessing unchanged (true)
+TextModalView: onChange(viewModel.llm.isProcessing) triggered - old: false, new: true
+TextModalView: updateEffectiveProcessingState called
+TextModalView: viewModel.llm.isProcessing = true
+TextModalView: isLocalProcessing = true
+TextModalView: current effectiveIsProcessing = true
+TextModalView: calculated newValue = true
+TextModalView: effectiveIsProcessing unchanged (true)
+ChatViewModel: Message history count: 0
+ChatViewModel: Clearing transcript for new user message
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 0
+[22:52:09.138] [GENERAL] DebugFlagManager.swift:319 debugPrint(_:category:) - ChatViewModel: Added user message to history.
+buildSafeHistory called - 1 messages
+ChatViewModel: After maxMessages trim: 1 messages
+ChatViewModel: Initial character count: 2
+Final result - 1 messages, 2 characters
+ChatViewModel: About to load selected model
+ChatViewModel: Model loaded successfully
+ChatViewModel: About to call generateResponse
+Donating message sent intent: 'Hi'
+LLMService.chat: ENTRY POINT - 2 characters
+LLMService.chat: History count - 1
+Starting conversation #1 - Model: gemma-3-1b-it-Q4_K_M
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 0
+LLMService.buildPrompt: ENTRY POINT - 2 characters
+buildPrompt called with history count - 1
+Building prompt with 1 history messages for model gemma-3-1b-it-Q4_K_M
+LlamaCppBridge: Using chat template: {{ bos_token }}
+{%- if messages[0]['role'] == 'system' -%}
+    {%- if messages[0]['content'] is string -%}
+        {%- set first_user_prefix = messages[0]['content'] + '
+
+' -%}
+    {%- else -%}
+        {%- set first_user_prefix = messages[0]['content'][0]['text'] + '
+
+' -%}
+    {%- endif -%}
+    {%- set loop_messages = messages[1:] -%}
+{%- else -%}
+    {%- set first_user_prefix = "" -%}
+    {%- set loop_messages = messages -%}
+{%- endif -%}
+{%- for message in loop_messages -%}
+    {%- if (message['role'] == 'user') != (loop.index0 % 2 == 0) -%}
+        {{ raise_exception("Conversation roles must alternate user/assistant/user/assistant/...") }}
+    {%- endif -%}
+    {%- if (message['role'] == 'assistant') -%}
+        {%- set role = "model" -%}
+    {%- else -%}
+        {%- set role = message['role'] -%}
+    {%- endif -%}
+    {{ '<start_of_turn>' + role + '
+' + (first_user_prefix if loop.first else "") }}
+    {%- if message['content'] is string -%}
+        {{ message['content'] | trim }}
+    {%- elif message['content'] is iterable -%}
+        {%- for item in message['content'] -%}
+            {%- if item['type'] == 'image' -%}
+                {{ '<start_of_image>' }}
+            {%- elif item['type'] == 'text' -%}
+                {{ item['text'] | trim }}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- else -%}
+        {{ raise_exception("Invalid content type") }}
+    {%- endif -%}
+    {{ '<end_of_turn>
+' }}
+{%- endfor -%}
+{%- if add_generation_prompt -%}
+    {{'<start_of_turn>model
+'}}
+{%- endif -%}
+Final prompt length - 186 characters
+LlamaCppBridge: Starting streaming generation with max_tokens=2048 for model gemma-3-1b-it-Q4_K_M
+LlamaCppBridge: Prompt length: 186 characters
+LlamaCppBridge: Prompt received (length: 186 chars) - content redacted for security
+LlamaCppBridge: Using standard tokenization (add_special=true, parse_special=true)
+LlamaCppBridge: Tokenized prompt into 40 tokens
+TextModalView: monitorAssistantStream - poll count: 0
+TextModalView: monitorAssistantStream - viewModel.llm.isProcessing: true
+TextModalView: monitorAssistantStream - transcript length: 0
+TextModalView: monitorAssistantStream - transcript content: ''
+TextModalView: monitorAssistantStream - actual message content: ''
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 0
+TextModalView: onChange(isLocalProcessing) triggered - new value: false
+TextModalView: updateEffectiveProcessingState called
+TextModalView: viewModel.llm.isProcessing = true
+TextModalView: isLocalProcessing = false
+TextModalView: current effectiveIsProcessing = true
+TextModalView: calculated newValue = true
+TextModalView: effectiveIsProcessing unchanged (true)
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 0
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: true, content: ''
+TextModalView: SHOWING ThinkingAnimationView for empty message
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 0
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: true, content: ''
+TextModalView: SHOWING ThinkingAnimationView for empty message
+LlamaCppBridge: Starting generation loop for 2048 tokens
+LLMService: Callback received token: 'Hi'
+LLMService: About to call DispatchQueue.main.async
+LlamaCppBridge: Token 1: 'Hi' -> 'Hi'
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: 'Hi'
+ChatViewModel: onToken called with: 'Hi'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: 'Hi'
+ChatViewModel: Current transcript length: 0
+ChatViewModel: New transcript length: 2
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 2
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: '' new: 'Hi'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 2
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi'
+LLMService: onToken call completed
+LLMService: Callback received token: ' there'
+LLMService: About to call DispatchQueue.main.async
+LlamaCppBridge: Token 2: ' there' -> ' there'
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' there'
+ChatViewModel: onToken called with: ' there'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' there'
+ChatViewModel: Current transcript length: 2
+ChatViewModel: New transcript length: 8
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 8
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Hi' new: 'Hi there'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 8
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there'
+LLMService: onToken call completed
+LLMService: Callback received token: '!'
+LLMService: About to call DispatchQueue.main.async
+LlamaCppBridge: Token 3: '!' -> '!'
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: '!'
+ChatViewModel: onToken called with: '!'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: '!'
+ChatViewModel: Current transcript length: 8
+ChatViewModel: New transcript length: 9
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 9
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Hi there' new: 'Hi there!'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 9
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there!'
+LLMService: onToken call completed
+LLMService: Callback received token: ' How'
+LLMService: About to call DispatchQueue.main.async
+LlamaCppBridge: Token 4: ' How' -> ' How'
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' How'
+ChatViewModel: onToken called with: ' How'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' How'
+ChatViewModel: Current transcript length: 9
+ChatViewModel: New transcript length: 13
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 13
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Hi there!' new: 'Hi there! How'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 13
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How'
+LLMService: onToken call completed
+LLMService: Callback received token: ' can'
+LLMService: About to call DispatchQueue.main.async
+LlamaCppBridge: Token 5: ' can' -> ' can'
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' can'
+ChatViewModel: onToken called with: ' can'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' can'
+ChatViewModel: Current transcript length: 13
+ChatViewModel: New transcript length: 17
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 17
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Hi there! How' new: 'Hi there! How can'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 17
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can'
+LLMService: onToken call completed
+LLMService: Callback received token: ' I'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' I'
+ChatViewModel: onToken called with: ' I'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' I'
+ChatViewModel: Current transcript length: 17
+ChatViewModel: New transcript length: 19
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 19
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Hi there! How can' new: 'Hi there! How can I'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 19
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I'
+LLMService: onToken call completed
+LLMService: Callback received token: ' help'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' help'
+ChatViewModel: onToken called with: ' help'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' help'
+ChatViewModel: Current transcript length: 19
+ChatViewModel: New transcript length: 24
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 24
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Hi there! How can I' new: 'Hi there! How can I help'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 24
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help'
+LLMService: onToken call completed
+LLMService: Callback received token: ' you'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' you'
+ChatViewModel: onToken called with: ' you'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' you'
+ChatViewModel: Current transcript length: 24
+ChatViewModel: New transcript length: 28
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 28
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Hi there! How can I help' new: 'Hi there! How can I help you'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 28
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you'
+LLMService: onToken call completed
+LLMService: Callback received token: ' today'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' today'
+ChatViewModel: onToken called with: ' today'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' today'
+ChatViewModel: Current transcript length: 28
+ChatViewModel: New transcript length: 34
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 34
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Hi there! How can I help you' new: 'Hi there! How can I help you today'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 34
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today'
+LLMService: onToken call completed
+LLMService: Callback received token: '?'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: '?'
+ChatViewModel: onToken called with: '?'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: '?'
+ChatViewModel: Current transcript length: 34
+ChatViewModel: New transcript length: 35
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 35
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Hi there! How can I help you today' new: 'Hi there! How can I help you today?'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 35
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+LLMService: onToken call completed
+LlamaCppBridge: Hit end token at position 10
+LlamaCppBridge: Generation loop completed. Generated 10 tokens.
+LlamaCppBridge: Resetting context after chunk completion to free memory
+LlamaCppBridge: Streaming generation completed
+LlamaCppBridge: Context memory securely cleared
+Stored encrypted data for key: ModelPerformanceData
+Saved model performance data - 1 models
+Stored encrypted data for key: AverageResponseTime
+Stored encrypted data for key: TotalResponseTime
+Stored encrypted data for key: ResponseCount
+Updated global response duration - 1.00s (avg: 1.00s)
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: false, transcript length: 35
+TextModalView: updateEffectiveProcessingState called
+TextModalView: viewModel.llm.isProcessing = false
+TextModalView: isLocalProcessing = false
+TextModalView: current effectiveIsProcessing = true
+TextModalView: calculated newValue = false
+TextModalView: effectiveIsProcessing changing from true to false
+TextModalView: Resetting showGeneratingText to false
+TextModalView: onChange(viewModel.llm.isProcessing) triggered - old: true, new: false
+TextModalView: updateEffectiveProcessingState called
+TextModalView: viewModel.llm.isProcessing = false
+TextModalView: isLocalProcessing = false
+TextModalView: current effectiveIsProcessing = false
+TextModalView: calculated newValue = false
+TextModalView: effectiveIsProcessing unchanged (false)
+TextModalView: Resetting showGeneratingText to false
+TextModalView: Processing finished - updating placeholder message with transcript
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+Result accumulator timeout: 0.250000, exceeded.
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+Error: this application, or a library it uses, has passed an invalid numeric value (NaN, or not-a-number) to CoreGraphics API and this value is being ignored. Please fix this problem.
+If you want to see the backtrace, please set CG_NUMERICS_SHOW_BACKTRACE environmental variable.
+Error: this application, or a library it uses, has passed an invalid numeric value (NaN, or not-a-number) to CoreGraphics API and this value is being ignored. Please fix this problem.
+If you want to see the backtrace, please set CG_NUMERICS_SHOW_BACKTRACE environmental variable.
+Error: this application, or a library it uses, has passed an invalid numeric value (NaN, or not-a-number) to CoreGraphics API and this value is being ignored. Please fix this problem.
+If you want to see the backtrace, please set CG_NUMERICS_SHOW_BACKTRACE environmental variable.
+Error: this application, or a library it uses, has passed an invalid numeric value (NaN, or not-a-number) to CoreGraphics API and this value is being ignored. Please fix this problem.
+If you want to see the backtrace, please set CG_NUMERICS_SHOW_BACKTRACE environmental variable.
+Error: this application, or a library it uses, has passed an invalid numeric value (NaN, or not-a-number) to CoreGraphics API and this value is being ignored. Please fix this problem.
+If you want to see the backtrace, please set CG_NUMERICS_SHOW_BACKTRACE environmental variable.
+Error: this application, or a library it uses, has passed an invalid numeric value (NaN, or not-a-number) to CoreGraphics API and this value is being ignored. Please fix this problem.
+If you want to see the backtrace, please set CG_NUMERICS_SHOW_BACKTRACE environmental variable.
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 35
+TextModalView: onChange(isLocalProcessing) triggered - new value: true
+TextModalView: updateEffectiveProcessingState called
+TextModalView: viewModel.llm.isProcessing = false
+TextModalView: isLocalProcessing = true
+TextModalView: current effectiveIsProcessing = false
+TextModalView: calculated newValue = true
+TextModalView: effectiveIsProcessing changing from false to true
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: false, transcript length: 35
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: false, transcript length: 35
+Donating message sent intent: 'What’s a dog'
+ChatViewModel: send() called with: 'What’s a dog'
+ChatViewModel: Setting isProcessing = true
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 35
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: updateEffectiveProcessingState called
+TextModalView: viewModel.llm.isProcessing = true
+TextModalView: isLocalProcessing = true
+TextModalView: current effectiveIsProcessing = true
+TextModalView: calculated newValue = true
+TextModalView: effectiveIsProcessing unchanged (true)
+TextModalView: onChange(viewModel.llm.isProcessing) triggered - old: false, new: true
+TextModalView: updateEffectiveProcessingState called
+TextModalView: viewModel.llm.isProcessing = true
+TextModalView: isLocalProcessing = true
+TextModalView: current effectiveIsProcessing = true
+TextModalView: calculated newValue = true
+TextModalView: effectiveIsProcessing unchanged (true)
+ChatViewModel: Message history count: 2
+ChatViewModel: Last message isUser: false
+ChatViewModel: Clearing transcript for new user message
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 0
+[22:52:17.416] [GENERAL] DebugFlagManager.swift:319 debugPrint(_:category:) - ChatViewModel: Added user message to history.
+buildSafeHistory called - 3 messages
+ChatViewModel: After maxMessages trim: 3 messages
+ChatViewModel: Initial character count: 49
+Final result - 3 messages, 49 characters
+ChatViewModel: About to load selected model
+TextModalView: onChange triggered - old: 'Hi there! How can I help you today?' new: ''
+ChatViewModel: Model loaded successfully
+ChatViewModel: About to call generateResponse
+Donating message sent intent: 'What’s a dog'
+LLMService.chat: ENTRY POINT - 12 characters
+LLMService.chat: History count - 3
+Starting conversation #2 - Model: gemma-3-1b-it-Q4_K_M
+LLMService.buildPrompt: ENTRY POINT - 12 characters
+buildPrompt called with history count - 3
+Building prompt with 3 history messages for model gemma-3-1b-it-Q4_K_M
+LlamaCppBridge: Using chat template: {{ bos_token }}
+{%- if messages[0]['role'] == 'system' -%}
+    {%- if messages[0]['content'] is string -%}
+        {%- set first_user_prefix = messages[0]['content'] + '
+
+' -%}
+    {%- else -%}
+        {%- set first_user_prefix = messages[0]['content'][0]['text'] + '
+
+' -%}
+    {%- endif -%}
+    {%- set loop_messages = messages[1:] -%}
+{%- else -%}
+    {%- set first_user_prefix = "" -%}
+    {%- set loop_messages = messages -%}
+{%- endif -%}
+{%- for message in loop_messages -%}
+    {%- if (message['role'] == 'user') != (loop.index0 % 2 == 0) -%}
+        {{ raise_exception("Conversation roles must alternate user/assistant/user/assistant/...") }}
+    {%- endif -%}
+    {%- if (message['role'] == 'assistant') -%}
+        {%- set role = "model" -%}
+    {%- else -%}
+        {%- set role = message['role'] -%}
+    {%- endif -%}
+    {{ '<start_of_turn>' + role + '
+' + (first_user_prefix if loop.first else "") }}
+    {%- if message['content'] is string -%}
+        {{ message['content'] | trim }}
+    {%- elif message['content'] is iterable -%}
+        {%- for item in message['content'] -%}
+            {%- if item['type'] == 'image' -%}
+                {{ '<start_of_image>' }}
+            {%- elif item['type'] == 'text' -%}
+                {{ item['text'] | trim }}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- else -%}
+        {{ raise_exception("Invalid content type") }}
+    {%- endif -%}
+    {{ '<end_of_turn>
+' }}
+{%- endfor -%}
+{%- if add_generation_prompt -%}
+    {{'<start_of_turn>model
+'}}
+{%- endif -%}
+Final prompt length - 312 characters
+LlamaCppBridge: Starting streaming generation with max_tokens=2048 for model gemma-3-1b-it-Q4_K_M
+LlamaCppBridge: Prompt length: 316 characters
+LlamaCppBridge: Prompt received (length: 316 chars) - content redacted for security
+LlamaCppBridge: Using standard tokenization (add_special=true, parse_special=true)
+LlamaCppBridge: Tokenized prompt into 69 tokens
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 0
+TextModalView: monitorAssistantStream - poll count: 0
+TextModalView: monitorAssistantStream - viewModel.llm.isProcessing: true
+TextModalView: monitorAssistantStream - transcript length: 0
+TextModalView: monitorAssistantStream - transcript content: ''
+TextModalView: monitorAssistantStream - actual message content: 'Hi there! How can I help you today?'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 0
+TextModalView: onChange(isLocalProcessing) triggered - new value: false
+TextModalView: updateEffectiveProcessingState called
+TextModalView: viewModel.llm.isProcessing = true
+TextModalView: isLocalProcessing = false
+TextModalView: current effectiveIsProcessing = true
+TextModalView: calculated newValue = true
+TextModalView: effectiveIsProcessing unchanged (true)
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 0
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: true, content: ''
+TextModalView: SHOWING ThinkingAnimationView for empty message
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 0
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: true, content: ''
+TextModalView: SHOWING ThinkingAnimationView for empty message
+LlamaCppBridge: Starting generation loop for 2048 tokens
+LLMService: Callback received token: 'Okay'
+LLMService: About to call DispatchQueue.main.async
+LlamaCppBridge: Token 1: 'Okay' -> 'Okay'
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: 'Okay'
+ChatViewModel: onToken called with: 'Okay'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: 'Okay'
+ChatViewModel: Current transcript length: 0
+ChatViewModel: New transcript length: 4
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 4
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: '' new: 'Okay'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 4
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay'
+LLMService: onToken call completed
+LLMService: Callback received token: ','
+LLMService: About to call DispatchQueue.main.async
+LlamaCppBridge: Token 2: ',' -> ','
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ','
+ChatViewModel: onToken called with: ','
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ','
+ChatViewModel: Current transcript length: 4
+ChatViewModel: New transcript length: 5
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 5
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay' new: 'Okay,'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 5
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay,'
+LLMService: onToken call completed
+LLMService: Callback received token: ' let'
+LLMService: About to call DispatchQueue.main.async
+LlamaCppBridge: Token 3: ' let' -> ' let'
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' let'
+ChatViewModel: onToken called with: ' let'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' let'
+ChatViewModel: Current transcript length: 5
+ChatViewModel: New transcript length: 9
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 9
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay,' new: 'Okay, let'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 9
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let'
+LLMService: onToken call completed
+LLMService: Callback received token: '’'
+LLMService: About to call DispatchQueue.main.async
+LlamaCppBridge: Token 4: '’' -> '’'
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: '’'
+ChatViewModel: onToken called with: '’'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: '’'
+ChatViewModel: Current transcript length: 9
+ChatViewModel: New transcript length: 10
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 10
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let' new: 'Okay, let’'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 10
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’'
+LLMService: onToken call completed
+LLMService: Callback received token: 's'
+LLMService: About to call DispatchQueue.main.async
+LlamaCppBridge: Token 5: 's' -> 's'
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: 's'
+ChatViewModel: onToken called with: 's'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: 's'
+ChatViewModel: Current transcript length: 10
+ChatViewModel: New transcript length: 11
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 11
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’' new: 'Okay, let’s'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 11
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s'
+LLMService: onToken call completed
+LLMService: Callback received token: ' talk'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' talk'
+ChatViewModel: onToken called with: ' talk'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' talk'
+ChatViewModel: Current transcript length: 11
+ChatViewModel: New transcript length: 16
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 16
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s' new: 'Okay, let’s talk'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 16
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk'
+LLMService: onToken call completed
+LLMService: Callback received token: ' about'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' about'
+ChatViewModel: onToken called with: ' about'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' about'
+ChatViewModel: Current transcript length: 16
+ChatViewModel: New transcript length: 22
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 22
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk' new: 'Okay, let’s talk about'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 22
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about'
+LLMService: onToken call completed
+LLMService: Callback received token: ' dogs'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' dogs'
+ChatViewModel: onToken called with: ' dogs'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' dogs'
+ChatViewModel: Current transcript length: 22
+ChatViewModel: New transcript length: 27
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 27
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about' new: 'Okay, let’s talk about dogs'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 27
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs'
+LLMService: onToken call completed
+LLMService: Callback received token: '!'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: '!'
+ChatViewModel: onToken called with: '!'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: '!'
+ChatViewModel: Current transcript length: 27
+ChatViewModel: New transcript length: 28
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 28
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs' new: 'Okay, let’s talk about dogs!'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 28
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs!'
+LLMService: onToken call completed
+LLMService: Callback received token: ' Here'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' Here'
+ChatViewModel: onToken called with: ' Here'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' Here'
+ChatViewModel: Current transcript length: 28
+ChatViewModel: New transcript length: 33
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 33
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs!' new: 'Okay, let’s talk about dogs! Here'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 33
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here'
+LLMService: onToken call completed
+LLMService: Callback received token: '’'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: '’'
+ChatViewModel: onToken called with: '’'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: '’'
+ChatViewModel: Current transcript length: 33
+ChatViewModel: New transcript length: 34
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 34
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here' new: 'Okay, let’s talk about dogs! Here’'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 34
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’'
+LLMService: onToken call completed
+LLMService: Callback received token: 's'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: 's'
+ChatViewModel: onToken called with: 's'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: 's'
+ChatViewModel: Current transcript length: 34
+ChatViewModel: New transcript length: 35
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 35
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’' new: 'Okay, let’s talk about dogs! Here’s'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 35
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s'
+LLMService: onToken call completed
+LLMService: Callback received token: ' a'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' a'
+ChatViewModel: onToken called with: ' a'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' a'
+ChatViewModel: Current transcript length: 35
+ChatViewModel: New transcript length: 37
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 37
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s' new: 'Okay, let’s talk about dogs! Here’s a'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 37
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a'
+LLMService: onToken call completed
+LLMService: Callback received token: ' breakdown'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' breakdown'
+ChatViewModel: onToken called with: ' breakdown'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' breakdown'
+ChatViewModel: Current transcript length: 37
+ChatViewModel: New transcript length: 47
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 47
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a' new: 'Okay, let’s talk about dogs! Here’s a breakdown'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 47
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown'
+LLMService: onToken call completed
+LLMService: Callback received token: ' of'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' of'
+ChatViewModel: onToken called with: ' of'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' of'
+ChatViewModel: Current transcript length: 47
+ChatViewModel: New transcript length: 50
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 50
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown' new: 'Okay, let’s talk about dogs! Here’s a breakdown of'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 50
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of'
+LLMService: onToken call completed
+LLMService: Callback received token: ' what'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' what'
+ChatViewModel: onToken called with: ' what'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' what'
+ChatViewModel: Current transcript length: 50
+ChatViewModel: New transcript length: 55
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 55
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 55
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what'
+LLMService: onToken call completed
+LLMService: Callback received token: ' a'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' a'
+ChatViewModel: onToken called with: ' a'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' a'
+ChatViewModel: Current transcript length: 55
+ChatViewModel: New transcript length: 57
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 57
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 57
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a'
+LLMService: onToken call completed
+LLMService: Callback received token: ' dog'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' dog'
+ChatViewModel: onToken called with: ' dog'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' dog'
+ChatViewModel: Current transcript length: 57
+ChatViewModel: New transcript length: 61
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 61
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 61
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog'
+LLMService: onToken call completed
+LLMService: Callback received token: ' is'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' is'
+ChatViewModel: onToken called with: ' is'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' is'
+ChatViewModel: Current transcript length: 61
+ChatViewModel: New transcript length: 64
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 64
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 64
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is'
+LLMService: onToken call completed
+LLMService: Callback received token: ':'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ':'
+ChatViewModel: onToken called with: ':'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ':'
+ChatViewModel: Current transcript length: 64
+ChatViewModel: New transcript length: 65
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 65
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 65
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:'
+LLMService: onToken call completed
+LLMService: Callback received token: '
+
+'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: '
+
+'
+ChatViewModel: onToken called with: '
+
+'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: '
+
+'
+ChatViewModel: Current transcript length: 65
+ChatViewModel: New transcript length: 67
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 67
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 67
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+'
+LLMService: onToken call completed
+LLMService: Callback received token: '**'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: '**'
+ChatViewModel: onToken called with: '**'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: '**'
+ChatViewModel: Current transcript length: 67
+ChatViewModel: New transcript length: 69
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 69
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 69
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**'
+LLMService: onToken call completed
+LLMService: Callback received token: 'A'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: 'A'
+ChatViewModel: onToken called with: 'A'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: 'A'
+ChatViewModel: Current transcript length: 69
+ChatViewModel: New transcript length: 70
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 70
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 70
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A'
+LLMService: onToken call completed
+LLMService: Callback received token: ' dog'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' dog'
+ChatViewModel: onToken called with: ' dog'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' dog'
+ChatViewModel: Current transcript length: 70
+ChatViewModel: New transcript length: 74
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 74
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 74
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog'
+LLMService: onToken call completed
+LLMService: Callback received token: ' is'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' is'
+ChatViewModel: onToken called with: ' is'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' is'
+ChatViewModel: Current transcript length: 74
+ChatViewModel: New transcript length: 77
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 77
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 77
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is'
+LLMService: onToken call completed
+LLMService: Callback received token: ' a'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' a'
+ChatViewModel: onToken called with: ' a'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' a'
+ChatViewModel: Current transcript length: 77
+ChatViewModel: New transcript length: 79
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 79
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 79
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a'
+LLMService: onToken call completed
+LLMService: Callback received token: ' domesticated'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' domesticated'
+ChatViewModel: onToken called with: ' domesticated'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' domesticated'
+ChatViewModel: Current transcript length: 79
+ChatViewModel: New transcript length: 92
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 92
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 92
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated'
+LLMService: onToken call completed
+LLMService: Callback received token: ' mammal'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' mammal'
+ChatViewModel: onToken called with: ' mammal'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' mammal'
+ChatViewModel: Current transcript length: 92
+ChatViewModel: New transcript length: 99
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 99
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 99
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal'
+LLMService: onToken call completed
+LLMService: Callback received token: ' of'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' of'
+ChatViewModel: onToken called with: ' of'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' of'
+ChatViewModel: Current transcript length: 99
+ChatViewModel: New transcript length: 102
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 102
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 102
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of'
+LLMService: onToken call completed
+LLMService: Callback received token: ' the'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' the'
+ChatViewModel: onToken called with: ' the'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' the'
+ChatViewModel: Current transcript length: 102
+ChatViewModel: New transcript length: 106
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 106
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 106
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the'
+LLMService: onToken call completed
+LLMService: Callback received token: ' Can'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' Can'
+ChatViewModel: onToken called with: ' Can'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' Can'
+ChatViewModel: Current transcript length: 106
+ChatViewModel: New transcript length: 110
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 110
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Can'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 110
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Can'
+LLMService: onToken call completed
+LLMService: Callback received token: 'idae'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: 'idae'
+ChatViewModel: onToken called with: 'idae'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: 'idae'
+ChatViewModel: Current transcript length: 110
+ChatViewModel: New transcript length: 114
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 114
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Can' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 114
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae'
+LLMService: onToken call completed
+LLMService: Callback received token: ' family'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' family'
+ChatViewModel: onToken called with: ' family'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' family'
+ChatViewModel: Current transcript length: 114
+ChatViewModel: New transcript length: 121
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 121
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 121
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family'
+LLMService: onToken call completed
+LLMService: Callback received token: ','
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ','
+ChatViewModel: onToken called with: ','
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ','
+ChatViewModel: Current transcript length: 121
+ChatViewModel: New transcript length: 122
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 122
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family,'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 122
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family,'
+LLMService: onToken call completed
+LLMService: Callback received token: ' known'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' known'
+ChatViewModel: onToken called with: ' known'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' known'
+ChatViewModel: Current transcript length: 122
+ChatViewModel: New transcript length: 128
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 128
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family,' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 128
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known'
+LLMService: onToken call completed
+LLMService: Callback received token: ' for'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' for'
+ChatViewModel: onToken called with: ' for'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' for'
+ChatViewModel: Current transcript length: 128
+ChatViewModel: New transcript length: 132
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 132
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 132
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for'
+LLMService: onToken call completed
+LLMService: Callback received token: ' its'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' its'
+ChatViewModel: onToken called with: ' its'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' its'
+ChatViewModel: Current transcript length: 132
+ChatViewModel: New transcript length: 136
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 136
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 136
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its'
+LLMService: onToken call completed
+LLMService: Callback received token: ' loyalty'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' loyalty'
+ChatViewModel: onToken called with: ' loyalty'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' loyalty'
+ChatViewModel: Current transcript length: 136
+ChatViewModel: New transcript length: 144
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 144
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 144
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty'
+LLMService: onToken call completed
+LLMService: Callback received token: ','
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ','
+ChatViewModel: onToken called with: ','
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ','
+ChatViewModel: Current transcript length: 144
+ChatViewModel: New transcript length: 145
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 145
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty,'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 145
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty,'
+LLMService: onToken call completed
+LLMService: Callback received token: ' companionship'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' companionship'
+ChatViewModel: onToken called with: ' companionship'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' companionship'
+ChatViewModel: Current transcript length: 145
+ChatViewModel: New transcript length: 159
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 159
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty,' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 159
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship'
+LLMService: onToken call completed
+LLMService: Callback received token: ','
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ','
+ChatViewModel: onToken called with: ','
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ','
+ChatViewModel: Current transcript length: 159
+ChatViewModel: New transcript length: 160
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 160
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship,'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 160
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship,'
+LLMService: onToken call completed
+LLMService: Callback received token: ' and'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' and'
+ChatViewModel: onToken called with: ' and'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' and'
+ChatViewModel: Current transcript length: 160
+ChatViewModel: New transcript length: 164
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 164
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship,' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 164
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and'
+LLMService: onToken call completed
+LLMService: Callback received token: ' often'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' often'
+ChatViewModel: onToken called with: ' often'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' often'
+ChatViewModel: Current transcript length: 164
+ChatViewModel: New transcript length: 170
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 170
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 170
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often'
+LLMService: onToken call completed
+LLMService: Callback received token: ','
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ','
+ChatViewModel: onToken called with: ','
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ','
+ChatViewModel: Current transcript length: 170
+ChatViewModel: New transcript length: 171
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 171
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often,'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 171
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often,'
+LLMService: onToken call completed
+LLMService: Callback received token: ' a'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' a'
+ChatViewModel: onToken called with: ' a'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' a'
+ChatViewModel: Current transcript length: 171
+ChatViewModel: New transcript length: 173
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 173
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often,' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often, a'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 173
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often, a'
+LLMService: onToken call completed
+LLMService: Callback received token: ' playful'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' playful'
+ChatViewModel: onToken called with: ' playful'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' playful'
+ChatViewModel: Current transcript length: 173
+ChatViewModel: New transcript length: 181
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 181
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often, a' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often, a playful'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 181
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often, a playful'
+LLMService: onToken call completed
+LLMService: Callback received token: ' personality'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: ' personality'
+ChatViewModel: onToken called with: ' personality'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: ' personality'
+ChatViewModel: Current transcript length: 181
+ChatViewModel: New transcript length: 193
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 193
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often, a playful' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often, a playful personality'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 193
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often, a playful personality'
+LLMService: onToken call completed
+LLMService: Callback received token: '.**'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: '.**'
+ChatViewModel: onToken called with: '.**'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: '.**'
+ChatViewModel: Current transcript length: 193
+ChatViewModel: New transcript length: 196
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 196
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often, a playful personality' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often, a playful personality.**'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 196
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often, a playful personality.**'
+LLMService: onToken call completed
+LLMService: Callback received token: '
+
+'
+LLMService: About to call DispatchQueue.main.async
+LLMService: Inside DispatchQueue.main.async
+LLMService: About to call onToken with: '
+
+'
+ChatViewModel: onToken called with: '
+
+'
+ChatViewModel: About to call MainActor.run
+ChatViewModel: Inside MainActor.run
+ChatViewModel: Updating transcript with: '
+
+'
+ChatViewModel: Current transcript length: 196
+ChatViewModel: New transcript length: 198
+ChatViewModel: Transcript update completed
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 198
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: onChange triggered - old: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often, a playful personality.**' new: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often, a playful personality.**
+
+'
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: true, transcript length: 198
+TextModalView: GENERATING OVERLAY - effectiveIsProcessing: true, showing: true
+TextModalView: GENERATING OVERLAY - isLocalProcessing: false, showGeneratingText: true
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Hi there! How can I help you today?'
+TextModalView: MESSAGE BUBBLE - message.content.isEmpty: false, content: 'Okay, let’s talk about dogs! Here’s a breakdown of what a dog is:
+
+**A dog is a domesticated mammal of the Canidae family, known for its loyalty, companionship, and often, a playful personality.**
+
+'
+LLMService: onToken call completed
+[22:52:20.126] [MODEL] DebugFlagManager.swift:319 debugPrint(_:category:) - LLMService: PHASE 4 - Cancelling ongoing generation with enhanced reliability
+LlamaCppBridge: Cancelling generation
+LlamaCppBridge: PHASE 4 - Generation cancelled at token 49 (enhanced checking)
+LlamaCppBridge: Generation loop completed. Generated 49 tokens.
+LlamaCppBridge: Resetting context after chunk completion to free memory
+LlamaCppBridge: Streaming generation completed
+LlamaCppBridge: Context memory securely cleared
+llama[2]: ggml_metal_free: deallocating
+llama[1]: ggml_metal_mem_pool_free: freeing memory pool, num heaps = 0 (total = 0)
+llama[1]: ggml_metal_mem_pool_free: freeing memory pool, num heaps = 0 (total = 0)
+llama[1]: ggml_metal_mem_pool_free: freeing memory pool, num heaps = 0 (total = 0)
+llama[1]: ggml_metal_mem_pool_free: freeing memory pool, num heaps = 0 (total = 0)
+llama[1]: ggml_metal_mem_pool_free: freeing memory pool, num heaps = 0 (total = 0)
+llama[1]: ggml_metal_mem_pool_free: freeing memory pool, num heaps = 0 (total = 0)
+llama[1]: ggml_metal_mem_pool_free: freeing memory pool, num heaps = 0 (total = 0)
+llama[1]: ggml_metal_mem_pool_free: freeing memory pool, num heaps = 0 (total = 0)
+[22:52:20.188] [MODEL] DebugFlagManager.swift:319 debugPrint(_:category:) - LLMService: PHASE 4 - Cancellation flag set and operation flags reset
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: true, isProcessing: false, transcript length: 198
+TextModalView: updateEffectiveProcessingState called
+TextModalView: viewModel.llm.isProcessing = false
+TextModalView: isLocalProcessing = false
+TextModalView: current effectiveIsProcessing = true
+TextModalView: calculated newValue = false
+TextModalView: effectiveIsProcessing changing from true to false
+TextModalView: Resetting showGeneratingText to false
+TextModalView: onChange(viewModel.llm.isProcessing) triggered - old: true, new: false
+TextModalView: updateEffectiveProcessingState called
+TextModalView: viewModel.llm.isProcessing = false
+TextModalView: isLocalProcessing = false
+TextModalView: current effectiveIsProcessing = false
+TextModalView: calculated newValue = false
+TextModalView: effectiveIsProcessing unchanged (false)
+TextModalView: Resetting showGeneratingText to false
+TextModalView: Processing finished - updating placeholder message with transcript
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 198
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 198
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 198
+TextModalView: BODY RE-RENDERING - effectiveIsProcessing: false, isProcessing: false, transcript length: 198
+-[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = dismissAutoFillPanel, customInfoType = UIUserInteractionRemoteInputOperations
+[22:52:21.040] [SECURITY] DebugFlagManager.swift:319 debugPrint(_:category:) - BackgroundSecurityManager: App will resign active - content remains visible
 App resigned active - content remains visible
+-[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = dismissAutoFillPanel, customInfoType = UIUserInteractionRemoteInputOperations
+-[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = dismissAutoFillPanel, customInfoType = UIUserInteractionRemoteInputOperations
+-[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = dismissAutoFillPanel, customInfoType = UIUserInteractionRemoteInputOperations
+[C:3] Error received: Connection interrupted.
+[C:3-1] Error received: Connection interrupted.
+-[RTIInputSystemClient _configureConnection:withMachName:]_block_invoke  Client connection to service was interrupted: <NSXPCConnection: 0x12711cd20> connection to service with pid -1 named (null)
+[22:52:22.174] [SECURITY] DebugFlagManager.swift:319 debugPrint(_:category:) - BackgroundSecurityManager: App entered background - content remains visible
 App entered background - content remains visible
+Snapshotting a view (0x15af40700, UIKeyboardImpl) that is not in a visible window requires afterScreenUpdates:YES.
+TextModalView: VIEW LIFECYCLE - onDisappear called
