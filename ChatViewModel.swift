@@ -44,6 +44,10 @@ class ChatViewModel {
     var isProcessing = false
     var transcript = ""
     
+    // UI HACK: Create a new data channel to force UI updates on restart
+    // This will be updated on every token and observed by the View
+    var latestToken: String = ""
+    
     // FIXED: Add flag to prevent messages during model switch
     var isModelSwitching = false
     
@@ -76,9 +80,21 @@ class ChatViewModel {
     
     init() {
         debugPrint("ChatViewModel: init", category: .general)
+        
+        // CRITICAL DEBUG: Log ChatViewModel state at initialization
+        NSLog("ChatViewModel: 🚀 ChatViewModel initialized")
+        NSLog("ChatViewModel: Initial state:")
+        NSLog("ChatViewModel: - modelLoaded: \(modelLoaded)")
+        NSLog("ChatViewModel: - lastLoadedModel: \(lastLoadedModel ?? "nil")")
+        NSLog("ChatViewModel: - isProcessing: \(isProcessing)")
+        NSLog("ChatViewModel: - transcript: '\(transcript)'")
+        NSLog("ChatViewModel: - isModelSwitching: \(isModelSwitching)")
+        NSLog("ChatViewModel: - currentGenerationTask: \(currentGenerationTask != nil ? "exists" : "nil")")
+        
         initializeSession()
         
         // CRITICAL FIX: Ensure processing state is clean on startup
+        NSLog("ChatViewModel: Setting isProcessing = false (line 82)")
         isProcessing = false
         // transcript = "" // REMOVED: Don't clear transcript on startup
         
@@ -152,6 +168,7 @@ class ChatViewModel {
                 // self.transcript = "" // REMOVED: Don't clear transcript during model switch
                 self.modelLoaded = false
                 self.lastLoadedModel = nil
+                NSLog("ChatViewModel: Setting isProcessing = false (line 155 - error case)")
                 self.isProcessing = false  // CRITICAL FIX: Reset processing state
             }
             
@@ -205,7 +222,11 @@ class ChatViewModel {
     }
     
     func send(_ userText: String, addUserMessageToHistory: Bool = true) async throws {
-        NSLog("ChatViewModel: send() called with: '\(userText)'")
+        // CRITICAL DEBUG: Log generation start timing
+        let startTime = Date()
+        NSLog("ChatViewModel: 🚀 GENERATION START - send() called with: '\(userText)' at \(startTime)")
+        NSLog("ChatViewModel: Generation start timestamp: \(startTime.timeIntervalSince1970)")
+        
         // Check session expiry before processing message
         checkSessionExpiry()
         
@@ -276,6 +297,10 @@ class ChatViewModel {
                             NSLog("ChatViewModel: Updating transcript with: '\(partialResponse)'")
                             NSLog("ChatViewModel: Current transcript length: \(self?.transcript.count ?? 0)")
                             self?.transcript += partialResponse
+                            
+                            // UI HACK: Update the explicit data channel to force a UI refresh
+                            self?.latestToken = partialResponse
+                            
                             NSLog("ChatViewModel: New transcript length: \(self?.transcript.count ?? 0)")
                             NSLog("ChatViewModel: Transcript update completed")
                         }
@@ -324,6 +349,7 @@ class ChatViewModel {
                 self.requestStartTime = nil
                 self.lastSentMessage = nil // Allow sending the same message again
                 // CRITICAL FIX: Reset processing state after Task completes
+                NSLog("ChatViewModel: Setting isProcessing = false (line 329 - task completion)")
                 self.isProcessing = false
                 // CRITICAL FIX: DO NOT clear transcript - keep generated content visible
             }
@@ -340,6 +366,7 @@ class ChatViewModel {
                 debugPrint("ChatViewModel: Generation task failed: \(error)", category: .general)
                 // Reset processing state on error
                 await MainActor.run {
+                    NSLog("ChatViewModel: Setting isProcessing = false (line 346 - error handling)")
                     self.isProcessing = false
                 }
             }
@@ -537,12 +564,23 @@ class ChatViewModel {
     
     @MainActor
     func stopGeneration() {
+        // CRITICAL DEBUG: Log cancellation timing and call stack
+        let cancelTime = Date()
+        NSLog("ChatViewModel: ⚠️ GENERATION CANCELLED - stopGeneration() called at \(cancelTime)")
+        NSLog("ChatViewModel: Cancellation timestamp: \(cancelTime.timeIntervalSince1970)")
+        NSLog("ChatViewModel: Call stack trace:")
+        Thread.callStackSymbols.enumerated().forEach { index, symbol in
+            NSLog("ChatViewModel: [\(index)] \(symbol)")
+        }
+        NSLog("ChatViewModel: ⚠️ End of call stack trace")
+        
         currentGenerationTask?.cancel()
         currentGenerationTask = nil
         
         // Also stop the HybridLLMService generation
         HybridLLMService.shared.stopGeneration()
         
+        NSLog("ChatViewModel: Setting isProcessing = false (line 550 - stopGeneration)")
         self.isProcessing = false
     }
     

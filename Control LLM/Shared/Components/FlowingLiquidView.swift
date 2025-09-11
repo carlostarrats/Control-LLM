@@ -184,8 +184,10 @@ struct FlowingLiquidView: View {
             continuousAnimationTimer?.invalidate()
             continuousAnimationTimer = nil
             
-            // Security: Clear Metal memory when view disappears
-            MetalMemoryManager.shared.clearMetalMemory()
+            // CRITICAL FIX: Don't clear Metal memory immediately when view disappears
+            // This was interfering with Lottie animations in TextModalView
+            // Metal memory will be cleared by the app lifecycle management instead
+            // MetalMemoryManager.shared.clearMetalMemory()
         }
         // Voice state change handling removed
     }

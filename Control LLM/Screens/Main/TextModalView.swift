@@ -8,10 +8,12 @@ import Lottie
 struct LottieView: UIViewRepresentable {
     let name: String
     let loopMode: LottieLoopMode
+    let isVisible: Bool
     
-    init(name: String, loopMode: LottieLoopMode = .loop) {
+    init(name: String, loopMode: LottieLoopMode = .loop, isVisible: Bool = true) {
         self.name = name
         self.loopMode = loopMode
+        self.isVisible = isVisible
     }
     
     func makeUIView(context: Context) -> UIView {
@@ -107,7 +109,20 @@ struct LottieView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIView, context: Context) {
-        // No updates needed
+        // CRITICAL FIX: Handle visibility state changes
+        guard let animationView = uiView.subviews.first as? LottieAnimationView else { return }
+        
+        if isVisible {
+            // Start animation when visible
+            if !animationView.isAnimationPlaying {
+                animationView.play()
+            }
+        } else {
+            // Stop animation when not visible
+            if animationView.isAnimationPlaying {
+                animationView.stop()
+            }
+        }
     }
 }
 
@@ -233,11 +248,17 @@ struct TextModalView: View {
     @ObservedObject var viewModel: MainViewModel          // your existing VM
     // REMOVED: @StateObject private var llm = ChatViewModel()        // NEW: streams reply
     
+    // CRITICAL FIX: Unique view identifier that changes on app restart to force SwiftUI view recreation
+    private let viewIdentifier: String = "TextModalView_\(Date().timeIntervalSince1970)"
+    
+    
     init(viewModel: MainViewModel, isPresented: Binding<Bool>, isSheetExpanded: Binding<Bool>? = nil, messageHistory: [ChatMessage]? = nil) {
         self.viewModel = viewModel
         self._isPresented = isPresented
         self._isSheetExpanded = isSheetExpanded ?? .constant(false)
         self.messageHistory = messageHistory ?? []
+        
+        NSLog("TextModalView: Created with unique identifier: \(self.viewIdentifier)")
     }
 
     // UI state
@@ -252,7 +273,16 @@ struct TextModalView: View {
     @State private var inputBarHeight: CGFloat = 0
     @State private var opacityUpdateTimer: Timer?
     @State private var keyboardHeight: CGFloat = 0
-    @State private var showGeneratingText = false
+    @State private var showGeneratingText = false {
+        didSet {
+            NSLog("TextModalView: showGeneratingText changed from \(oldValue) to \(showGeneratingText)")
+        }
+    }
+    @State private var isButtonProcessing = false {
+        didSet {
+            NSLog("TextModalView: isButtonProcessing changed from \(oldValue) to \(isButtonProcessing)")
+        }
+    }
     @State private var timeUpdateTimer: Timer?
     @State private var currentTime = Date()
 
@@ -269,6 +299,7 @@ struct TextModalView: View {
     // MARK: - Force Reset Function
     private func forceResetProcessingState() {
         // CRITICAL FIX: Stop all polling and reset all processing states
+        NSLog("TextModalView: forceResetProcessingState() called - resetting showGeneratingText to false")
         isPolling = false
         pollCount = 0
         isLocalProcessing = false
@@ -279,7 +310,7 @@ struct TextModalView: View {
         viewModel.llm.isProcessing = false
         // viewModel.llm.transcript = "" // REMOVED: Don't clear transcript
         
-        // CRITICAL FIX: Clear any empty thinking messages
+        // CRITICAL FIX: Clear any empty assistant messages to prevent multiple empty messages
         viewModel.messages.removeAll { message in
             !message.isUser && message.content.isEmpty
         }
@@ -406,9 +437,28 @@ struct TextModalView: View {
                         .padding(.bottom, keyboardHeight > 0 ? keyboardHeight - geometry.safeAreaInsets.bottom : geometry.safeAreaInsets.bottom)
                 }
                 
+                
+            }
+        }
+        .onChange(of: viewModel.llm.latestToken) { _, newToken in
+            // UI HACK: Manually find the last assistant message and append the new token
+            // This bypasses the broken automatic UI updates on restart
+            guard !newToken.isEmpty else { return }
+            
+            // Use a custom search to find the index of the last assistant message
+            var lastAssistantIndex: Int?
+            for i in (0..<viewModel.messages.count).reversed() {
+                if !viewModel.messages[i].isUser {
+                    lastAssistantIndex = i
+                    break
+                }
+            }
 
-                
-                
+            if let index = lastAssistantIndex {
+                viewModel.messages[index].content += newToken
+                NSLog("TextModalView: UI HACK - Manually appended token to message at index \(index)")
+            } else {
+                NSLog("TextModalView: UI HACK - No assistant message found to append token to")
             }
         }
         .onAppear {
@@ -426,6 +476,7 @@ struct TextModalView: View {
             forceResetProcessingState()
             
             // CRITICAL FIX: Reset showGeneratingText FIRST to ensure clean state
+            NSLog("TextModalView: onAppear - resetting showGeneratingText to false")
             showGeneratingText = false
             
             // CRITICAL FIX: Synchronize processing state when view appears
@@ -433,6 +484,11 @@ struct TextModalView: View {
             
             // CRITICAL FIX: Update effective processing state on view creation
             updateEffectiveProcessingState()
+            
+            // CRITICAL FIX: Clear any empty assistant messages on app start to prevent multiple empty messages
+            viewModel.messages.removeAll { message in
+                !message.isUser && message.content.isEmpty
+            }
             
             // Setup keyboard observers
             setupKeyboardObservers()
@@ -448,14 +504,16 @@ struct TextModalView: View {
             // CRITICAL FIX: Update effective processing state when llm.isProcessing changes
             updateEffectiveProcessingState()
             
-            // CRITICAL FIX: When processing finishes, ensure placeholder message gets updated with transcript
+            // CRITICAL FIX: Reset button processing flag when LLM generation completes
             if oldValue == true && isProcessing == false {
-                NSLog("TextModalView: Processing finished - updating placeholder message with transcript")
-                if let lastAssistantIndex = viewModel.messages.lastIndex(where: { !$0.isUser && $0.content.isEmpty }) {
-                    viewModel.messages[lastAssistantIndex].content = viewModel.llm.transcript
-                    NSLog("TextModalView: Updated empty placeholder message with transcript: '\(viewModel.llm.transcript)'")
+                NSLog("TextModalView: LLM generation completed - resetting button lock")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    NSLog("TextModalView: RESETTING isButtonProcessing = false (generation completed)")
+                    isButtonProcessing = false
                 }
             }
+            
+            // REMOVED: Redundant sync mechanism - real-time transcript updates should handle content updates
             
             // CRITICAL FIX: Cancel any pending timer
             showGeneratingTextTimer?.invalidate()
@@ -539,7 +597,7 @@ struct TextModalView: View {
             isClipboardMessage = false
             hasAddedFollowUpQuestions = false
             
-            // CRITICAL FIX: Clear empty thinking messages during model change to prevent stuck animations
+            // CRITICAL FIX: Clear empty assistant messages during model change to prevent multiple empty messages
             viewModel.messages.removeAll { message in
                 !message.isUser && message.content.isEmpty
             }
@@ -598,6 +656,18 @@ struct TextModalView: View {
         }
         .onDisappear {
             NSLog("TextModalView: VIEW LIFECYCLE - onDisappear called")
+        }
+        .id(viewIdentifier) // CRITICAL FIX: Force SwiftUI to recreate entire view hierarchy on app restart
+        .onChange(of: viewModel.messages) { oldMessages, newMessages in
+            NSLog("TextModalView: ANIMATION STATE TRACKING - messages array changed")
+            NSLog("TextModalView: ANIMATION STATE TRACKING - old count: \(oldMessages.count), new count: \(newMessages.count)")
+            if let lastMessage = newMessages.last {
+                NSLog("TextModalView: ANIMATION STATE TRACKING - last message isUser: \(lastMessage.isUser), content length: \(lastMessage.content.count)")
+                NSLog("TextModalView: ANIMATION STATE TRACKING - last message content: '\(lastMessage.content)'")
+            }
+            NSLog("TextModalView: ANIMATION STATE TRACKING - effectiveIsProcessing: \(effectiveIsProcessing)")
+            NSLog("TextModalView: ANIMATION STATE TRACKING - showGeneratingText: \(showGeneratingText)")
+            NSLog("TextModalView: ANIMATION STATE TRACKING - isLocalProcessing: \(isLocalProcessing)")
         }
 
 
@@ -757,19 +827,27 @@ struct TextModalView: View {
                 }
             }
             .onChange(of: viewModel.llm.transcript) { oldTranscript, newTranscript in
-                NSLog("TextModalView: onChange triggered - old: '\(oldTranscript)' new: '\(newTranscript)'")
+                NSLog("TextModalView: TRANSCRIPT CHANGE - old: '\(oldTranscript)' new: '\(newTranscript)'")
+                NSLog("TextModalView: TRANSCRIPT CHANGE - old length: \(oldTranscript.count), new length: \(newTranscript.count)")
                 // CRITICAL FIX: Actually update the message content when transcript changes
                 if !newTranscript.isEmpty && newTranscript != oldTranscript {
+                    NSLog("TextModalView: TRANSCRIPT CHANGE - Updating message content")
                     if let lastAssistantIndex = viewModel.messages.lastIndex(where: { !$0.isUser }) {
                         // Update the message content with the new transcript
+                        let oldContent = viewModel.messages[lastAssistantIndex].content
                         viewModel.messages[lastAssistantIndex].content = newTranscript
+                        NSLog("TextModalView: TRANSCRIPT CHANGE - Updated message[\(lastAssistantIndex)] content from '\(oldContent)' to '\(newTranscript)'")
                         
                         // Scroll to the updated message
                         let lastAssistant = viewModel.messages[lastAssistantIndex]
                         withAnimation(.spring()) {
                             proxy.scrollTo(lastAssistant.id, anchor: .bottom)
                         }
+                    } else {
+                        NSLog("TextModalView: TRANSCRIPT CHANGE - No assistant message found to update with transcript")
                     }
+                } else {
+                    NSLog("TextModalView: TRANSCRIPT CHANGE - Skipping update (empty or unchanged)")
                 }
             }
         }
@@ -1005,23 +1083,54 @@ struct TextModalView: View {
                 .opacity(isSendButtonPressed ? 0.8 : 1.0)
                 .animation(.easeInOut(duration: 0.1), value: isSendButtonPressed)
                 .onTapGesture {
-                    isSendButtonPressed = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        isSendButtonPressed = false
+                    // CRITICAL DEBUG: Track automatic button clicks
+                    NSLog("TextModalView: onTapGesture TRIGGERED - investigating automatic double-tap")
+                    NSLog("TextModalView: Call stack trace:")
+                    Thread.callStackSymbols.enumerated().forEach { index, symbol in
+                        NSLog("TextModalView: [\(index)] \(symbol)")
                     }
-
-                    if viewModel.llm.isProcessing {
-                        // Stop button pressed - cancel ongoing generation
+                    NSLog("TextModalView: End of call stack trace")
+                    
+                    // CRITICAL FIX: Button should act based on current state, not display state
+                    // Use viewModel.llm.isProcessing for action logic, showGeneratingText for display
+                    let isCurrentlyGenerating = viewModel.llm.isProcessing
+                    NSLog("TextModalView: BUTTON CLICK - isProcessing: \(isCurrentlyGenerating), showGeneratingText: \(showGeneratingText)")
+                    
+                    if isCurrentlyGenerating {
+                        // Stop button pressed - cancel ongoing generation (always allow this)
+                        NSLog("TextModalView: STOP BUTTON PRESSED - Cancelling generation")
+                        
+                        // CRITICAL FIX: Reset button processing flag when generation is cancelled
+                        NSLog("TextModalView: RESETTING isButtonProcessing = false (generation cancelled)")
+                        isButtonProcessing = false
                         
                         // Cancel both LLM generation and PDF processing
                         viewModel.llm.stopGeneration()
                         viewModel.cancelFileProcessing()
-                    } else {
-                        // Send button pressed - send new message
                         
-                        // Immediately change button state and dismiss keyboard for instant UI response
+                        // No button lock needed for stop button - user intentionally clicked it
+                    } else {
+                        // Send button pressed - prevent double-clicks only for send button
+                        NSLog("TextModalView: BUTTON TAP RECEIVED - isButtonProcessing: \(isButtonProcessing)")
+                        guard !isButtonProcessing else {
+                            NSLog("TextModalView: Send button click ignored - already processing")
+                            return
+                        }
+                        
+                        NSLog("TextModalView: SETTING isButtonProcessing = true")
+                        isButtonProcessing = true
+                        isSendButtonPressed = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            isSendButtonPressed = false
+                        }
+                        
+                        // Send button pressed - send new message
+                        NSLog("TextModalView: SEND BUTTON PRESSED - Sending message")
+                        
+                        // CRITICAL FIX: Set local processing state but NOT showGeneratingText to prevent button mode switch
                         isLocalProcessing = true
                         isTextFieldFocused = false
+                        NSLog("TextModalView: IMMEDIATE FEEDBACK - Set isLocalProcessing = true (NOT showGeneratingText)")
                         
                         // Force keyboard dismissal using multiple methods for reliability
                         hideKeyboard()
@@ -1037,6 +1146,9 @@ struct TextModalView: View {
                         
                         Task {
                             await sendMessage()
+                            
+                            // CRITICAL FIX: Don't reset button processing flag here - it will be reset when generation completes
+                            NSLog("TextModalView: Message sent, waiting for generation to complete before unlocking button")
                         }
                     }
                 }
@@ -1048,8 +1160,10 @@ struct TextModalView: View {
 
     // MARK: - BUTTON ACTION --------------------------------------------------
     private func sendMessage() async {
+        NSLog("TextModalView: sendMessage() called")
         // Prevent sending if already processing or no models available
         guard !viewModel.llm.isProcessing else {
+            NSLog("TextModalView: sendMessage() blocked - already processing")
             return
         }
         
@@ -1099,7 +1213,8 @@ struct TextModalView: View {
             return
         }
         
-        // Clear any existing thinking messages (empty assistant messages)
+        // CRITICAL FIX: Only remove empty assistant messages to prevent multiple empty messages
+        // This preserves completed responses while preventing empty message accumulation
         viewModel.messages.removeAll { message in
             !message.isUser && message.content.isEmpty
         }
@@ -1135,13 +1250,10 @@ struct TextModalView: View {
             return
         }
 
-        // 2) placeholder assistant bubble (0.3s delay to prevent motion and allow thinking animation)
+        // 2) placeholder assistant bubble (create immediately, not with delay)
         // BUT: Don't create placeholder if file processing is happening
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            if viewModel.isFileProcessing {
-                return
-            }
-            
+        NSLog("TextModalView: isFileProcessing = \(viewModel.isFileProcessing)")
+        if !viewModel.isFileProcessing {
             let placeholder = ChatMessage(
                 content: "",
                 isUser: false,
@@ -1149,8 +1261,11 @@ struct TextModalView: View {
                 messageType: .text
             )
             viewModel.messages.append(placeholder)
-            
-            // CRITICAL FIX: Don't sync UI messages - let ChatViewModel handle its own context
+            NSLog("TextModalView: Created empty placeholder message immediately")
+            NSLog("TextModalView: viewModel.messages count after creation: \(viewModel.messages.count)")
+            NSLog("TextModalView: Last message isUser: \(viewModel.messages.last?.isUser ?? false), content: '\(viewModel.messages.last?.content ?? "nil")'")
+        } else {
+            NSLog("TextModalView: Skipped empty message creation - file processing is active")
         }
         
         // 3) clear field + ask model (keyboard already dismissed)
@@ -1161,10 +1276,14 @@ struct TextModalView: View {
         // 4) start polling the stream immediately for real-time word streaming
         // BUT: Don't poll if file processing is happening (file processing handles its own results)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            NSLog("TextModalView: POLLING SETUP - Starting polling mechanism")
+            NSLog("TextModalView: POLLING SETUP - viewModel.isFileProcessing: \(viewModel.isFileProcessing)")
             if viewModel.isFileProcessing {
+                NSLog("TextModalView: POLLING SETUP - File processing active, skipping polling")
                 isPolling = false
                 isLocalProcessing = false
             } else {
+                NSLog("TextModalView: POLLING SETUP - Starting polling for real-time updates")
                 isPolling = true
                 pollCount = 0
                 monitorAssistantStream()
@@ -1597,11 +1716,21 @@ struct MessageBubble: View {
                         ZStack(alignment: .topLeading) {
                             // Animation is only rendered when content is empty to prevent layout issues
                             let _ = NSLog("TextModalView: MESSAGE BUBBLE - message.content.isEmpty: \(message.content.isEmpty), content: '\(message.content)'")
-                            // PHASE 5 FIX: Only show ThinkingAnimationView when processing AND content is empty
+                            // CRITICAL FIX: Only show ThinkingAnimationView when processing AND content is empty
                             if message.content.isEmpty {
                                 let _ = NSLog("TextModalView: SHOWING ThinkingAnimationView for empty message")
-                                ThinkingAnimationView()
+                                let _ = NSLog("TextModalView: ANIMATION STATE - message.content.isEmpty: \(message.content.isEmpty)")
+                                let _ = NSLog("TextModalView: ANIMATION STATE - message.content length: \(message.content.count)")
+                                let _ = NSLog("TextModalView: ANIMATION STATE - message.content: '\(message.content)'")
+                                ThinkingAnimationView(isVisible: true)
                                     .offset(x: -31, y: -35) // Restore original positioning
+                            } else {
+                                let _ = NSLog("TextModalView: HIDING ThinkingAnimationView - content not empty")
+                                let _ = NSLog("TextModalView: ANIMATION STATE - message.content.isEmpty: \(message.content.isEmpty)")
+                                let _ = NSLog("TextModalView: ANIMATION STATE - message.content length: \(message.content.count)")
+                                let _ = NSLog("TextModalView: ANIMATION STATE - message.content: '\(message.content)'")
+                                ThinkingAnimationView(isVisible: false)
+                                    .offset(x: -31, y: -35) // Keep positioning but hide animation
                             }
 
                             // Actual text content with formatting
@@ -1636,10 +1765,36 @@ struct MessageBubble: View {
 // MARK: - Thinking animation -------------------------------------------------
 
 struct ThinkingAnimationView: View {
+    let isVisible: Bool
+    
+    init(isVisible: Bool = true) {
+        self.isVisible = isVisible
+    }
+    
     var body: some View {
-        LottieView(name: "thinkingAnimation", loopMode: .loop)
+        LottieView(name: "thinkingAnimation", loopMode: .loop, isVisible: isVisible)
             .frame(width: 89, height: 89) // 15% smaller
             .allowsHitTesting(false) // Prevent interaction with the animation
+    }
+}
+
+// MARK: - Blinking Cursor Test -------------------------------------------------
+
+struct BlinkingCursorView: View {
+    @State private var isVisible = true
+    
+    var body: some View {
+        Text("...")
+            .font(.custom("IBMPlexMono", size: 16))
+            .foregroundColor(.white)
+            .opacity(isVisible ? 1.0 : 0.0)
+            .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: isVisible)
+            .onAppear {
+                isVisible = true
+            }
+            .onDisappear {
+                isVisible = false
+            }
     }
 }
 

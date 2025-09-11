@@ -118,6 +118,13 @@ struct Control_LLMApp: App {
     /// Initialize all services in background - UI shows immediately
     private static func initializeAllServices() async {
         
+        // CRITICAL DEBUG: Log app startup state for comparison
+        NSLog("Control_LLMApp: 🚀 APP STARTUP - initializeAllServices() called")
+        NSLog("Control_LLMApp: App state at startup:")
+        NSLog("Control_LLMApp: - First run: \(FirstRunManager.shared.isFirstRun)")
+        NSLog("Control_LLMApp: - App lifecycle state: \(UIApplication.shared.applicationState.rawValue)")
+        NSLog("Control_LLMApp: - Background time remaining: \(UIApplication.shared.backgroundTimeRemaining)")
+        
         // Initialize ModelManager
         DispatchQueue.main.async {
             let _ = ModelManager.shared

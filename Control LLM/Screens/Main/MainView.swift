@@ -247,6 +247,13 @@ struct MainView: View {
             .ignoresSafeArea(.all)
         )
         .onAppear {
+            // CRITICAL DEBUG: Log app lifecycle state
+            NSLog("MainView: 🚀 MainView onAppear - App lifecycle state tracking")
+            NSLog("MainView: - App state: \(UIApplication.shared.applicationState.rawValue)")
+            NSLog("MainView: - Background time remaining: \(UIApplication.shared.backgroundTimeRemaining)")
+            NSLog("MainView: - First run: \(FirstRunManager.shared.isFirstRun)")
+            NSLog("MainView: - Has seen onboarding: \(UserDefaults.standard.bool(forKey: "hasSeenOnboarding"))")
+            
             let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
             
             // Show onboarding after loading screen finishes (only if first run)
@@ -273,6 +280,11 @@ struct MainView: View {
             updateWindowBackgroundColor()
         }
         .onDisappear {
+            // CRITICAL DEBUG: Log app lifecycle state
+            NSLog("MainView: 🚀 MainView onDisappear - App lifecycle state tracking")
+            NSLog("MainView: - App state: \(UIApplication.shared.applicationState.rawValue)")
+            NSLog("MainView: - Background time remaining: \(UIApplication.shared.backgroundTimeRemaining)")
+            
             // Clean up notification observer
             viewModel.cleanupClipboardObserver()
             

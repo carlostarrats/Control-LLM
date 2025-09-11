@@ -890,6 +890,17 @@ void llm_bridge_generate_stream_block(void* context, const char* model_name, con
 
 // Cancellation support
 void llm_bridge_cancel_generation(void) {
+    // CRITICAL DEBUG: Log cancellation timing and call stack
+    NSDate *cancelTime = [NSDate date];
+    NSLog(@"LlamaCppBridge: ⚠️ GENERATION CANCELLED - llm_bridge_cancel_generation() called at %@", cancelTime);
+    NSLog(@"LlamaCppBridge: Cancellation timestamp: %f", [cancelTime timeIntervalSince1970]);
+    NSLog(@"LlamaCppBridge: Call stack trace:");
+    NSArray *callStack = [NSThread callStackSymbols];
+    for (int i = 0; i < callStack.count; i++) {
+        NSLog(@"LlamaCppBridge: [%d] %@", i, callStack[i]);
+    }
+    NSLog(@"LlamaCppBridge: ⚠️ End of call stack trace");
+    
     NSLog(@"LlamaCppBridge: Cancelling generation");
     s_generation_cancelled = true;
 }

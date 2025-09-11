@@ -83,6 +83,19 @@ final class LLMService: @unchecked Sendable {
     private var llamaModel: UnsafeMutableRawPointer?
     private var llamaContext: UnsafeMutableRawPointer?
     private var isModelLoaded = false
+    
+    private init() {
+        // CRITICAL DEBUG: Log LLMService state at initialization
+        NSLog("LLMService: 🚀 LLMService initialized")
+        NSLog("LLMService: Initial state:")
+        NSLog("LLMService: - isModelLoaded: \(isModelLoaded)")
+        NSLog("LLMService: - currentModelFilename: \(currentModelFilename ?? "nil")")
+        NSLog("LLMService: - isModelOperationInProgress: \(isModelOperationInProgress)")
+        NSLog("LLMService: - isChatOperationInProgress: \(isChatOperationInProgress)")
+        NSLog("LLMService: - _isMultiPassMode: \(_isMultiPassMode)")
+        NSLog("LLMService: - llamaModel: \(llamaModel != nil ? "exists" : "nil")")
+        NSLog("LLMService: - llamaContext: \(llamaContext != nil ? "exists" : "nil")")
+    }
     private var conversationCount = 0
     private let maxConversationsBeforeReset = 50  // Increased from 3 to prevent interference with model switching
     private var isModelOperationInProgress = false  // For model loading/unloading
@@ -109,6 +122,16 @@ final class LLMService: @unchecked Sendable {
     
     /// Cancel ongoing LLM generation (Phase 4: Enhanced Reliability)
     func cancelGeneration() {
+        // CRITICAL DEBUG: Log cancellation timing and call stack
+        let cancelTime = Date()
+        NSLog("LLMService: ⚠️ GENERATION CANCELLED - cancelGeneration() called at \(cancelTime)")
+        NSLog("LLMService: Cancellation timestamp: \(cancelTime.timeIntervalSince1970)")
+        NSLog("LLMService: Call stack trace:")
+        Thread.callStackSymbols.enumerated().forEach { index, symbol in
+            NSLog("LLMService: [\(index)] \(symbol)")
+        }
+        NSLog("LLMService: ⚠️ End of call stack trace")
+        
         debugPrint("LLMService: PHASE 4 - Cancelling ongoing generation with enhanced reliability", category: .model)
         
         // Set the cancellation flag in the C bridge

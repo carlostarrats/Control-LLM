@@ -14,6 +14,13 @@ class MainViewModel: ObservableObject {
     // Add ChatViewModel instance for LLM operations
     let llm = ChatViewModel()
     
+    init() {
+        // CRITICAL FIX: Clear UI messages on initialization to prevent empty placeholder persistence
+        // This ensures UI messages are cleared on app restart, matching ChatViewModel behavior
+        messages = []
+        NSLog("MainViewModel: Initialized - cleared UI messages")
+    }
+    
     // Clipboard processing
     private var clipboardObserver: NSObjectProtocol?
     private var isProcessingClipboard = false
@@ -26,6 +33,12 @@ class MainViewModel: ObservableObject {
     // Speaking functionality removed
     
     func sendTextMessage(_ text: String) async {
+        
+        // CRITICAL DEBUG: Log state on restart to identify why LLM doesn't respond
+        NSLog("MainViewModel: 🚀 sendTextMessage() called with: '\(text)'")
+        NSLog("MainViewModel: - selectedFileUrl: \(selectedFileUrl?.absoluteString ?? "nil")")
+        NSLog("MainViewModel: - isFileProcessing: \(isFileProcessing)")
+        NSLog("MainViewModel: - hasProcessedData: \(await LargeFileProcessingService.shared.hasProcessedData())")
         
         // Create user message immediately for UI display
         let userMessage = ChatMessage(
@@ -42,7 +55,9 @@ class MainViewModel: ObservableObject {
         }
         
         // CRITICAL FIX: Check if there's processed PDF data available for questions
+        NSLog("MainViewModel: Checking hasProcessedData condition...")
         if await LargeFileProcessingService.shared.hasProcessedData() {
+            NSLog("MainViewModel: ⚠️ GOING INTO PDF PROCESSING PATH - hasProcessedData is true")
             
             // Answer the question using stored processed data
             Task {
@@ -88,9 +103,12 @@ class MainViewModel: ObservableObject {
             }
             return
         }
+        NSLog("MainViewModel: ✅ PASSED PDF PROCESSING CHECK - hasProcessedData is false")
         
         // Check if there's a file to process
+        NSLog("MainViewModel: Checking selectedFileUrl condition...")
         if let fileUrl = selectedFileUrl {
+            NSLog("MainViewModel: ⚠️ GOING INTO FILE PROCESSING PATH - selectedFileUrl is not nil: \(fileUrl.absoluteString)")
             
             // Set file processing state
             isFileProcessing = true
@@ -222,11 +240,14 @@ class MainViewModel: ObservableObject {
             }
         } else {
             // No file, just send text as normal
+            NSLog("MainViewModel: ✅ PASSED FILE PROCESSING CHECK - selectedFileUrl is nil")
+            NSLog("MainViewModel: 🚀 GOING INTO NORMAL LLM PATH - calling llm.send(text)")
             
             // CRITICAL FIX: LLM processing state is now set in TextModalView before calling this function
             
             Task {
                 do {
+                    NSLog("MainViewModel: 📤 CALLING llm.send(text) with: '\(text)'")
                     try await llm.send(text)
                     // CRITICAL FIX: Reset processing state but DO NOT clear transcript after LLM completes
                     llm.isProcessing = false

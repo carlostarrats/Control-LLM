@@ -239,6 +239,13 @@ final class HybridLLMService: ObservableObject {
     // MARK: - Cancellation Support (Phase 4: Enhanced Reliability)
     
     func stopGeneration() {
+        // CRITICAL DEBUG: Log what's calling HybridLLMService.stopGeneration
+        NSLog("HybridLLMService: ⚠️ stopGeneration() called")
+        NSLog("HybridLLMService: Call stack trace:")
+        Thread.callStackSymbols.enumerated().forEach { index, symbol in
+            NSLog("HybridLLMService: [\(index)] \(symbol)")
+        }
+        NSLog("HybridLLMService: ⚠️ End of call stack trace")
         
         // Cancel the current generation task
         currentGenerationTask?.cancel()
