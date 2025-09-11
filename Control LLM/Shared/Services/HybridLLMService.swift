@@ -179,6 +179,17 @@ final class HybridLLMService: ObservableObject {
     }
     }
     
+    // CRITICAL FIX: Add function to ensure model state is clean on app state change
+    func ensureModelStateIsClean() async {
+        if isModelLoaded {
+            do {
+                try await forceUnloadModel()
+            } catch {
+                NSLog("HybridLLMService: Failed to force unload model on cleanup: \(error.localizedDescription)")
+            }
+        }
+    }
+    
     // MARK: - Non-streaming Generation (for PDF processing)
     
     func generateResponseSync(

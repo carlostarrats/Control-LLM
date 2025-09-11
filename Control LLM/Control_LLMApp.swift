@@ -66,7 +66,8 @@ private func disableConsoleFlooding() {
 @main
 struct Control_LLMApp: App {
     @State private var isAppReady = false
-    
+    @Environment(\.scenePhase) private var scenePhase
+
     init() {
         
         // FIRST: Stop console flooding immediately
@@ -98,6 +99,19 @@ struct Control_LLMApp: App {
                             ColorManager.shared.refreshColors()
                         }
                 }
+            }
+        }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            switch newPhase {
+            case .active:
+                NSLog("App is active")
+            case .inactive, .background:
+                NSLog("App is inactive or in background - cleaning up model state.")
+                Task {
+                    await HybridLLMService.shared.ensureModelStateIsClean()
+                }
+            @unknown default:
+                NSLog("Unknown scene phase")
             }
         }
     }
