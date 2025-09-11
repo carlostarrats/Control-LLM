@@ -32,13 +32,15 @@ struct FirstRunSetupView: View {
                     // Slice 1: Top section - CONTROL V1.0 left, 80GB AVAILABLE right
                     HStack {
                         Text("CONTROL V1.0")
-                            .font(.custom("IBMPlexMono-Bold", size: 12))
+                            .font(.custom("IBMPlexMono", size: 12))
+                            .fontWeight(.bold)
                             .foregroundColor(Color(hex: "141414"))
                         
                         Spacer()
                         
                         Text("\(availableStorage) AVAILABLE")
-                            .font(.custom("IBMPlexMono-Bold", size: 12))
+                            .font(.custom("IBMPlexMono", size: 12))
+                            .fontWeight(.bold)
                             .foregroundColor(Color(hex: "141414"))
                     }
                     .padding(.horizontal, 20)
@@ -47,6 +49,7 @@ struct FirstRunSetupView: View {
                     // Slice 2: PROCESSING...
                         Text("PROCESSING...")
                             .font(.custom("IBMPlexMono", size: 12))
+                            .fontWeight(.bold)
                             .foregroundColor(Color(hex: "141414"))
                             .opacity(isReadyBlinking ? 1.0 : 0.3)
                             .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: isReadyBlinking)
@@ -69,13 +72,15 @@ struct FirstRunSetupView: View {
                         // Slice 3: 01 > MODEL with >>>>>>
                         HStack {
                             Text("01 > MODEL")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                             
                             Spacer()
                             
                             Text(">>>>>>")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                         }
                         .padding(.horizontal, 20)
@@ -84,7 +89,8 @@ struct FirstRunSetupView: View {
                         // Slice 4: 02 > STATUS
                         HStack {
                             Text("02 > STATUS")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                             
                             Spacer()
@@ -95,7 +101,8 @@ struct FirstRunSetupView: View {
                         // Slice 5: 03 > LATENCY
                         HStack {
                             Text("03 > LATENCY")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                             
                             Spacer()
@@ -106,7 +113,8 @@ struct FirstRunSetupView: View {
                         // Slice 6: 04 > TEMP
                         HStack {
                             Text("04 > TEMP")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                             
                             Spacer()
@@ -117,19 +125,22 @@ struct FirstRunSetupView: View {
                         // Slice 7: 05 > MEMORY <...> ORGANIZING FILE >>>>>
                         HStack {
                             Text("05 > MEMORY")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                             
                             Spacer()
                             
                             Text("<...> ORGANIZING FILE")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                             
                             Spacer()
                             
                             Text(">>>>>>")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                         }
                         .padding(.horizontal, 20)
@@ -137,55 +148,59 @@ struct FirstRunSetupView: View {
                         
                         // Slice 6: GEMMA 3 (40pt indentation + 30pt shift)
                         Text("GEMMA 3")
-                            .font(.custom("IBMPlexMono-Bold", size: 12))
+                            .font(.custom("IBMPlexMono", size: 12))
+                            .fontWeight(.bold)
                             .foregroundColor(Color(hex: "141414"))
                             .padding(.leading, 90) // 40pt + 20pt margin + 30pt shift
                             .padding(.trailing, 20)
-                            .padding(.top, 8)
+                            .padding(.top, 4)
                         
                         // Slice 7: LLAMA 3.2 (80pt indentation - 40pt from GEMMA + 30pt shift)
                         Text("LLAMA 3.2")
-                            .font(.custom("IBMPlexMono-Bold", size: 12))
+                            .font(.custom("IBMPlexMono", size: 12))
+                            .fontWeight(.bold)
                             .foregroundColor(Color(hex: "141414"))
                             .padding(.leading, 130) // 80pt + 20pt margin + 30pt shift
                             .padding(.trailing, 20)
-                            .padding(.top, 8)
+                            .padding(.top, 4)
                         
                         // Slice 8: SMOLLM2 (120pt indentation - 40pt from LLAMA + 30pt shift)
                         Text("SMOLLM2")
-                            .font(.custom("IBMPlexMono-Bold", size: 12))
+                            .font(.custom("IBMPlexMono", size: 12))
+                            .fontWeight(.bold)
                             .foregroundColor(Color(hex: "141414"))
                             .padding(.leading, 170) // 120pt + 20pt margin + 30pt shift
                             .padding(.trailing, 20)
-                            .padding(.top, 8)
+                            .padding(.top, 4)
                         
                         // Slice 9: // HUGGING FACE QWEN 3
                         HStack {
                             Text("// HUGGING FACE")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                             
                             Text("QWEN 3")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                                 .padding(.leading, 70) // Exactly 40pt from // HUGGING FACE + 30pt shift
                             
                             Spacer()
                         }
                         .padding(.horizontal, 20)
-                        .padding(.top, 8)
+                        .padding(.top, 4)
                         
                         // Slice 10: OPEN SOURCE
                         HStack {
                             Spacer()
                             Text("OPEN SOURCE")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                         }
                         .padding(.horizontal, 20)
-                        .padding(.top, 8)
-                        
-                        Spacer().frame(height: 20)
+                        .padding(.top, 4)
                         
                         // Slice 11: < CONTROL Setup v1.0 >
                         HStack(alignment: .center, spacing: 0) {
@@ -194,13 +209,15 @@ struct FirstRunSetupView: View {
                                 .foregroundColor(Color(hex: "141414"))
                             
                             Text(" SYSTEM ")
-                                .font(.custom("IBMPlexMono-Bold", size: 16)) // Smaller than before
+                                .font(.custom("IBMPlexMono", size: 16)) // Smaller than before
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                                 .kerning(6) // More letter spacing
                                 .baselineOffset(-2) // Move down to center-align with "Setup"
                             
                             Text("SETUP")
                                 .font(.custom("IBMPlexMono", size: 28))
+                                .fontWeight(.medium)
                                 .foregroundColor(Color(hex: "141414"))
                             
                             Text("/ ")
@@ -212,32 +229,37 @@ struct FirstRunSetupView: View {
                                 .foregroundColor(Color(hex: "141414"))
                         }
                         .padding(.horizontal, 20)
-                        .padding(.top, 8)
+                        .padding(.top, 4)
                         
                         // Slice 12: 06 07 08 09 (with 30pt spacing between each)
                         HStack(spacing: 30) {
                             Text("06")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                             Text("07")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                             Text("08")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                             Text("09")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                         }
                         .padding(.horizontal, 20)
                         .padding(.top, 8)
                         
-                        Spacer().frame(height: 20)
+                        Spacer().frame(height: 10)
                         
                         // Slice 13: INITIALIZATION PROGRESS with progress bar
                         VStack(alignment: .leading, spacing: 8) {
                             Text("INITIALIZATION PROGRESS:")
-                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                             
                             HStack {
@@ -246,11 +268,11 @@ struct FirstRunSetupView: View {
                                     ForEach(0..<50, id: \.self) { index in
                                         if index < Int(setupManager.progress * 50) {
                                             Text("█")
-                                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                                .font(.custom("IBMPlexMono", size: 12))
                                                 .foregroundColor(Color(hex: "141414"))
                                         } else {
                                             Text("░")
-                                                .font(.custom("IBMPlexMono-Bold", size: 12))
+                                                .font(.custom("IBMPlexMono", size: 12))
                                                 .foregroundColor(Color(hex: "141414"))
                                         }
                                     }
@@ -259,20 +281,29 @@ struct FirstRunSetupView: View {
                                 Spacer()
                                 
                                 Text("\(Int(setupManager.progress * 100))%")
-                                    .font(.custom("IBMPlexMono-Bold", size: 12))
+                                    .font(.custom("IBMPlexMono", size: 12))
                                     .foregroundColor(Color(hex: "141414"))
                                     .padding(.leading, 10) // 10pt spacing from the bar
                             }
                         }
                         .padding(.horizontal, 20)
-                        .padding(.top, 8)
+                        .padding(.top, 4)
                         
-                        Spacer().frame(height: 60) // Increased from 40pt to 60pt (20pt more spacing)
+                        Spacer().frame(height: 80)
                         
                         // Slice 14: SETUP & INITIALIZATION with status messages
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: 0) {
+                            // Horizontal line 4pt above SETUP & INITIALIZATION
+                            Rectangle()
+                                .fill(ColorManager.shared.purpleColor)
+                                .frame(height: 2)
+                                .frame(width: 210) // Width to match "SETUP & INITIALIZATION" text + 10pt
+                            
+                            Spacer().frame(height: 4)
+                            
                             Text("SETUP & INITIALIZATION")
-                                .font(.custom("IBMPlexMono-Bold", size: 16)) // Same size as CONTROL
+                                .font(.custom("IBMPlexMono", size: 16)) // Same size as CONTROL
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                             
                             VStack(alignment: .leading, spacing: 4) {
@@ -284,7 +315,7 @@ struct FirstRunSetupView: View {
                             }
                         }
                         .padding(.horizontal, 20)
-                        .padding(.top, 8)
+                        .padding(.top, 4)
                         
                         Spacer()
                     }

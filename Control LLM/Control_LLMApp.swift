@@ -122,7 +122,17 @@ struct Control_LLMApp: App {
         for fontName in fontNames {
             if let fontURL = Bundle.main.url(forResource: fontName, withExtension: "otf") {
                 var error: Unmanaged<CFError>?
-                CTFontManagerRegisterFontsForURL(fontURL as CFURL, .process, &error)
+                let success = CTFontManagerRegisterFontsForURL(fontURL as CFURL, .process, &error)
+                if !success {
+                    print("Failed to load font: \(fontName)")
+                    if let error = error {
+                        print("Error: \(error)")
+                    }
+                } else {
+                    print("Successfully loaded font: \(fontName)")
+                }
+            } else {
+                print("Font file not found: \(fontName).otf")
             }
         }
     }
