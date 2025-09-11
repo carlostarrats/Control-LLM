@@ -16,19 +16,17 @@ The debugging process was extensive and involved multiple incorrect paths:
 *   **Cascading Build & UI Failures:** The project corruption led to a series of misleading build errors (e.g., "duplicate GUID" conflicts) and UI bugs, such as the main chat and settings sheets disappearing. Numerous attempts to fix these issues with code changes failed repeatedly.
 *   **Partial Resets:** Multiple `git restore` and `git reset` commands were used to revert changes, but these were insufficient as they did not clean the underlying corruption in the build environment.
 
-## 3. Root Cause & Final Solution
+## 3. Root Cause & Final Solution: Build Environment Corruption
 
-The root cause was not a single code bug, but a **severely corrupted local build environment**.
+The primary root cause of the persistent *build failures* was not a single code bug, but a **severely corrupted local build environment**.
 
-Lingering artifacts from the failed Swift Package refactor had damaged the `.xcodeproj` file. Furthermore, Xcode's caches (`DerivedData` and SwiftPM caches) held onto this broken state, causing persistent, nonsensical build errors that survived source code resets.
-
-The bug where the LLM failed on restart was fixed not by a code change, but by completely purging this corruption.
+Lingering artifacts from a failed Swift Package refactor had damaged the `.xcodeproj` file. Furthermore, Xcode's caches (`DerivedData` and SwiftPM caches) held onto this broken state, causing nonsensical build errors (like "duplicate GUIDs") that survived source code resets. The deep-clean procedure outlined below was the definitive solution for all build-related issues.
 
 ---
 
-### The Solution: How to Fix a Corrupted Xcode Environment
+### The Deep-Clean Procedure: How to Fix a Corrupted Xcode Environment
 
-This multi-step, deep-clean procedure is the definitive solution to force a pristine build environment. It should be used when Xcode exhibits persistent, unexplainable build failures that are not resolved by cleaning the build folder or restarting.
+This multi-step procedure should be used when Xcode exhibits persistent, unexplainable build failures that are not resolved by cleaning the build folder or restarting.
 
 **Execute these commands in the terminal at the project's root directory:**
 
@@ -59,3 +57,16 @@ This multi-step, deep-clean procedure is the definitive solution to force a pris
     xcodebuild -resolvePackageDependencies -scheme "Control LLM"
     ```
     *(Note: Replace `"Control LLM"` with the relevant scheme name.)*
+
+## 4. Root Cause & Final Solution: Runtime Bugs
+
+After stabilizing the build environment, the original runtime bugs were addressed with specific code changes.
+
+### LLM Not Responding on Restart
+
+*   **Root Cause:** The application was shutting down abruptly without properly unloading the Llama.cpp model from memory. When the app was reopened, the lingering, corrupted model state prevented the new instance from initializing correctly, causing it to hang.
+
+*   **Solution: Graceful Shutdown:**
+    1.  An `ensureModelStateIsClean()` function was added to `HybridLLMService.swift`. This function checks if a model is loaded and, if so, calls `forceUnloadModel()` to release all resources.
+    2.  An `onChange(of: scenePhase)` observer was added to the main app entry point (`Control_LLMApp.swift`).
+    3.  When the `scenePhase` changes to `.inactive` or `.background`, the observer calls `HybridLLMService.shared.ensureModelStateIsClean()`, ensuring the model is always unloaded cleanly before the app is suspended or terminated.
