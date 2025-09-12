@@ -19,8 +19,14 @@ class FirstRunSetupManager: ObservableObject {
     /// Performs the complete first run setup process
     func performFirstRunSetup() async {
         
-        // Step 1: Initialize backend (1 second)
-        updateStatus(NSLocalizedString("> INITIALIZING METAL BACKEND...", comment: ""))
+        // Check if this is a version update vs true first run
+        let isVersionUpdate = isVersionUpdate()
+        
+        if isVersionUpdate {
+            updateStatus(NSLocalizedString("> APP UPDATED - REBUILDING KERNELS...", comment: ""))
+        } else {
+            updateStatus(NSLocalizedString("> INITIALIZING METAL BACKEND...", comment: ""))
+        }
         updateProgress(0.1)
         try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
         
@@ -41,7 +47,11 @@ class FirstRunSetupManager: ObservableObject {
         updateProgress(0.95)
         try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
         
-        updateStatus(NSLocalizedString("> SETUP COMPLETE", comment: ""))
+        if isVersionUpdate {
+            updateStatus(NSLocalizedString("> REBUILD COMPLETE", comment: ""))
+        } else {
+            updateStatus(NSLocalizedString("> SETUP COMPLETE", comment: ""))
+        }
         updateProgress(1.0)
         try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
         
@@ -49,6 +59,13 @@ class FirstRunSetupManager: ObservableObject {
         firstRunManager.markFirstRunComplete()
         updateComplete()
         
+    }
+    
+    /// Determines if this is a version update (not a true first run)
+    private func isVersionUpdate() -> Bool {
+        // If we have a completion flag but version changed, it's an update
+        let hasCompletedFirstRun = UserDefaults.standard.bool(forKey: "hasCompletedFirstRun")
+        return hasCompletedFirstRun
     }
     
     /// Simulates progress updates during setup (16 seconds total)
