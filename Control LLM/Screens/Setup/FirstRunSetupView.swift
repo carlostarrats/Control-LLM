@@ -14,6 +14,34 @@ struct FirstRunSetupView: View {
     @State private var availableStorage: String = "Calculating..."
     @State private var isReadyBlinking = true
     
+    // Faux loading animation states
+    @State private var showStatus = false
+    @State private var showTemp = false
+    @State private var showMemory = false
+    @State private var showOrganizingFile = false
+    @State private var showGemma = false
+    @State private var showLlama = false
+    @State private var showSmollm = false
+    @State private var showHuggingFace = false
+    @State private var showQwen = false
+    @State private var showOpenSource = false
+    @State private var showNumber06 = false
+    @State private var showNumber07 = false
+    @State private var showNumber08 = false
+    @State private var showNumber09 = false
+    @State private var showNumber10 = false
+    @State private var showNumber11 = false
+    @State private var showNumber12 = false
+    @State private var showNumber13 = false
+    @State private var showNumber14 = false
+    @State private var showNumber15 = false
+    @State private var showNumber16 = false
+    @State private var showNumber17 = false
+    @State private var showNumber18 = false
+    @State private var showNumber19 = false
+    @State private var showNumber20 = false
+    @State private var showNumber21 = false
+    
     // Cache the red color to prevent repeated access
     private let redColor = ColorManager.shared.redColor
     
@@ -62,14 +90,14 @@ struct FirstRunSetupView: View {
                         .padding(.horizontal, 20)
                         .padding(.top, 8)
                     
-                    Spacer().frame(height: 20)
+                    Spacer().frame(height: 4)
                 }
                 .background(redColor) // Ensure header has solid background
                 
                 // SCROLLABLE CONTENT - Everything else scrolls under the header
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-                        // Slice 3: 01 > MODEL with >>>>>>
+                        // Slice 3: 01 > MODEL
                         HStack {
                             Text("01 > MODEL")
                                 .font(.custom("IBMPlexMono", size: 12))
@@ -77,11 +105,6 @@ struct FirstRunSetupView: View {
                                 .foregroundColor(Color(hex: "141414"))
                             
                             Spacer()
-                            
-                            Text(">>>>>>")
-                                .font(.custom("IBMPlexMono", size: 12))
-                                .fontWeight(.bold)
-                                .foregroundColor(Color(hex: "141414"))
                         }
                         .padding(.horizontal, 20)
                         .padding(.top, 8)
@@ -97,10 +120,11 @@ struct FirstRunSetupView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.top, 4)
+                        .opacity(showStatus ? 1.0 : 0.0)
                         
-                        // Slice 5: 03 > LATENCY
+                        // Slice 5: 03 > TEMP (was 04 > TEMP)
                         HStack {
-                            Text("03 > LATENCY")
+                            Text("03 > TEMP")
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
@@ -109,42 +133,29 @@ struct FirstRunSetupView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.top, 4)
+                        .opacity(showTemp ? 1.0 : 0.0)
                         
-                        // Slice 6: 04 > TEMP
+                        // Slice 6: 04 > MEMORY (was 05 > MEMORY)
                         HStack {
-                            Text("04 > TEMP")
+                            Text("04 > MEMORY")
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                             
                             Spacer()
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 4)
-                        
-                        // Slice 7: 05 > MEMORY <...> ORGANIZING FILE >>>>>
-                        HStack {
-                            Text("05 > MEMORY")
-                                .font(.custom("IBMPlexMono", size: 12))
-                                .fontWeight(.bold)
-                                .foregroundColor(Color(hex: "141414"))
-                            
-                            Spacer()
+                                .frame(width: 30)
                             
                             Text("<...> ORGANIZING FILE")
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
+                                .opacity(showOrganizingFile ? 1.0 : 0.0)
                             
                             Spacer()
-                            
-                            Text(">>>>>>")
-                                .font(.custom("IBMPlexMono", size: 12))
-                                .fontWeight(.bold)
-                                .foregroundColor(Color(hex: "141414"))
                         }
                         .padding(.horizontal, 20)
                         .padding(.top, 4)
+                        .opacity(showMemory ? 1.0 : 0.0)
                         
                         // Slice 6: GEMMA 3 (40pt indentation + 30pt shift)
                         Text("GEMMA 3")
@@ -154,6 +165,7 @@ struct FirstRunSetupView: View {
                             .padding(.leading, 90) // 40pt + 20pt margin + 30pt shift
                             .padding(.trailing, 20)
                             .padding(.top, 4)
+                            .opacity(showGemma ? 1.0 : 0.0)
                         
                         // Slice 7: LLAMA 3.2 (80pt indentation - 40pt from GEMMA + 30pt shift)
                         Text("LLAMA 3.2")
@@ -163,6 +175,7 @@ struct FirstRunSetupView: View {
                             .padding(.leading, 130) // 80pt + 20pt margin + 30pt shift
                             .padding(.trailing, 20)
                             .padding(.top, 4)
+                            .opacity(showLlama ? 1.0 : 0.0)
                         
                         // Slice 8: SMOLLM2 (120pt indentation - 40pt from LLAMA + 30pt shift)
                         Text("SMOLLM2")
@@ -172,6 +185,7 @@ struct FirstRunSetupView: View {
                             .padding(.leading, 170) // 120pt + 20pt margin + 30pt shift
                             .padding(.trailing, 20)
                             .padding(.top, 4)
+                            .opacity(showSmollm ? 1.0 : 0.0)
                         
                         // Slice 9: // HUGGING FACE QWEN 3
                         HStack {
@@ -179,12 +193,14 @@ struct FirstRunSetupView: View {
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
+                                .opacity(showHuggingFace ? 1.0 : 0.0)
                             
                             Text("QWEN 3")
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                                 .padding(.leading, 70) // Exactly 40pt from // HUGGING FACE + 30pt shift
+                                .opacity(showQwen ? 1.0 : 0.0)
                             
                             Spacer()
                         }
@@ -201,6 +217,7 @@ struct FirstRunSetupView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.top, 4)
+                        .opacity(showOpenSource ? 1.0 : 0.0)
                         
                         // Slice 11: < CONTROL Setup v1.0 >
                         HStack(alignment: .center, spacing: 0) {
@@ -237,18 +254,22 @@ struct FirstRunSetupView: View {
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber06 ? 1.0 : 0.0)
                             Text("07")
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber07 ? 1.0 : 0.0)
                             Text("08")
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber08 ? 1.0 : 0.0)
                             Text("09")
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber09 ? 1.0 : 0.0)
                         }
                         .padding(.horizontal, 20)
                         .padding(.top, 8)
@@ -289,18 +310,95 @@ struct FirstRunSetupView: View {
                         .padding(.horizontal, 20)
                         .padding(.top, 4)
                         
-                        Spacer().frame(height: 80)
+                        // Additional numbers 10 11 12 13 (10pt under progress bar)
+                        Spacer().frame(height: 10)
+                        
+                        HStack(spacing: 30) {
+                            Text("10")
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber10 ? 1.0 : 0.0)
+                            Text("11")
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber11 ? 1.0 : 0.0)
+                            Text("12")
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber12 ? 1.0 : 0.0)
+                            Text("13")
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber13 ? 1.0 : 0.0)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
+                        
+                        // 10pt spacing between all number rows
+                        Spacer().frame(height: 10)
+                        
+                        // Numbers 14, 15, 16, 17 (same spacing as 10-13)
+                        HStack(spacing: 30) {
+                            Text("14")
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber14 ? 1.0 : 0.0)
+                            Text("15")
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber15 ? 1.0 : 0.0)
+                            Text("16")
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber16 ? 1.0 : 0.0)
+                            Text("17")
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber17 ? 1.0 : 0.0)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
+                        
+                        // Numbers 18, 19, 20, 21 (10pt below 14-17)
+                        Spacer().frame(height: 10)
+                        
+                        HStack(spacing: 30) {
+                            Text("18")
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber18 ? 1.0 : 0.0)
+                            Text("19")
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber19 ? 1.0 : 0.0)
+                            Text("20")
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber20 ? 1.0 : 0.0)
+                            Text("21")
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .fontWeight(.bold)
+                                .foregroundColor(Color(hex: "141414"))
+                                .opacity(showNumber21 ? 1.0 : 0.0)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
+                        
+                        Spacer().frame(height: 10)
                         
                         // Slice 14: SETUP & INITIALIZATION with status messages
-                        VStack(alignment: .leading, spacing: 0) {
-                            // Horizontal line 4pt above SETUP & INITIALIZATION
-                            Rectangle()
-                                .fill(ColorManager.shared.purpleColor)
-                                .frame(height: 2)
-                                .frame(width: 210) // Width to match "SETUP & INITIALIZATION" text + 10pt
-                            
-                            Spacer().frame(height: 4)
-                            
+                        VStack(alignment: .leading, spacing: 4) {
                             Text("SETUP & INITIALIZATION")
                                 .font(.custom("IBMPlexMono", size: 16)) // Same size as CONTROL
                                 .fontWeight(.bold)
@@ -326,6 +424,9 @@ struct FirstRunSetupView: View {
             
             // Calculate storage immediately for instant display
             calculateAvailableStorage()
+            
+            // Start faux loading animation sequence (3 seconds total)
+            startFauxLoadingAnimation()
             
             // Start setup process immediately - no delay
             Task {
@@ -383,6 +484,170 @@ struct FirstRunSetupView: View {
     
     private func stopBlinking() {
         isReadyBlinking = true
+    }
+    
+    private func startFauxLoadingAnimation() {
+        // Sequence: 02>Status, 03>Latency, 04>Temp, 05>Memory, <...> Organizing File, >>>>>, 
+        // Gemma 3, Llama 3.2, Smollm2, //Hugging Face, Qwen3, Open Source, 06 07 08 09 10 11 12 13
+        // Total duration: 5.1 seconds (300ms per item)
+        
+        let delay = 0.3 // 300ms between each item
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 1) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showStatus = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 2) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showTemp = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 3) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showMemory = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 4) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showOrganizingFile = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 5) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showGemma = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 6) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showLlama = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 7) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showSmollm = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 8) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showHuggingFace = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 9) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showQwen = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 10) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showOpenSource = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 11) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber06 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 12) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber07 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 13) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber08 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 14) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber09 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 15) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber10 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 16) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber11 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 17) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber12 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 18) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber13 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 19) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber14 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 20) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber15 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 21) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber16 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 22) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber17 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 23) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber18 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 24) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber19 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 25) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber20 = true
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay * 26) {
+            withAnimation(.easeIn(duration: 0.2)) {
+                showNumber21 = true
+            }
+        }
     }
     
 }
