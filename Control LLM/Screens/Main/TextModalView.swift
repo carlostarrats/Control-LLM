@@ -384,7 +384,7 @@ struct TextModalView: View {
                     // Header with close button - transparent background to allow gradient through
                     VStack(spacing: 0) {
                         HStack(spacing: 0) {
-                            Image(systemName: "keyboard")
+                            Image(systemName: "bubble.right")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(isSheetExpanded ? colorManager.purpleColor : Color(hex: "#141414"))
                                 .padding(.trailing, 6)
@@ -792,7 +792,7 @@ struct TextModalView: View {
     
     // Computed properties to break up complex expressions
     private var headerText: String {
-        shouldShowTimeInHeader() ? getCurrentTime() : "CONTROL"
+        shouldShowTimeInHeader() ? getCurrentTime() : "INTERFACE"
     }
     
     private var headerTextColor: Color {
