@@ -184,8 +184,6 @@
 "All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme." = "All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme.";
 "Control Units" = "Control Units";
 "Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience." = "Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience.";
-"Quick Clipboard Analysis" = "Quick Clipboard Analysis";
-"Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored." = "Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored.";
 "iOS Shortcuts Integration" = "iOS Shortcuts Integration";
 "Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device." = "Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device.";
 
@@ -384,7 +382,6 @@
 "Preview" = "Preview";
 "Privacy" = "Privacy";
 "PrivacyNotice" = "This app stores all data on your device only — nothing is saved or shared, and no account exists. To remove all data, delete the app.";
-"Quick Clipboard Analysis" = "Quick Clipboard Analysis";
 "Qwen 1.8B Model" = "Qwen 1.8B Model";
 "Qwen Model" = "Qwen Model";
 "Qwen2 Model" = "Qwen2 Model";
@@ -398,7 +395,6 @@
 "Standby" = "Standby";
 "Static Particle Visualizer" = "Static Particle Visualizer";
 "System Status" = "System Status";
-"Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored." = "Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored.";
 "The app supports these file types: .txt, .md, .rtf, .pdf, .jpg, .jpeg, .png, .heic, .doc, .docx.\n\nFor documents and images with text, the app uses rule-based text analysis and pattern matching rather than LLM processing. This approach is fast and efficient, though the analysis is limited compared to what larger cloud-based models can provide." = "The app supports these file types: .txt, .md, .rtf, .pdf, .jpg, .jpeg, .png, .heic, .doc, .docx.\n\nFor documents and images with text, the app uses rule-based text analysis and pattern matching rather than LLM processing. This approach is fast and efficient, though the analysis is limited compared to what larger cloud-based models can provide.";
 "The response was cut off because it reached the maximum length limit. Try asking a more specific question or breaking your request into smaller parts." = "The response was cut off because it reached the maximum length limit. Try asking a more specific question or breaking your request into smaller parts.";
 "Thermal State" = "Thermal State";
