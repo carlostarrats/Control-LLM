@@ -302,7 +302,7 @@ struct AvailableDownloadModelView: View {
                         
                         // Queued indicator
                         if isQueued {
-                            Text("Queued")
+                            Text(NSLocalizedString("Queued", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 10))
                                 .foregroundColor(ColorManager.shared.orangeColor)
                         }
@@ -383,7 +383,7 @@ struct InstalledLLMModelView: View {
                         
                         // "In Use" indicator for active model
                         if isActive {
-                            Text("In Use")
+                            Text(NSLocalizedString("In Use", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 10))
                                 .foregroundColor(ColorManager.shared.greenColor)
                                 .multilineTextAlignment(.leading)
@@ -597,7 +597,7 @@ struct UnusedLLMModelRowView: View {
                         
                         // "In Use" indicator for active model
                         if isActive {
-                            Text("In Use")
+                            Text(NSLocalizedString("In Use", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 10))
                                 .foregroundColor(ColorManager.shared.greenColor)
                                 .multilineTextAlignment(.leading)

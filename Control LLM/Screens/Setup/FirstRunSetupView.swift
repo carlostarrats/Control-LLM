@@ -59,14 +59,14 @@ struct FirstRunSetupView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     // Slice 1: Top section - CONTROL V1.0 left, 80GB AVAILABLE right
                     HStack {
-                        Text("CONTROL V1.0")
+                        Text(NSLocalizedString("CONTROL V1.0", comment: ""))
                             .font(.custom("IBMPlexMono", size: 12))
                             .fontWeight(.bold)
                             .foregroundColor(Color(hex: "141414"))
                         
                         Spacer()
                         
-                        Text("\(availableStorage) AVAILABLE")
+                        Text("\(availableStorage) \(NSLocalizedString("AVAILABLE", comment: ""))")
                             .font(.custom("IBMPlexMono", size: 12))
                             .fontWeight(.bold)
                             .foregroundColor(Color(hex: "141414"))
@@ -75,7 +75,7 @@ struct FirstRunSetupView: View {
                     .padding(.top, 20)
                     
                     // Slice 2: PROCESSING...
-                        Text("PROCESSING...")
+                        Text(NSLocalizedString("PROCESSING...", comment: ""))
                             .font(.custom("IBMPlexMono", size: 12))
                             .fontWeight(.bold)
                             .foregroundColor(Color(hex: "141414"))
@@ -99,7 +99,7 @@ struct FirstRunSetupView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         // Slice 3: 01 > MODEL
                         HStack {
-                            Text("01 > MODEL")
+                            Text("01 > \(NSLocalizedString("MODEL", comment: ""))")
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
@@ -111,7 +111,7 @@ struct FirstRunSetupView: View {
                         
                         // Slice 4: 02 > STATUS
                         HStack {
-                            Text("02 > STATUS")
+                            Text("02 > \(NSLocalizedString("STATUS", comment: ""))")
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
@@ -124,7 +124,7 @@ struct FirstRunSetupView: View {
                         
                         // Slice 5: 03 > TEMP (was 04 > TEMP)
                         HStack {
-                            Text("03 > TEMP")
+                            Text("03 > \(NSLocalizedString("TEMP", comment: ""))")
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
@@ -137,7 +137,7 @@ struct FirstRunSetupView: View {
                         
                         // Slice 6: 04 > MEMORY (was 05 > MEMORY)
                         HStack {
-                            Text("04 > MEMORY")
+                            Text("04 > \(NSLocalizedString("MEMORY", comment: ""))")
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
@@ -145,7 +145,7 @@ struct FirstRunSetupView: View {
                             Spacer()
                                 .frame(width: 30)
                             
-                            Text("<...> ORGANIZING FILE")
+                            Text("<...> \(NSLocalizedString("ORGANIZING FILE", comment: ""))")
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
@@ -158,7 +158,7 @@ struct FirstRunSetupView: View {
                         .opacity(showMemory ? 1.0 : 0.0)
                         
                         // Slice 6: GEMMA 3 (40pt indentation + 30pt shift)
-                        Text("GEMMA 3")
+                        Text(NSLocalizedString("GEMMA 3", comment: ""))
                             .font(.custom("IBMPlexMono", size: 12))
                             .fontWeight(.bold)
                             .foregroundColor(Color(hex: "141414"))
@@ -168,7 +168,7 @@ struct FirstRunSetupView: View {
                             .opacity(showGemma ? 1.0 : 0.0)
                         
                         // Slice 7: LLAMA 3.2 (80pt indentation - 40pt from GEMMA + 30pt shift)
-                        Text("LLAMA 3.2")
+                        Text(NSLocalizedString("LLAMA 3.2", comment: ""))
                             .font(.custom("IBMPlexMono", size: 12))
                             .fontWeight(.bold)
                             .foregroundColor(Color(hex: "141414"))
@@ -178,7 +178,7 @@ struct FirstRunSetupView: View {
                             .opacity(showLlama ? 1.0 : 0.0)
                         
                         // Slice 8: SMOLLM2 (120pt indentation - 40pt from LLAMA + 30pt shift)
-                        Text("SMOLLM2")
+                        Text(NSLocalizedString("SMOLLM2", comment: ""))
                             .font(.custom("IBMPlexMono", size: 12))
                             .fontWeight(.bold)
                             .foregroundColor(Color(hex: "141414"))
@@ -189,13 +189,13 @@ struct FirstRunSetupView: View {
                         
                         // Slice 9: // HUGGING FACE QWEN 3
                         HStack {
-                            Text("// HUGGING FACE")
+                            Text("// \(NSLocalizedString("HUGGING FACE", comment: ""))")
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                                 .opacity(showHuggingFace ? 1.0 : 0.0)
                             
-                            Text("QWEN 3")
+                            Text(NSLocalizedString("QWEN 3", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
@@ -210,7 +210,7 @@ struct FirstRunSetupView: View {
                         // Slice 10: OPEN SOURCE
                         HStack {
                             Spacer()
-                            Text("OPEN SOURCE")
+                            Text(NSLocalizedString("OPEN SOURCE", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
@@ -221,18 +221,11 @@ struct FirstRunSetupView: View {
                         
                         // Slice 11: < CONTROL Setup v1.0 >
                         HStack(alignment: .center, spacing: 0) {
-                            Text("<")
+                            Text("< ")
                                 .font(.custom("IBMPlexMono", size: 28))
                                 .foregroundColor(Color(hex: "141414"))
                             
-                            Text(" SYSTEM ")
-                                .font(.custom("IBMPlexMono", size: 16)) // Smaller than before
-                                .fontWeight(.bold)
-                                .foregroundColor(Color(hex: "141414"))
-                                .kerning(6) // More letter spacing
-                                .baselineOffset(-2) // Move down to center-align with "Setup"
-                            
-                            Text("SETUP")
+                            Text(NSLocalizedString("SETUP", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 28))
                                 .fontWeight(.medium)
                                 .foregroundColor(Color(hex: "141414"))
@@ -278,7 +271,7 @@ struct FirstRunSetupView: View {
                         
                         // Slice 13: INITIALIZATION PROGRESS with progress bar
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("INITIALIZATION PROGRESS:")
+                            Text(NSLocalizedString("INITIALIZATION PROGRESS:", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 12))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
@@ -399,7 +392,7 @@ struct FirstRunSetupView: View {
                         
                         // Slice 14: SETUP & INITIALIZATION with status messages
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("SETUP & INITIALIZATION")
+                            Text(NSLocalizedString("SETUP & INITIALIZATION", comment: ""))
                                 .font(.custom("IBMPlexMono", size: 16)) // Same size as CONTROL
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))

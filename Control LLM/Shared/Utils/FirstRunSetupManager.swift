@@ -20,12 +20,12 @@ class FirstRunSetupManager: ObservableObject {
     func performFirstRunSetup() async {
         
         // Step 1: Initialize backend (1 second)
-        updateStatus("> INITIALIZING METAL BACKEND...")
+        updateStatus(NSLocalizedString("> INITIALIZING METAL BACKEND...", comment: ""))
         updateProgress(0.1)
         try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
         
         // Step 2: Start Metal compilation in background (don't wait for it)
-        updateStatus("> COMPILING SHADER KERNELS...")
+        updateStatus(NSLocalizedString("> COMPILING SHADER KERNELS...", comment: ""))
         updateProgress(0.2)
         
         // Test Metal compilation with DispatchQueue.global().async (background thread)
@@ -37,11 +37,11 @@ class FirstRunSetupManager: ObservableObject {
         await simulateProgressUpdates()
         
         // Step 4: Finalize (1 second)
-        updateStatus("> FINALIZING AI ENGINE...")
+        updateStatus(NSLocalizedString("> FINALIZING AI ENGINE...", comment: ""))
         updateProgress(0.95)
         try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
         
-        updateStatus("> SETUP COMPLETE")
+        updateStatus(NSLocalizedString("> SETUP COMPLETE", comment: ""))
         updateProgress(1.0)
         try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
         
@@ -54,15 +54,15 @@ class FirstRunSetupManager: ObservableObject {
     /// Simulates progress updates during setup (16 seconds total)
     private func simulateProgressUpdates() async {
         let messages = [
-            "> OPTIMIZING MATRIX OPERATIONS...",
-            "> LOADING QUANTIZATION TABLES...",
-            "> PREPARING MEMORY POOLS...",
-            "> CACHING COMPILED SHADERS...",
-            "> VALIDATING KERNEL FUNCTIONS...",
-            "> COMPLETING OPTIMIZATION...",
-            "> FINALIZING METAL KERNELS...",
-            "> OPTIMIZING GPU MEMORY...",
-            "> PREPARING INFERENCE ENGINE..."
+            NSLocalizedString("> OPTIMIZING MATRIX OPERATIONS...", comment: ""),
+            NSLocalizedString("> LOADING QUANTIZATION TABLES...", comment: ""),
+            NSLocalizedString("> PREPARING MEMORY POOLS...", comment: ""),
+            NSLocalizedString("> CACHING COMPILED SHADERS...", comment: ""),
+            NSLocalizedString("> VALIDATING KERNEL FUNCTIONS...", comment: ""),
+            NSLocalizedString("> COMPLETING OPTIMIZATION...", comment: ""),
+            NSLocalizedString("> FINALIZING METAL KERNELS...", comment: ""),
+            NSLocalizedString("> OPTIMIZING GPU MEMORY...", comment: ""),
+            NSLocalizedString("> PREPARING INFERENCE ENGINE...", comment: "")
         ]
         
         // 16 seconds total with 32 steps = 0.5 seconds per step

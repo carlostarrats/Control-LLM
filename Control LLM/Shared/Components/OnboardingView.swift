@@ -51,22 +51,15 @@ struct DisclaimerScreen: View {
                 .padding(.top, 70)
                 
                 Spacer()
-                    .frame(height: 150) // 150pts space
+                    .frame(height: 100) // 100pts space
                 
                 // Disclaimer text - dark text
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(NSLocalizedString("This app uses AI models that", comment: ""))
-                    Text(NSLocalizedString("may generate incorrect,", comment: ""))
-                    Text(NSLocalizedString("inappropriate, or misleading", comment: ""))
-                    Text(AttributedString(NSLocalizedString("content. ", comment: "")) + AttributedString(NSLocalizedString("Do not rely on AI-generated content for legal, financial, or medical advice.", comment: ""), attributes: AttributeContainer().font(.custom("IBMPlexMono-Bold", size: 16))))
-                        .lineSpacing(8)
-                    Text(NSLocalizedString("This software is provided \"as", comment: ""))
-                    Text(NSLocalizedString("is\" without warranties. For", comment: ""))
-                    Text(NSLocalizedString("personal use only.", comment: ""))
-                }
-                .font(.custom("IBMPlexMono", size: 16))
-                .foregroundColor(Color(hex: "#141414")) // Dark color
-                .multilineTextAlignment(.leading)
+                Text(NSLocalizedString("This app uses AI models that may generate incorrect, inappropriate, or misleading content. Do not rely on AI-generated content for legal, financial, or medical advice. This software is provided \"as is\" without warranties. For personal use only.", comment: ""))
+                    .font(.custom("IBMPlexMono", size: 16))
+                    .fontWeight(.medium)
+                    .foregroundColor(Color(hex: "#141414"))
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(4)
                 
                 Spacer()
                     .frame(height: 40) // 40pts space
@@ -84,6 +77,7 @@ struct DisclaimerScreen: View {
                 Button(action: onNext) {
                     Text(NSLocalizedString("I Understand", comment: ""))
                         .font(.custom("IBMPlexMono", size: 16))
+                        .fontWeight(.medium)
                         .foregroundColor(Color(hex: "#141414")) // Dark text
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)

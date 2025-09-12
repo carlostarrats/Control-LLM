@@ -792,7 +792,7 @@ struct TextModalView: View {
     
     // Computed properties to break up complex expressions
     private var headerText: String {
-        shouldShowTimeInHeader() ? getCurrentTime() : "INTERFACE"
+        shouldShowTimeInHeader() ? getCurrentTime() : NSLocalizedString("INTERFACE", comment: "")
     }
     
     private var headerTextColor: Color {

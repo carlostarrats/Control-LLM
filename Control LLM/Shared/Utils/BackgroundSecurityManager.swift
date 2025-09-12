@@ -255,14 +255,14 @@ struct BlurOverlayView: View {
                     .opacity(0.7)
                 
                 // App name
-                Text("Control LLM")
+                Text(NSLocalizedString("Control LLM", comment: ""))
                     .font(.title2)
                     .fontWeight(.medium)
                     .foregroundColor(.primary)
                     .opacity(0.8)
                 
                 // Security message
-                Text("Tap to continue")
+                Text(NSLocalizedString("Tap to continue", comment: ""))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .opacity(0.6)

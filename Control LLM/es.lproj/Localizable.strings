@@ -208,6 +208,7 @@
 "Qwen2 Model" = "Modelo Qwen2";
 "Qwen 1.8B Model" = "Modelo Qwen 1.8B";
 "Qwen Model" = "Modelo Qwen";
+"Qwen3 Model" = "Modelo Qwen3";
 "Llama 3 Model" = "Modelo Llama 3";
 "Llama 2 Model" = "Modelo Llama 2";
 "Llama Model" = "Modelo Llama";
@@ -219,11 +220,15 @@
 "General tasks with broader technical abilities | 29+ languages" = "Tareas generales con habilidades técnicas más amplias | 29+ idiomas";
 "Qwen2.5 language model with technical focus | 29+ languages" = "Modelo de lenguaje Qwen2.5 con enfoque técnico | 29+ idiomas";
 "Advanced reasoning with broad technical abilities | 30 languages" = "Razonamiento avanzado con amplias capacidades técnicas | 30 idiomas";
+"Advanced reasoning and coding model with strong multilingual capabilities | 30 languages" = "Modelo de razonamiento y codificación avanzado con sólidas capacidades multilingües | 30 idiomas";
 "General purpose language model with technical focus | 30 languages" = "Modelo de lenguaje de propósito general con enfoque técnico | 30 idiomas";
 "Meta's latest large language model" = "Último modelo de lenguaje grande de Meta";
 "Meta's previous generation language model" = "Modelo de lenguaje de la generación anterior de Meta";
 "Meta's open source language model" = "Modelo de lenguaje de código abierto de Meta";
 "Custom or specialized language model" = "Modelo de lenguaje personalizado o especializado";
+"Efficient on-device model optimized for real-time conversations | 100+ languages" = "Modelo eficiente en dispositivo optimizado para conversaciones en tiempo real | 100+ idiomas";
+"Compact high-performance model for mobile and edge deployment | 6 languages" = "Modelo compacto de alto rendimiento para despliegue móvil y edge | 6 idiomas";
+"Hugging Face's efficient language model" = "Modelo de lenguaje eficiente de Hugging Face";
 
 // Ollama Service
 "Invalid Ollama server URL" = "URL del servidor Ollama inválida";
@@ -290,4 +295,69 @@
 "Retry" = "Reintentar";
 "Copied" = "Copiado";
 "Toggle Animation" = "Alternar Animación";
+
+// Missing Main Screen Keys
+"INTERFACE" = "INTERFAZ";
+"SETTINGS" = "CONFIGURACIÓN";
+"MODELS" = "MODELOS";
+"APPEARANCE" = "APARIENCIA";
+"CREDITS" = "CRÉDITOS";
+
+// Missing Settings Sheet Keys
+"Appearance" = "Apariencia";
+"Version" = "Versión";
+"Models" = "Modelos";
+"No Installed Models" = "Sin Modelos Instalados";
+"All Models Installed" = "Todos los Modelos Instalados";
+
+// Missing FAQ Keys
+"File Processing" = "Procesamiento de Archivos";
+"The app supports these file types: .txt, .md, .rtf, .pdf, .jpg, .jpeg, .png, .heic, .doc, .docx.\n\nFor documents and images with text, the app uses rule-based text analysis and pattern matching rather than LLM processing. This approach is fast and efficient, though the analysis is limited compared to what larger cloud-based models can provide." = "La aplicación admite estos tipos de archivos: .txt, .md, .rtf, .pdf, .jpg, .jpeg, .png, .heic, .doc, .docx.\n\nPara documentos e imágenes con texto, la aplicación utiliza análisis de texto basado en reglas y coincidencia de patrones en lugar del procesamiento LLM. Este enfoque es rápido y eficiente, aunque el análisis es limitado en comparación con lo que pueden proporcionar los modelos más grandes basados en la nube.";
+"Multiple models are available in Settings. Each model has different strengths, so you may find one works better than another depending on your specific needs." = "Hay varios modelos disponibles en Configuración. Cada modelo tiene diferentes fortalezas, por lo que podrías encontrar que uno funciona mejor que otro según tus necesidades específicas.";
+
+// Intro Progress Screen Text
+"CONTROL V1.0" = "CONTROL V1.0";
+"AVAILABLE" = "DISPONIBLE";
+"PROCESSING..." = "PROCESANDO...";
+"MODEL" = "MODELO";
+"STATUS" = "ESTADO";
+"TEMP" = "TEMP";
+"MEMORY" = "MEMORIA";
+"ORGANIZING FILE" = "ORGANIZANDO ARCHIVOS";
+"GEMMA 3" = "GEMMA 3";
+"LLAMA 3.2" = "LLAMA 3.2";
+"SMOLLM2" = "SMOLLM2";
+"HUGGING FACE" = "HUGGING FACE";
+"QWEN 3" = "QWEN 3";
+"OPEN SOURCE" = "CÓDIGO ABIERTO";
+"SYSTEM" = "SISTEMA";
+"SETUP" = "CONFIGURACIÓN";
+"INITIALIZATION PROGRESS:" = "PROGRESO DE INICIALIZACIÓN:";
+"SETUP & INITIALIZATION" = "CONFIGURACIÓN E INICIALIZACIÓN";
+
+// Missing Onboarding Disclaimer Keys
+"content. " = "contenido. ";
+
+// Consolidated Disclaimer Text
+"This app uses AI models that may generate incorrect, inappropriate, or misleading content. Do not rely on AI-generated content for legal, financial, or medical advice. This software is provided \"as is\" without warranties. For personal use only." = "Esta aplicación utiliza modelos de IA que pueden generar contenido incorrecto, inapropiado o engañoso. No confíes en el contenido generado por IA para consejos legales, financieros o médicos. Este software se proporciona \"tal como está\" sin garantías. Solo para uso personal.";
+
+// Additional Missing Keys
+"Tap to continue" = "Toca para continuar";
+"Queued" = "En cola";
+"In Use" = "En uso";
+
+// Setup Status Messages
+"> INITIALIZING METAL BACKEND..." = "> INICIALIZANDO BACKEND METAL...";
+"> COMPILING SHADER KERNELS..." = "> COMPILANDO NÚCLEOS SHADER...";
+"> FINALIZING AI ENGINE..." = "> FINALIZANDO MOTOR IA...";
+"> SETUP COMPLETE" = "> CONFIGURACIÓN COMPLETA";
+"> OPTIMIZING MATRIX OPERATIONS..." = "> OPTIMIZANDO OPERACIONES MATRICIALES...";
+"> LOADING QUANTIZATION TABLES..." = "> CARGANDO TABLAS DE CUANTIZACIÓN...";
+"> PREPARING MEMORY POOLS..." = "> PREPARANDO POOLS DE MEMORIA...";
+"> CACHING COMPILED SHADERS..." = "> GUARDANDO EN CACHE SHADERS COMPILADOS...";
+"> VALIDATING KERNEL FUNCTIONS..." = "> VALIDANDO FUNCIONES DE NÚCLEOS...";
+"> COMPLETING OPTIMIZATION..." = "> COMPLETANDO OPTIMIZACIÓN...";
+"> FINALIZING METAL KERNELS..." = "> FINALIZANDO NÚCLEOS METAL...";
+"> OPTIMIZING GPU MEMORY..." = "> OPTIMIZANDO MEMORIA GPU...";
+"> PREPARING INFERENCE ENGINE..." = "> PREPARANDO MOTOR DE INFERENCIA...";
 

@@ -71,6 +71,21 @@
 
 // Error Messages
 "Your message was shortened to fit within limits. If the shortened version doesn't accurately represent what you wanted to say, please try a shorter message." = "Votre message a été raccourci pour respecter les limites. Si la version raccourcie ne représente pas exactement ce que vous vouliez dire, essayez un message plus court.";
+
+// Setup Status Messages
+"> INITIALIZING METAL BACKEND..." = "> INITIALISATION DU BACKEND METAL...";
+"> COMPILING SHADER KERNELS..." = "> COMPILATION DES NUCLÉOS SHADER...";
+"> FINALIZING AI ENGINE..." = "> FINALISATION DU MOTEUR IA...";
+"> SETUP COMPLETE" = "> CONFIGURATION TERMINÉE";
+"> OPTIMIZING MATRIX OPERATIONS..." = "> OPTIMISATION DES OPÉRATIONS MATRICIELLES...";
+"> LOADING QUANTIZATION TABLES..." = "> CHARGEMENT DES TABLEAUX DE QUANTIFICATION...";
+"> PREPARING MEMORY POOLS..." = "> PRÉPARATION DES POOLS DE MÉMOIRE...";
+"> CACHING COMPILED SHADERS..." = "> MISE EN CACHE DES SHADERS COMPILÉS...";
+"> VALIDATING KERNEL FUNCTIONS..." = "> VALIDATION DES FONCTIONS NUCLÉOS...";
+"> COMPLETING OPTIMIZATION..." = "> FINALISATION DE L'OPTIMISATION...";
+"> FINALIZING METAL KERNELS..." = "> FINALISATION DES NUCLÉOS METAL...";
+"> OPTIMIZING GPU MEMORY..." = "> OPTIMISATION DE LA MÉMOIRE GPU...";
+"> PREPARING INFERENCE ENGINE..." = "> PRÉPARATION DU MOTEUR D'INFÉRENCE...";
 "The response was cut off because it reached the maximum length limit. Try asking a more specific question or breaking your request into smaller parts." = "La réponse a été coupée car elle a atteint la limite de longueur maximale. Essayez de poser une question plus spécifique ou de diviser votre demande en parties plus petites.";
 "Your message is too long. Please shorten it and try again." = "Votre message est trop long. Veuillez le raccourcir et réessayer.";
 "Error: %@" = "Erreur : %@";
@@ -122,11 +137,15 @@
 "General tasks with broader technical abilities | 29+ languages" = "Tâches générales avec des capacités techniques plus larges | 29+ langues";
 "Qwen2.5 language model with technical focus | 29+ languages" = "Modèle de langage Qwen2.5 avec un accent technique | 29+ langues";
 "Advanced reasoning with broad technical abilities | 30 languages" = "Raisonnement avancé avec de larges capacités techniques | 30 langues";
+"Advanced reasoning and coding model with strong multilingual capabilities | 30 languages" = "Modèle de raisonnement et de codage avancé avec de solides capacités multilingues | 30 langues";
 "General purpose language model with technical focus | 30 languages" = "Modèle de langage à usage général avec un accent technique | 30 langues";
 "Meta's latest large language model" = "Dernier modèle de langage large de Meta";
 "Meta's previous generation language model" = "Modèle de langage de génération précédente de Meta";
 "Meta's open source language model" = "Modèle de langage open source de Meta";
 "Custom or specialized language model" = "Modèle de langage personnalisé ou spécialisé";
+"Efficient on-device model optimized for real-time conversations | 100+ languages" = "Modèle efficace sur appareil optimisé pour les conversations en temps réel | 100+ langues";
+"Compact high-performance model for mobile and edge deployment | 6 languages" = "Modèle compact haute performance pour déploiement mobile et edge | 6 langues";
+"Hugging Face's efficient language model" = "Modèle de langage efficace de Hugging Face";
 
 // Ollama Service
 "Invalid Ollama server URL" = "URL du serveur Ollama invalide";
@@ -146,6 +165,7 @@
 "LLM Models" = "Modèles LLM";
 "Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices." = "Plusieurs modèles sont disponibles dans les paramètres, chacun variant en taille et en capacité. Les performances du modèle dépendent de votre appareil : les téléphones plus récents gèrent généralement mieux les modèles plus grands et plus puissants, tandis que les modèles plus petits sont optimisés pour les appareils plus anciens.";
 "Chat History" = "Historique des discussions";
+"Chat history is temporary and automatically resets when you close and reopen the app. If you keep the app open in the background, your chat history will reset after 24 hours to ensure privacy." = "L'historique des discussions est temporaire et se réinitialise automatiquement lorsque vous fermez et rouvrez l'application. Si vous gardez l'application ouverte en arrière-plan, votre historique de discussion se réinitialisera après 24 heures pour assurer la confidentialité.";
 "No chat history is saved. Messages in the chat window gradually fade over 7 days until completely erased, ensuring complete privacy and freeing up device storage." = "Aucun historique de discussion n'est enregistré. Les messages dans la fenêtre de discussion disparaissent progressivement sur 7 jours jusqu'à leur suppression complète, garantissant une confidentialité totale et libérant de l'espace de stockage sur l'appareil.";
 "Language" = "Langue";
 "English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English." = "L'interface de l'application prend en charge l'anglais, l'espagnol et le français. Pour les autres langues, l'interface reste en anglais, mais le LLM discute automatiquement dans votre langue préférée via la localisation.";
@@ -246,6 +266,7 @@
 "Qwen2 Model" = "Modèle Qwen2";
 "Qwen 1.8B Model" = "Modèle Qwen 1.8B";
 "Qwen Model" = "Modèle Qwen";
+"Qwen3 Model" = "Modèle Qwen3";
 "Llama 3 Model" = "Modèle Llama 3";
 "Llama 2 Model" = "Modèle Llama 2";
 "Llama Model" = "Modèle Llama";
@@ -255,23 +276,6 @@
 "Medium" = "Moyen";
 "Large" = "Grand";
 
-// Missing FAQ Questions and Answers
-"Privacy" = "Confidentialité";
-"This app stores all data on your device only - nothing is saved or shared, and no account exists. To remove all data, delete the app." = "Cette application stocke toutes les données uniquement sur votre appareil - rien n'est sauvegardé ou partagé, et aucun compte n'existe. Pour supprimer toutes les données, supprimez l'application.";
-"LLM Models" = "Modèles LLM";
-"Multiple models are available in Settings, each varying in size and capability. Model performance depends on your device - newer phones typically handle larger, more powerful models better, while smaller models are optimized for older devices." = "Plusieurs modèles sont disponibles dans les Paramètres, chacun variant en taille et en capacité. Les performances du modèle dépendent de votre appareil - les téléphones plus récents gèrent généralement mieux les modèles plus grands et plus puissants, tandis que les modèles plus petits sont optimisés pour les appareils plus anciens.";
-"Chat History" = "Historique de chat";
-"Chat history is temporary and automatically resets when you close and reopen the app. If you keep the app open in the background, your chat history will reset after 24 hours to ensure privacy." = "L'historique de chat est temporaire et se réinitialise automatiquement lorsque vous fermez et rouvrez l'application. Si vous gardez l'application ouverte en arrière-plan, votre historique de chat se réinitialisera après 24 heures pour assurer la confidentialité.";
-"Language" = "Langue";
-"English is the default language, though various models support multiple languages. The app automatically uses your iOS localization settings when supported. Unsupported languages will default to English." = "L'interface de l'application prend en charge l'anglais, l'espagnol et le français. Pour d'autres langues, l'interface reste en anglais, mais le LLM chat automatiquement dans votre langue préférée via la localisation.";
-"UI Color" = "Couleur de l'interface";
-"All text colors can be customized in Appearance settings, allowing you to create your preferred visual theme." = "Toutes les couleurs de texte peuvent être personnalisées dans les paramètres d'Apparence, vous permettant de créer votre thème visuel préféré.";
-"Control Units" = "Unités de contrôle";
-"Three LLM avatars are available in Appearance settings. These are purely cosmetic choices to personalize your chat experience." = "Trois avatars LLM sont disponibles dans les paramètres d'Apparence. Ce sont des choix purement cosmétiques pour personnaliser votre expérience de chat.";
-"Quick Clipboard Analysis" = "Analyse Rapide du Presse-papiers";
-"Tap any animated avatar to instantly analyze copied text. The app automatically opens chat and provides a summary of articles, emails, or documents. Only works with copied text - empty taps are ignored." = "Appuyez sur n'importe quel avatar animé pour analyser instantanément le texte copié. L'application ouvre automatiquement le chat et fournit un résumé d'articles, d'e-mails ou de documents. Ne fonctionne qu'avec le texte copié - les appuis vides sont ignorés.";
-"iOS Shortcuts Integration" = "Intégration Raccourcis iOS";
-"Actions are available as building blocks in Apple's Shortcuts app, allowing you to create automation workflows. Chain multiple messages together, set up custom voice commands with Siri, and build sequences that run in the background. Simply use the app normally - your actions are automatically suggested to Shortcuts for creating automations, all on device." = "Les actions sont disponibles comme blocs de construction dans l'application Raccourcis d'Apple, vous permettant de créer des flux de travail d'automatisation. Enchaînez plusieurs messages, configurez des commandes vocales personnalisées avec Siri et créez des séquences qui s'exécutent en arrière-plan. Utilisez simplement l'application normalement - vos actions sont automatiquement suggérées aux Raccourcis pour créer des automatisations, tout sur l'appareil.";
 
 // Missing Visualizer Names
 "MYCROFT" = "MYCROFT";
@@ -308,3 +312,53 @@
 "Retry" = "Réessayer";
 "Copied" = "Copié";
 "Toggle Animation" = "Basculer l'Animation";
+
+// Missing Main Screen Keys
+"INTERFACE" = "INTERFACE";
+"SETTINGS" = "PARAMÈTRES";
+"MODELS" = "MODÈLES";
+"APPEARANCE" = "APPARENCE";
+"CREDITS" = "CRÉDITS";
+
+// Missing Settings Sheet Keys
+"Appearance" = "Apparence";
+"Version" = "Version";
+"Models" = "Modèles";
+"No Installed Models" = "Aucun Modèle Installé";
+"All Models Installed" = "Tous les Modèles Installés";
+
+// Missing FAQ Keys
+"File Processing" = "Traitement des Fichiers";
+"The app supports these file types: .txt, .md, .rtf, .pdf, .jpg, .jpeg, .png, .heic, .doc, .docx.\n\nFor documents and images with text, the app uses rule-based text analysis and pattern matching rather than LLM processing. This approach is fast and efficient, though the analysis is limited compared to what larger cloud-based models can provide." = "L'application prend en charge ces types de fichiers : .txt, .md, .rtf, .pdf, .jpg, .jpeg, .png, .heic, .doc, .docx.\n\nPour les documents et images contenant du texte, l'application utilise une analyse de texte basée sur des règles et une correspondance de modèles plutôt que le traitement LLM. Cette approche est rapide et efficace, bien que l'analyse soit limitée par rapport à ce que les modèles cloud plus volumineux peuvent fournir.";
+"Multiple models are available in Settings. Each model has different strengths, so you may find one works better than another depending on your specific needs." = "Plusieurs modèles sont disponibles dans les Paramètres. Chaque modèle a des forces différentes, vous pourriez donc trouver qu'un modèle fonctionne mieux qu'un autre selon vos besoins spécifiques.";
+
+// Intro Progress Screen Text
+"CONTROL V1.0" = "CONTROL V1.0";
+"AVAILABLE" = "DISPONIBLE";
+"PROCESSING..." = "TRAITEMENT...";
+"MODEL" = "MODÈLE";
+"STATUS" = "STATUT";
+"TEMP" = "TEMP";
+"MEMORY" = "MÉMOIRE";
+"ORGANIZING FILE" = "ORGANISATION DES FICHIERS";
+"GEMMA 3" = "GEMMA 3";
+"LLAMA 3.2" = "LLAMA 3.2";
+"SMOLLM2" = "SMOLLM2";
+"HUGGING FACE" = "HUGGING FACE";
+"QWEN 3" = "QWEN 3";
+"OPEN SOURCE" = "CODE OUVERT";
+"SYSTEM" = "SYSTÈME";
+"SETUP" = "CONFIGURATION";
+"INITIALIZATION PROGRESS:" = "PROGRÈS D'INITIALISATION :";
+"SETUP & INITIALIZATION" = "CONFIGURATION ET INITIALISATION";
+
+// Missing Onboarding Disclaimer Keys
+"content. " = "contenu. ";
+
+// Consolidated Disclaimer Text
+"This app uses AI models that may generate incorrect, inappropriate, or misleading content. Do not rely on AI-generated content for legal, financial, or medical advice. This software is provided \"as is\" without warranties. For personal use only." = "Cette application utilise des modèles d'IA qui peuvent générer du contenu incorrect, inapproprié ou trompeur. Ne vous fiez pas au contenu généré par l'IA pour des conseils juridiques, financiers ou médicaux. Ce logiciel est fourni \"tel quel\" sans garanties. Pour usage personnel uniquement.";
+
+// Additional Missing Keys
+"Tap to continue" = "Appuyez pour continuer";
+"Queued" = "En file d'attente";
+"In Use" = "En cours d'utilisation";

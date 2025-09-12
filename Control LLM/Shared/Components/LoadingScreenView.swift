@@ -54,7 +54,7 @@ struct LoadingScreenView: View {
                 // "CONTROL" text at the bottom
                 VStack {
                     Spacer()
-                    Text("CONTROL")
+                    Text(NSLocalizedString("CONTROL", comment: ""))
                         .font(.custom("IBMPlexMono", size: 16))
                         .foregroundColor(Color(hex: "#141414")) // Color as requested by user
                         .opacity(textOpacity)
