@@ -441,24 +441,22 @@ struct TextModalView: View {
             }
         }
         .onChange(of: viewModel.llm.latestToken) { _, newToken in
-            // UI HACK: Manually find the last assistant message and append the new token
-            // This bypasses the broken automatic UI updates on restart
+            // SIMPLIFIED: Only handle non-empty tokens and ensure we have an assistant message
             guard !newToken.isEmpty else { return }
             
-            // Use a custom search to find the index of the last assistant message
-            var lastAssistantIndex: Int?
-            for i in (0..<viewModel.messages.count).reversed() {
-                if !viewModel.messages[i].isUser {
-                    lastAssistantIndex = i
-                    break
-                }
-            }
-
-            if let index = lastAssistantIndex {
-                viewModel.messages[index].content += newToken
-                NSLog("TextModalView: UI HACK - Manually appended token to message at index \(index)")
+            // Find the last assistant message
+            if let lastAssistantIndex = viewModel.messages.lastIndex(where: { !$0.isUser }) {
+                viewModel.messages[lastAssistantIndex].content += newToken
+                NSLog("TextModalView: Appended token to message at index \(lastAssistantIndex)")
             } else {
-                NSLog("TextModalView: UI HACK - No assistant message found to append token to")
+                // Create new assistant message if none exists
+                let assistantMessage = ChatMessage(
+                    content: newToken,
+                    isUser: false,
+                    timestamp: Date()
+                )
+                viewModel.messages.append(assistantMessage)
+                NSLog("TextModalView: Created new assistant message with token")
             }
         }
         .onAppear {
@@ -511,6 +509,14 @@ struct TextModalView: View {
                     NSLog("TextModalView: RESETTING isButtonProcessing = false (generation completed)")
                     isButtonProcessing = false
                 }
+                
+                // DEBUGGING: Clean up empty assistant messages when processing stops
+                let emptyCount = viewModel.messages.filter { !$0.isUser && $0.content.isEmpty }.count
+                NSLog("TextModalView: Found \(emptyCount) empty assistant messages when processing stopped")
+                viewModel.messages.removeAll { message in
+                    !message.isUser && message.content.isEmpty
+                }
+                NSLog("TextModalView: Cleaned up empty assistant messages")
             }
             
             // REMOVED: Redundant sync mechanism - real-time transcript updates should handle content updates
@@ -826,30 +832,7 @@ struct TextModalView: View {
                     }
                 }
             }
-            .onChange(of: viewModel.llm.transcript) { oldTranscript, newTranscript in
-                NSLog("TextModalView: TRANSCRIPT CHANGE - old: '\(oldTranscript)' new: '\(newTranscript)'")
-                NSLog("TextModalView: TRANSCRIPT CHANGE - old length: \(oldTranscript.count), new length: \(newTranscript.count)")
-                // CRITICAL FIX: Actually update the message content when transcript changes
-                if !newTranscript.isEmpty && newTranscript != oldTranscript {
-                    NSLog("TextModalView: TRANSCRIPT CHANGE - Updating message content")
-                    if let lastAssistantIndex = viewModel.messages.lastIndex(where: { !$0.isUser }) {
-                        // Update the message content with the new transcript
-                        let oldContent = viewModel.messages[lastAssistantIndex].content
-                        viewModel.messages[lastAssistantIndex].content = newTranscript
-                        NSLog("TextModalView: TRANSCRIPT CHANGE - Updated message[\(lastAssistantIndex)] content from '\(oldContent)' to '\(newTranscript)'")
-                        
-                        // Scroll to the updated message
-                        let lastAssistant = viewModel.messages[lastAssistantIndex]
-                        withAnimation(.spring()) {
-                            proxy.scrollTo(lastAssistant.id, anchor: .bottom)
-                        }
-                    } else {
-                        NSLog("TextModalView: TRANSCRIPT CHANGE - No assistant message found to update with transcript")
-                    }
-                } else {
-                    NSLog("TextModalView: TRANSCRIPT CHANGE - Skipping update (empty or unchanged)")
-                }
-            }
+            // REMOVED: Conflicting transcript onChange handler - now using latestToken only
         }
     }
     
@@ -891,7 +874,9 @@ struct TextModalView: View {
                         message: message,
                         opacity: calculateMessageOpacity(for: message),
                         messageHistory: messages,
-                        currentIndex: index
+                        currentIndex: index,
+                        isProcessing: viewModel.llm.isProcessing,
+                        isLocalProcessing: isLocalProcessing
                     )
                     .id(message.id)
                 }
@@ -1669,6 +1654,8 @@ struct MessageBubble: View {
     let opacity: Double
     let messageHistory: [ChatMessage]
     let currentIndex: Int
+    let isProcessing: Bool
+    let isLocalProcessing: Bool
     @State private var isVisible = false
     @EnvironmentObject var colorManager: ColorManager
 
@@ -1716,21 +1703,10 @@ struct MessageBubble: View {
                         ZStack(alignment: .topLeading) {
                             // Animation is only rendered when content is empty to prevent layout issues
                             let _ = NSLog("TextModalView: MESSAGE BUBBLE - message.content.isEmpty: \(message.content.isEmpty), content: '\(message.content)'")
-                            // CRITICAL FIX: Only show ThinkingAnimationView when processing AND content is empty
-                            if message.content.isEmpty {
-                                let _ = NSLog("TextModalView: SHOWING ThinkingAnimationView for empty message")
-                                let _ = NSLog("TextModalView: ANIMATION STATE - message.content.isEmpty: \(message.content.isEmpty)")
-                                let _ = NSLog("TextModalView: ANIMATION STATE - message.content length: \(message.content.count)")
-                                let _ = NSLog("TextModalView: ANIMATION STATE - message.content: '\(message.content)'")
+                            // MINIMAL FIX: Only show thinking animation when actually needed
+                            if message.content.isEmpty && (isProcessing || isLocalProcessing) {
                                 ThinkingAnimationView(isVisible: true)
-                                    .offset(x: -31, y: -35) // Restore original positioning
-                            } else {
-                                let _ = NSLog("TextModalView: HIDING ThinkingAnimationView - content not empty")
-                                let _ = NSLog("TextModalView: ANIMATION STATE - message.content.isEmpty: \(message.content.isEmpty)")
-                                let _ = NSLog("TextModalView: ANIMATION STATE - message.content length: \(message.content.count)")
-                                let _ = NSLog("TextModalView: ANIMATION STATE - message.content: '\(message.content)'")
-                                ThinkingAnimationView(isVisible: false)
-                                    .offset(x: -31, y: -35) // Keep positioning but hide animation
+                                    .offset(x: -31, y: -35)
                             }
 
                             // Actual text content with formatting
