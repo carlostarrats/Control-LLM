@@ -4,8 +4,7 @@ A text-only LLM interaction app for iOS.
 
 ## Issues & Questions
 
-If you encounter any issues or have questions about this project, please log them in the [Issues](https://github.com/carlostarrats/Control-LLM/issues) section. We welcome bug reports, feature requests, and general feedback.
-
+If you encounter any issues or have questions about this project, please log them in the [Issues](https://github.com/carlostarrats/Control-LLM/issues) section. I welcome bug reports, feature requests, and general feedback.
 
 ## License
 
@@ -25,4 +24,4 @@ This project is currently not accepting external contributions. The code is prov
 
 ## Copyright
 
-Copyright 2025 control-design-studio. All rights reserved.
+Copyright 2025 Carlos Tarrats. All rights reserved.
