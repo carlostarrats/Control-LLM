@@ -428,9 +428,11 @@ struct TextModalView: View {
                     .padding(.bottom, 10)
                     .background(Color.clear) // Make header background transparent
                     
-                    // Message list
+                    // Message list - expand to fill available space
                     messageList
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 if isSheetExpanded {
                     inputBar
@@ -828,34 +830,32 @@ struct TextModalView: View {
 
     // MARK: message list -----------------------------------------------------
     private var messageList: some View {
-        GeometryReader { geometry in
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(spacing: 24) {
-                        // No grabber or time display - clean interface
-                        
-                        if !hasModelsInstalled {
-                            noModelMessage
-                        } else {
-                            normalMessageList
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, isSheetExpanded ? 0 : 14)
-                    .padding(.bottom, keyboardHeight > 0 ? keyboardHeight + 24 : max(24, geometry.safeAreaInsets.bottom + 16))
-                }
-                .safeAreaInset(edge: .bottom) {
-                    Color.clear.frame(height: max(200, geometry.safeAreaInsets.bottom + 100))
-                }
-                .onChange(of: viewModel.messages) { _, newMessages in
-                    if let last = newMessages.last, !last.content.isEmpty {
-                        withAnimation(.spring()) {
-                            proxy.scrollTo(last.id, anchor: .bottom)
-                        }
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(spacing: 24) {
+                    // No grabber or time display - clean interface
+                    
+                    if !hasModelsInstalled {
+                        noModelMessage
+                    } else {
+                        normalMessageList
                     }
                 }
-                // REMOVED: Conflicting transcript onChange handler - now using latestToken only
+                .padding(.horizontal, 20)
+                .padding(.top, isSheetExpanded ? 0 : 14)
+                .padding(.bottom, keyboardHeight > 0 ? keyboardHeight + 24 : 24)
             }
+            .safeAreaInset(edge: .bottom) {
+                Color.clear.frame(height: 200)
+            }
+            .onChange(of: viewModel.messages) { _, newMessages in
+                if let last = newMessages.last, !last.content.isEmpty {
+                    withAnimation(.spring()) {
+                        proxy.scrollTo(last.id, anchor: .bottom)
+                    }
+                }
+            }
+            // REMOVED: Conflicting transcript onChange handler - now using latestToken only
         }
     }
     

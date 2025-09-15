@@ -69,6 +69,7 @@ struct ParticleVisualizerView: View {
                 ParticleView(particle: $particles[index])
             }
         }
+        .offset(x: -5, y: 0) // Move WOPR animation 5 points to the left
         .onAppear {
             // Initialize particles and start animation immediately
             initializeParticles()

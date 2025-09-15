@@ -9,6 +9,7 @@ struct CentralVisualizerView: View {
     var hueShift: Double = 0.0 // 0.0 = original, 1.0 = full spectrum rotation
     var saturationLevel: Double = 1.0 // 1.0 = full saturation, 0.0 = black and white
     var brightnessLevel: Double = 1.0 // 1.0 = full brightness, 0.0 = black
+    var visualizerType: VisualizerType = .liquid // Default to liquid (myscorft)
     
     // PERFORMANCE FIX: Cache expensive calculations
     @State private var cachedColors: [Color] = []

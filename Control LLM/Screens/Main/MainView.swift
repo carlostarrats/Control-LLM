@@ -293,29 +293,25 @@ struct MainView: View {
             viewRecycler.clearCache()
         }
         .overlay(
-            // Chat sheet (behind settings sheet, responsive height)
+            // Chat sheet (behind settings sheet, responsive height with animation)
             Group {
                 if showingChatSheet {
                     VStack {
                         Spacer()
                         chatSheetView
-                            .frame(height: isSheetExpanded ? geometry.size.height * 0.9 : 104)
-                            // .cornerRadius(16, corners: [.topLeft, .topRight]) // TEST: Remove corner radius to see if it fixes safe area
-
+                            .frame(height: isSheetExpanded ? geometry.size.height : 104)
                     }
                 }
             }
         )
         .overlay(
-            // Settings sheet (in front, responsive height)
+            // Settings sheet (in front, responsive height with animation)
             Group {
                 if showingSettingsSheet {
                     VStack {
                         Spacer()
                         settingsSheetView
-                            .frame(height: isSettingsSheetExpanded ? geometry.size.height * 0.9 : 50)
-                            // .cornerRadius(16, corners: [.topLeft, .topRight]) // TEST: Remove corner radius to see if it fixes safe area
-
+                            .frame(height: isSettingsSheetExpanded ? geometry.size.height : 50)
                     }
                 }
             }

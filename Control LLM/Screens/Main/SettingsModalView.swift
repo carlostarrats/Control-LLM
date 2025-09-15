@@ -114,13 +114,15 @@ struct SettingsModalView: View {
                                     .padding(.bottom, 60)
                             }
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
                         Spacer()
-                                    }
-            }
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .safeAreaInset(edge: .bottom) {
-            Color.clear.frame(height: max(300, geometry.safeAreaInsets.bottom + 200))
+            Color.clear.frame(height: 300)
         }
     }
         .sheet(isPresented: $showingModels) {

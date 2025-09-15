@@ -167,7 +167,7 @@ struct FlowingLiquidView: View {
                 .allowsHitTesting(false)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+        .offset(x: -5, y: 0) // Move TARS animation 5 points to the left
 
         .onChange(of: animationTime) { _, _ in
             // Force view update when animation time changes
