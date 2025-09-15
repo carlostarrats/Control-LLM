@@ -276,29 +276,33 @@ struct FirstRunSetupView: View {
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(hex: "141414"))
                             
-                            HStack {
-                                // Much longer progress bar
-                                HStack(spacing: 0) {
-                                    ForEach(0..<50, id: \.self) { index in
-                                        if index < Int(setupManager.progress * 50) {
-                                            Text("█")
-                                                .font(.custom("IBMPlexMono", size: 12))
-                                                .foregroundColor(Color(hex: "141414"))
-                                        } else {
-                                            Text("░")
-                                                .font(.custom("IBMPlexMono", size: 12))
-                                                .foregroundColor(Color(hex: "141414"))
+                            GeometryReader { geometry in
+                                HStack {
+                                    // Responsive progress bar that uses full width
+                                    HStack(spacing: 0) {
+                                        let totalBars = Int((geometry.size.width - 40) / 6) // Calculate bars based on available width
+                                        ForEach(0..<totalBars, id: \.self) { index in
+                                            if index < Int(setupManager.progress * Double(totalBars)) {
+                                                Text("█")
+                                                    .font(.custom("IBMPlexMono", size: 12))
+                                                    .foregroundColor(Color(hex: "141414"))
+                                            } else {
+                                                Text("░")
+                                                    .font(.custom("IBMPlexMono", size: 12))
+                                                    .foregroundColor(Color(hex: "141414"))
+                                            }
                                         }
                                     }
+                                    
+                                    Spacer()
+                                    
+                                    Text("\(Int(setupManager.progress * 100))%")
+                                        .font(.custom("IBMPlexMono", size: 12))
+                                        .foregroundColor(Color(hex: "141414"))
+                                        .padding(.leading, 10) // 10pt spacing from the bar
                                 }
-                                
-                                Spacer()
-                                
-                                Text("\(Int(setupManager.progress * 100))%")
-                                    .font(.custom("IBMPlexMono", size: 12))
-                                    .foregroundColor(Color(hex: "141414"))
-                                    .padding(.leading, 10) // 10pt spacing from the bar
                             }
+                            .frame(height: 20) // Fixed height for the progress bar
                         }
                         .padding(.horizontal, 20)
                         .padding(.top, 4)

@@ -880,27 +880,28 @@ struct TextModalView: View {
     private var noModelMessage: some View {
         VStack(spacing: 20) {
             Spacer()
-                .frame(height: 20)
+                .frame(height: 200)
             
             Text(NSLocalizedString("Nothing to see here (yet) 🤖", comment: ""))
                 .font(.custom("IBMPlexMono", size: 16))
                 .foregroundColor(Color(hex: "#666666"))
                 .multilineTextAlignment(.center)
             
-                                        Button(action: {
-                                showingModelsSheet = true
-                            }) {
-                                Text(NSLocalizedString("Download Model", comment: ""))
-                                    .font(.custom("IBMPlexMono", size: 14))
-                                    .foregroundColor(Color(hex: "#141414"))
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 12)
-                                    .background(colorManager.purpleColor)
-                                    .cornerRadius(4)
-                            }
+            Button(action: {
+                showingModelsSheet = true
+            }) {
+                Text(NSLocalizedString("Download Model", comment: ""))
+                    .font(.custom("IBMPlexMono", size: 14))
+                    .foregroundColor(Color(hex: "#141414"))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(colorManager.purpleColor)
+                    .cornerRadius(4)
+            }
             .buttonStyle(PlainButtonStyle())
             
             Spacer()
+                .frame(height: 200)
         }
     }
     

@@ -38,7 +38,7 @@ struct DisclaimerScreen: View {
                 // Disclaimer heading - 70pts from top
                 HStack {
                     Text(NSLocalizedString("DISCLAIMER", comment: ""))
-                        .font(.custom("IBMPlexMono-Bold", size: 16))
+                        .font(.custom("IBMPlexMono-Bold", size: UIDevice.current.userInterfaceIdiom == .pad ? 20 : 16))
                         .foregroundColor(Color(hex: "#141414"))
                         .opacity(isBlinking ? 0.3 : 1.0)
                         .onAppear {
@@ -55,28 +55,30 @@ struct DisclaimerScreen: View {
                 
                 // Disclaimer text - dark text
                 Text(NSLocalizedString("This app uses AI models that may generate incorrect, inappropriate, or misleading content. Do not rely on AI-generated content for legal, financial, or medical advice. This software is provided \"as is\" without warranties. For personal use only.", comment: ""))
-                    .font(.custom("IBMPlexMono", size: 16))
+                    .font(.custom("IBMPlexMono", size: UIDevice.current.userInterfaceIdiom == .pad ? 18 : 16))
                     .fontWeight(.medium)
                     .foregroundColor(Color(hex: "#141414"))
                     .multilineTextAlignment(.leading)
                     .lineSpacing(4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 
                 Spacer()
                     .frame(height: 40) // 40pts space
                 
                 // Dark text
                 Text(NSLocalizedString("This app stores all data on your device only - nothing is saved or shared, and no account exists.", comment: ""))
-                    .font(.custom("IBMPlexMono-Bold", size: 14))
+                    .font(.custom("IBMPlexMono-Bold", size: UIDevice.current.userInterfaceIdiom == .pad ? 18 : 14))
                     .foregroundColor(Color(hex: "#141414")) // Dark color
                     .multilineTextAlignment(.leading)
                     .lineSpacing(7)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 
                 Spacer()
                 
                 // I Understand button - keep at same exact spot
                 Button(action: onNext) {
                     Text(NSLocalizedString("I Understand", comment: ""))
-                        .font(.custom("IBMPlexMono", size: 16))
+                        .font(.custom("IBMPlexMono", size: UIDevice.current.userInterfaceIdiom == .pad ? 18 : 16))
                         .fontWeight(.medium)
                         .foregroundColor(Color(hex: "#141414")) // Dark text
                         .frame(maxWidth: .infinity)
@@ -91,7 +93,7 @@ struct DisclaimerScreen: View {
                 .buttonStyle(PlainButtonStyle())
                 .padding(.bottom, 40)
             }
-            .frame(width: 280) // Fixed width based on body copy
+            .frame(maxWidth: UIDevice.current.userInterfaceIdiom == .pad ? 600 : 280) // Responsive width for iPad
             .frame(maxWidth: .infinity, alignment: .center)
         }
     }
