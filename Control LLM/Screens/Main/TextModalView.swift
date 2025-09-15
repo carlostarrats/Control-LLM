@@ -433,10 +433,15 @@ struct TextModalView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+                
+                // Input bar - positioned at bottom when sheet is expanded
                 if isSheetExpanded {
-                    inputBar
-                        .padding(.bottom, keyboardHeight > 0 ? keyboardHeight : max(geometry.safeAreaInsets.bottom, 20))
+                    VStack {
+                        Spacer()
+                        inputBar
+                            .padding(.bottom, keyboardHeight > 0 ? 0 : max(geometry.safeAreaInsets.bottom, 20))
+                    }
+                    .offset(y: keyboardHeight > 0 ? -keyboardHeight + max(geometry.safeAreaInsets.bottom, 20) : 0)
                 }
                 
                 

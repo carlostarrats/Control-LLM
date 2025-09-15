@@ -325,28 +325,26 @@ struct AvailableDownloadModelView: View {
             
             // Download progress bar (only show when downloading)
             if isDownloading {
-                GeometryReader { geometry in
-                    VStack(spacing: 4) {
-                        // Progress bar
-                        ZStack(alignment: .leading) {
-                            Rectangle()
-                                .fill(Color(hex: "#333333"))
-                                .frame(height: 2)
-                            
-                            Rectangle()
-                                .fill(ColorManager.shared.orangeColor)
-                                .frame(width: geometry.size.width * 0.8 * CGFloat(downloadProgress), height: 2)
-                        }
-                        .frame(width: geometry.size.width * 0.8, height: 2)
+                VStack(spacing: 4) {
+                    // Progress bar
+                    ZStack(alignment: .leading) {
+                        Rectangle()
+                            .fill(Color(hex: "#333333"))
+                            .frame(height: 2)
                         
-                        // Progress text
-                        Text(String(format: NSLocalizedString("Installing [%d%%]", comment: ""), Int(downloadProgress * 100)))
-                            .font(.custom("IBMPlexMono", size: 10))
-                            .foregroundColor(ColorManager.shared.greyTextColor)
+                        Rectangle()
+                            .fill(ColorManager.shared.orangeColor)
+                            .frame(width: UIScreen.main.bounds.width * 0.8 * CGFloat(downloadProgress), height: 2)
                     }
-                    .padding(.horizontal, 4)
-                    .padding(.bottom, 12)
+                    .frame(width: UIScreen.main.bounds.width * 0.8, height: 2)
+                    
+                    // Progress text
+                    Text(String(format: NSLocalizedString("Installing [%d%%]", comment: ""), Int(downloadProgress * 100)))
+                        .font(.custom("IBMPlexMono", size: 10))
+                        .foregroundColor(ColorManager.shared.greyTextColor)
                 }
+                .padding(.horizontal, 4)
+                .padding(.bottom, 12)
                 .frame(height: 40) // Fixed height for the progress bar section
             }
             
