@@ -48,7 +48,7 @@ struct SettingsView: View {
                         SystemInfoView(mainViewModel: mainViewModel)
                             .padding(.horizontal, 20)
                             .padding(.top, 40)
-                            .padding(.bottom, 60)
+                            .padding(.bottom, max(60, 100)) // Ensure enough bottom padding
                     }
                 }
                 

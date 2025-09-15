@@ -120,7 +120,7 @@ struct SettingsModalView: View {
             }
         }
         .safeAreaInset(edge: .bottom) {
-            Color.clear.frame(height: 300)
+            Color.clear.frame(height: max(300, geometry.safeAreaInsets.bottom + 200))
         }
     }
         .sheet(isPresented: $showingModels) {

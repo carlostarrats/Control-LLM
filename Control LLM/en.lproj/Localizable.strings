@@ -37,7 +37,7 @@
 "Download Model" = "Download Model";
 "Download model to chat..." = "Download model to chat...";
 "Generating response..." = "Generating response...";
-"Ask Anything…" = "Ask Anything…";
+"Ask Anything…" = "Ask anything…";
 "File Message" = "File Message";
 
 // Models and Agents
@@ -281,7 +281,7 @@
 "Animation Cycle Demo" = "Animation Cycle Demo";
 "API Endpoint" = "API Endpoint";
 "Are my chats private?" = "Are my chats private?";
-"Ask Anything…" = "Ask Anything…";
+"Ask Anything…" = "Ask anything…";
 "AVAILABLE DOWNLOADS" = "AVAILABLE DOWNLOADS";
 "Available" = "Available";
 "AverageResponseTime" = "Average Response Time";

@@ -221,7 +221,7 @@ struct FirstRunSetupView: View {
                         
                         // Slice 11: < CONTROL Setup v1.0 >
                         HStack(alignment: .center, spacing: 0) {
-                            Text("< ")
+                            Text("<")
                                 .font(.custom("IBMPlexMono", size: 28))
                                 .foregroundColor(Color(hex: "141414"))
                             
@@ -230,7 +230,7 @@ struct FirstRunSetupView: View {
                                 .fontWeight(.medium)
                                 .foregroundColor(Color(hex: "141414"))
                             
-                            Text("/ ")
+                            Text("/")
                                 .font(.custom("IBMPlexMono", size: 28))
                                 .foregroundColor(Color(hex: "141414"))
                             

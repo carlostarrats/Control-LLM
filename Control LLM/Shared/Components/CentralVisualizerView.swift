@@ -438,7 +438,7 @@ struct CentralVisualizerView: View {
             )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .offset(x: isAnimating ? sin(animationPhase * 0.6) * 2 : 0,
+        .offset(x: isAnimating ? sin(animationPhase * 0.6) * 2 - 10 : -10,
                 y: isAnimating ? cos(animationPhase * 0.6) * 1 : 0)
         .scaleEffect(isAnimating ? 1.0 + sin(animationPhase * 0.4) * 0.004 : 1.0, anchor: .center)
 

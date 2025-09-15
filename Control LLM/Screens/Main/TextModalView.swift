@@ -434,7 +434,7 @@ struct TextModalView: View {
 
                 if isSheetExpanded {
                     inputBar
-                        .padding(.bottom, keyboardHeight > 0 ? keyboardHeight - geometry.safeAreaInsets.bottom : geometry.safeAreaInsets.bottom)
+                        .padding(.bottom, keyboardHeight > 0 ? keyboardHeight : max(geometry.safeAreaInsets.bottom, 20))
                 }
                 
                 
@@ -804,35 +804,58 @@ struct TextModalView: View {
     private var headerTextColor: Color {
         isSheetExpanded ? colorManager.purpleColor : Color(hex: "#141414")
     }
+    
+    // MARK: - Localized Font Sizing
+    private var localizedPlaceholderFont: Font {
+        let currentLanguage = Locale.current.languageCode ?? "en"
+        switch currentLanguage {
+        case "fr", "es":
+            return .custom("IBMPlexMono", size: 12) // Smaller for French/Spanish
+        default:
+            return .custom("IBMPlexMono", size: 16) // Original size for English
+        }
+    }
+    
+    private var localizedGeneratingFont: Font {
+        let currentLanguage = Locale.current.languageCode ?? "en"
+        switch currentLanguage {
+        case "fr", "es":
+            return .custom("IBMPlexMono", size: 12) // Smaller for French/Spanish
+        default:
+            return .custom("IBMPlexMono", size: 16) // Original size for English
+        }
+    }
 
     // MARK: message list -----------------------------------------------------
     private var messageList: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                LazyVStack(spacing: 24) {
-                    // No grabber or time display - clean interface
-                    
-                    if !hasModelsInstalled {
-                        noModelMessage
-                    } else {
-                        normalMessageList
+        GeometryReader { geometry in
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(spacing: 24) {
+                        // No grabber or time display - clean interface
+                        
+                        if !hasModelsInstalled {
+                            noModelMessage
+                        } else {
+                            normalMessageList
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, isSheetExpanded ? 0 : 14)
+                    .padding(.bottom, keyboardHeight > 0 ? keyboardHeight + 24 : max(24, geometry.safeAreaInsets.bottom + 16))
+                }
+                .safeAreaInset(edge: .bottom) {
+                    Color.clear.frame(height: max(200, geometry.safeAreaInsets.bottom + 100))
+                }
+                .onChange(of: viewModel.messages) { _, newMessages in
+                    if let last = newMessages.last, !last.content.isEmpty {
+                        withAnimation(.spring()) {
+                            proxy.scrollTo(last.id, anchor: .bottom)
+                        }
                     }
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, isSheetExpanded ? 0 : 14)
-                .padding(.bottom, keyboardHeight > 0 ? keyboardHeight + 24 : 24)
+                // REMOVED: Conflicting transcript onChange handler - now using latestToken only
             }
-            .safeAreaInset(edge: .bottom) {
-                Color.clear.frame(height: 200)
-            }
-            .onChange(of: viewModel.messages) { _, newMessages in
-                if let last = newMessages.last, !last.content.isEmpty {
-                    withAnimation(.spring()) {
-                        proxy.scrollTo(last.id, anchor: .bottom)
-                    }
-                }
-            }
-            // REMOVED: Conflicting transcript onChange handler - now using latestToken only
         }
     }
     
@@ -1008,7 +1031,7 @@ struct TextModalView: View {
                         Text(NSLocalizedString("Ask Anything…", comment: ""))
                     }
                 }
-                .font(.custom("IBMPlexMono", size: 16))
+                .font(localizedPlaceholderFont)
                 .foregroundColor(Color(hex: "#666666"))
                 .transition(.identity) // Use .identity for instant change to sync with button
 
@@ -1025,7 +1048,7 @@ struct TextModalView: View {
         if effectiveIsProcessing {
             HStack {
                 Text(NSLocalizedString("Generating response...", comment: ""))
-                    .font(.custom("IBMPlexMono", size: 16))
+                    .font(localizedGeneratingFont)
                     .foregroundColor(Color(hex: "#666666"))
                     .transition(.identity)
                     .onAppear {
@@ -1112,10 +1135,9 @@ struct TextModalView: View {
                         // Send button pressed - send new message
                         NSLog("TextModalView: SEND BUTTON PRESSED - Sending message")
                         
-                        // CRITICAL FIX: Set local processing state but NOT showGeneratingText to prevent button mode switch
-                        isLocalProcessing = true
+                        // Set focus state
                         isTextFieldFocused = false
-                        NSLog("TextModalView: IMMEDIATE FEEDBACK - Set isLocalProcessing = true (NOT showGeneratingText)")
+                        NSLog("TextModalView: IMMEDIATE FEEDBACK - Button pressed, sending message")
                         
                         // Force keyboard dismissal using multiple methods for reliability
                         hideKeyboard()
@@ -1197,6 +1219,9 @@ struct TextModalView: View {
         } else if isDuplicateMessage {
             return
         }
+        
+        // Set local processing state after duplicate check passes
+        isLocalProcessing = true
         
         // CRITICAL FIX: Only remove empty assistant messages to prevent multiple empty messages
         // This preserves completed responses while preventing empty message accumulation

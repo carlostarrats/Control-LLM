@@ -121,7 +121,7 @@ struct MainView: View {
         }
 
 
-        .offset(y: isSettingsSheetExpanded ? UIScreen.main.bounds.height : 0)
+        .offset(y: isSettingsSheetExpanded ? 1000 : 0) // Use large offset instead of screen bounds
         .zIndex(isSheetExpanded ? 2 : 0)
         .overlay(
             // Tap gesture overlay - only active when settings sheet is not expanded
@@ -169,7 +169,7 @@ struct MainView: View {
         }
 
 
-        .offset(y: isSheetExpanded ? UIScreen.main.bounds.height : 0)
+        .offset(y: isSheetExpanded ? 1000 : 0) // Use large offset instead of screen bounds
         .zIndex(isSettingsSheetExpanded ? 2 : 1)
         .overlay(
             // Tap gesture overlay - only active when chat sheet is not expanded
@@ -220,21 +220,22 @@ struct MainView: View {
     }
     
     var body: some View {
-        ZStack {
-            // Base dark background
-            Color(hex: "#1D1D1D")
-                .ignoresSafeArea(.all)
-            
+        GeometryReader { geometry in
+            ZStack {
+                // Base dark background
+                Color(hex: "#1D1D1D")
+                    .ignoresSafeArea(.all)
+                
 
-            
-            // Only show main content if onboarding is not showing
-            if !showingOnboarding {
-                mainContent
+                
+                // Only show main content if onboarding is not showing
+                if !showingOnboarding {
+                    mainContent
+                }
+
+                // Page navigation removed - settings now handled by sheet
+                
             }
-
-            // Page navigation removed - settings now handled by sheet
-            
-        }
         .background(
             LinearGradient(
                 colors: [
@@ -292,13 +293,13 @@ struct MainView: View {
             viewRecycler.clearCache()
         }
         .overlay(
-            // Chat sheet (behind settings sheet, 100pt height)
+            // Chat sheet (behind settings sheet, responsive height)
             Group {
                 if showingChatSheet {
                     VStack {
                         Spacer()
                         chatSheetView
-                            .frame(height: isSheetExpanded ? UIScreen.main.bounds.height * 0.9 : 104)
+                            .frame(height: isSheetExpanded ? geometry.size.height * 0.9 : 104)
                             // .cornerRadius(16, corners: [.topLeft, .topRight]) // TEST: Remove corner radius to see if it fixes safe area
 
                     }
@@ -306,13 +307,13 @@ struct MainView: View {
             }
         )
         .overlay(
-            // Settings sheet (in front, 50pt height)
+            // Settings sheet (in front, responsive height)
             Group {
                 if showingSettingsSheet {
                     VStack {
                         Spacer()
                         settingsSheetView
-                            .frame(height: isSettingsSheetExpanded ? UIScreen.main.bounds.height * 0.9 : 50)
+                            .frame(height: isSettingsSheetExpanded ? geometry.size.height * 0.9 : 50)
                             // .cornerRadius(16, corners: [.topLeft, .topRight]) // TEST: Remove corner radius to see if it fixes safe area
 
                     }
@@ -330,7 +331,7 @@ struct MainView: View {
                         ColorManager.shared.redColor : 
                         Color(hex: "#141414")
                     )
-                    .frame(height: 50) // Cover the 34pt safe area plus some buffer
+                    .frame(height: max(50, geometry.safeAreaInsets.bottom + 16)) // Responsive safe area handling
                     .allowsHitTesting(false)
                     .animation(.easeInOut(duration: 0.3), value: isSheetExpanded)
                     .animation(.easeInOut(duration: 0.3), value: isSettingsSheetExpanded)
@@ -366,6 +367,7 @@ struct MainView: View {
                 }
             }
         )
+        } // Close GeometryReader
 
 
 
