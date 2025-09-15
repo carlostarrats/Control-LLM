@@ -44,7 +44,9 @@ struct LoadingScreenView: View {
                                         // Step 4: Logo expands completely with ease out
                                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.375) {
                                             withAnimation(.easeOut(duration: 0.125)) {
-                                                logoScale = 6.0 // Much larger than screen
+                                                // Device-specific scaling: iPad gets bigger expansion
+                                                let isPad = UIDevice.current.userInterfaceIdiom == .pad
+                                                logoScale = isPad ? 8.0 : 6.0 // iPad: 8x, iPhone: 6x
                                             }
                                         }
                                     }

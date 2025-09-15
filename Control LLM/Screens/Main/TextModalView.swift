@@ -855,20 +855,16 @@ struct TextModalView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, isSheetExpanded ? 0 : 14)
-                .padding(.bottom, keyboardHeight > 0 ? keyboardHeight + 100 : 100)
+                .padding(.bottom, keyboardHeight > 0 ? keyboardHeight + 24 : 24)
             }
             .safeAreaInset(edge: .bottom) {
-                Color.clear.frame(height: 20)
+                Color.clear.frame(height: 200)
             }
                 // Removed final scroll - only use streaming scroll mechanism
-            .onChange(of: scrollToBottomCounter) { _, _ in
-                // CRITICAL: Scroll to bottom when streaming content updates
-                if let last = viewModel.messages.last, !last.content.isEmpty {
-                    // Scroll to the last message with top anchor for better positioning
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                        withAnimation(.easeOut(duration: 0.2)) {
-                            proxy.scrollTo(last.id, anchor: .top)
-                        }
+            .onChange(of: viewModel.messages) { _, newMessages in
+                if let last = newMessages.last, !last.content.isEmpty {
+                    withAnimation(.spring()) {
+                        proxy.scrollTo(last.id, anchor: .bottom)
                     }
                 }
             }
