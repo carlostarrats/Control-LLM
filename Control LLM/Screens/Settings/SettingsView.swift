@@ -58,18 +58,18 @@ struct SettingsView: View {
             }
             // Removed header overlay (grabber, title, close button)
         }
-        .sheet(isPresented: $showingModels) {
+        .fullScreenCover(isPresented: $showingModels) {
             SettingsModelsView()
         }
-        .sheet(isPresented: $showingAppearance) {
+        .fullScreenCover(isPresented: $showingAppearance) {
             AppearanceView()
         }
-        .sheet(isPresented: $showingFAQ) {
+        .fullScreenCover(isPresented: $showingFAQ) {
             FAQView()
         }
         // Voice settings sheet removed
 
-        .sheet(isPresented: $showingCredits) {
+        .fullScreenCover(isPresented: $showingCredits) {
             CreditsView()
         }
     }

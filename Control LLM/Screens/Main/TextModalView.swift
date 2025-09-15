@@ -3,6 +3,7 @@ import UIKit
 import UniformTypeIdentifiers
 import Lottie
 
+
 // MARK: - Lottie View Wrapper -------------------------------------------------
 
 struct LottieView: UIViewRepresentable {
@@ -273,6 +274,7 @@ struct TextModalView: View {
     @State private var inputBarHeight: CGFloat = 0
     @State private var opacityUpdateTimer: Timer?
     @State private var keyboardHeight: CGFloat = 0
+    @State private var scrollToBottomCounter = 0
     @State private var showGeneratingText = false {
         didSet {
             NSLog("TextModalView: showGeneratingText changed from \(oldValue) to \(showGeneratingText)")
@@ -455,6 +457,11 @@ struct TextModalView: View {
             if let lastAssistantIndex = viewModel.messages.lastIndex(where: { !$0.isUser }) {
                 viewModel.messages[lastAssistantIndex].content += newToken
                 NSLog("TextModalView: Appended token to message at index \(lastAssistantIndex)")
+                
+                // CRITICAL: Scroll to keep content above input bar when streaming
+                DispatchQueue.main.async {
+                    scrollToBottomCounter += 1
+                }
             } else {
                 // Create new assistant message if none exists
                 let assistantMessage = ChatMessage(
@@ -632,7 +639,7 @@ struct TextModalView: View {
             isTextFieldFocused = false
             hideKeyboard()
         }
-        .sheet(isPresented: $showingModelsSheet) {
+        .fullScreenCover(isPresented: $showingModelsSheet) {
             SettingsModelsView()
         }
         .alert(NSLocalizedString("Error", comment: ""), isPresented: $showingError) {
@@ -848,15 +855,20 @@ struct TextModalView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, isSheetExpanded ? 0 : 14)
-                .padding(.bottom, keyboardHeight > 0 ? keyboardHeight + 24 : 24)
+                .padding(.bottom, keyboardHeight > 0 ? keyboardHeight + 100 : 100)
             }
             .safeAreaInset(edge: .bottom) {
-                Color.clear.frame(height: 200)
+                Color.clear.frame(height: 20)
             }
-            .onChange(of: viewModel.messages) { _, newMessages in
-                if let last = newMessages.last, !last.content.isEmpty {
-                    withAnimation(.spring()) {
-                        proxy.scrollTo(last.id, anchor: .bottom)
+                // Removed final scroll - only use streaming scroll mechanism
+            .onChange(of: scrollToBottomCounter) { _, _ in
+                // CRITICAL: Scroll to bottom when streaming content updates
+                if let last = viewModel.messages.last, !last.content.isEmpty {
+                    // Scroll to the last message with top anchor for better positioning
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        withAnimation(.easeOut(duration: 0.2)) {
+                            proxy.scrollTo(last.id, anchor: .top)
+                        }
                     }
                 }
             }
@@ -868,7 +880,7 @@ struct TextModalView: View {
     private var noModelMessage: some View {
         VStack(spacing: 20) {
             Spacer()
-                .frame(height: 200)
+                .frame(height: 20)
             
             Text(NSLocalizedString("Nothing to see here (yet) 🤖", comment: ""))
                 .font(.custom("IBMPlexMono", size: 16))
@@ -949,16 +961,15 @@ struct TextModalView: View {
                 .cornerRadius(4)
 
                 // Text field
-                TextField("", text: $messageText, axis: .vertical)
+                TextField("Ask anything...", text: $messageText, axis: .vertical)
                     .font(.custom("IBMPlexMono", size: 16))
                     .foregroundColor(colorManager.purpleColor)
+                    .focused($isTextFieldFocused)
                     .padding(.leading, 16)
                     .padding(.trailing, trailingPadding)
                     .padding(.vertical, 12)
-                    .background(Color(hex: "#2A2A2A"))
+                    .background(Color(hex: "#0f0f0f"))
                     .cornerRadius(4)
-                    .tint(colorManager.whiteTextColor)
-                    .focused($isTextFieldFocused) // Explicitly bind focus state
                     .disabled(viewModel.llm.isProcessing || !hasModelsInstalled) // Disable during LLM response or when no models
                     .onChange(of: viewModel.llm.isProcessing) { _, isProcessing in
                         // CRITICAL FIX: Clear messageText when processing state changes to prevent corruption

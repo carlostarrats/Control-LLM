@@ -63,10 +63,12 @@ struct ParticleVisualizerView: View {
     }
     
     var body: some View {
-        ZStack {
-            // Show particles immediately - no more delay
-            ForEach(particles.indices, id: \.self) { index in
-                ParticleView(particle: $particles[index])
+        GeometryReader { geometry in
+            ZStack {
+                // Show particles immediately - no more delay
+                ForEach(particles.indices, id: \.self) { index in
+                    ParticleView(particle: $particles[index], centerX: geometry.size.width / 2, centerY: geometry.size.height / 2)
+                }
             }
         }
         .offset(x: -5, y: 0) // Move WOPR animation 5 points to the left
@@ -163,14 +165,16 @@ struct Particle {
 // Simple particle view
 struct ParticleView: View {
     @Binding var particle: Particle
+    let centerX: CGFloat
+    let centerY: CGFloat
     
     var body: some View {
         Circle()
             .fill(Color(red: 0.533, green: 0.533, blue: 0.533))
             .frame(width: 4, height: 4)
             .position(
-                x: 200 + particle.x,
-                y: 400 + particle.y
+                x: centerX + particle.x,
+                y: centerY + particle.y
             )
             .opacity(0.8)
             .shadow(color: Color(red: 0.533, green: 0.533, blue: 0.533).opacity(0.6), radius: 3, x: 0, y: 0)

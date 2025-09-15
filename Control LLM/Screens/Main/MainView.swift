@@ -327,7 +327,7 @@ struct MainView: View {
                         ColorManager.shared.redColor : 
                         Color(hex: "#141414")
                     )
-                    .frame(height: max(50, geometry.safeAreaInsets.bottom + 16)) // Responsive safe area handling
+                    .frame(height: UIDevice.current.userInterfaceIdiom == .pad ? 20 : 50) // Smaller on iPad
                     .allowsHitTesting(false)
                     .animation(.easeInOut(duration: 0.3), value: isSheetExpanded)
                     .animation(.easeInOut(duration: 0.3), value: isSettingsSheetExpanded)
@@ -450,7 +450,7 @@ struct HomePage: View {
                 
                 // Empty space where buttons used to be
                 Spacer()
-                    .frame(height: 50)
+                    .frame(height: UIDevice.current.userInterfaceIdiom == .pad ? 20 : 50)
             }
         }
     }

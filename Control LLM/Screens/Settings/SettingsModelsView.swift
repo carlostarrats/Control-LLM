@@ -196,7 +196,7 @@ struct SettingsModelsView: View {
                 )
             }
         }
-        .sheet(isPresented: $showingUnusedModelsSheet) {
+        .fullScreenCover(isPresented: $showingUnusedModelsSheet) {
             UnusedModelsSheet(
                 availableModels: modelManager.availableModels,
                 activeModel: modelManager.selectedModel?.filename ?? "",
@@ -213,10 +213,10 @@ struct SettingsModelsView: View {
                             }
                         }
                         selectedUnusedModels.removeAll()
+                        showingUnusedModelsSheet = false
                     }
                 }
             )
-            .presentationDetents(unusedModelsCount == 0 ? [.height(200)] : [.medium])
         }
     }
     
@@ -325,26 +325,29 @@ struct AvailableDownloadModelView: View {
             
             // Download progress bar (only show when downloading)
             if isDownloading {
-                VStack(spacing: 4) {
-                    // Progress bar
-                    ZStack(alignment: .leading) {
-                        Rectangle()
-                            .fill(Color(hex: "#333333"))
-                            .frame(height: 2)
+                GeometryReader { geometry in
+                    VStack(spacing: 4) {
+                        // Progress bar
+                        ZStack(alignment: .leading) {
+                            Rectangle()
+                                .fill(Color(hex: "#333333"))
+                                .frame(height: 2)
+                            
+                            Rectangle()
+                                .fill(ColorManager.shared.orangeColor)
+                                .frame(width: (geometry.size.width - 8) * CGFloat(downloadProgress), height: 2)
+                        }
+                        .frame(height: 2)
                         
-                        Rectangle()
-                            .fill(ColorManager.shared.orangeColor)
-                            .frame(width: UIScreen.main.bounds.width * 0.8 * CGFloat(downloadProgress), height: 2)
+                        // Progress text
+                        Text(String(format: NSLocalizedString("Installing [%d%%]", comment: ""), Int(downloadProgress * 100)))
+                            .font(.custom("IBMPlexMono", size: 10))
+                            .foregroundColor(ColorManager.shared.greyTextColor)
                     }
-                    .frame(width: UIScreen.main.bounds.width * 0.8, height: 2)
-                    
-                    // Progress text
-                    Text(String(format: NSLocalizedString("Installing [%d%%]", comment: ""), Int(downloadProgress * 100)))
-                        .font(.custom("IBMPlexMono", size: 10))
-                        .foregroundColor(ColorManager.shared.greyTextColor)
+                    .padding(.horizontal, 4)
+                    .padding(.bottom, 12)
+                    .frame(height: 40) // Fixed height for the progress bar section
                 }
-                .padding(.horizontal, 4)
-                .padding(.bottom, 12)
                 .frame(height: 40) // Fixed height for the progress bar section
             }
             

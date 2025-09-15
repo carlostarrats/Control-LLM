@@ -212,13 +212,13 @@ struct CustomSlider: View {
                 // Filled track
                 Rectangle()
                     .fill(accentColor)
-                    .frame(width: CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width, height: 2)
+                    .frame(width: CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * 350, height: 2)
                 
                 // Vertical line grabber - fixed center position
                 Rectangle()
                     .fill(ColorManager.shared.whiteTextColor)
                     .frame(width: isPressed ? 4 : 2, height: isPressed ? 24 : 20)
-                    .position(x: CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * geometry.size.width, y: 15)
+                    .position(x: CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * 350, y: 15)
                     .animation(.easeInOut(duration: 0.2), value: isPressed)
             }
             .contentShape(Rectangle())
@@ -226,7 +226,7 @@ struct CustomSlider: View {
                 DragGesture(minimumDistance: 0)
                     .onChanged { gesture in
                         isPressed = true
-                        let newValue = range.lowerBound + (range.upperBound - range.lowerBound) * Double(gesture.location.x / geometry.size.width)
+                        let newValue = range.lowerBound + (range.upperBound - range.lowerBound) * Double(gesture.location.x / 350)
                         value = max(range.lowerBound, min(range.upperBound, newValue))
                     }
                     .onEnded { _ in

@@ -122,19 +122,19 @@ struct SettingsModalView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .safeAreaInset(edge: .bottom) {
-            Color.clear.frame(height: 300)
+            Color.clear.frame(height: 20)
         }
     }
-        .sheet(isPresented: $showingModels) {
+        .fullScreenCover(isPresented: $showingModels) {
             SettingsModelsView()
         }
-        .sheet(isPresented: $showingAppearance) {
+        .fullScreenCover(isPresented: $showingAppearance) {
             AppearanceView()
         }
-        .sheet(isPresented: $showingFAQ) {
+        .fullScreenCover(isPresented: $showingFAQ) {
             FAQView()
         }
-        .sheet(isPresented: $showingCredits) {
+        .fullScreenCover(isPresented: $showingCredits) {
             CreditsView()
         }
     }
