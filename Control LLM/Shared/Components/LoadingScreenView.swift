@@ -54,12 +54,14 @@ struct LoadingScreenView: View {
                             }
                 
                 // "CONTROL" text at the bottom
-                VStack {
+                VStack(alignment: .center) {
                     Spacer()
                     Text(NSLocalizedString("CONTROL", comment: ""))
                         .font(.custom("IBMPlexMono", size: 16))
                         .foregroundColor(Color(hex: "#141414")) // Color as requested by user
                         .opacity(textOpacity)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
                         .padding(.bottom, 56) // 40pt (button bottom) + 16pt (button vertical padding) = 56pt
                 }
             }
