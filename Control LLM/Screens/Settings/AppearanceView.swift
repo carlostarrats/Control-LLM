@@ -503,12 +503,26 @@ struct AppearanceView: View {
             .safeAreaInset(edge: .top) {
                 // Header
                 VStack(spacing: 0) {
-                    // Grab bar
+                    // Grab bar with swipe gesture
                     RoundedRectangle(cornerRadius: 2.5)
                         .fill(ColorManager.shared.greenColor)
                         .frame(width: 36, height: 5)
                         .padding(.top, 8)
                         .padding(.bottom, 6)
+                        .gesture(
+                            DragGesture()
+                                .onEnded { value in
+                                    if value.translation.height > 50 {
+                                        // If there are uncommitted changes, restore to last committed state before dismissing
+                                        if hasChanges {
+                                            suppressChangeTracking = true
+                                            appearanceManager.restoreToLastCommitted()
+                                            suppressChangeTracking = false
+                                        }
+                                        dismiss()
+                                    }
+                                }
+                        )
                     
                     // Header
                     HStack {

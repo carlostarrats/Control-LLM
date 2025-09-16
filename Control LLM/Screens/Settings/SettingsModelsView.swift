@@ -153,12 +153,20 @@ struct SettingsModelsView: View {
             .safeAreaInset(edge: .top) {
                 // Header
                 VStack(spacing: 0) {
-                    // Grab bar
+                    // Grab bar with swipe gesture
                     RoundedRectangle(cornerRadius: 2.5)
                         .fill(ColorManager.shared.greenColor)
                         .frame(width: 36, height: 5)
                         .padding(.top, 8)
                         .padding(.bottom, 10)
+                        .gesture(
+                            DragGesture()
+                                .onEnded { value in
+                                    if value.translation.height > 50 {
+                                        dismiss()
+                                    }
+                                }
+                        )
                     
                     // Header
                     HStack {
@@ -535,12 +543,20 @@ struct UnusedModelsSheet: View {
             .safeAreaInset(edge: .top) {
                 // Header
                 VStack(spacing: 0) {
-                    // Grab bar
+                    // Grab bar with swipe gesture
                     RoundedRectangle(cornerRadius: 2.5)
                         .fill(ColorManager.shared.greenColor)
                         .frame(width: 36, height: 5)
                         .padding(.top, 8)
                         .padding(.bottom, 10)
+                        .gesture(
+                            DragGesture()
+                                .onEnded { value in
+                                    if value.translation.height > 50 {
+                                        dismiss()
+                                    }
+                                }
+                        )
                     
                     // Header
                     HStack {
