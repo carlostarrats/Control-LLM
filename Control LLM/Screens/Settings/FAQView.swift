@@ -21,16 +21,22 @@ struct FAQView: View {
             }
             .safeAreaInset(edge: .top) {
                 VStack(spacing: 0) {
-                    // Grab bar with swipe gesture
-                    RoundedRectangle(cornerRadius: 2.5)
+                    // Enhanced grab bar with larger invisible touch area
+                    RoundedRectangle(cornerRadius: 3)
                         .fill(ColorManager.shared.greenColor)
-                        .frame(width: 36, height: 5)
+                        .frame(width: 50, height: 6)
                         .padding(.top, 8)
-                        .padding(.bottom, 10)
+                        .padding(.bottom, 12)
+                        .contentShape(Rectangle())
+                        .frame(width: UIDevice.current.userInterfaceIdiom == .pad ? 120 : 80, height: UIDevice.current.userInterfaceIdiom == .pad ? 50 : 40)
                         .gesture(
                             DragGesture()
+                                .onChanged { value in
+                                    // Visual feedback during drag
+                                }
                                 .onEnded { value in
-                                    if value.translation.height > 50 {
+                                    // More sensitive dismissal - reduce threshold
+                                    if value.translation.height > 20 {
                                         dismiss()
                                     }
                                 }
