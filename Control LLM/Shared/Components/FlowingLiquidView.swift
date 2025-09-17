@@ -5,7 +5,7 @@ import MetalKit
 class AdaptiveFrameRateManager {
     static let shared = AdaptiveFrameRateManager()
     
-    private var currentFPS: Double = 60
+    private var currentFPS: Double = 25  // Start with stable, slower frame rate
     private var performanceHistory: [Double] = []
     private let maxHistorySize = 10
     private var lastUpdateTime: Date = Date()
@@ -19,8 +19,8 @@ class AdaptiveFrameRateManager {
         // Update performance metrics
         updatePerformanceMetrics()
         
-        // Calculate average performance
-        let averagePerformance = performanceHistory.isEmpty ? 1.0 : 
+        // Calculate average performance - start conservative when no history
+        let averagePerformance = performanceHistory.isEmpty ? 0.7 : 
             performanceHistory.reduce(0, +) / Double(performanceHistory.count)
         
         // PERFORMANCE OPTIMIZATION: 15-45 FPS range for better battery life
@@ -48,9 +48,9 @@ class AdaptiveFrameRateManager {
         // PERFORMANCE OPTIMIZATION: Real-time frame time monitoring
         let frameTime = getCurrentFrameTime()
         if frameTime > 0.066 { // If frame time > 66ms (15 FPS equivalent)
-            currentFPS = max(15, currentFPS * 0.8) // Reduce FPS if struggling
+            currentFPS = max(15, currentFPS * 0.9) // Reduce FPS if struggling
         } else if frameTime < 0.022 { // If frame time < 22ms (45 FPS equivalent)
-            currentFPS = min(45, currentFPS * 1.1) // Increase FPS if performing well
+            currentFPS = min(30, currentFPS * 1.05) // Slight increase if performing well, cap at 30
         }
         
         return currentFPS
