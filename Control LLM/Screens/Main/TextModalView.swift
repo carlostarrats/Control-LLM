@@ -1664,7 +1664,7 @@ struct TextModalView: View {
         
         // Show "File received, what's next?" message
         let assistantMessage = ChatMessage(
-            content: "File received, what's next?",
+            content: NSLocalizedString("File received, what's next?", comment: ""),
             isUser: false,
             timestamp: Date(),
             messageType: .text

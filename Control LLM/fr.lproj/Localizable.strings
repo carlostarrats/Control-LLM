@@ -361,3 +361,7 @@
 "Tap to continue" = "Appuyez pour continuer";
 "Queued" = "En file d'attente";
 "In Use" = "En cours d'utilisation";
+
+// File Upload Messages
+"File Upload" = "Téléchargement de fichier";
+"File received, what's next?" = "Fichier reçu, que voulez-vous faire ensuite ?";

@@ -345,6 +345,10 @@
 "Queued" = "En cola";
 "In Use" = "En uso";
 
+// File Upload Messages
+"File Upload" = "Subida de archivo";
+"File received, what's next?" = "Archivo recibido, ¿qué quieres hacer ahora?";
+
 // Setup Status Messages
 "> INITIALIZING METAL BACKEND..." = "> INICIALIZANDO BACKEND METAL...";
 "> COMPILING SHADER KERNELS..." = "> COMPILANDO NÚCLEOS SHADER...";

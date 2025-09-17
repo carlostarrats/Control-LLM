@@ -269,6 +269,10 @@
 "Queued" = "Queued";
 "In Use" = "In Use";
 
+// File Upload Messages
+"File Upload" = "File Upload";
+"File received, what's next?" = "File received, what's next?";
+
 // Missing Keys from French/Spanish
 "%.0f ms avg" = "%.0f ms avg";
 "A text-based AI assistant with custom UI and MVVM architecture." = "A text-based AI assistant with custom UI and MVVM architecture.";

@@ -1763,9 +1763,13 @@ class LargeFileProcessingService {
         let maxSummaries = 5 // Only use first 5 summaries to keep prompt very small
         let limitedSummaries = Array(validSummaries.prefix(maxSummaries))
         
+        // Get current language for localized responses
+        let currentLanguage = Locale.current.languageCode ?? "en"
+        let languageInstruction = getLanguageInstruction(for: currentLanguage)
+        
         // Create a simple, focused prompt for PDF summaries
         let focusedPrompt = """
-        You are a helpful assistant. Answer this question about the document: "\(instruction)"
+        You are a helpful assistant. \(languageInstruction) Answer this question about the document: "\(instruction)"
 
         Document content:
         \(limitedSummaries.map { String($0.prefix(maxSummaryLength)) }.joined(separator: "\n\n"))
@@ -1907,6 +1911,11 @@ class LargeFileProcessingService {
         }
         
         let combinedSummaries = truncatedSummaries.joined(separator: "\n\n---\n\n")
+        
+        // Get current language for localized responses
+        let currentLanguage = Locale.current.languageCode ?? "en"
+        let languageInstruction = getLanguageInstruction(for: currentLanguage)
+        
         let finalPrompt = """
         You are an expert document analyst. I have analyzed a document and generated detailed summaries for most parts. 
         
@@ -1919,6 +1928,7 @@ class LargeFileProcessingService {
         - Organize the information logically with clear sections
         - Ensure the summary is complete and covers all major points
         - Write in clear, professional language
+        - \(languageInstruction)
         
         CHUNK SUMMARIES:
         \(combinedSummaries)
@@ -2149,5 +2159,35 @@ class LargeFileProcessingService {
         await progressHandler("Processing complete!")
         
         return structuredSummary
+    }
+    
+    // MARK: - Language Support
+    
+    /// Get language instruction for PDF processing based on current locale
+    private func getLanguageInstruction(for languageCode: String) -> String {
+        switch languageCode {
+        case "fr":
+            return "Please respond in French. Répondez en français."
+        case "es":
+            return "Please respond in Spanish. Por favor responde en español."
+        case "de":
+            return "Please respond in German. Bitte antworten Sie auf Deutsch."
+        case "it":
+            return "Please respond in Italian. Per favore rispondi in italiano."
+        case "pt":
+            return "Please respond in Portuguese. Por favor responda em português."
+        case "ru":
+            return "Please respond in Russian. Пожалуйста, отвечайте на русском языке."
+        case "zh":
+            return "Please respond in Chinese. 请用中文回答。"
+        case "ja":
+            return "Please respond in Japanese. 日本語でお答えください。"
+        case "ko":
+            return "Please respond in Korean. 한국어로 답변해 주세요."
+        case "ar":
+            return "Please respond in Arabic. يرجى الرد باللغة العربية."
+        default:
+            return "Please respond in English."
+        }
     }
 }
