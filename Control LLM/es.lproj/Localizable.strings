@@ -33,6 +33,7 @@
 
 // Main UI Text
 "Control" = "Control";
+"CONTROL" = "CONTROL";
 "Nothing to see here (yet) 🤖" = "Nada que ver aquí (aún) 🤖";
 "Download Model" = "Descargar Modelo";
 "Download model to chat..." = "Descarga un modelo para chatear...";
