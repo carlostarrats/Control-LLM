@@ -954,7 +954,7 @@ struct TextModalView: View {
                 .cornerRadius(4)
 
                 // Text field
-                TextField("Ask anything...", text: $messageText, axis: .vertical)
+                TextField("", text: $messageText, axis: .vertical)
                     .font(.custom("IBMPlexMono", size: 16))
                     .foregroundColor(colorManager.purpleColor)
                     .focused($isTextFieldFocused)
