@@ -62,6 +62,7 @@ struct LoadingScreenView: View {
                         .opacity(textOpacity)
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity)
+                        .offset(x: -5) // Move 5pt to the left
                         .padding(.bottom, 56) // 40pt (button bottom) + 16pt (button vertical padding) = 56pt
                 }
             }
