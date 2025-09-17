@@ -927,7 +927,7 @@ struct TextModalView: View {
             HStack(alignment: .center, spacing: 12) {
                 // Plus button with full-height background matching input bar
                 ZStack {
-                    Color(hex: "#0f0f0f")
+                    Color(hex: "#2A2A2A")
                     Button(action: {
                         showingDocumentPicker = true
                     }) {
@@ -965,7 +965,7 @@ struct TextModalView: View {
                     .padding(.leading, 16)
                     .padding(.trailing, trailingPadding)
                     .padding(.vertical, 12)
-                    .background(Color(hex: "#0f0f0f"))
+                    .background(Color(hex: "#2A2A2A"))
                     .cornerRadius(4)
                     .disabled(viewModel.llm.isProcessing || !hasModelsInstalled) // Disable during LLM response or when no models
                     .onChange(of: viewModel.llm.isProcessing) { _, isProcessing in
