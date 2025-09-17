@@ -57,9 +57,9 @@ struct FirstRunSetupView: View {
             VStack(spacing: 0) {
                 // FIXED HEADER - Always visible at top
                 VStack(alignment: .leading, spacing: 0) {
-                    // Slice 1: Top section - CONTROL V1.0 left, 80GB AVAILABLE right
+                    // Slice 1: Top section - CONTROL V1.1 left, 80GB AVAILABLE right
                     HStack {
-                        Text(NSLocalizedString("CONTROL V1.0", comment: ""))
+                        Text(NSLocalizedString("CONTROL V1.1", comment: ""))
                             .font(.custom("IBMPlexMono", size: 12))
                             .fontWeight(.bold)
                             .foregroundColor(Color(hex: "141414"))
@@ -219,7 +219,7 @@ struct FirstRunSetupView: View {
                         .padding(.top, 4)
                         .opacity(showOpenSource ? 1.0 : 0.0)
                         
-                        // Slice 11: < CONTROL Setup v1.0 >
+                        // Slice 11: < CONTROL Setup v1.1 >
                         HStack(alignment: .center, spacing: 0) {
                             Text("<")
                                 .font(.custom("IBMPlexMono", size: 28))

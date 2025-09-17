@@ -33,7 +33,7 @@ class SettingsViewModel: ObservableObject {
         
         // Load developer info
         developerInfo = DeveloperInfo(
-            appVersion: "1.0.0",
+            appVersion: "1.0",
             buildNumber: "1",
             lastUpdated: Date(),
             apiEndpoint: "https://api.example.com",
@@ -72,7 +72,7 @@ struct UICustomization {
 }
 
 struct DeveloperInfo {
-    var appVersion: String = "1.0.0"
+    var appVersion: String = "1.1"
     var buildNumber: String = "1"
     var lastUpdated: Date = Date()
     var apiEndpoint: String = "https://api.example.com"

@@ -280,7 +280,7 @@ struct SystemInfoView: View {
                 
                 Spacer()
                 
-                Text(NSLocalizedString("1.0", comment: ""))
+                Text(NSLocalizedString("1.1", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#555555"))
             }

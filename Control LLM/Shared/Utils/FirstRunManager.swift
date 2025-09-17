@@ -54,7 +54,7 @@ class FirstRunManager {
     private func getCurrentAppVersion() -> String {
         guard let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
               let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String else {
-            return "1.0.0"
+            return "1.1"
         }
         return "\(version).\(build)"
     }
