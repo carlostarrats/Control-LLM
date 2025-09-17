@@ -10,150 +10,10 @@ struct SettingsModelsView: View {
     @State private var selectedUnusedModels: Set<String> = []
     
     var body: some View {
-        ZStack {
-            // Background
-            Color(hex: "#1D1D1D")
-                .ignoresSafeArea()
-            
-            // Scrollable content
-            ScrollView {
-                VStack(spacing: 8) {
-                    // Add small top padding to align with other settings pages
-                    Spacer()
-                        .frame(height: 5)
-                    
-                    // INSTALLED section
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(NSLocalizedString("INSTALLED", comment: ""))
-                            .font(.custom("IBMPlexMono", size: 12))
-                            .foregroundColor(colorManager.orangeColor)
-                            .padding(.horizontal, 24)
-                        
-                        VStack(spacing: 0) {
-                            if modelManager.availableModels.isEmpty {
-                                // Show "No Installed Models" when no models are installed
-                                HStack {
-                                    Text(NSLocalizedString("No Installed Models", comment: ""))
-                                        .font(.custom("IBMPlexMono", size: 16))
-                                        .foregroundColor(Color(hex: "#666666"))
-                                        .multilineTextAlignment(.leading)
-                                    
-                                    Spacer()
-                                }
-                                .padding(.horizontal, 4)
-                                .padding(.vertical, 16)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            } else {
-                                ForEach(modelManager.availableModels, id: \.filename) { model in
-                                    InstalledLLMModelView(
-                                        model: model,
-                                        isActive: modelManager.selectedModel?.filename == model.filename,
-                                        onSelect: {
-                                            modelManager.selectModel(model)
-                                        },
-                                        onDelete: {
-                                            Task {
-                                                do {
-                                                    try await modelManager.deleteModel(model)
-                                                } catch {
-                                                }
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                
-                // 30px spacing between sections
-                Spacer()
-                    .frame(height: 30)
-                
-                // Available Downloads section
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(NSLocalizedString("AVAILABLE DOWNLOADS", comment: ""))
-                            .font(.custom("IBMPlexMono", size: 12))
-                            .foregroundColor(colorManager.orangeColor)
-                            .padding(.horizontal, 24)
-                        
-                        VStack(spacing: 0) {
-                            if availableDownloadModels.isEmpty {
-                                // Show "Already Installed" when no downloads available
-                                HStack {
-                                    Text(NSLocalizedString("All Available Installed", comment: ""))
-                                        .font(.custom("IBMPlexMono", size: 16))
-                                        .foregroundColor(Color(hex: "#666666"))
-                                        .multilineTextAlignment(.leading)
-                                    
-                                    Spacer()
-                                }
-                                .padding(.horizontal, 4)
-                                .padding(.vertical, 16)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                
-                                // Horizontal line under the item
-                                Rectangle()
-                                    .fill(Color(hex: "#333333"))
-                                    .frame(height: 1)
-                            } else {
-                                ForEach(availableDownloadModels, id: \.filename) { model in
-                                    AvailableDownloadModelView(
-                                        model: model,
-                                        isDownloading: downloadService.isDownloading(model.filename),
-                                        isQueued: downloadService.isQueued(model.filename),
-                                        downloadProgress: downloadService.getDownloadProgress(model.filename),
-                                        onDownload: {
-                                            if downloadService.isDownloading(model.filename) {
-                                                // Stop download
-                                                downloadService.cancelDownload(model.filename)
-                                            } else if downloadService.isQueued(model.filename) {
-                                                // Cancel queued download
-                                                downloadService.cancelDownload(model.filename)
-                                            } else {
-                                                // Start download
-                                                Task {
-                                                    do {
-                                                        try await downloadService.downloadModel(model.filename)
-                                                    } catch {
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                
-                // 30px spacing between sections
-                Spacer()
-                    .frame(height: 30)
-                
-                // Manage Unused Models text
-                Button(action: {
-                    showingUnusedModelsSheet = true
-                }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "checklist")
-                            .font(.system(size: 16))
-                            .foregroundColor(colorManager.redColor)
-                        
-                        Text(NSLocalizedString("Manage Unused Models", comment: ""))
-                            .font(.custom("IBMPlexMono", size: 16))
-                            .foregroundColor(colorManager.redColor)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-                
-                .padding(.bottom, 12)
-            }
-        }
-            .safeAreaInset(edge: .top) {
-                // Header
+        NavigationView {
+            VStack(spacing: 0) {
+                // Header with grabber
                 VStack(spacing: 0) {
-                    // Enhanced grab bar with larger invisible touch area
                     RoundedRectangle(cornerRadius: 3)
                         .fill(ColorManager.shared.greenColor)
                         .frame(width: 50, height: 6)
@@ -161,20 +21,7 @@ struct SettingsModelsView: View {
                         .padding(.bottom, 12)
                         .contentShape(Rectangle())
                         .frame(width: UIDevice.current.userInterfaceIdiom == .pad ? 120 : 80, height: UIDevice.current.userInterfaceIdiom == .pad ? 50 : 40)
-                        .gesture(
-                            DragGesture()
-                                .onChanged { value in
-                                    // Visual feedback during drag
-                                }
-                                .onEnded { value in
-                                    // More sensitive dismissal - reduce threshold
-                                    if value.translation.height > 20 {
-                                        dismiss()
-                                    }
-                                }
-                        )
-                    
-                    // Header
+
                     HStack {
                         HStack(spacing: 8) {
                             Image(systemName: "terminal")
@@ -205,25 +52,118 @@ struct SettingsModelsView: View {
                     }
                     .padding(.bottom, 10)
                 }
-                .background(
-                    Color(hex: "#1D1D1D")
-                )
+                .background(Color(hex: "#1D1D1D"))
+                
+                // Scrollable content
+                ScrollView {
+                    VStack(spacing: 8) {
+                        // Add small top padding to align with other settings pages
+                        Spacer()
+                            .frame(height: 5)
+                        
+                        // INSTALLED section
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(NSLocalizedString("INSTALLED", comment: ""))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .foregroundColor(colorManager.orangeColor)
+                                .padding(.horizontal, 24)
+                            
+                            VStack(spacing: 0) {
+                                if modelManager.availableModels.isEmpty {
+                                    HStack {
+                                        Text(NSLocalizedString("No Installed Models", comment: ""))
+                                            .font(.custom("IBMPlexMono", size: 16))
+                                            .foregroundColor(Color(hex: "#666666"))
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 4)
+                                    .padding(.vertical, 16)
+                                } else {
+                                    ForEach(modelManager.availableModels, id: \.filename) { model in
+                                        InstalledLLMModelView(
+                                            model: model,
+                                            isActive: modelManager.selectedModel?.filename == model.filename,
+                                            onSelect: { modelManager.selectModel(model) },
+                                            onDelete: {
+                                                Task { try? await modelManager.deleteModel(model) }
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                        }
+                        
+                        Spacer().frame(height: 30)
+                        
+                        // Available Downloads section
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(NSLocalizedString("AVAILABLE DOWNLOADS", comment: ""))
+                                .font(.custom("IBMPlexMono", size: 12))
+                                .foregroundColor(colorManager.orangeColor)
+                                .padding(.horizontal, 24)
+                            
+                            VStack(spacing: 0) {
+                                if availableDownloadModels.isEmpty {
+                                    HStack {
+                                        Text(NSLocalizedString("All Available Installed", comment: ""))
+                                            .font(.custom("IBMPlexMono", size: 16))
+                                            .foregroundColor(Color(hex: "#666666"))
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 4)
+                                    .padding(.vertical, 16)
+                                    Rectangle().fill(Color(hex: "#333333")).frame(height: 1)
+                                } else {
+                                    ForEach(availableDownloadModels, id: \.filename) { model in
+                                        AvailableDownloadModelView(
+                                            model: model,
+                                            isDownloading: downloadService.isDownloading(model.filename),
+                                            isQueued: downloadService.isQueued(model.filename),
+                                            downloadProgress: downloadService.getDownloadProgress(model.filename),
+                                            onDownload: {
+                                                if downloadService.isDownloading(model.filename) || downloadService.isQueued(model.filename) {
+                                                    downloadService.cancelDownload(model.filename)
+                                                } else {
+                                                    Task { try? await downloadService.downloadModel(model.filename) }
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                        }
+                        
+                        Spacer().frame(height: 30)
+                        
+                        Button(action: { showingUnusedModelsSheet = true }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "checklist")
+                                    .font(.system(size: 16))
+                                    .foregroundColor(colorManager.redColor)
+                                Text(NSLocalizedString("Manage Unused Models", comment: ""))
+                                    .font(.custom("IBMPlexMono", size: 16))
+                                    .foregroundColor(colorManager.redColor)
+                            }
+                        }
+                        .padding(.bottom, 12)
+                    }
+                }
+                .background(Color(hex: "#1D1D1D"))
             }
+            .background(Color(hex: "#1D1D1D"))
         }
-        .fullScreenCover(isPresented: $showingUnusedModelsSheet) {
+        .sheet(isPresented: $showingUnusedModelsSheet) {
             UnusedModelsSheet(
                 availableModels: modelManager.availableModels,
                 activeModel: modelManager.selectedModel?.filename ?? "",
                 selectedModels: $selectedUnusedModels,
                 onDelete: {
-                    // Delete selected unused models
                     Task {
-                        for modelFilename in selectedUnusedModels {
-                            if let model = modelManager.availableModels.first(where: { $0.filename == modelFilename }) {
-                                do {
-                                    try await modelManager.deleteModel(model)
-                                } catch {
-                                }
+                        for filename in selectedUnusedModels {
+                            if let model = modelManager.availableModels.first(where: { $0.filename == filename }) {
+                                try? await modelManager.deleteModel(model)
                             }
                         }
                         selectedUnusedModels.removeAll()
@@ -235,7 +175,7 @@ struct SettingsModelsView: View {
     }
     
     private var availableDownloadModels: [LLMModelInfo] {
-        return downloadService.getAvailableDownloadModels()
+        downloadService.getAvailableDownloadModels()
     }
     
     private var unusedModelsCount: Int {

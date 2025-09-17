@@ -253,11 +253,12 @@ struct TextModalView: View {
     private let viewIdentifier: String = "TextModalView_\(Date().timeIntervalSince1970)"
     
     
-    init(viewModel: MainViewModel, isPresented: Binding<Bool>, isSheetExpanded: Binding<Bool>? = nil, messageHistory: [ChatMessage]? = nil) {
+    init(viewModel: MainViewModel, isPresented: Binding<Bool>, isSheetExpanded: Binding<Bool>? = nil, messageHistory: [ChatMessage]? = nil, onShowModels: @escaping () -> Void) {
         self.viewModel = viewModel
         self._isPresented = isPresented
         self._isSheetExpanded = isSheetExpanded ?? .constant(false)
         self.messageHistory = messageHistory ?? []
+        self.onShowModels = onShowModels
         
         NSLog("TextModalView: Created with unique identifier: \(self.viewIdentifier)")
     }
@@ -268,7 +269,6 @@ struct TextModalView: View {
     @State private var messageText = ""
     @FocusState private var isTextFieldFocused: Bool
     @State private var showingDocumentPicker = false
-    @State private var showingModelsSheet = false
     @State private var isSendButtonPressed = false
 
     @State private var inputBarHeight: CGFloat = 0
@@ -292,6 +292,7 @@ struct TextModalView: View {
     @State private var hasAddedFollowUpQuestions = false
     var messageHistory: [ChatMessage]?
     @EnvironmentObject var colorManager: ColorManager
+    let onShowModels: () -> Void
     
     // MARK: - Computed Properties
     private var hasModelsInstalled: Bool {
@@ -639,9 +640,6 @@ struct TextModalView: View {
             isTextFieldFocused = false
             hideKeyboard()
         }
-        .fullScreenCover(isPresented: $showingModelsSheet) {
-            SettingsModelsView()
-        }
         .alert(NSLocalizedString("Error", comment: ""), isPresented: $showingError) {
             Button(NSLocalizedString("OK", comment: "")) { 
                 errorMessage = nil
@@ -883,9 +881,7 @@ struct TextModalView: View {
                 .foregroundColor(Color(hex: "#666666"))
                 .multilineTextAlignment(.center)
             
-            Button(action: {
-                showingModelsSheet = true
-            }) {
+            Button(action: onShowModels) {
                 Text(NSLocalizedString("Download Model", comment: ""))
                     .font(.custom("IBMPlexMono", size: 14))
                     .foregroundColor(Color(hex: "#141414"))
@@ -927,7 +923,7 @@ struct TextModalView: View {
             HStack(alignment: .center, spacing: 12) {
                 // Plus button with full-height background matching input bar
                 ZStack {
-                    Color(hex: "#2A2A2A")
+                    Color(hex: "#0f0f0f")
                     Button(action: {
                         showingDocumentPicker = true
                     }) {
@@ -1873,7 +1869,7 @@ private extension Array {
 // ------------ Preview ------------------------------------------------------
 
 #Preview {
-    TextModalView(viewModel: MainViewModel(), isPresented: .constant(true), messageHistory: [])
+    TextModalView(viewModel: MainViewModel(), isPresented: .constant(true), messageHistory: [], onShowModels: {})
         .preferredColorScheme(.dark)
 }
 

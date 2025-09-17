@@ -89,10 +89,11 @@ struct Control_LLMApp: App {
         let isFirstRun = FirstRunManager.shared.isFirstRun
         
         return WindowGroup {
-            if isFirstRun {
-                FirstRunSetupView()
-            } else {
-                BackgroundSecurityView {
+            BackgroundSecurityView {
+                if isFirstRun {
+                    FirstRunSetupView()
+                        .environmentObject(ColorManager.shared)
+                } else {
                     MainView()
                         .environmentObject(ColorManager.shared)
                         .onAppear {

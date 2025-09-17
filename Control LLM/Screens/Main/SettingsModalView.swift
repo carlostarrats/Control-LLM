@@ -120,22 +120,26 @@ struct SettingsModalView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .safeAreaInset(edge: .bottom) {
+                Color.clear.frame(height: 20)
+            }
         }
-        .safeAreaInset(edge: .bottom) {
-            Color.clear.frame(height: 20)
-        }
-    }
-        .fullScreenCover(isPresented: $showingModels) {
+        .sheet(isPresented: $showingModels) {
             SettingsModelsView()
+                .environmentObject(ColorManager.shared)
         }
-        .fullScreenCover(isPresented: $showingAppearance) {
+        .sheet(isPresented: $showingAppearance) {
             AppearanceView()
+                .environmentObject(ColorManager.shared)
         }
-        .fullScreenCover(isPresented: $showingFAQ) {
+        .sheet(isPresented: $showingFAQ) {
             FAQView()
+                .environmentObject(ColorManager.shared)
         }
-        .fullScreenCover(isPresented: $showingCredits) {
+        .sheet(isPresented: $showingCredits) {
             CreditsView()
+                .environmentObject(ColorManager.shared)
         }
     }
     

@@ -4,26 +4,9 @@ struct CreditsView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        ZStack {
-            // Background
-            Color(hex: "#1D1D1D")
-                .ignoresSafeArea()
-            
-            // Scrollable content
-            ScrollView {
-                VStack(spacing: 8) {
-                    // Credits list
-                    VStack(spacing: 0) {
-                        ForEach(creditsItems, id: \.title) { item in
-                            CreditsItemView(item: item)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                }
-                .padding(.bottom, 10)
-            }
-            .safeAreaInset(edge: .top) {
-                // Header
+        NavigationView {
+            VStack(spacing: 0) {
+                // Header with grabber
                 VStack(spacing: 0) {
                     // Enhanced grab bar with larger invisible touch area
                     RoundedRectangle(cornerRadius: 3)
@@ -77,10 +60,24 @@ struct CreditsView: View {
                     }
                     .padding(.bottom, 10)
                 }
-                .background(
-                    Color(hex: "#1D1D1D")
-                )
+                .background(Color(hex: "#1D1D1D"))
+                
+                // Scrollable content
+                ScrollView {
+                    VStack(spacing: 8) {
+                        // Credits list
+                        VStack(spacing: 0) {
+                            ForEach(creditsItems, id: \.title) { item in
+                                CreditsItemView(item: item)
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    .padding(.bottom, 10)
+                }
+                .background(Color(hex: "#1D1D1D"))
             }
+            .background(Color(hex: "#1D1D1D"))
         }
     }
     

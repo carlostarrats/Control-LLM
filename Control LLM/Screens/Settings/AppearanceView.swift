@@ -314,194 +314,9 @@ struct AppearanceView: View {
     }
     
     var body: some View {
-        ZStack {
-            // Background
-            Color(hex: "#1D1D1D")
-                .ignoresSafeArea()
-            
-            // Content
-            ScrollView {
-                VStack(spacing: 8) {
-                    // Control Unit Selection Section
-                    VStack(alignment: .leading, spacing: 20) {
-                        Text(NSLocalizedString("Control Unit Selection", comment: ""))
-                            .font(.custom("IBMPlexMono", size: 18))
-                            .foregroundColor(ColorManager.shared.whiteTextColor)
-                        
-                        // Visualizer tabs - same styling as other design system elements
-                        HStack(spacing: 0) {
-                            ForEach(VisualizerType.allCases, id: \.self) { tab in
-                                Button(action: {
-                                    // Change visual state immediately for instant feedback
-                                    visualizerState.selectedVisualizerType = tab
-                                    // Play light haptic feedback for immediate response
-                                    FeedbackService.shared.playHaptic(.light)
-                                }) {
-                                    HStack(spacing: 6) {
-                                        Image(systemName: tab.icon)
-                                            .font(.system(size: 14, weight: .medium))
-                                        Text(tab.displayName)
-                                            .font(.system(size: 14, weight: .medium))
-                                    }
-                                    .foregroundColor(visualizerState.selectedVisualizerType == tab ? ColorManager.shared.whiteTextColor : Color(hex: "#666666"))
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 4)
-                                            .fill(visualizerState.selectedVisualizerType == tab ? Color(hex: "#333333") : Color.clear)
-                                    )
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                            }
-                        }
-                        .background(Color(hex: "#1A1A1A"))
-                        .cornerRadius(4)
-                        
-                        // Descriptive text that changes based on selected tab
-                        Text(descriptiveText)
-                            .font(.custom("IBMPlexMono", size: 14))
-                            .foregroundColor(ColorManager.shared.greyTextColor)
-                            .multilineTextAlignment(.center)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.top, 16)
-                            .padding(.bottom, 8)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 11)
-                    
-                    // Extra spacing before Main UI Colors
-                    Spacer()
-                        .frame(height: 30)
-
-                    // Remove Control Unit Color editor and immediately continue to Main UI Colors
-                    
-                    // Main UI Colors Section
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(NSLocalizedString("Main UI Colors", comment: ""))
-                            .font(.custom("IBMPlexMono", size: 18))
-                            .foregroundColor(ColorManager.shared.whiteTextColor)
-                        
-                        Text(NSLocalizedString("These colors affect text and other UI elements, including the primary white text color and secondary grey text color.", comment: ""))
-                            .font(.custom("IBMPlexMono", size: 14))
-                            .foregroundColor(ColorManager.shared.greyTextColor)
-                            .multilineTextAlignment(.leading)
-                            .padding(.top, 8)
-                            .padding(.bottom, 16)
-
-                        // Forced gap before the first hex label
-                        Color.clear
-                            .frame(height: 16)
-
-                        VStack(spacing: 16) {
-                            HueSlider(
-                                title: appearanceManager.currentRedColor.hexString,
-                                hue: $appearanceManager.redColorHue,
-                                currentColor: appearanceManager.currentRedColor
-                            )
-                            .onChange(of: appearanceManager.redColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
-                            
-                            HueSlider(
-                                title: appearanceManager.currentOrangeColor.hexString,
-                                hue: $appearanceManager.orangeColorHue,
-                                currentColor: appearanceManager.currentOrangeColor
-                            )
-                            .onChange(of: appearanceManager.orangeColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
-                            
-                            HueSlider(
-                                title: appearanceManager.currentGreenColor.hexString,
-                                hue: $appearanceManager.greenColorHue,
-                                currentColor: appearanceManager.currentGreenColor
-                            )
-                            .onChange(of: appearanceManager.greenColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
-                            
-                            HueSlider(
-                                title: appearanceManager.currentPurpleColor.hexString,
-                                hue: $appearanceManager.purpleColorHue,
-                                currentColor: appearanceManager.currentPurpleColor
-                            )
-                            .onChange(of: appearanceManager.purpleColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
-                            
-                            HueSlider(
-                                title: appearanceManager.currentWhiteTextColor.hexString,
-                                hue: $appearanceManager.whiteTextColorHue,
-                                currentColor: appearanceManager.currentWhiteTextColor
-                            )
-                            .onChange(of: appearanceManager.whiteTextColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
-                            
-                            HueSlider(
-                                title: appearanceManager.currentGreyTextColor.hexString,
-                                hue: $appearanceManager.greyTextColorHue,
-                                currentColor: appearanceManager.currentGreyTextColor
-                            )
-                            .onChange(of: appearanceManager.greyTextColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 30)
-                    
-                    // Button Stack
-                    VStack(spacing: 12) {
-                        // Restore Defaults Button
-                        Button(action: {
-                            if !isAtDefaults {
-                                FeedbackService.shared.playHaptic(.light)
-                                // Prevent onChange handlers from re-activating Apply during reset
-                                suppressChangeTracking = true
-                                // Reset editor values to defaults
-                                appearanceManager.restoreDefaults()
-                                // Immediately apply defaults app-wide
-                                colorManager.refreshColors()
-                                // Clear change flags since we're now in a clean default state
-                                hasVisualizerChanges = false
-                                hasMainColorsChanges = false
-                                hasChanges = false
-                                // Re-enable change tracking after state settles
-                                DispatchQueue.main.async {
-                                    suppressChangeTracking = false
-                                }
-                            }
-                        }) {
-                            Text(NSLocalizedString("Restore Defaults", comment: ""))
-                                .font(.custom("IBMPlexMono", size: 16))
-                                .foregroundColor(isAtDefaults ? Color(hex: "#888888") : ColorManager.shared.greenColor)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(Color(hex: "#2A2A2A"))
-                                .cornerRadius(4)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .disabled(isAtDefaults)
-                        
-                        // Apply Changes Button
-                        Button(action: {
-                            FeedbackService.shared.playHaptic(.light)
-                            // Save current state as committed
-                            appearanceManager.commitCurrentState()
-                            // Apply changes by refreshing the ColorManager
-                            colorManager.refreshColors()
-                            hasVisualizerChanges = false
-                            hasMainColorsChanges = false
-                            hasChanges = false
-                            dismiss()
-                        }) {
-                            Text(NSLocalizedString("Apply Changes", comment: ""))
-                                .font(.custom("IBMPlexMono", size: 16))
-                                .foregroundColor(hasChanges ? ColorManager.shared.greenColor : Color(hex: "#888888"))
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(Color(hex: "#2A2A2A"))
-                                .cornerRadius(4)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .disabled(!hasChanges)
-                        .animation(.easeInOut(duration: 0.3), value: hasChanges)
-                    }
-                    .padding(.horizontal, 20)
-                }
-                .padding(.bottom, 40)
-            }
-            .safeAreaInset(edge: .top) {
-                // Header
+        NavigationView {
+            VStack(spacing: 0) {
+                // Header with grabber
                 VStack(spacing: 0) {
                     // Enhanced grab bar with larger invisible touch area
                     RoundedRectangle(cornerRadius: 3)
@@ -568,7 +383,191 @@ struct AppearanceView: View {
                     .padding(.bottom, 10)
                 }
                 .background(Color(hex: "#1D1D1D"))
+                
+                // Content
+                ScrollView {
+                    VStack(spacing: 8) {
+                        // Control Unit Selection Section
+                        VStack(alignment: .leading, spacing: 20) {
+                            Text(NSLocalizedString("Control Unit Selection", comment: ""))
+                                .font(.custom("IBMPlexMono", size: 18))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
+                            
+                            // Visualizer tabs - same styling as other design system elements
+                            HStack(spacing: 0) {
+                                ForEach(VisualizerType.allCases, id: \.self) { tab in
+                                    Button(action: {
+                                        // Change visual state immediately for instant feedback
+                                        visualizerState.selectedVisualizerType = tab
+                                        // Play light haptic feedback for immediate response
+                                        FeedbackService.shared.playHaptic(.light)
+                                    }) {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: tab.icon)
+                                                .font(.system(size: 14, weight: .medium))
+                                            Text(tab.displayName)
+                                                .font(.system(size: 14, weight: .medium))
+                                        }
+                                        .foregroundColor(visualizerState.selectedVisualizerType == tab ? ColorManager.shared.whiteTextColor : Color(hex: "#666666"))
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 12)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 4)
+                                                .fill(visualizerState.selectedVisualizerType == tab ? Color(hex: "#333333") : Color.clear)
+                                        )
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+                            }
+                            .background(Color(hex: "#1A1A1A"))
+                            .cornerRadius(4)
+                            
+                            // Descriptive text that changes based on selected tab
+                            Text(descriptiveText)
+                                .font(.custom("IBMPlexMono", size: 14))
+                                .foregroundColor(ColorManager.shared.greyTextColor)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding(.top, 16)
+                                .padding(.bottom, 8)
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 11)
+                        
+                        // Extra spacing before Main UI Colors
+                        Spacer()
+                            .frame(height: 30)
+
+                        // Remove Control Unit Color editor and immediately continue to Main UI Colors
+                        
+                        // Main UI Colors Section
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text(NSLocalizedString("Main UI Colors", comment: ""))
+                                .font(.custom("IBMPlexMono", size: 18))
+                                .foregroundColor(ColorManager.shared.whiteTextColor)
+                            
+                            Text(NSLocalizedString("These colors affect text and other UI elements, including the primary white text color and secondary grey text color.", comment: ""))
+                                .font(.custom("IBMPlexMono", size: 14))
+                                .foregroundColor(ColorManager.shared.greyTextColor)
+                                .multilineTextAlignment(.leading)
+                                .padding(.top, 8)
+                                .padding(.bottom, 16)
+
+                            // Forced gap before the first hex label
+                            Color.clear
+                                .frame(height: 16)
+
+                            VStack(spacing: 16) {
+                                HueSlider(
+                                    title: appearanceManager.currentRedColor.hexString,
+                                    hue: $appearanceManager.redColorHue,
+                                    currentColor: appearanceManager.currentRedColor
+                                )
+                                .onChange(of: appearanceManager.redColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
+                                
+                                HueSlider(
+                                    title: appearanceManager.currentOrangeColor.hexString,
+                                    hue: $appearanceManager.orangeColorHue,
+                                    currentColor: appearanceManager.currentOrangeColor
+                                )
+                                .onChange(of: appearanceManager.orangeColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
+                                
+                                HueSlider(
+                                    title: appearanceManager.currentGreenColor.hexString,
+                                    hue: $appearanceManager.greenColorHue,
+                                    currentColor: appearanceManager.currentGreenColor
+                                )
+                                .onChange(of: appearanceManager.greenColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
+                                
+                                HueSlider(
+                                    title: appearanceManager.currentPurpleColor.hexString,
+                                    hue: $appearanceManager.purpleColorHue,
+                                    currentColor: appearanceManager.currentPurpleColor
+                                )
+                                .onChange(of: appearanceManager.purpleColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
+                                
+                                HueSlider(
+                                    title: appearanceManager.currentWhiteTextColor.hexString,
+                                    hue: $appearanceManager.whiteTextColorHue,
+                                    currentColor: appearanceManager.currentWhiteTextColor
+                                )
+                                .onChange(of: appearanceManager.whiteTextColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
+                                
+                                HueSlider(
+                                    title: appearanceManager.currentGreyTextColor.hexString,
+                                    hue: $appearanceManager.greyTextColorHue,
+                                    currentColor: appearanceManager.currentGreyTextColor
+                                )
+                                .onChange(of: appearanceManager.greyTextColorHue) { _, _ in if !suppressChangeTracking { hasMainColorsChanges = true; hasChanges = true } }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 30)
+                        
+                        // Button Stack
+                        VStack(spacing: 12) {
+                            // Restore Defaults Button
+                            Button(action: {
+                                if !isAtDefaults {
+                                    FeedbackService.shared.playHaptic(.light)
+                                    // Prevent onChange handlers from re-activating Apply during reset
+                                    suppressChangeTracking = true
+                                    // Reset editor values to defaults
+                                    appearanceManager.restoreDefaults()
+                                    // Immediately apply defaults app-wide
+                                    colorManager.refreshColors()
+                                    // Clear change flags since we're now in a clean default state
+                                    hasVisualizerChanges = false
+                                    hasMainColorsChanges = false
+                                    hasChanges = false
+                                    // Re-enable change tracking after state settles
+                                    DispatchQueue.main.async {
+                                        suppressChangeTracking = false
+                                    }
+                                }
+                            }) {
+                                Text(NSLocalizedString("Restore Defaults", comment: ""))
+                                    .font(.custom("IBMPlexMono", size: 16))
+                                    .foregroundColor(isAtDefaults ? Color(hex: "#888888") : ColorManager.shared.greenColor)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 16)
+                                    .background(Color(hex: "#2A2A2A"))
+                                    .cornerRadius(4)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .disabled(isAtDefaults)
+                            
+                            // Apply Changes Button
+                            Button(action: {
+                                FeedbackService.shared.playHaptic(.light)
+                                // Save current state as committed
+                                appearanceManager.commitCurrentState()
+                                // Apply changes by refreshing the ColorManager
+                                colorManager.refreshColors()
+                                hasVisualizerChanges = false
+                                hasMainColorsChanges = false
+                                hasChanges = false
+                                dismiss()
+                            }) {
+                                Text(NSLocalizedString("Apply Changes", comment: ""))
+                                    .font(.custom("IBMPlexMono", size: 16))
+                                    .foregroundColor(hasChanges ? ColorManager.shared.greenColor : Color(hex: "#888888"))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 16)
+                                    .background(Color(hex: "#2A2A2A"))
+                                    .cornerRadius(4)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .disabled(!hasChanges)
+                            .animation(.easeInOut(duration: 0.3), value: hasChanges)
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    .padding(.bottom, 40)
+                }
+                .background(Color(hex: "#1D1D1D"))
             }
+            .background(Color(hex: "#1D1D1D"))
         }
     }
 }

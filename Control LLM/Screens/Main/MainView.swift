@@ -70,6 +70,7 @@ struct MainView: View {
     @State private var showingSettingsSheet = true
     @State private var isSheetExpanded = false
     @State private var isSettingsSheetExpanded = false
+    @State private var showingModelsSheetFromChat = false
 
     // MARK: - Private Functions
     private func updateWindowBackgroundColor() {
@@ -109,7 +110,10 @@ struct MainView: View {
                 viewModel: viewModel,
                 isPresented: $showingChatSheet,
                 isSheetExpanded: $isSheetExpanded,
-                messageHistory: []
+                messageHistory: [],
+                onShowModels: {
+                    showingModelsSheetFromChat = true
+                }
             )
             .background(
                 LinearGradient(
@@ -235,6 +239,10 @@ struct MainView: View {
 
                 // Page navigation removed - settings now handled by sheet
                 
+            }
+            .sheet(isPresented: $showingModelsSheetFromChat) {
+                SettingsModelsView()
+                    .environmentObject(colorManager)
             }
         .background(
             LinearGradient(

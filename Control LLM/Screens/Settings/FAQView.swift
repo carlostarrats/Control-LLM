@@ -4,22 +4,9 @@ struct FAQView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        ZStack {
-            Color(hex: "#1D1D1D")
-                .ignoresSafeArea()
-
-            ScrollView {
-                VStack(spacing: 8) {
-                    VStack(spacing: 0) {
-                        ForEach(faqItems, id: \.question) { item in
-                            FAQItemView(item: item)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                }
-                .padding(.bottom, 10)
-            }
-            .safeAreaInset(edge: .top) {
+        NavigationView {
+            VStack(spacing: 0) {
+                // Header with grabber
                 VStack(spacing: 0) {
                     // Enhanced grab bar with larger invisible touch area
                     RoundedRectangle(cornerRadius: 3)
@@ -70,10 +57,23 @@ struct FAQView: View {
                     }
                     .padding(.bottom, 10)
                 }
-                .background(
-                    Color(hex: "#1D1D1D")
-                )
+                .background(Color(hex: "#1D1D1D"))
+                
+                // Scrollable content
+                ScrollView {
+                    VStack(spacing: 8) {
+                        VStack(spacing: 0) {
+                            ForEach(faqItems, id: \.question) { item in
+                                FAQItemView(item: item)
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    .padding(.bottom, 10)
+                }
+                .background(Color(hex: "#1D1D1D"))
             }
+            .background(Color(hex: "#1D1D1D"))
         }
     }
 
