@@ -10,7 +10,6 @@ Control LLM is a text-only LLM interaction app for iOS. This privacy policy expl
 
 ### Data You Provide
 - **Text inputs**: Messages and prompts you send to the LLM
-- **System prompts**: Custom instructions you configure
 - **App preferences**: Settings and configurations you choose
 
 ### Data We Do NOT Collect
@@ -36,7 +35,7 @@ Control LLM is a text-only LLM interaction app for iOS. This privacy policy expl
 ## Third-Party Services
 
 ### LLM Models
-- The app supports various LLM models (Ollama, local models)
+- The app supports various LLM models
 - These models process your text locally on your device
 - We do not control how these models handle your data
 
@@ -56,7 +55,6 @@ Control LLM is a text-only LLM interaction app for iOS. This privacy policy expl
 
 - **Access**: All your data is stored locally on your device
 - **Deletion**: Delete all data by uninstalling the app
-- **Portability**: Export your data through the app's built-in features
 - **Correction**: Modify your data directly in the app
 
 ## Children's Privacy
@@ -77,4 +75,4 @@ This app is open source and available under the Apache License 2.0. You can revi
 
 ---
 
-**Control LLM** - Your privacy-focused LLM companion
+**Control LLM**
